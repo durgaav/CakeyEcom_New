@@ -88,10 +88,10 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             margin: EdgeInsets.all(15),
-                            content: Text('Enter Correct Number!',style: TextStyle(
+                            content: Text('Enter Correct Number!',textAlign: TextAlign.center,style: TextStyle(
                               color: Colors.white,fontWeight: FontWeight.bold
                             ),),
-                            backgroundColor: Colors.pinkAccent[200],
+                            backgroundColor: Colors.deepPurpleAccent[400],
                             behavior: SnackBarBehavior.floating,
                           ),
                       );
