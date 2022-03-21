@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 //Phone Verify screen.....
+//For Login
 class PhoneVerify extends StatefulWidget {
   const PhoneVerify({Key? key}) : super(key: key);
 

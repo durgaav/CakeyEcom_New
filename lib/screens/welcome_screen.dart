@@ -30,8 +30,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: SafeArea(
         child: Container(
           child:
-          // Stack(
-          //   children: [
               PageView.builder(
                controller: controll,
                 itemCount:3,
@@ -86,7 +84,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ],
                         ),
                         Container(
-                          margin: EdgeInsets.only(top:40),
+                          margin: EdgeInsets.only(top:20),
                           child: index !=2 ?Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -107,14 +105,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         controll.jumpToPage(2);
                                       }
                                     });
-                                  }, icon: Icon(Icons.navigate_next),color: Colors.white,iconSize: 40,)
+                                  }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
                               ),
                               SizedBox(width: 30,),
                             ],
                           )
                               :Container(
-                            width:160,
-                              height:50,
+                               width:160,
+                               height:50,
                                 child: RaisedButton(
                                   color:Colors.lightGreen,
                                   shape: RoundedRectangleBorder(
@@ -128,8 +126,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   );
                 },)
-          //   ],
-          // ),
         ),
       )
     );
