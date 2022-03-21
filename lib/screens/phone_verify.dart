@@ -22,15 +22,39 @@ class _PhoneVerifyState extends State<PhoneVerify> {
         child: Container(
           padding: EdgeInsets.only(bottom: 20),
           width: double.infinity,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 20,),
-                Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-                Image(
-                  height: 230,
-                  image: AssetImage("assets/images/phone.png"),
+// <<<<<<< master
+//           child: SingleChildScrollView(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.center,
+//               children: [
+//                 SizedBox(height: 20,),
+//                 Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+//                 Image(
+//                   height: 230,
+//                   image: AssetImage("assets/images/phone.png"),
+// =======
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             children: [
+//               SizedBox(height: 20,),
+//               Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+//               Image(
+//                 height: 200,
+//                 width: 200,
+//                 image: AssetImage("assets/images/phoneverify.png"),
+//               ),
+//               Text("You'll receive a 4 digit code to \nverify next",textAlign: TextAlign.center,),
+//               SizedBox(height: 30,),
+//               Container(
+//                 margin: EdgeInsets.only(left: 15,right: 15),
+//                 child: TextField(
+//                   keyboardType: TextInputType.phone,
+//                   decoration: InputDecoration(
+//                     label: Text(''),
+//                     hintText: 'Phone Number',
+//                     prefixIcon: Icon(CupertinoIcons.phone_circle , color: Colors.black,size: 35,)
+//                   ),
+// >>>>>>> master
                 ),
                 Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,),
                 SizedBox(height: 35,),
