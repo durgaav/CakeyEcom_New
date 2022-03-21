@@ -1,9 +1,13 @@
 import 'package:cakey/screens/phone_verify.dart';
 import 'package:cakey/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main(){
   runApp(MyApp());
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.white, // status bar color
+  ));
 }
 
 class MyApp extends StatelessWidget {
