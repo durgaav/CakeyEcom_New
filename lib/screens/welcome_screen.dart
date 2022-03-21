@@ -29,16 +29,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          child:
-          // Stack(
-          //   children: [
-              PageView.builder(
+          child: PageView.builder(
                controller: controll,
                 itemCount:3,
                 itemBuilder: (context, index){
                   currentindex=index;
-                  return Center(
-                    child: Column(
+                  return Column(
                       children: [
                           Container(
                             margin:EdgeInsets.only(top:60),
@@ -51,7 +47,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           child: Text('${desc[index]}',style: TextStyle(fontSize: 15,letterSpacing: 1,),
                           textAlign:TextAlign.center),
                         ),
-
                         Container(
                           width:300,
                           height:250,
@@ -86,7 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ],
                         ),
                         Container(
-                          margin: EdgeInsets.only(top:40),
+                          margin: EdgeInsets.only(top:20,),
                           child: index !=2 ?Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -125,8 +120,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               )
                         )
                       ],
-                    ),
-                  );
+                    );
                 },)
           //   ],
           // ),
