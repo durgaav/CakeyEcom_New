@@ -29,10 +29,15 @@ class _PhoneVerifyState extends State<PhoneVerify> {
               ),
               Text("You'll receive a 4 digit code to \nverify next",textAlign: TextAlign.center,),
               SizedBox(height: 30,),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Phone Number',
-                  prefixIcon: Icon(CupertinoIcons.phone_circle , color: Colors.black,size: 35,)
+              Container(
+                margin: EdgeInsets.only(left: 15,right: 15),
+                child: TextField(
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    label: Text(''),
+                    hintText: 'Phone Number',
+                    prefixIcon: Icon(CupertinoIcons.phone_circle , color: Colors.black,size: 35,)
+                  ),
                 ),
               ),
             ],
