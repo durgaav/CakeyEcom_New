@@ -29,7 +29,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          child: PageView.builder(
+// <<<<<<< master
+//         child: PageView.builder(
+=======
+          child:
+              PageView.builder(
+// >>>>>>> master
                controller: controll,
                 itemCount:3,
                 itemBuilder: (context, index){
@@ -81,7 +86,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ],
                         ),
                         Container(
-                          margin: EdgeInsets.only(top:20,),
+// <<<<<<< master
+//                           margin: EdgeInsets.only(top:20,),
+=======
+                          margin: EdgeInsets.only(top:20),
+// >>>>>>> master
                           child: index !=2 ?Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -102,14 +111,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         controll.jumpToPage(2);
                                       }
                                     });
-                                  }, icon: Icon(Icons.navigate_next),color: Colors.white,iconSize: 40,)
+                                  }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
                               ),
                               SizedBox(width: 30,),
                             ],
                           )
                               :Container(
-                            width:160,
-                              height:50,
+                               width:160,
+                               height:50,
                                 child: RaisedButton(
                                   color:Colors.lightGreen,
                                   shape: RoundedRectangleBorder(
@@ -122,8 +131,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ],
                     );
                 },)
-          //   ],
-          // ),
         ),
       )
     );
