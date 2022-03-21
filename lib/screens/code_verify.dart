@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-//Phone Verify screen.....
+//Code Verify screen.....
 class CodeVerify extends StatefulWidget {
   String phonenumber = '';
   CodeVerify({required this.phonenumber});
