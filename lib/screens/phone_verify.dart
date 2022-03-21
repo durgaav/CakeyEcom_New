@@ -12,9 +12,16 @@ class _PhoneVerifyState extends State<PhoneVerify> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Phone Verify screen'),
-      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Text('LOGIN'),
+            Image(
+              image: AssetImage("assets/images/phoneverify.png"),
+            )
+          ],
+        ),
+      )
     );
   }
 }

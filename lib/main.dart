@@ -1,3 +1,4 @@
+import 'package:cakey/screens/phone_verify.dart';
 import 'package:cakey/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WelcomeScreen(),
+      home: PhoneVerify(),
     );
   }
 }
