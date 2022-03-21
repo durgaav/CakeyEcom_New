@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Welcome screen (Page View).....
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
 
