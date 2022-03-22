@@ -29,12 +29,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-// <<<<<<< master
-//         child: PageView.builder(
-=======
           child:
               PageView.builder(
-// >>>>>>> master
                controller: controll,
                 itemCount:3,
                 itemBuilder: (context, index){
@@ -86,11 +82,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ],
                         ),
                         Container(
-// <<<<<<< master
-//                           margin: EdgeInsets.only(top:20,),
-=======
                           margin: EdgeInsets.only(top:20),
-// >>>>>>> master
                           child: index !=2 ?Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
