@@ -24,6 +24,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Alerts
 
+    //Default loader dialog
+  void showAlertDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
     //Filter Bottomsheet
     void showFilterBottom(){
      showModalBottomSheet(
@@ -501,8 +530,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         children: [
                                                           Container(
                                                             width:170,
-                                                            child: Text('Surya prakash hhh',overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18,fontFamily: poppins
+                                                            child: Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16,fontFamily: poppins
                                                             ),),
                                                           ),
                                                           Row(

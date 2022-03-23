@@ -107,7 +107,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         TextButton(onPressed: (){
-                                          // Navigator.pop(context);
+                                          Navigator.pop(context);
                                           Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
                                         }, child: Text('SKIP',style: TextStyle(fontSize: 21),)),
                                         Container(

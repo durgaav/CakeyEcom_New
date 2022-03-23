@@ -80,6 +80,8 @@ class _CodeVerifyState extends State<CodeVerify> {
       final signIn = await _auth.signInWithCredential(phoneAuthCredential);
       if(signIn.user!=null){
         Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Logged in successfull"),

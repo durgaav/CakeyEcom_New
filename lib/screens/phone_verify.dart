@@ -34,7 +34,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                     height: 230,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: Svg("assets/images/phone.svg"),
+                        image: AssetImage("assets/images/phone.png"),
                       )
                     ),
                   ),
