@@ -37,7 +37,7 @@ dependencies:
   pin_code_fields:
   flutter_svg_provider: ^1.0.3
   flutter_rating_bar: ^4.0.0
-  firebase_core: ^1.13.1
+  firebase_core: ^1.10.0
   firebase_auth: ^3.3.5
 
 dev_dependencies:
