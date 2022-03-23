@@ -21,10 +21,12 @@ class _CodeVerifyState extends State<CodeVerify> {
   String length = "";
   String verificationId = "";
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  Color lightPink = Color(0xffFE8416D);
 
   //region Sending code to number......
 
   Future<void> verifyPhoneCode() async{
+    showAlertDialog();
     await _auth.verifyPhoneNumber(
         phoneNumber: phonenumber,
         verificationCompleted: _onVerificationCompleted,
@@ -34,12 +36,15 @@ class _CodeVerifyState extends State<CodeVerify> {
     );
   }
   _onVerificationCompleted(PhoneAuthCredential authCredential) async {
+    Navigator.pop(context);
     await _auth.signInWithCredential(authCredential);
   }
 
   _onVerificationFailed(FirebaseAuthException exception) {
     print(exception);
+    Navigator.pop(context);
     if (exception.code == 'invalid-phone-number') {
+      Navigator.pop(context);
       print("The phone number entered is invalid!");
     }
   }
@@ -48,29 +53,34 @@ class _CodeVerifyState extends State<CodeVerify> {
     setState(() {
       verificationId = verificationID;
     });
-
     print(forceResendingToken);
+    Navigator.pop(context);
     print("code sent");
   }
 
   _onCodeTimeout(String timeout) {
+    Navigator.pop(context);
     print(timeout);
     return null;
   }
  //endregion
 
   Future<void> verify() async{
+    showAlertDialog();
     try{
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: otpControl.text.toString()
       );
       final signIn = await _auth.signInWithCredential(phoneAuthCredential);
       if(signIn.user!=null){
+        Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
       }else{
+        Navigator.pop(context);
         print('auth failed...');
       }
     }on FirebaseAuthException catch(e){
+      Navigator.pop(context);
       print(e);
     }
   }
@@ -81,12 +91,20 @@ class _CodeVerifyState extends State<CodeVerify> {
         builder: (context){
           return AlertDialog(
             content: Container(
-              height: 80,
+              height: 75,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
                   SizedBox(height: 13,),
-                  Text('Please wait...')
+                  Text('Please Wait...',style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                  ),)
                 ],
               ),
             ),
