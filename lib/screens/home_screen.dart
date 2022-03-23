@@ -1,3 +1,4 @@
+import 'package:cakey/screens/cktypes_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -14,8 +15,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
-
   bool egglesSwitch = true;
+
+  //region Alerts
+
+    //Filter Bottomsheet
+    void showFilterBottom(){
+     showModalBottomSheet(
+         context: context, builder: (context){
+           return Container(
+             height: 250,
+           );
+         }
+     );
+    }
+
+
+
+  //endregion
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               //Location and search....
               Container(
-                padding: EdgeInsets.all(15),
+                padding: EdgeInsets.only(left:10,top: 15),
                 color: lightGrey,
                 child: Column(
                   children: [
@@ -131,19 +149,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.only(left: 13),
+                      padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
                       child: Text('Thekkalur',style:TextStyle(fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 15),
+                      padding: EdgeInsets.only(right: 10),
                       alignment: Alignment.center,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: 270,
+                            width: 280,
                             height: 50,
                             child: TextField(
                               decoration: InputDecoration(
@@ -167,6 +186,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 splashColor: Colors.black26,
                                 onPressed:(){
                                   print('hii');
+                                  FocusScope.of(context).unfocus();
+                                  showFilterBottom();
                                 },
                                 icon: Icon(Icons.tune,color:Colors.white,)
                             ),
@@ -178,17 +199,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Container(
+                color: lightGrey,
                 height: MediaQuery.of(context).size.height*0.7,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
                       //List views and orders...
                       Container(
-                        height: 510,
+                        height: 530,
                         decoration: const BoxDecoration(
                             image: DecorationImage(
                                 image:Svg('assets/images/splash.svg'),
-                                fit: BoxFit.cover
+                                fit: BoxFit.cover,
+                                // colorFilter:ColorFilter.mode(Colors.white70,BlendMode.darken)
                             ),
                         ),
                         child: Column(
@@ -213,8 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            Card(
-                              child: Container(
+                            Container(
                                 height:175,
                                 child: ListView.builder(
                                     shrinkWrap: true,
@@ -223,28 +245,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                     itemBuilder: (context , index){
                                       return Container(
                                         width: 150,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 120,
-                                              width: 130,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  border: Border.all(color: Colors.white,width: 2),
-                                                  image: DecorationImage(
-                                                      image: NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'),
-                                                      fit: BoxFit.cover
-                                                  )
+                                        child: InkWell(
+                                          onTap: (){
+                                            FocusScope.of(context).unfocus();
+                                            Navigator.push(context, MaterialPageRoute(
+                                                builder: (context)=>CktypesScreen()
+                                            ));
+                                          },
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                height: 120,
+                                                width: 130,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    border: Border.all(color: Colors.white,width: 2),
+                                                    image: DecorationImage(
+                                                        image: NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'),
+                                                        fit: BoxFit.cover
+                                                    )
+                                                ),
                                               ),
-                                            ),
-                                            Text("Cake name",style:TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
-                                              textAlign: TextAlign.center,)
-                                          ],
+                                              Text("Cake name",style:TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
+                                                textAlign: TextAlign.center,)
+                                            ],
+                                          ),
                                         ),
                                       );
                                     }
                                 ),
                               ),
+                            Container(
+                              height: 0.5,
+                              width: double.infinity,
+                              margin: EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
                             ),
                             Container(
                                 padding: EdgeInsets.all(10),
@@ -266,8 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         alignment: Alignment.topCenter,
                                         children: [
                                           Container(
-                                            height:130,
-                                            width: 170,
+                                            height:140,
+                                            width: 200,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(15),
                                                 image: DecorationImage(
@@ -277,12 +312,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                           Positioned(
-                                            top: 75,
+                                            top: 100,
                                             child: Card(
                                               elevation: 7,
                                               child: Container(
-                                                padding: EdgeInsets.all(4),
-                                                width: 150,
+                                                padding: EdgeInsets.all(8),
+                                                width: 190,
                                                 height: 100,
                                                 child: Column(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -299,16 +334,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Row(
                                                       children: [
                                                         CircleAvatar(
-                                                          radius:16,
+                                                          radius:14,
                                                           child: Icon(Icons.account_circle),
                                                         ),
                                                         Container(
                                                           width: 105,
-                                                            child: Text(' Surya prakash hhh',style: TextStyle(color: Colors.black54),maxLines: 1,))
+                                                            child: Text(' Surya prakash hhh',overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.black54),maxLines: 1,))
                                                       ],
                                                     ),
                                                     Container(
-                                                      height: 1,
+                                                      height: 0.5,
                                                       color: Colors.black54,
                                                       margin: EdgeInsets.only(left: 5,right: 5),
                                                     ),
@@ -362,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Column(
                         children: [
                           Container(
-                            padding: EdgeInsets.only(left: 15,right: 15),
+                            padding: EdgeInsets.only(left: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -383,17 +418,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // ),
                                 Row(
                                     children: [
-                                      Text('Eggless ',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),),
-                                      CupertinoSwitch(
-                                        value: egglesSwitch,
-                                        onChanged: (bool? val){
-                                          setState(() {
-                                            egglesSwitch = val!;
-                                            
-                                          });
-                                        },
-                                        activeColor: Colors.green,
-                                      )
+                                      Transform.scale(
+                                        scale: 0.7,
+                                        child: CupertinoSwitch(
+                                          value: egglesSwitch,
+                                          onChanged: (bool? val){
+                                            setState(() {
+                                              egglesSwitch = val!;
+                                            });
+                                          },
+                                          activeColor: Colors.green,
+                                        ),
+                                      ),
+                                      Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                               ],
@@ -406,11 +443,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 physics: NeverScrollableScrollPhysics(),
                                 itemBuilder: (context,index){
                                   return Card(
+                                    margin: EdgeInsets.only(left: 10,right: 10,top: 10),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(15)
                                     ),
                                     child: Container(
-                                      margin: EdgeInsets.all(5),
+                                      // margin: EdgeInsets.all(5),
                                       padding: EdgeInsets.all(6),
                                       height: 130,
                                       decoration: BoxDecoration(
@@ -435,45 +473,57 @@ class _HomeScreenState extends State<HomeScreen> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
-                                                Text('Surya prakash',style: TextStyle(
-                                                    color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18
-                                                ),),
                                                 Row(
                                                   children: [
-                                                    RatingBar.builder(
-                                                        initialRating: 4.1,
-                                                        minRating: 1,
-                                                        direction: Axis.horizontal,
-                                                        allowHalfRating: true,
-                                                        itemCount: 5,
-                                                        itemSize: 18,
-                                                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                        itemBuilder: (context, _) => Icon(
-                                                          Icons.star,
-                                                          color: Colors.amber,
+                                                    Column(
+                                                      children: [
+                                                        Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18
+                                                        ),),
+                                                        Row(
+                                                          children: [
+                                                            RatingBar.builder(
+                                                              initialRating: 4.1,
+                                                              minRating: 1,
+                                                              direction: Axis.horizontal,
+                                                              allowHalfRating: true,
+                                                              itemCount: 5,
+                                                              itemSize: 18,
+                                                              itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                              itemBuilder: (context, _) => Icon(
+                                                                Icons.star,
+                                                                color: Colors.amber,
+                                                              ),
+                                                              onRatingUpdate: (rating) {
+                                                                print(rating);
+                                                              },
+                                                            ),
+                                                            Text(' 4.5',style: TextStyle(
+                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
+                                                            ),)
+                                                          ],
                                                         ),
-                                                        onRatingUpdate: (rating) {
-                                                          print(rating);
-                                                        },
-                                                      ),
-                                                    Text(' 4.5',style: TextStyle(
-                                                        color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
-                                                    ),)
+                                                      ],
+                                                    ),
+                                                    IconButton(
+                                                        onPressed: (){},
+                                                        icon: Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                                    )
                                                   ],
                                                 ),
                                                 Container(
-                                                  width: 220,
-                                                  child: Text("Special velvet chocolate cake",style: TextStyle(
+                                                  width: 210,
+                                                  child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
                                                       color: Colors.black54
                                                   ),maxLines: 1,),
                                                 ),
                                                 Container(
                                                   height: 1,
-                                                  width: 220,
+                                                  width: 210,
                                                   color: Colors.black26,
                                                 ),
                                                 Container(
-                                                  width: 220,
+                                                  width: 210,
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
