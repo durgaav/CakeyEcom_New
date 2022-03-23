@@ -193,11 +193,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.only(right: 10),
                       alignment: Alignment.center,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: 280,
+                            width: MediaQuery.of(context).size.width*0.79,
                             height: 50,
                             child: TextField(
                               decoration: InputDecoration(
@@ -211,8 +211,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
+                          SizedBox(width: 5,),
                           Container(
-                            width: 50,
+                            width: MediaQuery.of(context).size.width*0.13,
                             height: 50,
                             decoration: BoxDecoration(
                               color: lightPink,
@@ -221,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child:IconButton(
                                 splashColor: Colors.black26,
                                 onPressed:(){
-                                  print('hii');
+                                  print(MediaQuery.of(context).size.width*0.79);
                                   FocusScope.of(context).unfocus();
                                   showFilterBottom();
                                 },
