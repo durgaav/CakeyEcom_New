@@ -2,6 +2,7 @@ import 'package:cakey/screens/code_verify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 
 //Phone Verify screen.....
 //For Login
@@ -29,9 +30,13 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                 children: [
                   SizedBox(height: 20,),
                   Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-                  Image(
+                  Container(
                     height: 230,
-                    image: AssetImage("assets/images/phone.png"),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: Svg("assets/images/phone.svg"),
+                      )
+                    ),
                   ),
                   Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,),
                   SizedBox(height: 35,),

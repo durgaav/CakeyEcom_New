@@ -1,4 +1,6 @@
 import 'package:cakey/screens/cktypes_screen.dart';
+import 'package:cakey/screens/welcome_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -18,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool egglesSwitch = true;
   String poppins = "Poppins";
 
+  User authUser = FirebaseAuth.instance.currentUser!;
+
   //region Alerts
 
     //Filter Bottomsheet
@@ -30,8 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
          }
      );
     }
-
-
 
   //endregion
 
@@ -117,6 +119,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: InkWell(
                 onTap: (){
                   print('hello surya....');
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
                 },
                 child: CircleAvatar(
                   radius: 17.5,

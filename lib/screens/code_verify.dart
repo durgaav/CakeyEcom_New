@@ -55,6 +55,12 @@ class _CodeVerifyState extends State<CodeVerify> {
     });
     print(forceResendingToken);
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text("Code sent to $phonenumber"),
+          backgroundColor: Colors.green,
+      )
+    );
     print("code sent");
   }
 
@@ -74,6 +80,12 @@ class _CodeVerifyState extends State<CodeVerify> {
       final signIn = await _auth.signInWithCredential(phoneAuthCredential);
       if(signIn.user!=null){
         Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Logged in successfull"),
+              backgroundColor: Colors.green,
+            )
+        );
         Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
       }else{
         Navigator.pop(context);
@@ -146,11 +158,6 @@ class _CodeVerifyState extends State<CodeVerify> {
                         length: 6,
                         controller: otpControl,
                         onChanged:(String? changed){
-                          if(changed!.length==6){
-                            setState(() {
-                              verifyPhoneCode();
-                            });
-                          }
                         },
                         pinTheme: PinTheme(
                           inactiveColor: Colors.black54,
@@ -176,8 +183,8 @@ class _CodeVerifyState extends State<CodeVerify> {
                     width: 175,
                     child: RaisedButton(onPressed:() async{
                       FocusScope.of(context).unfocus();
-                      showAlertDialog();
-                      // verify();
+                      // showAlertDialog();
+                      verify();
                     },
                       child:Text("DONE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                       shape: RoundedRectangleBorder(
