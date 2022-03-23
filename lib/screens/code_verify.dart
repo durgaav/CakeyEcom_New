@@ -1,3 +1,5 @@
+import 'package:cakey/screens/home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -11,10 +13,97 @@ class CodeVerify extends StatefulWidget {
 }
 
 class _CodeVerifyState extends State<CodeVerify> {
+
   String phonenumber = '';
   _CodeVerifyState({required this.phonenumber});
+
   TextEditingController otpControl = new TextEditingController();
   String length = "";
+  String verificationId = "";
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  //region Sending code to number......
+
+  Future<void> verifyPhoneCode() async{
+    await _auth.verifyPhoneNumber(
+        phoneNumber: phonenumber,
+        verificationCompleted: _onVerificationCompleted,
+        verificationFailed: _onVerificationFailed,
+        codeSent: _onCodeSent,
+        codeAutoRetrievalTimeout: _onCodeTimeout
+    );
+  }
+  _onVerificationCompleted(PhoneAuthCredential authCredential) async {
+    await _auth.signInWithCredential(authCredential);
+  }
+
+  _onVerificationFailed(FirebaseAuthException exception) {
+    print(exception);
+    if (exception.code == 'invalid-phone-number') {
+      print("The phone number entered is invalid!");
+    }
+  }
+
+  _onCodeSent(String verificationID, int? forceResendingToken) async {
+    setState(() {
+      verificationId = verificationID;
+    });
+
+    print(forceResendingToken);
+    print("code sent");
+  }
+
+  _onCodeTimeout(String timeout) {
+    print(timeout);
+    return null;
+  }
+ //endregion
+
+  Future<void> verify() async{
+    try{
+      PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: otpControl.text.toString()
+      );
+      final signIn = await _auth.signInWithCredential(phoneAuthCredential);
+      if(signIn.user!=null){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+      }else{
+        print('auth failed...');
+      }
+    }on FirebaseAuthException catch(e){
+      print(e);
+    }
+  }
+
+  void showAlertDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 80,
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 13,),
+                  Text('Please wait...')
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(Duration.zero,() async{
+      verifyPhoneCode();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +126,14 @@ class _CodeVerifyState extends State<CodeVerify> {
                         keyboardType: TextInputType.phone,
                         appContext: context,
                         length: 6,
-                        onChanged:(String? changed){},
+                        controller: otpControl,
+                        onChanged:(String? changed){
+                          if(changed!.length==6){
+                            setState(() {
+                              verifyPhoneCode();
+                            });
+                          }
+                        },
                         pinTheme: PinTheme(
                           inactiveColor: Colors.black54,
                           activeColor: Colors.green,
@@ -60,9 +156,10 @@ class _CodeVerifyState extends State<CodeVerify> {
                   Container(
                     height: 55,
                     width: 175,
-                    child: RaisedButton(onPressed:(){
+                    child: RaisedButton(onPressed:() async{
                       FocusScope.of(context).unfocus();
-                      print("+91${otpControl.text.toString()}");
+                      showAlertDialog();
+                      // verify();
                     },
                       child:Text("DONE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                       shape: RoundedRectangleBorder(

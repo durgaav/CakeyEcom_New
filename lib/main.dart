@@ -1,16 +1,24 @@
+import 'package:cakey/screens/code_verify.dart';
 import 'package:cakey/screens/home_screen.dart';
 import 'package:cakey/screens/phone_verify.dart';
 import 'package:cakey/screens/welcome_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 
-void main(){
-  runApp(MyApp());
+Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Colors.white, // status bar color
   ));
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+
+  await Firebase.initializeApp();
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: PhoneVerify(),
     );
   }
 }

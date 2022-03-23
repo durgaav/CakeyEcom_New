@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "411807857704",
+    "project_id": "cakey-41c9f",
+    "storage_bucket": "cakey-41c9f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411807857704:android:aac0816cf04f6cbf9ac91d",
+        "android_client_info": {
+          "package_name": "com.example.cakey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "411807857704-ebof3lecabtfikj0v7j0mtmo5bs8867m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cakey",
+            "certificate_hash": "e781712bb57e6282baaac463109dd1a6d7916648"
+          }
+        },
+        {
+          "client_id": "411807857704-l4m5j70ckp1q7gdoo8vbvs5c6h71f34g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgrFxtzesrMz2MTJHyM5nZzPIKmbzszGo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "411807857704-l4m5j70ckp1q7gdoo8vbvs5c6h71f34g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -16,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
   bool egglesSwitch = true;
+  String poppins = "Poppins";
 
   //region Alerts
 
@@ -80,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        title: Text('HOME',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold)),
+        title: Text('HOME',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins)),
         elevation: 0.0,
         backgroundColor:lightGrey,
         actions: [
@@ -118,10 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   print('hello surya....');
                 },
                 child: CircleAvatar(
-                  radius: 19.5,
+                  radius: 17.5,
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
-                    radius: 18,
+                    radius: 16,
                     backgroundImage: NetworkImage("https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
                   ),
                 ),
@@ -135,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               //Location and search....
               Container(
-                padding: EdgeInsets.only(left:10,top: 15),
+                padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
                 color: lightGrey,
                 child: Column(
                   children: [
@@ -144,14 +145,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(Icons.location_on,color: Colors.red,),
                           SizedBox(width: 8,),
-                          Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold),)
+                          Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,fontFamily: poppins),)
                         ],
                       ),
                     ),
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('Thekkalur',style:TextStyle(fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('Thekkalur',style:TextStyle(fontFamily: poppins,fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 15),
@@ -167,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: TextField(
                               decoration: InputDecoration(
                                   hintText: "Search cake, vendor, etc...",
+                                  hintStyle: TextStyle(fontFamily: poppins),
                                   prefixIcon: Icon(Icons.search),
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8)
@@ -206,12 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       //List views and orders...
                       Container(
-                        height: 530,
+                        height: 510,
                         decoration: const BoxDecoration(
                             image: DecorationImage(
                                 image:Svg('assets/images/splash.svg'),
                                 fit: BoxFit.cover,
-                                // colorFilter:ColorFilter.mode(Colors.white70,BlendMode.darken)
+                                colorFilter:ColorFilter.mode(Colors.white70,BlendMode.darken)
                             ),
                         ),
                         child: Column(
@@ -221,14 +223,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Type of Cakes',style: TextStyle(fontSize:18,color: darkBlue,fontWeight: FontWeight.bold),),
+                                  Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:18,color: darkBlue,fontWeight: FontWeight.bold),),
                                   InkWell(
                                     onTap: (){
                                       print('see more..');
                                     },
                                     child: Row(
                                       children: [
-                                        Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold),),
+                                        Text('See All',style: TextStyle(color: lightPink,fontFamily: poppins,fontWeight: FontWeight.bold),),
                                         Icon(Icons.keyboard_arrow_right,color: lightPink,)
                                       ],
                                     ),
@@ -266,7 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     )
                                                 ),
                                               ),
-                                              Text("Cake name",style:TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
+                                              Text("Cake name",style:TextStyle(color: darkBlue,
+                                                  fontWeight: FontWeight.bold,fontFamily: poppins),
                                                 textAlign: TextAlign.center,)
                                             ],
                                           ),
@@ -286,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: double.infinity,
                                 alignment: Alignment.centerLeft,
                                 child: Text('Recent Ordered',style: TextStyle(
-                                    color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18
+                                    color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18,fontFamily: poppins
                                 ),)
                             ),
                             Container(
@@ -296,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   scrollDirection: Axis.horizontal,
                                   itemBuilder: (context,index){
                                     return Container(
-                                      margin: EdgeInsets.all(6),
+                                      margin: EdgeInsets.only(left: 10,right: 10),
                                       child: Stack(
                                         alignment: Alignment.topCenter,
                                         children: [
@@ -314,6 +317,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Positioned(
                                             top: 100,
                                             child: Card(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)
+                                              ),
                                               elevation: 7,
                                               child: Container(
                                                 padding: EdgeInsets.all(8),
@@ -327,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         child: Container(
                                                           width: 150,
                                                           child: Text('Strawberry cake',style: TextStyle(color: darkBlue
-                                                              ,fontWeight: FontWeight.bold
+                                                              ,fontWeight: FontWeight.bold,fontFamily: poppins
                                                           ),),
                                                         )
                                                     ),
@@ -339,7 +345,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         ),
                                                         Container(
                                                           width: 105,
-                                                            child: Text(' Surya prakash hhh',overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.black54),maxLines: 1,))
+                                                            child: Text(' Surya prakash',
+                                                              overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                  color: Colors.black54,fontFamily: poppins),maxLines: 1,))
                                                       ],
                                                     ),
                                                     Container(
@@ -350,8 +358,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Text("₹ 450",style: TextStyle(color: lightPink,fontWeight: FontWeight.bold),maxLines: 1,),
-                                                        Text("Delivered",style: TextStyle(color: Colors.green,fontWeight: FontWeight.bold),),
+                                                        Text("₹ 450",style: TextStyle(color: lightPink,
+                                                            fontWeight: FontWeight.bold,fontFamily: poppins),maxLines: 1,),
+                                                        Text("Delivered",style: TextStyle(color: Colors.green,
+                                                            fontWeight: FontWeight.bold,fontFamily: poppins),),
                                                       ],
                                                     )
                                                   ],
@@ -376,8 +386,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Row(
                               children: [
-                                Text('Vendors list',style: TextStyle(fontSize:18,color: darkBlue,fontWeight: FontWeight.bold),),
-                                Text('  (10km radius)',style: TextStyle(color: Colors.black45),),
+                                Text('Vendors list',style: TextStyle(fontSize:18,
+                                    color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
                               ],
                             ),
                             InkWell(
@@ -386,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: Row(
                                 children: [
-                                  Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold),),
+                                  Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins),),
                                   Icon(Icons.keyboard_arrow_right,color: lightPink,)
                                 ],
                               ),
@@ -421,6 +432,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Transform.scale(
                                         scale: 0.7,
                                         child: CupertinoSwitch(
+                                          thumbColor: Colors.white,
                                           value: egglesSwitch,
                                           onChanged: (bool? val){
                                             setState(() {
@@ -430,7 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           activeColor: Colors.green,
                                         ),
                                       ),
-                                      Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),),
+                                      Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
+                                          fontWeight: FontWeight.bold,fontFamily: poppins),),
                                     ],
                                   ),
                               ],
@@ -443,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 physics: NeverScrollableScrollPhysics(),
                                 itemBuilder: (context,index){
                                   return Card(
-                                    margin: EdgeInsets.only(left: 10,right: 10,top: 10),
+                                    margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(15)
                                     ),
@@ -473,48 +486,65 @@ class _HomeScreenState extends State<HomeScreen> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    Column(
-                                                      children: [
-                                                        Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18
-                                                        ),),
-                                                        Row(
-                                                          children: [
-                                                            RatingBar.builder(
-                                                              initialRating: 4.1,
-                                                              minRating: 1,
-                                                              direction: Axis.horizontal,
-                                                              allowHalfRating: true,
-                                                              itemCount: 5,
-                                                              itemSize: 18,
-                                                              itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                              itemBuilder: (context, _) => Icon(
-                                                                Icons.star,
-                                                                color: Colors.amber,
+                                                Container(
+                                                  width:210,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            width:170,
+                                                            child: Text('Surya prakash hhh',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18,fontFamily: poppins
+                                                            ),),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              RatingBar.builder(
+                                                                initialRating: 4.1,
+                                                                minRating: 1,
+                                                                direction: Axis.horizontal,
+                                                                allowHalfRating: true,
+                                                                itemCount: 5,
+                                                                itemSize: 14,
+                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                itemBuilder: (context, _) => Icon(
+                                                                  Icons.star,
+                                                                  color: Colors.amber,
+                                                                ),
+                                                                onRatingUpdate: (rating) {
+                                                                  print(rating);
+                                                                },
                                                               ),
-                                                              onRatingUpdate: (rating) {
-                                                                print(rating);
-                                                              },
-                                                            ),
-                                                            Text(' 4.5',style: TextStyle(
-                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
-                                                            ),)
-                                                          ],
+                                                              Text(' 4.5',style: TextStyle(
+                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                              ),)
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      InkWell(
+                                                        onTap: (){},
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                            color: lightGrey,
+                                                            shape: BoxShape.circle
+                                                          ),
+                                                          padding: EdgeInsets.all(4),
+                                                          height: 35,
+                                                          width: 35,
+                                                          child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    IconButton(
-                                                        onPressed: (){},
-                                                        icon: Icon(Icons.keyboard_arrow_right,color: lightPink,)
-                                                    )
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                                 Container(
                                                   width: 210,
                                                   child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                      color: Colors.black54
+                                                      color: Colors.black54,fontFamily: poppins
                                                   ),maxLines: 1,),
                                                 ),
                                                 Container(
@@ -528,10 +558,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text('DELIVERY FREE',style: TextStyle(
-                                                          color: Colors.orange,fontSize: 11
+                                                          color: Colors.orange,fontSize: 10,fontFamily: poppins
                                                       ),),
-                                                      Text('Only eggless cake',style: TextStyle(
-                                                          color: Colors.black,fontSize: 11,fontWeight: FontWeight.bold
+                                                      Text('Includs eggless cake',style: TextStyle(
+                                                          color: Colors.black,fontSize: 11,fontWeight: FontWeight.bold,fontFamily: poppins
                                                       ),),
                                                     ],
                                                   ),
