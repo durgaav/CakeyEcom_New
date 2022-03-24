@@ -81,6 +81,12 @@ class _CktypesScreenState extends State<CktypesScreen> {
           SizedBox(width: 10,),
         ],
       ),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+
+        ],
+      ),
     );
   }
 }

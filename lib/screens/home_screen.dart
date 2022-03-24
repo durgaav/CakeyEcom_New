@@ -69,6 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       drawer: Container(color: Colors.white,width: 300,),
       key: _scaffoldKey,
@@ -197,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width*0.79,
+                            width: width*0.79,
                             height: 50,
                             child: TextField(
                               decoration: InputDecoration(
@@ -213,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(width: 5,),
                           Container(
-                            width: MediaQuery.of(context).size.width*0.13,
+                            width: width*0.13,
                             height: 50,
                             decoration: BoxDecoration(
                               color: lightPink,
@@ -222,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child:IconButton(
                                 splashColor: Colors.black26,
                                 onPressed:(){
-                                  print(MediaQuery.of(context).size.width*0.79);
+                                  print(MediaQuery.of(context).size.width*0.13);
                                   FocusScope.of(context).unfocus();
                                   showFilterBottom();
                                 },
@@ -237,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Container(
                 color: lightGrey,
-                height: MediaQuery.of(context).size.height*0.7,
+                height: height*0.71,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -262,6 +266,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   InkWell(
                                     onTap: (){
                                       print('see more..');
+                                      print(width);
+                                      print(height);
                                     },
                                     child: Row(
                                       children: [
@@ -285,9 +291,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: InkWell(
                                           onTap: (){
                                             FocusScope.of(context).unfocus();
-                                            Navigator.push(context, MaterialPageRoute(
-                                                builder: (context)=>CktypesScreen()
-                                            ));
+                                            // Navigator.push(context, MaterialPageRoute(
+                                            //     builder: (context)=>CktypesScreen()
+                                            // ));
+
+                                            Navigator.of(context).push(
+                                                PageRouteBuilder(
+                                                  pageBuilder: (context, animation, secondaryAnimation) => CktypesScreen(),
+                                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                    const begin = Offset(1.0, 0.0);
+                                                    const end = Offset.zero;
+                                                    const curve = Curves.fastOutSlowIn;
+
+                                                    final tween = Tween(begin: begin, end: end);
+                                                    final curvedAnimation = CurvedAnimation(
+                                                      parent: animation,
+                                                      curve: curve,
+                                                    );
+
+                                                    return SlideTransition(
+                                                      position: tween.animate(curvedAnimation),
+                                                      child: child,
+                                                    );
+                                                  },
+                                                ),
+                                            );
+
                                           },
                                           child: Column(
                                             children: [
@@ -522,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
                                                 Container(
-                                                  width:210,
+                                                  width:width*0.63,
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
@@ -530,7 +559,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
                                                           Container(
-                                                            width:170,
+                                                            width:width*0.5,
                                                             child: Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
                                                                 color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16,fontFamily: poppins
                                                             ),),
@@ -577,18 +606,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ),
                                                 Container(
-                                                  width: 210,
+                                                  width: width*0.63,
                                                   child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
                                                       color: Colors.black54,fontFamily: poppins
                                                   ),maxLines: 1,),
                                                 ),
                                                 Container(
                                                   height: 1,
-                                                  width: 210,
+                                                  width: width*0.63,
                                                   color: Colors.black26,
                                                 ),
                                                 Container(
-                                                  width: 210,
+                                                  width: width*0.63,
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
