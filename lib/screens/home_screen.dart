@@ -152,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: InkWell(
                 onTap: (){
                   print('hello surya....');
-                  // FirebaseAuth.instance.signOut();
-                  // Navigator.pop(context);
-                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
                 },
                 child: CircleAvatar(
                   radius: 17.5,
