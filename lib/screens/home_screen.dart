@@ -152,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: InkWell(
                 onTap: (){
                   print('hello surya....');
-                  FirebaseAuth.instance.signOut();
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+                  // FirebaseAuth.instance.signOut();
+                  // Navigator.pop(context);
+                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
                 },
                 child: CircleAvatar(
                   radius: 17.5,
@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('Ukraine',style:TextStyle(fontFamily: poppins,fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('California',style:TextStyle(fontFamily: poppins,fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 15),
@@ -294,14 +294,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                             // Navigator.push(context, MaterialPageRoute(
                                             //     builder: (context)=>CktypesScreen()
                                             // ));
-
                                             Navigator.of(context).push(
                                                 PageRouteBuilder(
                                                   pageBuilder: (context, animation, secondaryAnimation) => CktypesScreen(),
                                                   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                    const begin = Offset(1.0, 0.0);
+                                                    const begin = Offset(1.0, 1.0);
                                                     const end = Offset.zero;
-                                                    const curve = Curves.fastOutSlowIn;
+                                                    const curve = Curves.ease;
 
                                                     final tween = Tween(begin: begin, end: end);
                                                     final curvedAnimation = CurvedAnimation(
@@ -540,7 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               borderRadius: BorderRadius.circular(15),
                                               image: DecorationImage(
                                                 fit: BoxFit.cover,
-                                                image: NetworkImage("https://cutewallpaper.org/21/happy-birthday-cake-image-hd/Birthday-Cake-Pictures-Download-Besttextmsgs.com.jpg"),
+                                                image: NetworkImage("https://www.teahub.io/photos/full/335-3350221_birthday-cake-wallpaper-for-desktop-happy-birthday-image.jpg"),
                                               )
                                             ),
                                           ),
