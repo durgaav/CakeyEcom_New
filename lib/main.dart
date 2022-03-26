@@ -1,7 +1,7 @@
-import 'package:cakey/screens/code_verify.dart';
-import 'package:cakey/screens/home_screen.dart';
-import 'package:cakey/screens/phone_verify.dart';
-import 'package:cakey/screens/welcome_screen.dart';
+import 'package:cakey/drawermenu/DrawerHome.dart';
+import 'package:cakey/screens/CodeVerify.dart';
+import 'package:cakey/screens/PhoneVerify.dart';
+import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: authUser!=null?HomeScreen():WelcomeScreen()
+      home: authUser!=null?DrawerHome():WelcomeScreen()
     );
   }
 }

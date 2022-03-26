@@ -1,4 +1,4 @@
-import 'package:cakey/screens/code_verify.dart';
+import 'package:cakey/screens/CodeVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,6 +16,7 @@ class PhoneVerify extends StatefulWidget {
 class _PhoneVerifyState extends State<PhoneVerify> {
   TextEditingController phoneControl = new TextEditingController();
   String length = "";
+  Color lightPink = Color(0xffFE8416D);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +30,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 20,),
-                  Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                  Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                   Container(
                     height: 230,
                     decoration: BoxDecoration(
@@ -38,14 +39,16 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       )
                     ),
                   ),
-                  Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,),
+                  Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,
+                  style: TextStyle(fontFamily: "Poppins"),
+                  ),
                   SizedBox(height: 35,),
                   Container(
                     alignment: Alignment.centerLeft,
                     margin: EdgeInsets.only(left: 15),
                     padding: EdgeInsets.all(5),
                     width: double.infinity,
-                    child: Text('Phone Number',style: TextStyle(color: Colors.black),),
+                    child: Text('Phone Number',style: TextStyle(color: Colors.black,fontFamily: "Poppins"),),
                   ),
                   Container(
                     margin: EdgeInsets.only(left: 15,right: 15),
@@ -53,6 +56,9 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       onChanged: (String? textLen){
                         setState(() {
                           length = textLen!;
+                          if(textLen==10){
+                            FocusScope.of(context).unfocus();
+                          }
                         });
                       },
                       controller: phoneControl,
@@ -76,6 +82,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                             ),
                           ),
                           hintText: 'Phone Number',
+                          hintStyle: TextStyle(fontFamily: "Poppins"),
                           prefixIcon: Icon(CupertinoIcons.phone_circle , color: Colors.black,size: 35,)
                       ),
                     ),
@@ -94,10 +101,10 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             margin: EdgeInsets.all(15),
-                            content: Text('Enter Correct Number!',textAlign: TextAlign.center,style: TextStyle(
+                            content: Text('Please Enter Correct Number!',textAlign: TextAlign.center,style: TextStyle(
                                 color: Colors.white,fontWeight: FontWeight.bold
                             ),),
-                            backgroundColor: Colors.deepPurpleAccent[400],
+                            backgroundColor:lightPink,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -108,7 +115,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       }
                       print("+91${phoneControl.text.toString()}");
                     },
-                      child:Text("CONTINUE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                      child:Text("CONTINUE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                       shape: RoundedRectangleBorder(
                           borderRadius:BorderRadius.circular(30)
                       ),

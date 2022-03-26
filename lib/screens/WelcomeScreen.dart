@@ -1,4 +1,4 @@
-import 'package:cakey/screens/phone_verify.dart';
+import 'package:cakey/screens/PhoneVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter/material.dart';

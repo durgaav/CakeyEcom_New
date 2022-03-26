@@ -5,14 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-class CktypesScreen extends StatefulWidget {
-  const CktypesScreen({Key? key}) : super(key: key);
+class CakeTypes extends StatefulWidget {
+  const CakeTypes({Key? key}) : super(key: key);
 
   @override
-  State<CktypesScreen> createState() => _CktypesScreenState();
+  State<CakeTypes> createState() => _CakeTypesState();
 }
 
-class _CktypesScreenState extends State<CktypesScreen> {
+class _CakeTypesState extends State<CakeTypes> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
@@ -28,7 +28,7 @@ class _CktypesScreenState extends State<CktypesScreen> {
 
   List<bool> selIndex = [];
 
-@override
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
@@ -45,22 +45,22 @@ class _CktypesScreenState extends State<CktypesScreen> {
                 height: 100,
                 color: Colors.white,
                 child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.red[100]
-                      ),
-                      child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('DO YOU WANT A THEME CAKE?',style: TextStyle(
-                                color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins
-                              ),),
-                              Icon(Icons.cake,color: lightPink,size: 50,)
-                            ],
-                          ),
-                    ),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      color: Colors.red[100]
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('DO YOU WANT A THEME CAKE?',style: TextStyle(
+                          color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins
+                      ),),
+                      Icon(Icons.cake,color: lightPink,size: 50,)
+                    ],
+                  ),
+                ),
               ),
               Positioned(
                 left: width*0.86,
@@ -80,83 +80,83 @@ class _CktypesScreenState extends State<CktypesScreen> {
       ):null,
       resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
-      appBar: AppBar(
-        leading:IconButton(
-          icon:  Icon(
-            Icons.arrow_back_ios,
-            color: lightPink,
-          ),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        ),
-        title: Text('TYPES OF CAKES',
-            style: TextStyle(
-                color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
-        elevation: 0.0,
-        backgroundColor: lightGrey,
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              InkWell(
-                onTap: () => print("hii"),
-                child: Container(
-                  padding: EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Icon(
-                    Icons.notifications_none,
-                    color: darkBlue,
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 15,
-                top: 18,
-                child: CircleAvatar(
-                  radius: 4.5,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: 3.5,
-                    backgroundColor: Colors.red,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
-              ],
-            ),
-            child: InkWell(
-              onTap: () {
-                print('hello surya....');
-              },
-              child: CircleAvatar(
-                radius: 19.5,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundImage: NetworkImage(
-                      "https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   leading:IconButton(
+      //     icon:  Icon(
+      //       Icons.arrow_back_ios,
+      //       color: lightPink,
+      //     ),
+      //     onPressed: (){
+      //       Navigator.pop(context);
+      //     },
+      //   ),
+      //   title: Text('TYPES OF CAKES',
+      //       style: TextStyle(
+      //           color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
+      //   elevation: 0.0,
+      //   backgroundColor: lightGrey,
+      //   actions: [
+      //     Stack(
+      //       alignment: Alignment.center,
+      //       children: [
+      //         InkWell(
+      //           onTap: () => print("hii"),
+      //           child: Container(
+      //             padding: EdgeInsets.all(3),
+      //             decoration: BoxDecoration(
+      //                 color: Colors.black26,
+      //                 borderRadius: BorderRadius.circular(8)),
+      //             child: Icon(
+      //               Icons.notifications_none,
+      //               color: darkBlue,
+      //             ),
+      //           ),
+      //         ),
+      //         Positioned(
+      //           left: 15,
+      //           top: 18,
+      //           child: CircleAvatar(
+      //             radius: 4.5,
+      //             backgroundColor: Colors.white,
+      //             child: CircleAvatar(
+      //               radius: 3.5,
+      //               backgroundColor: Colors.red,
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     SizedBox(
+      //       width: 10,
+      //     ),
+      //     Container(
+      //       decoration: BoxDecoration(
+      //         color: Colors.white,
+      //         shape: BoxShape.circle,
+      //         boxShadow: [
+      //           BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
+      //         ],
+      //       ),
+      //       child: InkWell(
+      //         onTap: () {
+      //           print('hello surya....');
+      //         },
+      //         child: CircleAvatar(
+      //           radius: 19.5,
+      //           backgroundColor: Colors.white,
+      //           child: CircleAvatar(
+      //             radius: 18,
+      //             backgroundImage: NetworkImage(
+      //                 "https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //     SizedBox(
+      //       width: 10,
+      //     ),
+      //   ],
+      // ),
       body: Column(
         children: [
           Container(
@@ -377,97 +377,97 @@ class _CktypesScreenState extends State<CktypesScreen> {
                     itemCount: 20,
                     itemBuilder: (BuildContext context, int index) {
                       return
-                      index==0?Column(
-                        children: [
-                          Text('Found\n55 Items',style: TextStyle(
-                              color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
-                          )),
-                          SizedBox(height: 20,),
-                          Container(
-                            height:height*0.3,
-                            padding:EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: Colors.white,
-                              boxShadow: [BoxShadow(blurRadius: 1, color: Colors.black, spreadRadius: 0)],
-                            ),
-                            child:Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CircleAvatar(
-                                  radius: 45,
-                                  backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
-                                ),
-                                Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                    color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
-                                )),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('₹ 800',style: TextStyle(
-                                        color: lightPink,fontWeight: FontWeight.bold,fontSize: 14
-                                    )),
-                                    Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                          color: Colors.black26,
-                                          borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      child: Text('1.5 Kg',style: TextStyle(
-                                          color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                        index==0?Column(
+                          children: [
+                            Text('Found\n55 Items',style: TextStyle(
+                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
+                            )),
+                            SizedBox(height: 20,),
+                            Container(
+                              height:height*0.3,
+                              padding:EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white,
+                                boxShadow: [BoxShadow(blurRadius: 1, color: Colors.black, spreadRadius: 0)],
+                              ),
+                              child:Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 45,
+                                    backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
+                                  ),
+                                  Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
+                                  )),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('₹ 800',style: TextStyle(
+                                          color: lightPink,fontWeight: FontWeight.bold,fontSize: 14
                                       )),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ):
-                      Column(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(top: 10),
-                            height:height*0.3,
-                            padding:EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: Colors.white,
-                              boxShadow: [BoxShadow(blurRadius: 1, color: Colors.black, spreadRadius: 0)],
-                            ),
-                            child:Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CircleAvatar(
-                                  radius: 45,
-                                  backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
-                                ),
-                                Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                    color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
-                                )),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('₹ 800',style: TextStyle(
-                                        color: lightPink,fontWeight: FontWeight.bold,fontSize: 14
-                                    )),
-                                    Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                          color: Colors.black26,
-                                          borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      child: Text('1.5 Kg',style: TextStyle(
-                                          color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                                      Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.black26,
+                                            borderRadius: BorderRadius.circular(8)
+                                        ),
+                                        child: Text('1.5 Kg',style: TextStyle(
+                                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                                        )),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ):
+                        Column(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              height:height*0.3,
+                              padding:EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white,
+                                boxShadow: [BoxShadow(blurRadius: 1, color: Colors.black, spreadRadius: 0)],
+                              ),
+                              child:Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 45,
+                                    backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
+                                  ),
+                                  Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
+                                  )),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('₹ 800',style: TextStyle(
+                                          color: lightPink,fontWeight: FontWeight.bold,fontSize: 14
                                       )),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      );
+                                      Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.black26,
+                                            borderRadius: BorderRadius.circular(8)
+                                        ),
+                                        child: Text('1.5 Kg',style: TextStyle(
+                                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                                        )),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        );
                     },
                     staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
                   ),
