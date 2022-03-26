@@ -26,6 +26,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         "typesetting industry. Lorem Ipsum has been the industry's "
         "standard dummy text ever since the 1500s, when an unknown printer "];
 
+  //this is svg
   var pics = [
     "assets/images/picone.svg",
     "assets/images/pictwo.svg",
