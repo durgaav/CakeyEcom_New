@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 
+//profile screen
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
 

@@ -30,8 +30,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: authUser!=null?DrawerHome():WelcomeScreen()
+        debugShowCheckedModeBanner: false,
+        home: authUser!=null?DrawerHome():WelcomeScreen()
     );
   }
 }
