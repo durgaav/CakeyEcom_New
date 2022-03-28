@@ -251,7 +251,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   Tab(
                     text: 'PROFILE INFO',
                   ),
-
                   // second tab [you can add an icon using the icon property]
                   Tab(
                     text: 'ORDER INFO',
