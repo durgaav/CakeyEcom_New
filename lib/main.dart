@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +31,7 @@ class MyApp extends StatelessWidget {
     Map<int, Color> swatch = {};
     final int r = color.red, g = color.green, b = color.blue;
 
-    int i =0;
+
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
