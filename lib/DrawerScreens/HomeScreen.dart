@@ -1,10 +1,15 @@
 
+import 'package:cakey/DrawerScreens/CakeTypes.dart';
+import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../screens/Profile.dart';
 //This is home screen.........
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,14 +18,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  //region Vari..
+  //Scaff Key..
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  //Colors....
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
+
+  //main variables
   bool egglesSwitch = true;
   String poppins = "Poppins";
-
   User authUser = FirebaseAuth.instance.currentUser!;
+
+  //pref values
+  bool profileRemainder = false;
+  String phoneNumber = '';
+
+  //TextFields controls for search....
+  var cakeCategoryCtrl = new TextEditingController();
+  var cakeSubCategoryCtrl = new TextEditingController();
+  var cakeVendorCtrl = new TextEditingController();
+  var cakeLocationCtrl = new TextEditingController();
+
+  //endregion
 
   //region Alerts
 
@@ -53,122 +75,346 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //Filter Bottomsheet
+  //Filter Bottom sheet(**important...)
   void showFilterBottom(){
-    showModalBottomSheet(
-        context: context, builder: (context){
-      return Container(
-        height: 250,
+      showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topRight: Radius.circular(20),topLeft: Radius.circular(20)),
+      ),
+      context: context,
+      isScrollControlled: true,
+      builder: (context){
+       return Container(
+         // padding: EdgeInsets.all(15),
+         padding: EdgeInsets.only(
+           bottom: MediaQuery.of(context).viewInsets.bottom,
+         ),
+        child:SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 8,),
+                  //Title text...
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
+                            fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                        GestureDetector(
+                          onTap: ()=>Navigator.pop(context),
+                          child: Container(
+                              width: 35,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(10)
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(Icons.close_outlined,color: lightPink,)
+                          ),
+                        ),
+                      ],
+                    ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  //Edit texts...
+                  Container(
+                    height: 45,
+                    child: TextField(
+                      controller: cakeCategoryCtrl,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(5),
+                        hintText: "Category",
+                        hintStyle: TextStyle(fontFamily: "Poppins"),
+                        prefixIcon: Icon(Icons.search_outlined),
+                        border: OutlineInputBorder()
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    height: 45,
+                    child: TextField(
+                      controller: cakeSubCategoryCtrl,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          hintText: "Sub Category",
+                          hintStyle: TextStyle(fontFamily: "Poppins"),
+                          prefixIcon: Icon(Icons.search_outlined),
+                          border: OutlineInputBorder()
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    height: 45,
+                    child: TextField(
+                      controller: cakeVendorCtrl,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          hintText: "Vendors",
+                          hintStyle: TextStyle(fontFamily: "Poppins"),
+                          prefixIcon: Icon(Icons.account_circle),
+                          border: OutlineInputBorder()
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    height: 45,
+                    child: TextField(
+                      controller: cakeLocationCtrl,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          hintText: "Location",
+                          hintStyle: TextStyle(fontFamily: "Poppins"),
+                          prefixIcon: Icon(Icons.location_on),
+                          suffixIcon: IconButton(
+                            onPressed: (){},
+                            icon: Icon(Icons.my_location),
+                          ),
+                          border: OutlineInputBorder()
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  //kilo meter radius buttons.........
+                  Wrap(
+                    runSpacing: 5.0,
+                    spacing: 5.0,
+                      children: [
+                        OutlinedButton(
+                          onPressed: (){},
+                          child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                        ),
+                        OutlinedButton(
+                          onPressed: (){},
+                          child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                        ),
+                        OutlinedButton(
+                          onPressed: (){},
+                          child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                        ),
+                        OutlinedButton(
+                          onPressed: (){},
+                          child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                        ),
+                        OutlinedButton(
+                          onPressed: (){},
+                          child: Text('25 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                        ),
+                      ],
+
+                  ),
+                  SizedBox(height: 8,),
+                  Container(
+                    height: 1.0,
+                    color: Colors.black26,
+                  ),
+                  //cake types....
+                  SizedBox(height: 8,),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
+                        fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                  ),
+                  SizedBox(height: 10,),
+
+                  //types of cakes btn...
+                  Wrap(
+                    runSpacing: 5.0,
+                    spacing: 5.0,
+                    children: [
+                      OutlinedButton(
+                        onPressed: (){},
+                        child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      ),
+                      OutlinedButton(
+                        onPressed: (){},
+                        child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      ),
+                      OutlinedButton(
+                        onPressed: (){},
+                        child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 10,),
+                  //Search button...
+                  Container(
+                    height: 55,
+                    width: 200,
+                    child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        color: lightPink,
+                        onPressed: (){
+                          Navigator.pop(context);
+                          showDpUpdtaeDialog();
+                        },
+                        child: Text("SEARCH",style: TextStyle(
+                          color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
+                        ),),
+                    ),
+                  )
+
+                ],
+              ),
+          ),
+        ),
       );
     }
     );
   }
 
+  //Profile update remainder dialog
+  void showDpUpdtaeDialog(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context){
+          return Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              height: 90,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                   border: Border.all(color: lightPink,width: 1.5,style: BorderStyle.solid),
+                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14),
+                   bottomRight: Radius.circular(14),
+                  )
+              ),
+              padding: EdgeInsets.all(5),
+             child: Row(
+               crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.volume_up_rounded,color: darkBlue,)
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        child: Text('Complete Your Profile & Easy To Take\nYour Order',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins",fontSize: 12),
+                        ),
+                      ),
+                      SizedBox(height: 5,),
+                      Container(
+                        height: 25,
+                        width: 80,
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25)
+                          ),
+                          color:lightPink,
+                          onPressed: (){
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => Profile(
+                                  defindex: 0,
+                                ),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.ease;
+
+                                  final tween = Tween(begin: begin, end: end);
+                                  final curvedAnimation = CurvedAnimation(
+                                    parent: animation,
+                                    curve: curve,
+                                  );
+
+                                  return SlideTransition(
+                                    position: tween.animate(curvedAnimation),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: Text('PROFILE',
+                            style: TextStyle(color:Colors.white,fontFamily: "Poppins",fontSize: 10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: ()=>Navigator.pop(context),
+                    child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(10)
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.close_outlined,color: darkBlue,)
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
   //endregion
 
+  //region Functions
+  Future<void> loadPrefs() async{
+    print("Prefs loading...");
+    var prefs = await SharedPreferences.getInstance();
+    setState(() {
+      profileRemainder = prefs.getBool("profileUpdated")??false;
+      phoneNumber = prefs.getString("phoneNumber")??"";
+    });
+  }
+  //endregion
+
+  //onStart
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(Duration.zero ,() async{
+      loadPrefs();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
     return Scaffold(
       drawer: Container(color: Colors.white,width: 300,),
       key: _scaffoldKey,
-      // appBar: AppBar(
-      //   leading: InkWell(
-      //     onTap: () => _scaffoldKey.currentState!.openDrawer(),
-      //     child: Container(
-      //       child: Column(
-      //         mainAxisAlignment: MainAxisAlignment.center,
-      //         children: [
-      //           Row(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             children: [
-      //               CircleAvatar(
-      //                 radius: 6,
-      //                 backgroundColor: darkBlue,
-      //               ),
-      //               SizedBox(width: 3,),
-      //               CircleAvatar(
-      //                 radius: 6,
-      //                 backgroundColor: darkBlue,
-      //               ),
-      //             ],
-      //           ),
-      //           SizedBox(height: 3,),
-      //           Row(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             children: [
-      //               CircleAvatar(
-      //                 radius: 6,
-      //                 backgroundColor: darkBlue,
-      //               ),
-      //               SizedBox(width: 3,),
-      //               CircleAvatar(
-      //                 radius: 6,
-      //                 backgroundColor: Colors.red,
-      //               ),
-      //             ],
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      //   title: Text('HOME',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins)),
-      //   elevation: 0.0,
-      //   backgroundColor:lightGrey,
-      //   actions: [
-      //     Stack(
-      //       alignment: Alignment.center,
-      //       children: [
-      //         IconButton(
-      //           onPressed: (){},
-      //           icon: Icon(Icons.notifications_none),
-      //           color: darkBlue,
-      //           iconSize: 33,
-      //         ),
-      //         Positioned(
-      //           left: 25,
-      //           top: 18,
-      //           child: CircleAvatar(
-      //             radius: 5.5,
-      //             backgroundColor: Colors.white,
-      //             child: CircleAvatar(
-      //               radius: 4.5,
-      //               backgroundColor: Colors.red,
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //     Container(
-      //       decoration: BoxDecoration(
-      //         color: Colors.white,
-      //         shape: BoxShape.circle,
-      //         boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
-      //       ),
-      //       child: InkWell(
-      //         onTap: (){
-      //           print('hello surya....');
-      //           FirebaseAuth.instance.signOut();
-      //           Navigator.pop(context);
-      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
-      //         },
-      //         child: CircleAvatar(
-      //           radius: 17.5,
-      //           backgroundColor: Colors.white,
-      //           child: CircleAvatar(
-      //             radius: 16,
-      //             backgroundImage: NetworkImage("https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //     SizedBox(width: 10,),
-      //   ],
-      // ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -226,9 +472,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child:IconButton(
                               splashColor: Colors.black26,
                               onPressed:(){
-                                print(MediaQuery.of(context).size.width*0.13);
+                                print(MediaQuery.of(context).viewInsets.bottom);
                                 FocusScope.of(context).unfocus();
                                 showFilterBottom();
+                                // showDpUpdtaeDialog();
                               },
                               icon: Icon(Icons.tune,color:Colors.white,)
                           ),
@@ -267,6 +514,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: (){
                                     print('see more..');
                                     print(width);
+                                    Navigator.of(context).push(
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
+                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          const begin = Offset(1.0, 0.0);
+                                          const end = Offset.zero;
+                                          const curve = Curves.ease;
+
+                                          final tween = Tween(begin: begin, end: end);
+                                          final curvedAnimation = CurvedAnimation(
+                                            parent: animation,
+                                            curve: curve,
+                                          );
+                                          return SlideTransition(
+                                            position: tween.animate(curvedAnimation),
+                                            child: child,
+                                          );
+                                        },
+                                      ),
+                                    );
                                     print(height);
                                   },
                                   child: Row(
@@ -291,31 +558,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: InkWell(
                                       onTap: (){
                                         FocusScope.of(context).unfocus();
-                                        // Navigator.push(context, MaterialPageRoute(
-                                        //     builder: (context)=>CktypesScreen()
-                                        // ));
-                                        // Navigator.of(context).push(
-                                        //   PageRouteBuilder(
-                                        //     pageBuilder: (context, animation, secondaryAnimation) => CktypesScreen(),
-                                        //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                        //       const begin = Offset(1.0, 1.0);
-                                        //       const end = Offset.zero;
-                                        //       const curve = Curves.ease;
-                                        //
-                                        //       final tween = Tween(begin: begin, end: end);
-                                        //       final curvedAnimation = CurvedAnimation(
-                                        //         parent: animation,
-                                        //         curve: curve,
-                                        //       );
-                                        //
-                                        //       return SlideTransition(
-                                        //         position: tween.animate(curvedAnimation),
-                                        //         child: child,
-                                        //       );
-                                        //     },
-                                        //   ),
-                                        // );
-
                                       },
                                       child: Column(
                                         children: [
@@ -404,7 +646,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     children: [
                                                       CircleAvatar(
                                                         radius:14,
-                                                        child: Icon(Icons.account_circle),
+                                                        child: Icon(Icons.account_circle,),
                                                       ),
                                                       Container(
                                                           width: 105,
@@ -423,8 +665,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     children: [
                                                       Text("₹ 450",style: TextStyle(color: lightPink,
                                                           fontWeight: FontWeight.bold,fontFamily: poppins),maxLines: 1,),
+                                                      index/1==1?
                                                       Text("Delivered",style: TextStyle(color: Colors.green,
-                                                          fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                                      fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                                          :
+                                                      Text("Preparing",style: TextStyle(color: Colors.blueAccent,
+                                                          fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
                                                     ],
                                                   )
                                                 ],
@@ -457,6 +703,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           InkWell(
                             onTap: (){
                               print('see more..');
+                              Navigator.of(context).push(
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.ease;
+
+                                    final tween = Tween(begin: begin, end: end);
+                                    final curvedAnimation = CurvedAnimation(
+                                      parent: animation,
+                                      curve: curve,
+                                    );
+
+                                    return SlideTransition(
+                                      position: tween.animate(curvedAnimation),
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              );
                             },
                             child: Row(
                               children: [
@@ -560,7 +827,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Container(
                                                           width:width*0.5,
                                                           child: Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                              color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16,fontFamily: poppins
+                                                              color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
                                                           ),),
                                                         ),
                                                         Row(
@@ -607,7 +874,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Container(
                                                 width: width*0.63,
                                                 child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                    color: Colors.black54,fontFamily: poppins
+                                                    color: Colors.black54,fontFamily: poppins,fontSize: 13
                                                 ),maxLines: 1,),
                                               ),
                                               Container(

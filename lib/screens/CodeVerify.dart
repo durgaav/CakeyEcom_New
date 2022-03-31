@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Code Verify screen.....
 class CodeVerify extends StatefulWidget {
@@ -26,7 +27,6 @@ class _CodeVerifyState extends State<CodeVerify> {
   Color lightPink = Color(0xffFE8416D);
 
   //region Sending code to number......
-
   Future<void> verifyPhoneCode() async{
     showAlertDialog();
     await _auth.verifyPhoneNumber(
@@ -99,7 +99,9 @@ class _CodeVerifyState extends State<CodeVerify> {
   }
  //endregion
 
+  //Code verify.........
   Future<void> verify() async{
+    var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -108,7 +110,13 @@ class _CodeVerifyState extends State<CodeVerify> {
       final signIn = await _auth.signInWithCredential(phoneAuthCredential);
       if(signIn.user!=null){
         setState(() {
-          addUsertoDb();
+          // addUsertoDb();
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          prefs.setString("phoneNumber", phonenumber);
+          prefs.setBool("profileUpdated", false);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
         });
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
@@ -179,10 +187,9 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Adding user to db (API)
   Future<void> addUsertoDb() async{
-
+    print('add phone.....');
+    var prefs = await SharedPreferences.getInstance();
     print(phonenumber);
-    print(phonenumber.replaceAll("+91", ""));
-
     //posting the value.....
     try{
       http.Response response = await http.post(
@@ -197,9 +204,9 @@ class _CodeVerifyState extends State<CodeVerify> {
         Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
         print(jsonDecode(response.body));
         print(map['message']);
-
         //Checking status msg....
         if(map['message']=="registered Successfully"||map['message']=="Login Succeed"){
+          prefs.setString("phoneNumber", phonenumber);
           Navigator.pop(context);
           Navigator.pop(context);
           Navigator.pop(context);
@@ -222,9 +229,10 @@ class _CodeVerifyState extends State<CodeVerify> {
 
         //Status code..
       }else{
+        print(response.statusCode);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Something went wrong!"),
+              content: Text("Something went wrong...!"),
               backgroundColor: Colors.red,
             )
         );
@@ -270,7 +278,7 @@ class _CodeVerifyState extends State<CodeVerify> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 20,),
+                  SizedBox(height: 40,),
                   Text('OTP',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                   Text("Code is sent to $phonenumber",textAlign: TextAlign.center,style: TextStyle(fontFamily: "Poppins"),),
                   SizedBox(height: 100,),
