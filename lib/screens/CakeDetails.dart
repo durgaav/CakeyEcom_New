@@ -424,6 +424,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       Container(margin:EdgeInsets.symmetric(horizontal: 15),child: Divider(color: Colors.pink[100],)),
 
                       Container(
+                        //margin
                           margin: EdgeInsets.all(10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
