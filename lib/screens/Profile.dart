@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as Path;
+import 'package:http_parser/http_parser.dart';
+
 
 
 class Profile extends StatefulWidget {
@@ -15,7 +22,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
-  //get index from pre screen
+  //get tab index from pre screen
   int defindex = 0 ;
   _ProfileState({required this.defindex});
 
@@ -31,6 +38,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
    //Phone number
    String phoneNumber = "";
+   //file
+   File file = new File("");
+
+   //users details
+   String userID = "";
+   String userAddress = "";
+   String userProfileUrl = "";
+   String userName = "";
+
+   //Edit text Controllers...
+   var userNameCtrl = new TextEditingController();
+   var userAddrCtrl = new TextEditingController();
 
    //On start activity..
   @override
@@ -42,17 +61,163 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       setState(() {
         phoneNumber = pref.get("phoneNumber").toString();
       });
+      fetchProfileByPhn();
     });
     super.initState();
   }
 
-  //region Update the profile
-  Future<void> updateProfile() async{
-    //needs to imple..
+  //On destroy
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    file = new File('');
+    super.dispose();
   }
+
+  //region Alerts....
+
+  //Alert Dialog....
+  void showAlertDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  //endregion
+
+  //region Functions....
+
+  //Update the profile
+  Future<void> updateProfile() async {
+    print(lookupMimeType(file.path).toString());
+    //needs to imple..
+    showAlertDialog();
+
+    if(file.path.isEmpty){
+      print('empty file...');
+      var request = http.MultipartRequest('PUT',
+          Uri.parse(
+              'https://cakey-database.vercel.app/api/users/update/$userID'));
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.fields.addAll({
+        'UserName': userNameCtrl.text.toString(),
+        'Address': userAddrCtrl.text.toString()
+      });
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        print(await response.stream.bytesToString());
+        setState(() {
+          fetchProfileByPhn();
+        });
+      }
+      else {
+        Navigator.pop(context);
+        print(response.reasonPhrase);
+      }
+
+    }else{
+      print('file irukku...');
+      print(Path.basename(file.path));
+      print(file);
+      var request = http.MultipartRequest('PUT',
+          Uri.parse(
+              'https://cakey-database.vercel.app/api/users/update/$userID'));
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.files.add(await http.MultipartFile.fromPath(
+          'file', file.path.toString(),
+          filename: Path.basename(file.path),
+          contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+      ));
+      request.fields.addAll({
+        'UserName': userNameCtrl.text.toString(),
+        'Address': userAddrCtrl.text.toString()
+      });
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        print(await response.stream.bytesToString());
+        setState(() {
+          fetchProfileByPhn();
+        });
+      }
+      else {
+        Navigator.pop(context);
+        print(response.reasonPhrase);
+      }
+
+    }
+  }
+
+  //Fetching user details from API....
+  Future<void> fetchProfileByPhn() async{
+    showAlertDialog();
+    //needs to imple..
+    http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list"));
+
+    if(response.statusCode==200){
+      // print(jsonDecode(response.body));
+      Navigator.pop(context);
+      setState(() {
+        List body = jsonDecode(response.body);
+        body = body.where((element) => element['PhoneNumber']==int.parse(phoneNumber)).toList();
+        print("body $body");
+        userID = body[0]['_id'].toString();
+        userAddress = body[0]['Address'].toString();
+        userProfileUrl = body[0]['file'].toString();
+        userName = body[0]['UserName'].toString();
+        print(userID + userAddress + userProfileUrl);
+      });
+    }
+  }
+
+  //File piker for getting Profile picture
+  Future<void> profilePiker() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null) {
+      setState(() {
+        String path = result.files.single.path.toString();
+        file = File(path);
+        print("file $file");
+      });
+    } else {
+      // User canceled the picker
+    }
+  }
+
+  //endregion
 
   //region Widgets........
   Widget ProfileView(){
+    setState(() {
+      userNameCtrl = TextEditingController(text: userName);
+      userAddrCtrl = TextEditingController(text: userAddress);
+    });
     return Column(
       children: [
         const SizedBox(height: 10,),
@@ -66,12 +231,19 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   shape: BoxShape.circle,
                   boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
                 ),
-                child: const CircleAvatar(
+                child: file.path.isEmpty?CircleAvatar(
                   radius: 47,
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: 45,
-                    backgroundImage: NetworkImage("https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
+                    backgroundImage: NetworkImage("$userProfileUrl"),
+                  ),
+                ):CircleAvatar(
+                  radius: 47,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: 45,
+                    backgroundImage: FileImage(file)
                   ),
                 ),
               ),
@@ -81,6 +253,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   child: InkWell(
                     onTap: (){
                       print('hii');
+                      profilePiker();
                     },
                     child: CircleAvatar(
                       radius: 22,
@@ -96,7 +269,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        const TextField(
+        TextField(
+          controller: userNameCtrl,
           maxLines: 1,
           keyboardType: TextInputType.text,
           decoration: const InputDecoration(
@@ -110,7 +284,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           enabled: false,
           controller: TextEditingController(text: phoneNumber),
           maxLines: 1,
-          maxLength: 10,
           maxLengthEnforced: true,
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
@@ -119,9 +292,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               label: const Text('Phone')
           ),
         ),
-        const TextField(
-          maxLines: 3,
-          keyboardType: TextInputType.streetAddress,
+        const SizedBox(height: 15,),
+        TextField(
+          controller: userAddrCtrl,
+          maxLines: 4,
+          keyboardType: TextInputType.multiline,
           decoration: InputDecoration(
               hintText: "Type Address",
               border: OutlineInputBorder(),
@@ -140,7 +315,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         Container(
           alignment: Alignment.centerLeft,
           child: RaisedButton(
-              onPressed: (){FocusScope.of(context).unfocus();},
+              onPressed: (){
+                FocusScope.of(context).unfocus();
+                updateProfile();
+                },
               color: darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20)

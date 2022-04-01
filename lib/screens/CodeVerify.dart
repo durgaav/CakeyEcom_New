@@ -102,6 +102,7 @@ class _CodeVerifyState extends State<CodeVerify> {
   //Code verify.........
   Future<void> verify() async{
     var prefs = await SharedPreferences.getInstance();
+    String number = phonenumber.replaceAll("+91", "");
     showAlertDialog();
     try{
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
