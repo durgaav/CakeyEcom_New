@@ -413,7 +413,6 @@ class _HomeScreenState extends State<HomeScreen> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
-      drawer: Container(color: Colors.white,width: 300,),
       key: _scaffoldKey,
       body: SingleChildScrollView(
         child: Column(

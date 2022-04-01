@@ -1,3 +1,5 @@
+import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -87,7 +89,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       Text(""),
                   expandedHeight: 300.0,
                   leading: Container(
-                    margin: const EdgeInsets.all(6),
+                    margin: const EdgeInsets.all(10),
                     child: InkWell(
                       onTap: () {
                         Navigator.pop(context);
@@ -97,8 +99,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                               color: Colors.black26,
                               borderRadius: BorderRadius.circular(10)),
                           alignment: Alignment.center,
-                          height: 30,
-                          width: 30,
+                          height: 20,
+                          width: 20,
                           child: Icon(
                             Icons.chevron_left,
                             color: lightPink,
@@ -106,7 +108,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                           )),
                     ),
                   ),
-                  //forceElevated: innerBoxIsScrolled,
+                  // forceElevated: innerBoxIsScrolled,
                   //floating: true,
                   pinned: true,
                   floating: true,
@@ -449,6 +451,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: TextField(
                                   decoration: InputDecoration(
                                       filled: true,
+                                      fillColor:Colors.black12,
                                       hintText: 'Type here..',
                                       border: OutlineInputBorder(
                                           borderSide: BorderSide.none,
@@ -568,11 +571,203 @@ class _CakeDetailsState extends State<CakeDetails> {
                             ),)
                         ),
                       ),
-
                       Container(
+                        padding: EdgeInsets.all(10.0),
+                        color: Colors.black12,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('Select Vendors',style: TextStyle(fontSize:18,
+                                        color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                    Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
+                                  ],
+                                ),
+                                InkWell(
+                                  onTap: (){
+                                    print('see more..');
+                                    Navigator.of(context).push(
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
+                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          const begin = Offset(1.0, 0.0);
+                                          const end = Offset.zero;
+                                          const curve = Curves.ease;
 
-                      )
+                                          final tween = Tween(begin: begin, end: end);
+                                          final curvedAnimation = CurvedAnimation(
+                                            parent: animation,
+                                            curve: curve,
+                                          );
 
+                                          return SlideTransition(
+                                            position: tween.animate(curvedAnimation),
+                                            child: child,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                      Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              height: 200,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  itemCount: 4,
+                                  itemBuilder: (context , index){
+                                    return Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Container(
+                                        padding: EdgeInsets.all(10),
+                                        width: 250,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                CircleAvatar(
+                                                  radius:32,
+                                                  backgroundColor: Colors.white,
+                                                  child: CircleAvatar(
+                                                    radius:30,
+                                                    backgroundImage: NetworkImage(
+                                                      "https://www.areinfotech.com/services/android-app-development-in-ahmedabad.png"
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8,),
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width:155,
+                                                      child: Text('Vendor name',style: TextStyle(
+                                                        color: darkBlue,fontWeight: FontWeight.bold,
+                                                        fontFamily: "Poppins"
+                                                      ),overflow: TextOverflow.ellipsis,),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        RatingBar.builder(
+                                                          initialRating: 4.1,
+                                                          minRating: 1,
+                                                          direction: Axis.horizontal,
+                                                          allowHalfRating: true,
+                                                          itemCount: 5,
+                                                          itemSize: 14,
+                                                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                          itemBuilder: (context, _) => Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
+                                                          ),
+                                                          onRatingUpdate: (rating) {
+                                                            print(rating);
+                                                          },
+                                                        ),
+                                                        Text(' 4.5',style: TextStyle(
+                                                            color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                        ),)
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                            Text('the vendors description goes here it may come long',
+                                            style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                            overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                            Container(
+                                              margin:EdgeInsets.only(top: 10),
+                                              height: 0.5,
+                                              color: Colors.black26,
+                                            ),
+                                            SizedBox(height: 15,),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text('Includes eggless',style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontSize: 13
+                                                    ),),
+                                                    Text('Delivery fee goes here',style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 12
+                                                    ),),
+                                                  ],
+                                                ),
+                                                Icon(Icons.check_circle,color: Colors.green,)
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+                              ),
+                            ),
+                            SizedBox(height: 15,),
+                            Container(
+                              height: 50,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25)
+                              ),
+                              child: RaisedButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)
+                                  ),
+                                  onPressed: (){
+                                    Navigator.of(context).push(
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) => CheckOut(),
+                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          const begin = Offset(1.0, 0.0);
+                                          const end = Offset.zero;
+                                          const curve = Curves.ease;
+
+                                          final tween = Tween(begin: begin, end: end);
+                                          final curvedAnimation = CurvedAnimation(
+                                            parent: animation,
+                                            curve: curve,
+                                          );
+
+                                          return SlideTransition(
+                                            position: tween.animate(curvedAnimation),
+                                            child: child,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  color: lightPink,
+                                  child: Text("ORDER NOW",style: TextStyle(
+                                    color: Colors.white,fontWeight: FontWeight.bold
+                                  ),),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

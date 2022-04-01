@@ -540,8 +540,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(6),
+        leading:Container(
+          margin: const EdgeInsets.all(10),
           child: InkWell(
             onTap: () {
               Navigator.pop(context);
@@ -551,8 +551,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     color: Colors.black26,
                     borderRadius: BorderRadius.circular(10)),
                 alignment: Alignment.center,
-                height: 35,
-                width: 35,
+                height: 20,
+                width: 20,
                 child: Icon(
                   Icons.chevron_left,
                   color: lightPink,

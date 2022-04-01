@@ -248,17 +248,28 @@ class _CakeTypesState extends State<CakeTypes> {
             );
           },
         ):null,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
         appBar: AppBar(
-          leading:IconButton(
-            icon:  Icon(
-              Icons.arrow_back_ios,
-              color: lightPink,
+          leading:Container(
+            margin: const EdgeInsets.all(10),
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10)),
+                  alignment: Alignment.center,
+                  height: 20,
+                  width: 20,
+                  child: Icon(
+                    Icons.chevron_left,
+                    color: lightPink,
+                    size: 35,
+                  )),
             ),
-            onPressed: (){
-              Navigator.pop(context);
-            },
           ),
           title: Text('TYPES OF CAKES',
               style: TextStyle(
@@ -549,7 +560,8 @@ class _CakeTypesState extends State<CakeTypes> {
                       itemCount: 20,
                       itemBuilder: (BuildContext context, int index) {
                         return
-                          index==0?GestureDetector(
+                          index==0?
+                          GestureDetector(
                             onTap: (){
                               Navigator.of(context).push(
                                 PageRouteBuilder(
