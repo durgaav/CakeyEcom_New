@@ -2,6 +2,7 @@ import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomiseCake extends StatefulWidget {
   const CustomiseCake({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //main variables
   bool egglesSwitch = true;
+  String userCurLocation = 'Searching...';
 
   var weight = [
     "1.5Kg",
@@ -35,6 +37,25 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   List<bool> selwIndex = [];
 
   List<bool> selCakeTower = [];
+
+
+  //region Functions
+  Future<void> loadPrefs() async{
+    var pref = await SharedPreferences.getInstance();
+    setState(() {
+      userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+    });
+  }
+  //endregion
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    Future.delayed(Duration.zero , () async{
+      loadPrefs();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +84,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('California',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                   ],
                 ),

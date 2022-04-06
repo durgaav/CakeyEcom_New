@@ -39,6 +39,13 @@ class _CodeVerifyState extends State<CodeVerify> {
   }
   _onVerificationCompleted(PhoneAuthCredential authCredential) async {
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Loggin Succeed!"),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        )
+    );
     await _auth.signInWithCredential(authCredential);
   }
 
@@ -101,8 +108,6 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Code verify.........
   Future<void> verify() async{
-    var prefs = await SharedPreferences.getInstance();
-    String number = phonenumber.replaceAll("+91", "");
     showAlertDialog();
     try{
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -111,14 +116,16 @@ class _CodeVerifyState extends State<CodeVerify> {
       final signIn = await _auth.signInWithCredential(phoneAuthCredential);
       if(signIn.user!=null){
         setState(() {
-          // addUsertoDb();
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pop(context);
-          prefs.setString("phoneNumber", phonenumber);
-          prefs.setBool("profileUpdated", false);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+          addUsertoDb();
         });
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Code Verified!"),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -188,13 +195,15 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Adding user to db (API)
   Future<void> addUsertoDb() async{
+    showAlertDialog();
     print('add phone.....');
     var prefs = await SharedPreferences.getInstance();
     print(phonenumber);
+
     //posting the value.....
     try{
       http.Response response = await http.post(
-        Uri.parse("https://cakey-database.vercel.app/api/users/validate"),
+        Uri.parse("https://cakey-database.vercel.app/api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
           "PhoneNumber": int.parse(phonenumber)
@@ -204,14 +213,34 @@ class _CodeVerifyState extends State<CodeVerify> {
       if(response.statusCode==200){
         Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
         print(jsonDecode(response.body));
-        print(map['message']);
-        //Checking status msg....
-        if(map['message']=="registered Successfully"||map['message']=="Login Succeed"){
+
+        //Checking msg....(reg / login)
+        if(map['message']=="registered Successfully"){
           prefs.setString("phoneNumber", phonenumber);
+          prefs.setBool("newRegUser", true);
+
           Navigator.pop(context);
           Navigator.pop(context);
           Navigator.pop(context);
           Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }else if(map['message']=="Login Succeed"){
+
+          prefs.setBool("newRegUser", false);
+          prefs.setString("phoneNumber", phonenumber);
+
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(map['message']),

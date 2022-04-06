@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cakey/ContextData.dart';
+import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
-
-
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
-
   int defindex = 0 ;
   Profile({required this.defindex});
 
@@ -38,6 +38,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
    //Phone number
    String phoneNumber = "";
+
    //file
    File file = new File("");
 
@@ -79,6 +80,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //Alert Dialog....
   void showAlertDialog(){
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context){
           return AlertDialog(
@@ -111,88 +113,114 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   //Update the profile
   Future<void> updateProfile() async {
-    print(lookupMimeType(file.path).toString());
-    //needs to imple..
+    var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
-
-    if(file.path.isEmpty){
-      print('empty file...');
-      var request = http.MultipartRequest('PUT',
-          Uri.parse(
-              'https://cakey-database.vercel.app/api/users/update/$userID'));
-      request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields.addAll({
-        'UserName': userNameCtrl.text.toString(),
-        'Address': userAddrCtrl.text.toString()
-      });
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-        Navigator.pop(context);
-        print(await response.stream.bytesToString());
-        setState(() {
-          fetchProfileByPhn();
+    try{
+      //without profile img....
+      if(file.path.isEmpty){
+        var request = http.MultipartRequest('PUT',
+            Uri.parse(
+                'https://cakey-database.vercel.app/api/users/update/$userID'));
+        request.headers['Content-Type'] = 'multipart/form-data';
+        request.fields.addAll({
+          'UserName': userNameCtrl.text.toString(),
+          'Address': userAddrCtrl.text.toString()
         });
+        http.StreamedResponse response = await request.send();
+
+        if (response.statusCode == 200) {
+          prefs.setBool("newRegUser", false);
+          prefs.setString("userName", userName);
+          Navigator.pop(context);
+          print(await response.stream.bytesToString());
+          setState(() {
+            file = new File('');
+            fetchProfileByPhn();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
+          );
+        }
+        else {
+          Navigator.pop(context);
+          print(response.reasonPhrase);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor: lightPink,)
+          );
+        }
       }
-      else {
-        Navigator.pop(context);
-        print(response.reasonPhrase);
-      }
+      else{
+        //with profile image....
+        print(Path.basename(file.path));
 
-    }else{
-      print('file irukku...');
-      print(Path.basename(file.path));
-      print(file);
-      var request = http.MultipartRequest('PUT',
-          Uri.parse(
-              'https://cakey-database.vercel.app/api/users/update/$userID'));
-      request.headers['Content-Type'] = 'multipart/form-data';
-      request.files.add(await http.MultipartFile.fromPath(
-          'file', file.path.toString(),
-          filename: Path.basename(file.path),
-          contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-      ));
-      request.fields.addAll({
-        'UserName': userNameCtrl.text.toString(),
-        'Address': userAddrCtrl.text.toString()
-      });
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-        Navigator.pop(context);
-        print(await response.stream.bytesToString());
-        setState(() {
-          fetchProfileByPhn();
+        var request = http.MultipartRequest('PUT',
+            Uri.parse(
+                'https://cakey-database.vercel.app/api/users/update/$userID'));
+        request.headers['Content-Type'] = 'multipart/form-data';
+        request.files.add(await http.MultipartFile.fromPath(
+            'file', file.path.toString(),
+            filename: Path.basename(file.path),
+            contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+        ));
+        request.fields.addAll({
+          'UserName': userNameCtrl.text.toString(),
+          'Address': userAddrCtrl.text.toString()
         });
-      }
-      else {
-        Navigator.pop(context);
-        print(response.reasonPhrase);
-      }
 
+        http.StreamedResponse response = await request.send();
+
+        if (response.statusCode == 200) {
+          prefs.setBool("newRegUser", false);
+          prefs.setString("userName", userName);
+          Navigator.pop(context);
+          print(await response.stream.bytesToString());
+          setState(() {
+            fetchProfileByPhn();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
+          );
+        }
+        else {
+          Navigator.pop(context);
+          print(response.reasonPhrase);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor:lightPink,)
+          );
+        }
+      }
+    }catch(error){
+      Navigator.pop(context);
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please Check Your Connection!"),backgroundColor:lightPink,)
+      );
     }
+
   }
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
     showAlertDialog();
     //needs to imple..
-    http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list"));
-
+    http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+        "${int.parse(phoneNumber)}"));
     if(response.statusCode==200){
       // print(jsonDecode(response.body));
       Navigator.pop(context);
       setState(() {
         List body = jsonDecode(response.body);
-        body = body.where((element) => element['PhoneNumber']==int.parse(phoneNumber)).toList();
         print("body $body");
         userID = body[0]['_id'].toString();
         userAddress = body[0]['Address'].toString();
-        userProfileUrl = body[0]['file'].toString();
+        userProfileUrl = body[0]['ProfileImage'].toString();
+        context.read<ContextData>().setProfileUrl(userProfileUrl);
         userName = body[0]['UserName'].toString();
+        context.read<ContextData>().setUserName(userName);
         print(userID + userAddress + userProfileUrl);
       });
+    }else{
+      Navigator.pop(context);
     }
   }
 
@@ -210,13 +238,26 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }
   }
 
+  //check the internet con...
+  Future<void> checkInternet() async {
+    try {
+      final result = await InternetAddress.lookup('www.google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+    }
+  }
+
   //endregion
 
-  //region Widgets........
+  //region Widgets.....
   Widget ProfileView(){
+    userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      userNameCtrl = TextEditingController(text: userName);
-      userAddrCtrl = TextEditingController(text: userAddress);
+      userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
+      userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
     });
     return Column(
       children: [
@@ -234,10 +275,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 child: file.path.isEmpty?CircleAvatar(
                   radius: 47,
                   backgroundColor: Colors.white,
-                  child: CircleAvatar(
+                  child: userProfileUrl!="null"?CircleAvatar(
                     radius: 45,
                     backgroundImage: NetworkImage("$userProfileUrl"),
-                  ),
+                  ):CircleAvatar(
+                    radius: 45,
+                    backgroundImage: AssetImage("assets/images/user.png"),
+                  )
                 ):CircleAvatar(
                   radius: 47,
                   backgroundColor: Colors.white,
@@ -714,6 +758,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print(context.watch<ContextData>().getProfileUrl());
+    checkInternet();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(

@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -5,6 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../ContextData.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
+import '../screens/Profile.dart';
 
 class CakeTypes extends StatefulWidget {
   const CakeTypes({Key? key}) : super(key: key);
@@ -20,20 +30,25 @@ class _CakeTypesState extends State<CakeTypes> {
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
-  String poppins = "Poppins";
 
-  //variables
+  //Strings
+  String profileUrl = "";
+  String userCurLocation = 'Searching...';
+  String poppins = "Poppins";
+  String networkMsg = "";
+
+  //booleans
   bool egglesSwitch = true;
   bool _show = true;
-  var cakeCate = [
-    "Birthday",
-    "Anniversary",
-    "Trending",
-  ];
+  bool isNetworkError = false;
 
-
-  List<bool> selIndex = [];
+  //Numbers int
   RangeValues rangeValues = RangeValues(10, 30);
+
+  //Lists
+  var cakeCate = ["Birthday", "Anniversary", "Trending",];
+  List<bool> selIndex = [];
+  List cakesList = [];
 
   //region Dialogs
 
@@ -198,12 +213,102 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //endregion
 
+  //region Functions
+
+  //load prefss...
+  Future<void> loadPrefs() async{
+    var pref = await SharedPreferences.getInstance();
+    setState(() {
+      userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+    });
+  }
+
+  //Fetching cake list API...
+  Future<void> getCakeList() async{
+    try{
+      http.Response response = await http.get(
+          Uri.parse("https://cakey-database.vercel.app/api/cake/list")
+      );
+      if(response.statusCode==200){
+        print(jsonDecode(response.body));
+        checkNetwork();
+        setState(() {
+          setState(() {
+            isNetworkError = false;
+          });
+          cakesList = jsonDecode(response.body);
+        });
+      }else{
+        setState(() {
+          isNetworkError = true;
+          checkNetwork();
+          if(networkMsg=="Network connected"){
+            print('Server error! try again latter');
+          }
+        });
+      }
+    }catch(error){
+      setState(() {
+        isNetworkError = true;
+        checkNetwork();
+      });
+    }
+  }
+
+  //Check the internet
+  Future<void> checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('www.google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Connected...!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+          )
+        );
+        setState(() {
+          networkMsg = "Network connected";
+        });
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You are offline!'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+      print('not connected');
+      setState(() {
+        networkMsg = "No Internet! Connect & tap here";
+      });
+    }
+    // return connetedOrNot;
+  }
+
+  //endregion
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    Future.delayed(Duration.zero , () async{
+      loadPrefs();
+      getCakeList();
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    profileUrl = context.watch<ContextData>().getProfileUrl();
+    cakesList = cakesList.reversed.toList();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
-        bottomSheet:_show?BottomSheet(
+        bottomSheet:!_show?BottomSheet(
           onClosing: () {
           },
           builder: (BuildContext context) {
@@ -321,14 +426,41 @@ class _CakeTypesState extends State<CakeTypes> {
               child: InkWell(
                 onTap: () {
                   print('hello surya....');
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
-                child: CircleAvatar(
-                  radius: 19.5,
+                child: profileUrl!="null"?CircleAvatar(
+                  radius: 17.5,
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
-                    radius: 18,
-                    backgroundImage: NetworkImage(
-                        "https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
+                      radius: 16,
+                      backgroundImage:NetworkImage("$profileUrl")
+                  ),
+                ):CircleAvatar(
+                  radius: 17.5,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                      radius: 16,
+                      backgroundImage:AssetImage("assets/images/user.png")
                   ),
                 ),
               ),
@@ -369,7 +501,7 @@ class _CakeTypesState extends State<CakeTypes> {
                     padding: EdgeInsets.only(left: 8),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'California',
+                      '$userCurLocation',
                       style: TextStyle(
                           fontFamily: poppins,
                           fontSize: 15,
@@ -381,10 +513,11 @@ class _CakeTypesState extends State<CakeTypes> {
               ),
             ),
             Container(
-              height: height * 0.79,
+              height: height * 0.799,
               decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: Svg("assets/images/splash.svg"), fit: BoxFit.cover)),
+                      image: Svg("assets/images/splash.svg"), fit: BoxFit.cover
+                  )),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -550,6 +683,70 @@ class _CakeTypesState extends State<CakeTypes> {
                               );
                             })),
 
+                    Visibility(
+                      visible: isNetworkError,
+                      child: InkWell(
+                        splashColor: Colors.black26,
+                        onTap: (){
+                          setState(() {
+                            getCakeList();
+                          });
+                        },
+                        child: Text('$networkMsg',style: TextStyle(
+                          fontFamily: "Poppins",color: Colors.red,fontSize: 16
+                        ),),
+                      ),
+                    ),
+
+                    cakesList.length==0?
+                    StaggeredGridView.countBuilder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.all(12.0),
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 12,
+                        itemCount: 20,
+                        staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                        itemBuilder: (BuildContext context, int index){
+                          return Shimmer.fromColors(
+                            direction: ShimmerDirection.ttb,
+                            baseColor: Colors.grey,
+                            highlightColor: Colors.white,
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              height: 250,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.black,width: 1)
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.black,
+                                    radius: 45,
+                                  ),
+                                  Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 25,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                    ):
                     StaggeredGridView.countBuilder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -557,7 +754,7 @@ class _CakeTypesState extends State<CakeTypes> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 12,
-                      itemCount: 20,
+                      itemCount: cakesList.length,
                       itemBuilder: (BuildContext context, int index) {
                         return
                           index==0?
@@ -606,7 +803,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                         radius: 45,
                                         backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
                                       ),
-                                      Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                      Text('Cake name}',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                           color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
                                       )),
                                       Row(
@@ -675,13 +872,13 @@ class _CakeTypesState extends State<CakeTypes> {
                                         radius: 45,
                                         backgroundImage:NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"),
                                       ),
-                                      Text('Choco Toppings Cake cake cake cake',maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                      Text("${cakesList[index]['Title']}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                           color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
                                       )),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text('₹ 800',style: TextStyle(
+                                          Text('₹ ${cakesList[index]['Price']}',style: TextStyle(
                                               color: lightPink,fontWeight: FontWeight.bold,fontSize: 14
                                           )),
                                           Container(
@@ -705,6 +902,7 @@ class _CakeTypesState extends State<CakeTypes> {
                       },
                       staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
                     ),
+
                   ],
                 ),
               ),

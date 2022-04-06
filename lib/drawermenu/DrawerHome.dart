@@ -1,6 +1,6 @@
+import 'package:cakey/ContextData.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
-import 'package:cakey/DrawerScreens/OrderHistory.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/Profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,10 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
-
 import '../DrawerScreens/HomeScreen.dart';
 import '../DrawerScreens/Notifications.dart';
 import '../screens/WelcomeScreen.dart';
+import 'package:provider/provider.dart';
+
 
 class DrawerHome extends StatefulWidget {
   const DrawerHome({Key? key}) : super(key: key);
@@ -24,27 +25,34 @@ class _DrawerHomeState extends State<DrawerHome> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  //colors
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
+
+  //booleans
   bool egglesSwitch = true;
+
+
+  //Strings
   String poppins = "Poppins";
+  String profileUrl = '';
+  String userName = '';
 
   int selectedIndex = 0;
 
   var DrawerScreens = [
     HomeScreen(),
     CustomiseCake(),
-    Notifications(),
   ];
 
   var titleText = [
     "HOME",
     "FULLY CUSTOMIZATION",
-    "NOTIFICATIONS",
   ];
 
-  //region Functions
+  //region Alerts
+
   void showlogoutDialog() {
     showDialog(
         context: context,
@@ -118,9 +126,13 @@ class _DrawerHomeState extends State<DrawerHome> {
 
   //endregion
 
+  //region Functions...
 
-  //Navigation drawer.......
+  //endregion
+
+  //region Navigation drawer.......
   Widget DrawerContainer(){
+    print(profileUrl);
     return SafeArea(
       child: Container(
         padding: EdgeInsets.all(15),
@@ -145,14 +157,22 @@ class _DrawerHomeState extends State<DrawerHome> {
                     shape: BoxShape.circle,
                     boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 1)],
                   ),
-                  child: CircleAvatar(
+                  child: profileUrl!="null"?CircleAvatar(
                     radius: 37,
                     backgroundColor: Colors.white,
                     child: CircleAvatar(
                       radius: 35,
-                      backgroundImage: NetworkImage('https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj'),
+                      backgroundImage:
+                      NetworkImage('$profileUrl'),
                     ),
-                  ),
+                  ):CircleAvatar(
+                    radius: 37,
+                    backgroundColor: Colors.white,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundImage:AssetImage('assets/images/user.png')
+                    ),
+                  )
                 ),
                 SizedBox(width: 15,),
                 Column(
@@ -161,9 +181,9 @@ class _DrawerHomeState extends State<DrawerHome> {
                   children: [
                     Container(
                       width: 180,
-                      child: Text('TAMIL TECH KIT YT',
+                      child: Text(userName!="null"?'$userName':'No name',
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 15),
                       ),
                     ),
                     SizedBox(height: 5,),
@@ -359,10 +379,26 @@ class _DrawerHomeState extends State<DrawerHome> {
             ),
             ListTile(
               onTap: (){
-                setState(() {
-                  selectedIndex=2;
-                });
-                Navigator.pop(context);
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.ease;
+
+                      final tween = Tween(begin: begin, end: end);
+                      final curvedAnimation = CurvedAnimation(
+                        parent: animation,
+                        curve: curve,
+                      );
+                      return SlideTransition(
+                        position: tween.animate(curvedAnimation),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.pink[100],
@@ -404,8 +440,19 @@ class _DrawerHomeState extends State<DrawerHome> {
       ),
     );
   }
+  //endregion
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    profileUrl = context.watch<ContextData>().getProfileUrl();
+    userName = context.watch<ContextData>().getUserName();
     return WillPopScope(
       onWillPop: () async{
         showExitDialog();
@@ -503,16 +550,43 @@ class _DrawerHomeState extends State<DrawerHome> {
               ),
               child: InkWell(
                 onTap: (){
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
 
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
-                child: CircleAvatar(
+                child: profileUrl!="null"?CircleAvatar(
                   radius: 17.5,
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: 16,
-                    backgroundImage: NetworkImage("https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
+                    backgroundImage:NetworkImage("$profileUrl")
                   ),
+                ):CircleAvatar(
+                radius: 17.5,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage:AssetImage("assets/images/user.png")
                 ),
+              ),
               ),
             ),
             SizedBox(width: 10,),

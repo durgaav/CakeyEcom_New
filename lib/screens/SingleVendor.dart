@@ -2,6 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../ContextData.dart';
+import 'Profile.dart';
 
 class SingleVendor extends StatefulWidget {
   const SingleVendor({Key? key}) : super(key: key);
@@ -17,6 +21,8 @@ class _SingleVendorState extends State<SingleVendor> {
   Color lightPink = Color(0xffFE8416D);
 
   String poppins = "Poppins";
+  String profileUrl = "";
+  String userCurLocation = 'Searching...';
   String description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
       "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
       "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut"
@@ -26,8 +32,28 @@ class _SingleVendorState extends State<SingleVendor> {
 
   List<bool> isExpands = [];
 
+
+  //region Functions
+  Future<void> loadPrefs() async{
+    var pref = await SharedPreferences.getInstance();
+    setState(() {
+      userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+    });
+  }
+  //endregion
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    Future.delayed(Duration.zero , () async{
+      loadPrefs();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    profileUrl = context.watch<ContextData>().getProfileUrl();
     return Scaffold(
       appBar: AppBar(
         leading:Container(
@@ -50,7 +76,7 @@ class _SingleVendorState extends State<SingleVendor> {
                 )),
           ),
         ),
-        title: Text('VENDORS',
+        title: Text('Muthu Kumar',
             style: TextStyle(
                 color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
         elevation: 0.0,
@@ -100,14 +126,41 @@ class _SingleVendorState extends State<SingleVendor> {
             child: InkWell(
               onTap: () {
                 print('hello surya....');
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.ease;
+
+                      final tween = Tween(begin: begin, end: end);
+                      final curvedAnimation = CurvedAnimation(
+                        parent: animation,
+                        curve: curve,
+                      );
+
+                      return SlideTransition(
+                        position: tween.animate(curvedAnimation),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
               },
-              child: CircleAvatar(
-                radius: 19.5,
+              child: profileUrl!="null"?CircleAvatar(
+                radius: 17.5,
                 backgroundColor: Colors.white,
                 child: CircleAvatar(
-                  radius: 18,
-                  backgroundImage: NetworkImage(
-                      "https://yt3.ggpht.com/1ezlnMBACv7Aa5TVu7OVumYrvIFQSsVtmKxKN102PV1vrZIoqIzHCO-XY_ZsWuGHzIgksOv__9o=s900-c-k-c0x00ffffff-no-rj"),
+                    radius: 16,
+                    backgroundImage:NetworkImage("$profileUrl")
+                ),
+              ):CircleAvatar(
+                radius: 17.5,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage:AssetImage("assets/images/user.png")
                 ),
               ),
             ),
@@ -139,7 +192,7 @@ class _SingleVendorState extends State<SingleVendor> {
                   Container(
                     padding: EdgeInsets.only(left: 8),
                     alignment: Alignment.centerLeft,
-                    child: Text('California',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                    child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
                   ),
                 ],
               ),

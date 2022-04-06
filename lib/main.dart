@@ -1,6 +1,7 @@
+import 'package:cakey/ContextData.dart';
+import 'package:cakey/TestLocation.dart';
 import 'package:cakey/drawermenu/DrawerHome.dart';
-import 'package:cakey/screens/CodeVerify.dart';
-import 'package:cakey/screens/PhoneVerify.dart';
+import 'package:provider/provider.dart';
 import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -49,13 +50,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        theme: ThemeData(
-          primarySwatch: buildMaterialColor(Color(0xffFE8416D))
-        ),
-        // theme: ThemeData.dark(),
-        debugShowCheckedModeBanner: false,
-        home: authUser!=null?DrawerHome():WelcomeScreen()
+    return ChangeNotifierProvider<ContextData>(
+      create: (context)=>ContextData(),
+      child: MaterialApp(
+          theme: ThemeData(
+              primarySwatch: buildMaterialColor(Color(0xffFE8416D))
+          ),
+          // theme: ThemeData.dark(),
+          debugShowCheckedModeBanner: false,
+          // home:TestPage()
+          home: authUser!=null?DrawerHome():WelcomeScreen()
+      ),
     );
   }
 }
