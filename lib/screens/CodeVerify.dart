@@ -3,9 +3,12 @@ import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:alt_sms_autofill/alt_sms_autofill.dart';
+
 
 //Code Verify screen.....
 class CodeVerify extends StatefulWidget {
@@ -74,6 +77,9 @@ class _CodeVerifyState extends State<CodeVerify> {
     setState(() {
       verificationId = verificationID;
     });
+
+    initSmsListener();
+
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -105,6 +111,29 @@ class _CodeVerifyState extends State<CodeVerify> {
     return null;
   }
  //endregion
+
+
+  Future<void> initSmsListener() async {
+    String? commingSms;
+    try {
+      commingSms = await AltSmsAutofill().listenForSms;
+    } on PlatformException {
+      commingSms = 'Failed to get Sms.';
+    }
+    if (!mounted) return;
+
+    setState(() {
+      otpControl = TextEditingController(text: commingSms);
+      print(commingSms);
+    });
+
+  }
+
+  @override
+  void dispose() {
+    AltSmsAutofill().unregisterListener();
+    super.dispose();
+  }
 
   //Code verify.........
   Future<void> verify() async{
@@ -289,6 +318,7 @@ class _CodeVerifyState extends State<CodeVerify> {
   @override
   void initState() {
     // TODO: implement initState
+    initSmsListener();
     super.initState();
     Future.delayed(Duration.zero,() async{
       verifyPhoneCode();
@@ -315,6 +345,9 @@ class _CodeVerifyState extends State<CodeVerify> {
                   Container(
                     margin: EdgeInsets.only(left: 20, right: 20),
                     child: PinCodeTextField(
+                        enablePinAutofill: true,
+                        useExternalAutoFillGroup: true,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         keyboardType: TextInputType.phone,
                         appContext: context,
                         length: 6,

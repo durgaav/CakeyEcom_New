@@ -85,6 +85,7 @@ class _NotificationsState extends State<Notifications> {
           Shimmer.fromColors(
             baseColor:Colors.grey,
             highlightColor: Colors.black26,
+            direction: ShimmerDirection.ttb,
             child: ListView.builder(
                 itemCount: 10,
                 shrinkWrap: true,

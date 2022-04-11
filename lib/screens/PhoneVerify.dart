@@ -17,19 +17,23 @@ class _PhoneVerifyState extends State<PhoneVerify> {
   TextEditingController phoneControl = new TextEditingController();
   String length = "";
   Color lightPink = Color(0xffFE8416D);
+  Color lightGrey = Color(0xffF5F5F5);
+  Color darkBlue = Color(0xffF213959);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Container(
+            height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.only(bottom: 20),
             width: double.infinity,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 20,),
+                  SizedBox(height: 40,),
                   Text('LOGIN',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                   Container(
                     height: 230,
@@ -40,7 +44,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                     ),
                   ),
                   Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: "Poppins"),
+                  style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 35,),
                   Container(
@@ -48,7 +52,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                     margin: EdgeInsets.only(left: 15),
                     padding: EdgeInsets.all(5),
                     width: double.infinity,
-                    child: Text('Phone Number',style: TextStyle(color: Colors.black,fontFamily: "Poppins"),),
+                    child: Text('Phone Number',style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontWeight: FontWeight.bold),),
                   ),
                   Container(
                     margin: EdgeInsets.only(left: 15,right: 15),
@@ -65,6 +69,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       maxLines: 1,
                       maxLength: 10,
                       keyboardType: TextInputType.phone,
+                      style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                           suffixIcon: Visibility(
                             visible: length.length>0?true:false,
@@ -78,12 +83,12 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                               },
                               icon: Icon(Icons.close_rounded),
                               iconSize: 18,
-                              color: Colors.lightGreen,
                             ),
                           ),
                           hintText: 'Phone Number',
                           hintStyle: TextStyle(fontFamily: "Poppins"),
-                          prefixIcon: Icon(CupertinoIcons.phone_circle , color: Colors.black,size: 35,)
+                          prefixIcon:Icon(Icons.phone , color: darkBlue,),
+
                       ),
                     ),
                   ),
@@ -119,7 +124,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       shape: RoundedRectangleBorder(
                           borderRadius:BorderRadius.circular(30)
                       ),
-                      color: Colors.green,
+                      color: lightPink,
                     ),
                   )
                 ],

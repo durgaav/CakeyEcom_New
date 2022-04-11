@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:cakey/ContextData.dart';
@@ -39,16 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
   User authUser = FirebaseAuth.instance.currentUser!;
 
   int i = 0;
-
   //booleans
   bool egglesSwitch = true;
   //prefs val..
   bool newRegUser = true;
   bool profileRemainder = false;
+  bool isNetworkError = false;
 
   //Strings
   String poppins = "Poppins";
   String phoneNumber = '';
+  String networkMsg = "";
+
   //latlong
   String location ='Null, Press Button';
   //address
@@ -59,12 +62,18 @@ class _HomeScreenState extends State<HomeScreen> {
   String userProfileUrl = "";
   String userName = "";
 
+  //Lists
+  List cakesList = [];
+  List<String> cakeTypeImages = [];
+
 
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
   var cakeSubCategoryCtrl = new TextEditingController();
   var cakeVendorCtrl = new TextEditingController();
   var cakeLocationCtrl = new TextEditingController();
+
+
   //endregion
 
   //region Alerts
@@ -425,6 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     timerTrigger();
     fetchProfileByPhn();
+    getCakeList();
     Position position = await _getGeoLocationPosition();
     location ='Lat: ${position.latitude} , Long: ${position.longitude}';
     GetAddressFromLatLong(position);
@@ -448,13 +458,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
-    showAlertDialog();
+    var prefs = await SharedPreferences.getInstance();
+    // showAlertDialog();
     //needs to imple..
     http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
         "${int.parse(phoneNumber)}"));
     if(response.statusCode==200){
       // print(jsonDecode(response.body));
-      Navigator.pop(context);
+      // Navigator.pop(context);
       setState(() {
         List body = jsonDecode(response.body);
         print("body $body");
@@ -463,11 +474,13 @@ class _HomeScreenState extends State<HomeScreen> {
         userProfileUrl = body[0]['ProfileImage'].toString();
         context.read<ContextData>().setProfileUrl(userProfileUrl);
         userName = body[0]['UserName'].toString();
+        prefs.setString('userID', userID);
+        prefs.setString('userAddress', userAddress);
         context.read<ContextData>().setUserName(userName);
         print(userID + userAddress + userProfileUrl);
       });
     }else{
-      Navigator.pop(context);
+      // Navigator.pop(context);
     }
   }
 
@@ -530,6 +543,70 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  //Fetching cake list API...
+  Future<void> getCakeList() async{
+    try{
+      http.Response response = await http.get(
+          Uri.parse("https://cakey-database.vercel.app/api/cake/list")
+      );
+      if(response.statusCode==200){
+        print(jsonDecode(response.body));
+        checkNetwork();
+        setState(() {
+          setState(() {
+            isNetworkError = false;
+          });
+          cakesList = jsonDecode(response.body);
+          cakesList = cakesList.reversed.toList();
+        });
+      }else{
+          print('Server error! try again latter');
+          setState(() {
+            isNetworkError = true;
+            networkMsg = "Server error! try again latter";
+          });
+      }
+    }catch(error){
+      setState(() {
+        isNetworkError = true;
+        checkNetwork();
+      });
+    }
+  }
+
+  //Check the internet
+  Future<void> checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('www.google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Connected...!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+        setState(() {
+          networkMsg = "Network connected";
+        });
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You are offline!'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+      print('not connected');
+      setState(() {
+        networkMsg = "No Internet! Connect & tap here";
+      });
+    }
+    // return connetedOrNot;
+  }
+
   //endregion
 
   //onStart
@@ -540,19 +617,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(Duration.zero ,() async{
       loadPrefs();
     });
-
-    Timer(Duration(seconds: 5),() async{
-      setState(() {
-        i = 1;
-      });
-    });
-
   }
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
@@ -633,7 +704,22 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    i==0?
+                    Visibility(
+                      visible: isNetworkError,
+                      child: InkWell(
+                        splashColor: Colors.black26,
+                        onTap: (){
+                          setState(() {
+                            loadPrefs();
+                          });
+                        },
+                        child: Text('$networkMsg',style: TextStyle(
+                            fontFamily: "Poppins",color: Colors.red,fontSize: 16
+                        ),),
+                      ),
+                    ),
+
+                    cakesList.length==0?
                     StaggeredGridView.countBuilder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
@@ -742,8 +828,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ListView.builder(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
-                                    itemCount: 20,
+                                    itemCount:cakesList.length,
                                     itemBuilder: (context , index){
+
                                       return Container(
                                         width: 150,
                                         child: InkWell(
@@ -759,12 +846,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     borderRadius: BorderRadius.circular(20),
                                                     border: Border.all(color: Colors.white,width: 2),
                                                     image: DecorationImage(
-                                                        image: NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'),
+                                                        image:
+                                                        cakesList[index]['Images'].isEmpty?
+                                                        NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'):
+                                                        NetworkImage(cakesList[index]['Images'][0].toString()),
                                                         fit: BoxFit.cover
                                                     )
                                                 ),
                                               ),
-                                              Text("Cake name",style:TextStyle(color: darkBlue,
+                                              Text(cakesList[index]['TypeOfCake']==null?
+                                              'No name':"${cakesList[index]['TypeOfCake']}",style:TextStyle(color: darkBlue,
                                                   fontWeight: FontWeight.bold,fontFamily: poppins),
                                                 textAlign: TextAlign.center,)
                                             ],

@@ -550,6 +550,7 @@ class _DrawerHomeState extends State<DrawerHome> {
               ),
               child: InkWell(
                 onTap: (){
+
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),

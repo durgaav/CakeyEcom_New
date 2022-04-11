@@ -201,6 +201,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
+    var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     //needs to imple..
     http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
@@ -216,6 +217,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         userProfileUrl = body[0]['ProfileImage'].toString();
         context.read<ContextData>().setProfileUrl(userProfileUrl);
         userName = body[0]['UserName'].toString();
+        prefs.setString('userID', userID);
+        prefs.setString('userAddress', userAddress);
         context.read<ContextData>().setUserName(userName);
         print(userID + userAddress + userProfileUrl);
       });

@@ -13,8 +13,14 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
 
+
+  //colors...
+  Color lightGrey = Color(0xffF5F5F5);
+  Color darkBlue = Color(0xffF213959);
+  Color lightPink = Color(0xffFE8416D);
+
   PageController controll = new PageController(viewportFraction: 1, keepPage: true);
-  int currentindex=0;
+  int currentindex = 0;
   List title = [ "Customize Your cake", "Select Your vendor","On Time Delivery"];
   List desc = ["Lorem Ipsum is simply dummy text of the printing and "
       "typesetting industry. Lorem Ipsum has been the industry's "
@@ -32,6 +38,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     "assets/images/pictwo.svg",
     "assets/images/picthree.svg",
   ];
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
 
   @override
@@ -113,15 +126,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         }, child: Text('SKIP',style: TextStyle(fontSize: 21),)),
                                         Container(
                                             decoration:BoxDecoration(
-                                                borderRadius: BorderRadius.circular(100),
-                                                color: Colors.lightGreen
+                                                shape: BoxShape.circle,
+                                                color: lightPink
                                             ),
                                             child: IconButton(onPressed: (){
                                               setState(() {
                                                 if(index==0){
-                                                  controll.jumpToPage(1);
+                                                  controll.animateToPage(1, curve: Curves.ease ,duration: Duration(milliseconds: 700));
                                                 }else{
-                                                  controll.jumpToPage(2);
+                                                  controll.animateToPage(2, curve: Curves.ease ,duration: Duration(milliseconds: 700));
                                                 }
                                               });
                                             }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
@@ -132,10 +145,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       width: MediaQuery.of(context).size.width*0.2,
                                       height: MediaQuery.of(context).size.height*0.07,
                                       child: RaisedButton(
-                                        color:Colors.lightGreen,
+                                        color:lightPink,
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(35)),
-                                        onPressed: (){},
+                                        onPressed: (){
+                                          Navigator.pop(context);
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                                        },
                                         child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
                                       ),
                                     )

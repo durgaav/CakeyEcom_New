@@ -1,12 +1,15 @@
+import 'dart:io';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/TestLocation.dart';
 import 'package:cakey/drawermenu/DrawerHome.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sizer/sizer.dart';
 
 Future<void> main() async {
 
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
 
   User? authUser = FirebaseAuth.instance.currentUser;
   bool signedIn = false;
+
 
   MaterialColor buildMaterialColor(Color color) {
     List strengths = <double>[.05];
