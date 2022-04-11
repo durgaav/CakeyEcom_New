@@ -1227,6 +1227,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('vendorID', filterCakesSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', filterCakesSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
+    // prefs.setString('vendorAddress', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
 
 
 

@@ -243,9 +243,14 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     setState(() {
                                       if (toppingsVal[index] == false) {
                                         toppingsVal[index] = true;
-                                        fixedToppings[index] = topings[index];
+                                        if (fixedToppings
+                                            .contains(topings[index])) {
+                                          print('exists...');
+                                        } else {
+                                          fixedToppings.add(topings[index]);
+                                        }
                                       } else {
-                                        fixedToppings[index] = 'index';
+                                        fixedToppings.remove(topings[index]);
                                         toppingsVal[index] = false;
                                       }
                                     });
@@ -544,7 +549,14 @@ class _CakeDetailsState extends State<CakeDetails> {
       cakeName = prefs.getString('cakeNames') ?? 'Unknown';
       cakeId = prefs.getString('cakeId') ?? '0';
       cakePrice = prefs.getString('cakePrice') ?? '0';
-      cakeDescription = prefs.getString('cakeDescription') ?? '0';
+      cakeDescription = prefs.getString('cakeDescription') ?? 'No descriptions.';
+
+      //vendors
+      vendorAddress = prefs.getString('') ?? 'Unknown';
+      vendorMobileNum = prefs.getString('vendorMobile') ?? 'Unknown';
+      vendorID = prefs.getString('vendorID') ?? 'Unknown';
+
+
     });
   }
 
@@ -927,9 +939,11 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
+                                    fontFamily: "Poppins",
                                     fontSize: 18,
                                     color: darkBlue,
-                                    fontWeight: FontWeight.w600),
+                                    fontWeight: FontWeight.w600
+                                ),
                               ),
                             ),
                             Container(
@@ -979,7 +993,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey,
-                                          fontFamily: "Poppins"),
+                                          fontFamily: "Poppins"
+                                      ),
                                     ),
                                     SizedBox(
                                       height: 7,
@@ -990,6 +1005,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 ? 'None'
                                                 : '${flavour[0]}',
                                             style: TextStyle(
+                                                fontFamily: "Poppins",
                                                 color: darkBlue,
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w600),
