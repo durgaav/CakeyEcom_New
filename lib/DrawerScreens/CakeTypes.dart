@@ -1216,7 +1216,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setStringList('cakeToppings', cakeTopings);
 
     //API STRINGS AND INTS
-    //API STRINGS AND INTS
+
     prefs.setString('cakeRatings', filterCakesSearchList[index]['Ratings'].toString());
     prefs.setString('cakeEggOrEggless', filterCakesSearchList[index]['EggOrEggless'].toString());
     prefs.setString('cakeNames', filterCakesSearchList[index]['Title'].toString());

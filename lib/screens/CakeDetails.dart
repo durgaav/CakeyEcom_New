@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
@@ -526,9 +525,590 @@ class _CakeDetailsState extends State<CakeDetails> {
     print(fixedToppings);
   }
 
+  //Add new Address Alert...
+  void showAddAddressAlert(){
+
+    //region private variables
+
+    //Controls
+    var streetNameCtrl = new TextEditingController();
+    var cityNameCtrl = new TextEditingController();
+    var districtNameCtrl = new TextEditingController();
+    var pinCodeCtrl = new TextEditingController();
+
+    //Validation (bool)
+    bool streetVal = false;
+    bool cityVal = false;
+    bool districtVal = false;
+    bool pincodeVal = false;
+
+    // List<String> _kOptions = <String>[
+    //   'aardvark',
+    //   'bobcat',
+    //   'chameleon',
+    // ];
+
+    //endregion
+
+    showDialog(
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+              builder:(BuildContext context , void Function(void Function()) setState){
+                return AlertDialog(
+                  scrollable: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)
+                  ),
+                  title: Text('Add New Address' , style: TextStyle(
+                    color: lightPink , fontFamily: "Poppins" , fontSize: 13
+                  ),),
+                  content: Container(
+                    width: 250,
+                    color: Colors.white,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: streetNameCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'Street',
+                              hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                              errorText: streetVal?'required street no. & name!':null
+                            ),
+                          ),
+                          SizedBox(height: 15,),
+                          TextField(
+                            controller: cityNameCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'City',
+                              hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                              errorText: cityVal?'required city name!':null
+                            ),
+                          ),SizedBox(height: 15,),
+
+                          TextField(
+                            controller: districtNameCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'District',
+                              hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                              errorText: districtVal?'required district name!':null
+                            ),
+                          ),
+                          SizedBox(height: 15,),
+                          TextField(
+                            maxLength: 6,
+                            controller: pinCodeCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'Pin Code',
+                              hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                              errorText: pincodeVal?'required pin code!':null
+                            ),
+                          ),
+                          // Autocomplete<String>(
+                          //   optionsBuilder: (TextEditingValue textEditingValue) {
+                          //     if (textEditingValue.text == '') {
+                          //       return const Iterable<String>.empty();
+                          //     }
+                          //     return _kOptions.where((String option) {
+                          //       return option.contains(textEditingValue.text.toLowerCase());
+                          //     });
+                          //   },
+                          //   onSelected: (String selection) {
+                          //     debugPrint('You just selected $selection');
+                          //   },
+                          // )
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    FlatButton(
+                        onPressed: (){},
+                        child: Text('Close',style: TextStyle(
+                          color: darkBlue,fontFamily: "Poppins"
+                        ),)
+                    ),
+                    FlatButton(
+                        onPressed: (){
+                          setState((){
+                              //street
+                              if(streetNameCtrl.text.isEmpty){
+                                streetVal = true;
+                              }else{
+                                streetVal = false;
+                              }
+
+                              //city
+                              if(cityNameCtrl.text.isEmpty){
+                                cityVal = true;
+                              }else{
+                                cityVal = false;
+                              }
+
+                              //dist
+                              if(districtNameCtrl.text.isEmpty){
+                                districtVal = true;
+                              }else{
+                                districtVal = false;
+                              }
+
+                              //pin
+                              if(pinCodeCtrl.text.isEmpty||pinCodeCtrl.text.length <6){
+                                pincodeVal = true;
+                              }else{
+                                pincodeVal = false;
+                              }
+
+                              print(
+
+                                'Street no : ${streetNameCtrl.text}\n'
+                                'City : ${cityNameCtrl.text}\n'
+                                'District : ${districtNameCtrl.text}\n'
+                                'Pincode : ${pinCodeCtrl.text}\n'
+
+                              );
+
+                              if(streetNameCtrl.text.isNotEmpty&&cityNameCtrl.text.isNotEmpty&&
+                                  districtNameCtrl.text.isNotEmpty&&pinCodeCtrl.text.isNotEmpty)
+                              {
+                                print('All are ok done!');
+                              }
+
+                          });
+                        },
+                        child:Text('Save',style: TextStyle(
+                            color: darkBlue,fontFamily: "Poppins"
+                        ),)
+                    ),
+                  ],
+                );
+              }
+          );
+        }
+    );
+  }
+  
+  //Order confirmation dialog
+  void showOrderConfirmSheet(){
+
+    int count = 1;
+    int cakesPrice = int.parse(cakePrice);
+    int deliverCharge = 50;
+    int discounts = 15;
+    int tax = 0;
+    int totalAmt = 0;
+    int all = 0;
+
+    setState(() {
+      cakesPrice = double.parse('${cakesPrice - (cakesPrice * discounts / 100)}').toInt();
+      totalAmt = cakesPrice + deliverCharge + tax;
+    });
+
+
+    showModalBottomSheet<dynamic>(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (context){
+        return StatefulBuilder(
+            builder: (BuildContext context , void Function(void Function()) setState){
+              return Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white
+                ),
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 35,left: 15 , right: 15),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    //Title text...
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'ORDER CONFIRM',
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins"),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                              width: 35,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(10)),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.close_outlined,
+                                color: lightPink,
+                              )),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Container(
+                      color: lightPink,
+                      height: 0.5,
+                      width: double.infinity,
+                    ),
+                    Container(
+                      height: 400,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              trailing:Text(
+                                '₹ $cakePrice',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: lightPink,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              title: Text(
+                                '$cakeName',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontSize: 13,
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ),
+                            ExpansionTile(
+                                title: Text('Flavour , Shape etc..',style: TextStyle(
+                                  fontSize: 13 , fontFamily: poppins , color: darkBlue
+                                ),),
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(left:15 , right:15),
+                                  child:Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Flavour',style: TextStyle(
+                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                      ),),
+                                      Text('Strawberry',style: TextStyle(
+                                        color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
+                                      ),),
+                                      SizedBox(height: 5,),
+                                      Container(
+                                        color: Colors.grey,
+                                        height: 0.5,
+                                        width: double.infinity,
+                                      ),
+
+                                      SizedBox(height: 10,),
+                                      Text('Shape',style: TextStyle(
+                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                      ),),
+                                      Text('Heart',style: TextStyle(
+                                        color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
+                                      ),),
+                                      SizedBox(height: 5,),
+                                      Container(
+                                        color: Colors.grey,
+                                        height: 0.5,
+                                        width: double.infinity,
+                                      ),
+
+                                      SizedBox(height: 10,),
+
+                                      Text('Toppings',style: TextStyle(
+                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                      ),),
+                                      Text('2+ toppings',style: TextStyle(
+                                        color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
+                                      ),),
+                                      SizedBox(height: 5,),
+                                      Container(
+                                        color: Colors.grey,
+                                        height: 0.5,
+                                        width: double.infinity,
+                                      ),
+
+                                      SizedBox(height: 10,),
+                                      Text('Weight',style: TextStyle(
+                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                      ),),
+                                      Text('2 kg',style: TextStyle(
+                                        color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
+                                      ),),
+                                      SizedBox(height: 10,),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                            ExpansionTile(
+                              title: Text('Delivery address & date etc...',style: TextStyle(
+                                  fontSize: 13 , fontFamily: poppins , color: darkBlue
+                              ),),
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Icon(Icons.calendar_today  , color: lightPink,),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('00-00-0000',style: TextStyle(
+                                      color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                    ),),
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Icon(CupertinoIcons.clock , color: lightPink,),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('Morning',style: TextStyle(
+                                      color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                    ),),
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Icon(Icons.home_outlined, color: lightPink,),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                        width: 250,
+                                        child: Text('1/4 vellandipalayam thekkalur',style: TextStyle(
+                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                      ),),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                              ],
+                            ),
+                            SizedBox(height:10),
+                            Container(
+                              padding: EdgeInsets.only(left:15 , right:15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Item count ($count)',style: TextStyle(
+                                    color: darkBlue , fontFamily: "Poppins"
+                                  ),),
+                                  Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: (){
+                                          setState((){
+                                            count++;
+                                          });
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                                height:30,
+                                                width:30,
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: lightPink
+                                                ),
+                                                child:Icon(Icons.add , color: Colors.white,)
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width:10),
+                                      InkWell(
+                                        onTap: (){
+                                          setState((){
+                                            if(count>1){
+                                              count = count - 1;
+                                            }
+                                          });
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                                height:30,
+                                                width:30,
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: lightPink
+                                                ),
+                                                child:Icon(Icons.remove , color: Colors.white,)
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  )
+
+                                ],
+                              ),
+                            ),
+                            SizedBox(height:10),
+                            Container(
+                              padding:EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Item Total',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${count*int.parse(cakePrice)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Delivery charge',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${deliverCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('${discounts} %',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                 // ₹
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Taxes',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${tax}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Bill Total',style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold
+                                  ),),
+                                 Text('₹${totalAmt}',style: TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          child:Container(
+                            height: 50,
+                            width: double.infinity,
+                            margin: EdgeInsets.only(left: 6 , right: 6),
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)
+                              ),
+                              color: lightPink,
+                              onPressed:(){
+
+                              },
+                              child: Text('Confirm Checkout',style: TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.white
+                              ),),
+                            ),
+                          )
+                        )
+                    )
+                  ],
+                ),
+              );
+            }
+        );
+      }
+    );
+  }
+
   //endregion
 
   //region FUNCTIONS
+
+  //Session based on time....
+  String session() {
+    var timeNow = DateTime.now().hour;
+    if (timeNow <= 12) {
+      return "Morning";
+    }
+    else if ((timeNow > 12) && (timeNow <= 16)) {
+      return "Afternoon";
+    }
+    else if ((timeNow > 16) && (timeNow < 20)) {
+      return "Evening";
+    }
+    else {
+      return "Night";
+    }
+  }
 
   //getting prfs from pre-screen
   Future<void> recieveDetailsFromScreen() async {
@@ -551,6 +1131,9 @@ class _CakeDetailsState extends State<CakeDetails> {
       cakePrice = prefs.getString('cakePrice') ?? '0';
       cakeDescription = prefs.getString('cakeDescription') ?? 'No descriptions.';
 
+      //user
+      userAddress = prefs.getString('userAddress')??'None';
+
       //vendors
       vendorAddress = prefs.getString('') ?? 'Unknown';
       vendorMobileNum = prefs.getString('vendorMobile') ?? 'Unknown';
@@ -562,41 +1145,81 @@ class _CakeDetailsState extends State<CakeDetails> {
 
   //***load prefs to ORDER.....***
   Future<void> loadOrderPreference() async{
+
+    setState(() {
+
+      if(flavour.isNotEmpty){
+        fixedFlavour = flavour[0];
+      }else{
+        fixedFlavour = 'None';
+      }
+
+      if(shapes.isNotEmpty){
+        fixedShape = shapes[0];
+      }else{
+        fixedShape = 'None';
+      }
+
+    });
+
     //preff vall
     var prefs = await SharedPreferences.getInstance();
 
+    //Validating the checkout details....
+
+    if(fixedWeight.isEmpty){
+      print('Please select weight.');
+    }
+    if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
+      print('Please select deliverDate.');
+    }
+    if(deliverSession.isEmpty){
+      print('Please select deliverSession.');
+    }
+
+    print(
+      'Flav : $fixedFlavour \n'
+      'Shape : $fixedShape \n'
+    );
+
+    if(fixedToppings.isEmpty){
+      print('Toppings : None');
+    }else{
+      print('Toppings : $fixedToppings');
+    }
+
     //Common keyword ***' order '****
 
-    prefs.setString('orderCakeID', cakeId);
-    prefs.setString('orderCakeName', cakeName);
-    prefs.setString('orderCakeDescription', cakeDescription);
-    prefs.setString('orderCakeType', cakeType);
-    prefs.setString('orderCakeImages', cakeImages[0])??"https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg";
-    prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
-    prefs.setString('orderCakePrice',cakePrice);
-    prefs.setString('orderCakeFlavour',fixedFlavour);
-    prefs.setString('orderCakeShape',fixedShape);
-    prefs.setString('orderCakeWeight',fixedWeight);
-    prefs.setString('orderCakeVendorId',vendorID);
-    prefs.setString('orderCakeVendorName',vendorName);
-    prefs.setString('orderCakeVendorNum',vendorMobileNum);
-    prefs.setString('orderCakeVendorAddress',vendorAddress);
-    prefs.setString('orderCakeUserName',userName);
-    prefs.setString('orderCakeUserID',userID);
-    prefs.setString('orderCakeUserNum',userPhone);
-    prefs.setString('orderCakeDeliverAddress',userAddress);
-    prefs.setString('orderCakeDeliverDate',deliverDate);
-    prefs.setString('orderCakeDeliverSession',deliverSession);
-
-    //need to imple...
-    prefs.setString('orderCakeItemCount','10');
-    prefs.setString('orderCakeTotalAmt','10');
-    prefs.setString('orderCakeDeliverAmt','40');
-    prefs.setString('orderCakePaymentType','Cash on delivery');
-    prefs.setString('orderCakePaymentStatus','Not paid');
-
-    //API List post(ARRAY)...
-    prefs.setStringList('orderCakeTopings',fixedToppings);
+    // prefs.setString('orderCakeID', cakeId);
+    // prefs.setString('orderCakeName', cakeName);
+    // prefs.setString('orderCakeDescription', cakeDescription);
+    // prefs.setString('orderCakeType', cakeType);
+    // prefs.setString('orderCakeImages', cakeImages[0])??"https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg";
+    // prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
+    // prefs.setString('orderCakePrice',cakePrice);
+    // prefs.setString('orderCakeFlavour',fixedFlavour);
+    // prefs.setString('orderCakeShape',fixedShape);
+    // prefs.setString('orderCakeWeight',fixedWeight);
+    // prefs.setString('orderCakeVendorId',vendorID);
+    // prefs.setString('orderCakeVendorName',vendorName);
+    // prefs.setString('orderCakeVendorNum',vendorMobileNum);
+    // prefs.setString('orderCakeVendorAddress',vendorAddress);
+    // prefs.setString('orderCakeUserName',userName);
+    // prefs.setString('orderCakeUserID',userID);
+    // prefs.setString('orderCakeUserNum',userPhone);
+    // prefs.setString('orderCakeDeliverAddress',userAddress);
+    // prefs.setString('orderCakeDeliverDate',deliverDate);
+    // prefs.setString('orderCakeDeliverSession',deliverSession);
+    //
+    // //need to imple...
+    // prefs.setString('orderCakeItemCount','1');
+    // prefs.setString('orderCakeTotalAmt','50');
+    // prefs.setString('orderCakeDeliverAmt','40');
+    // prefs.setString('orderCakePaymentType','Cash on delivery');
+    // prefs.setString('orderCakePaymentStatus','Not paid');
+    //
+    // //API List post(ARRAY)...
+    // prefs.setStringList('orderCakeTopings',fixedToppings);
 
   }
 
@@ -649,6 +1272,10 @@ class _CakeDetailsState extends State<CakeDetails> {
   void initState() {
     // TODO: implement initState
     recieveDetailsFromScreen();
+    session();
+    setState((){
+      deliverSession = session();
+    });
     super.initState();
   }
 
@@ -978,129 +1605,130 @@ class _CakeDetailsState extends State<CakeDetails> {
                       IntrinsicHeight(
                         child: Container(
                           margin: EdgeInsets.all(10),
-                          child: Wrap(
-                            runSpacing: 5,
-                            spacing: 5,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Flavours',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: "Poppins"
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Flavours',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                            fontFamily: "Poppins"
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 7,
-                                    ),
-                                    fixedFlavour.isEmpty
-                                        ? Text(
-                                            flavour.isEmpty
+                                      SizedBox(
+                                        height: 7,
+                                      ),
+                                      fixedFlavour.isEmpty
+                                          ? Text(
+                                              flavour.isEmpty
+                                                  ? 'None'
+                                                  : '${flavour[0]}',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  color: darkBlue,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600),
+                                            )
+                                          : Text(
+                                              '$fixedFlavour',
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: "Poppins"),
+                                            )
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  height: 45,
+                                  width: 1,
+                                  color: Colors.pink[100],
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Shapes',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                            fontFamily: "Poppins"),
+                                      ),
+                                      SizedBox(
+                                        height: 7,
+                                      ),
+                                      fixedShape.isEmpty
+                                          ? Text(
+                                              shapes.isEmpty
+                                                  ? 'None'
+                                                  : '${shapes[0]}',
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: "Poppins"),
+                                            )
+                                          : Text(
+                                              '$fixedShape',
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: "Poppins"),
+                                            )
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  height: 45,
+                                  width: 1,
+                                  color: Colors.pink[100],
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Cake Toppings',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                            fontFamily: "Poppins"),
+                                      ),
+                                      SizedBox(
+                                        height: 7,
+                                      ),
+                                      Text(
+                                        fixedToppings.length > 0
+                                            ? '${fixedToppings.length}+ Topping(s)'
+                                            : fixedToppings.isEmpty
                                                 ? 'None'
-                                                : '${flavour[0]}',
-                                            style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: darkBlue,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600),
-                                          )
-                                        : Text(
-                                            '$fixedFlavour',
-                                            style: TextStyle(
-                                                color: darkBlue,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: "Poppins"),
-                                          )
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: 45,
-                                width: 1,
-                                color: Colors.pink[100],
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Shapes',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: "Poppins"),
-                                    ),
-                                    SizedBox(
-                                      height: 7,
-                                    ),
-                                    fixedShape.isEmpty
-                                        ? Text(
-                                            shapes.isEmpty
-                                                ? 'None'
-                                                : '${shapes[0]}',
-                                            style: TextStyle(
-                                                color: darkBlue,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: "Poppins"),
-                                          )
-                                        : Text(
-                                            '$fixedShape',
-                                            style: TextStyle(
-                                                color: darkBlue,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: "Poppins"),
-                                          )
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: 45,
-                                width: 1,
-                                color: Colors.pink[100],
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Cake Toppings',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: "Poppins"),
-                                    ),
-                                    SizedBox(
-                                      height: 7,
-                                    ),
-                                    Text(
-                                      fixedToppings.length > 0
-                                          ? '${fixedToppings.length}+ Topping(s)'
-                                          : fixedToppings.isEmpty
-                                              ? 'None'
-                                              : '${fixedToppings[0]}',
-                                      style: TextStyle(
-                                          color: darkBlue,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: "Poppins"),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
+                                                : '${fixedToppings[0]}',
+                                        style: TextStyle(
+                                            color: darkBlue,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: "Poppins"),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -1615,7 +2243,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       ),
                       ListTile(
                         title: Text(
-                          '1/4 vellandipalaym , thekkalur , 641654  ',
+                          '$userAddress',
                           style: TextStyle(
                               fontFamily: poppins,
                               color: Colors.grey,
@@ -1628,7 +2256,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                         margin: EdgeInsets.only(left: 10),
                         alignment: Alignment.centerLeft,
                         child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showAddAddressAlert();
+                            },
                             child: const Text(
                               'add new address',
                               style: const TextStyle(
@@ -1873,10 +2503,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25)),
                                 onPressed: () async{
-                                  var prefs = await SharedPreferences.getInstance();
-                                  print(prefs.getString('userAddress'));
 
-                                  print('$deliverDate $deliverSession');
+                                  showOrderConfirmSheet();
 
                                   // Navigator.of(context).push(
                                   //   PageRouteBuilder(
@@ -1921,11 +2549,10 @@ class _CakeDetailsState extends State<CakeDetails> {
                   ),
                 ),
               ),
-            )),
+            )
+        ),
       ),
     );
-    // );
-    //  );
   }
 }
 
