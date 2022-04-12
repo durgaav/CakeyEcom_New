@@ -693,7 +693,8 @@ class _CakeDetailsState extends State<CakeDetails> {
   void showOrderConfirmSheet(){
 
     int count = 1;
-    int cakesPrice = int.parse(cakePrice);
+    int itemPrice = int.parse(cakePrice);
+    int cakesPrice = 0;
     int deliverCharge = 50;
     int discounts = 15;
     int tax = 0;
@@ -701,10 +702,9 @@ class _CakeDetailsState extends State<CakeDetails> {
     int all = 0;
 
     setState(() {
-      cakesPrice = double.parse('${cakesPrice - (cakesPrice * discounts / 100)}').toInt();
+      cakesPrice = double.parse('${itemPrice - (itemPrice * discounts / 100)}').toInt();
       totalAmt = cakesPrice + deliverCharge + tax;
     });
-
 
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
@@ -714,7 +714,7 @@ class _CakeDetailsState extends State<CakeDetails> {
         return StatefulBuilder(
             builder: (BuildContext context , void Function(void Function()) setState){
               return Container(
-                height: MediaQuery.of(context).size.height * 0.7,
+                height: MediaQuery.of(context).size.height * 0.75,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.white
@@ -763,7 +763,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       width: double.infinity,
                     ),
                     Container(
-                      height: 400,
+                      height: 450,
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -927,6 +927,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         onTap: (){
                                           setState((){
                                             count++;
+                                            cakesPrice = double.parse('${itemPrice - (itemPrice * discounts / 100)}').toInt();
+                                            totalAmt = cakesPrice + deliverCharge + tax;
                                           });
                                         },
                                         child: Row(
@@ -976,82 +978,90 @@ class _CakeDetailsState extends State<CakeDetails> {
                             ),
                             SizedBox(height:10),
                             Container(
-                              padding:EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text('Item Total',style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
-                                  Text('₹${count*int.parse(cakePrice)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text('Delivery charge',style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
-                                  Text('₹${deliverCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text('Discounts',style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
-                                  Text('${discounts} %',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                 // ₹
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text('Taxes',style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
-                                  Text('₹${tax}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
-                              height: 1,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text('Bill Total',style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold
-                                  ),),
-                                 Text('₹${totalAmt}',style: TextStyle(fontWeight: FontWeight.bold),),
-                                ],
-                              ),
-                            ),
+                                padding: EdgeInsets.only(left:5 , right:10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding:EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text('Item Total',style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: Colors.black54,
+                                          ),),
+                                          Text('₹${count*int.parse(cakePrice)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text('Delivery charge',style: const TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: Colors.black54,
+                                          ),),
+                                          Text('₹${deliverCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text('Discounts',style: const TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: Colors.black54,
+                                          ),),
+                                          Text('${discounts} %',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                          // ₹
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text('Taxes',style: const TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: Colors.black54,
+                                          ),),
+                                          Text('₹${tax}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 10,right: 10),
+                                      color: Colors.black26,
+                                      height: 1,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text('Bill Total',style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold
+                                          ),),
+                                          Text('₹${count*totalAmt}',style: TextStyle(fontWeight: FontWeight.bold),),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            )
 
                           ],
                         ),
@@ -1070,7 +1080,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                               ),
                               color: lightPink,
                               onPressed:(){
-
+                                loadOrderPreference();
                               },
                               child: Text('Confirm Checkout',style: TextStyle(
                                 fontFamily: "Poppins",
@@ -1146,81 +1156,95 @@ class _CakeDetailsState extends State<CakeDetails> {
   //***load prefs to ORDER.....***
   Future<void> loadOrderPreference() async{
 
-    setState(() {
-
-      if(flavour.isNotEmpty){
-        fixedFlavour = flavour[0];
-      }else{
-        fixedFlavour = 'None';
-      }
-
-      if(shapes.isNotEmpty){
-        fixedShape = shapes[0];
-      }else{
-        fixedShape = 'None';
-      }
-
-    });
-
-    //preff vall
     var prefs = await SharedPreferences.getInstance();
+    print('Loading....');
+      //Common keyword ***' order '****
 
-    //Validating the checkout details....
+      //Cake...
+      prefs.setString('orderCakeID', cakeId);
+      prefs.setString('orderCakeName', cakeName);
+      prefs.setString('orderCakeDescription', cakeDescription);
+      prefs.setString('orderCakeType', cakeType);
+      prefs.setString('orderCakeImages', cakeImages[0].toString())
+          ??"https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg";
+      prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
+      prefs.setString('orderCakePrice',cakePrice);
+      prefs.setString('orderCakeFlavour',fixedFlavour);
+      prefs.setString('orderCakeShape',fixedShape);
+      prefs.setString('orderCakeWeight',fixedWeight);
 
-    if(fixedWeight.isEmpty){
-      print('Please select weight.');
-    }
-    if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
-      print('Please select deliverDate.');
-    }
-    if(deliverSession.isEmpty){
-      print('Please select deliverSession.');
-    }
+      //vendor..
+      prefs.setString('orderCakeVendorId',vendorID);
+      prefs.setString('orderCakeVendorName',vendorName);
+      prefs.setString('orderCakeVendorNum',vendorMobileNum);
+      prefs.setString('orderCakeVendorAddress',vendorAddress);
 
-    print(
-      'Flav : $fixedFlavour \n'
-      'Shape : $fixedShape \n'
+      //user...
+      prefs.setString('orderCakeUserName',userName);
+      prefs.setString('orderCakeUserID',userID);
+      prefs.setString('orderCakeUserNum',userPhone);
+      prefs.setString('orderCakeDeliverAddress',userAddress);
+      prefs.setString('orderCakeDeliverDate',deliverDate);
+      prefs.setString('orderCakeDeliverSession',deliverSession);
+
+      //need to imple...
+      prefs.setString('orderCakeItemCount','1');
+      prefs.setString('orderCakeTotalAmt','50');
+      prefs.setString('orderCakeDeliverAmt','40');
+      prefs.setString('orderCakePaymentType','Cash on delivery');
+      prefs.setString('orderCakePaymentStatus','Not paid');
+
+      //API List post(ARRAY)...
+      prefs.setStringList('orderCakeTopings',fixedToppings);
+
+    Navigator.pop(context);
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation,
+            secondaryAnimation) =>
+            CheckOut(),
+        transitionsBuilder: (context, animation,
+            secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween =
+          Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position:
+            tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
     );
 
-    if(fixedToppings.isEmpty){
-      print('Toppings : None');
-    }else{
-      print('Toppings : $fixedToppings');
-    }
+    print('Loaded....');
 
-    //Common keyword ***' order '****
-
-    // prefs.setString('orderCakeID', cakeId);
-    // prefs.setString('orderCakeName', cakeName);
-    // prefs.setString('orderCakeDescription', cakeDescription);
-    // prefs.setString('orderCakeType', cakeType);
-    // prefs.setString('orderCakeImages', cakeImages[0])??"https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg";
-    // prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
-    // prefs.setString('orderCakePrice',cakePrice);
-    // prefs.setString('orderCakeFlavour',fixedFlavour);
-    // prefs.setString('orderCakeShape',fixedShape);
-    // prefs.setString('orderCakeWeight',fixedWeight);
-    // prefs.setString('orderCakeVendorId',vendorID);
-    // prefs.setString('orderCakeVendorName',vendorName);
-    // prefs.setString('orderCakeVendorNum',vendorMobileNum);
-    // prefs.setString('orderCakeVendorAddress',vendorAddress);
-    // prefs.setString('orderCakeUserName',userName);
-    // prefs.setString('orderCakeUserID',userID);
-    // prefs.setString('orderCakeUserNum',userPhone);
-    // prefs.setString('orderCakeDeliverAddress',userAddress);
-    // prefs.setString('orderCakeDeliverDate',deliverDate);
-    // prefs.setString('orderCakeDeliverSession',deliverSession);
+    // setState(() {
     //
-    // //need to imple...
-    // prefs.setString('orderCakeItemCount','1');
-    // prefs.setString('orderCakeTotalAmt','50');
-    // prefs.setString('orderCakeDeliverAmt','40');
-    // prefs.setString('orderCakePaymentType','Cash on delivery');
-    // prefs.setString('orderCakePaymentStatus','Not paid');
+    //   if(flavour.isNotEmpty){
+    //     fixedFlavour = flavour[0];
+    //   }
+    //   else{
+    //     fixedFlavour = 'None';
+    //   }
+    //   if(shapes.isNotEmpty){
+    //     fixedShape = shapes[0];
+    //   }else{
+    //     fixedShape = 'None';
+    //   }
     //
-    // //API List post(ARRAY)...
-    // prefs.setStringList('orderCakeTopings',fixedToppings);
+    // });
 
+    //preff vall
+    
   }
 
   //endregion
@@ -2503,35 +2527,22 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25)),
                                 onPressed: () async{
+                                  //Validating the checkout details....
+                                  if(fixedWeight.isEmpty){
+                                    print('Please select weight.');
+                                  }
+                                  if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
+                                    print('Please select deliverDate.');
+                                  }
+                                  if(deliverSession.isEmpty){
+                                    print('Please select deliverSession.');
+                                  }
 
-                                  showOrderConfirmSheet();
+                                  //If ok go to Confirm sheet
+                                  if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"&&deliverSession.isNotEmpty){
+                                    showOrderConfirmSheet();
+                                  }
 
-                                  // Navigator.of(context).push(
-                                  //   PageRouteBuilder(
-                                  //     pageBuilder: (context, animation,
-                                  //             secondaryAnimation) =>
-                                  //         CheckOut(),
-                                  //     transitionsBuilder: (context, animation,
-                                  //         secondaryAnimation, child) {
-                                  //       const begin = Offset(1.0, 0.0);
-                                  //       const end = Offset.zero;
-                                  //       const curve = Curves.ease;
-                                  //
-                                  //       final tween =
-                                  //           Tween(begin: begin, end: end);
-                                  //       final curvedAnimation = CurvedAnimation(
-                                  //         parent: animation,
-                                  //         curve: curve,
-                                  //       );
-                                  //
-                                  //       return SlideTransition(
-                                  //         position:
-                                  //             tween.animate(curvedAnimation),
-                                  //         child: child,
-                                  //       );
-                                  //     },
-                                  //   ),
-                                  // );
                                 },
                                 color: lightPink,
                                 child: Text(
