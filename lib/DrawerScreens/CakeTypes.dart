@@ -1523,7 +1523,7 @@ class _CakeTypesState extends State<CakeTypes> {
       else if(egglesSwitch == false){
         setState(() {
           eggOrEgglesList = cakesList.where((element) =>
-              element['EggOrEggless'].toString().toLowerCase().contains("EggAdded".toLowerCase())).toList();
+              element['EggOrEggless'].toString().toLowerCase().contains("Egg".toLowerCase())).toList();
         });
       }
 

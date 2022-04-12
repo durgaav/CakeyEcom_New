@@ -306,7 +306,6 @@ class _CheckOutState extends State<CheckOut> {
                           ],
                         ),
                       ),
-
                       Container(
                         margin: const EdgeInsets.only(left: 10,right: 10),
                         color: Colors.black26,

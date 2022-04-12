@@ -78,6 +78,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   int flavGrpValue = 0;
   int shapeGrpValue = 0;
   int pageViewCurIndex = 0;
+  int itemCount = 0;
+  int totalAmount = 0;
+  int deliveryCharge = 0;
 
   //Text controls
   var messageCtrl = new TextEditingController();
@@ -1140,13 +1143,14 @@ class _CakeDetailsState extends State<CakeDetails> {
       cakeId = prefs.getString('cakeId') ?? '0';
       cakePrice = prefs.getString('cakePrice') ?? '0';
       cakeDescription = prefs.getString('cakeDescription') ?? 'No descriptions.';
+      cakeType = prefs.getString('cakeType') ?? 'None';
 
       //user
       userAddress = prefs.getString('userAddress')??'None';
 
       //vendors
       vendorAddress = prefs.getString('') ?? 'Unknown';
-      vendorMobileNum = prefs.getString('vendorMobile') ?? 'Unknown';
+      vendorMobileNum = prefs.getString('vendorMobile') ?? '0000000000';
       vendorID = prefs.getString('vendorID') ?? 'Unknown';
 
 
@@ -1158,6 +1162,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
     var prefs = await SharedPreferences.getInstance();
     print('Loading....');
+
       //Common keyword ***' order '****
 
       //Cake...
@@ -1171,6 +1176,21 @@ class _CakeDetailsState extends State<CakeDetails> {
       prefs.setString('orderCakePrice',cakePrice);
       prefs.setString('orderCakeFlavour',fixedFlavour);
       prefs.setString('orderCakeShape',fixedShape);
+      prefs.setString('orderCakeWeight',fixedWeight);
+
+      if(messageCtrl.text.isNotEmpty){
+        prefs.setString('orderCakeMessage',messageCtrl.text.toString());
+      }else{
+        prefs.setString('orderCakeMessage','No message');
+      }
+
+      if(specialReqCtrl.text.isNotEmpty){
+        prefs.setString('orderCakeRequest',messageCtrl.text.toString());
+      }else{
+        prefs.setString('orderCakeRequest','No requests');
+      }
+
+
       prefs.setString('orderCakeWeight',fixedWeight);
 
       //vendor..
@@ -1187,12 +1207,12 @@ class _CakeDetailsState extends State<CakeDetails> {
       prefs.setString('orderCakeDeliverDate',deliverDate);
       prefs.setString('orderCakeDeliverSession',deliverSession);
 
-      //need to imple...
-      prefs.setString('orderCakeItemCount','1');
-      prefs.setString('orderCakeTotalAmt','50');
-      prefs.setString('orderCakeDeliverAmt','40');
-      prefs.setString('orderCakePaymentType','Cash on delivery');
-      prefs.setString('orderCakePaymentStatus','Not paid');
+      //for delivery...
+      prefs.setString('orderCakeItemCount','$itemCount');
+      prefs.setString('orderCakeTotalAmt','$totalAmount');
+      prefs.setString('orderCakeDeliverAmt','$deliveryCharge');
+      prefs.setString('orderCakePaymentType','none');
+      prefs.setString('orderCakePaymentStatus','none');
 
       //API List post(ARRAY)...
       prefs.setStringList('orderCakeTopings',fixedToppings);
@@ -1227,21 +1247,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
     print('Loaded....');
 
-    // setState(() {
-    //
-    //   if(flavour.isNotEmpty){
-    //     fixedFlavour = flavour[0];
-    //   }
-    //   else{
-    //     fixedFlavour = 'None';
-    //   }
-    //   if(shapes.isNotEmpty){
-    //     fixedShape = shapes[0];
-    //   }else{
-    //     fixedShape = 'None';
-    //   }
-    //
-    // });
+
 
     //preff vall
     
@@ -2493,7 +2499,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                       'Includes eggless',
                                                       style: TextStyle(
                                                           color: darkBlue,
-                                                          fontSize: 13),
+                                                          fontSize: 13
+                                                      ),
                                                     ),
                                                     Text(
                                                       'Delivery fee goes here',
@@ -2541,6 +2548,21 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   //If ok go to Confirm sheet
                                   if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"&&deliverSession.isNotEmpty){
                                     showOrderConfirmSheet();
+
+                                    // setState(() {
+                                    //   if(flavour.isNotEmpty){
+                                    //     fixedFlavour = flavour[0];
+                                    //   }
+                                    //   else{
+                                    //     fixedFlavour = 'None';
+                                    //   }
+                                    //   if(shapes.isNotEmpty){
+                                    //     fixedShape = shapes[0];
+                                    //   }else{
+                                    //     fixedShape = 'None';
+                                    //   }
+                                    // });
+
                                   }
 
                                 },
