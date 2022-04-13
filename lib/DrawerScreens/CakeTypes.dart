@@ -1091,9 +1091,14 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeEggOrEggless', cakeSearchList[index]['EggOrEggless'].toString());
     prefs.setString('cakeNames', cakeSearchList[index]['Title'].toString());
     prefs.setString('cakeId', cakeSearchList[index]['_id'].toString());
+    prefs.setString('cakeDiscount', cakeSearchList[index]['Discount'].toString());
     prefs.setString('cakePrice', cakeSearchList[index]['Price'].toString());
     prefs.setString('cakeDescription', cakeSearchList[index]['Description'].toString());
     prefs.setString('cakeType', cakeSearchList[index]['TypeOfCake'].toString());
+    prefs.setString('cakeDelCharge', cakeSearchList[index]['DeliveryCharge'].toString());
+
+
+
     prefs.setString('vendorID', cakeSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', cakeSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
@@ -1216,7 +1221,6 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setStringList('cakeToppings', cakeTopings);
 
     //API STRINGS AND INTS
-
     prefs.setString('cakeRatings', filterCakesSearchList[index]['Ratings'].toString());
     prefs.setString('cakeEggOrEggless', filterCakesSearchList[index]['EggOrEggless'].toString());
     prefs.setString('cakeNames', filterCakesSearchList[index]['Title'].toString());
@@ -1523,7 +1527,7 @@ class _CakeTypesState extends State<CakeTypes> {
       else if(egglesSwitch == false){
         setState(() {
           eggOrEgglesList = cakesList.where((element) =>
-              element['EggOrEggless'].toString().toLowerCase().contains("Egg".toLowerCase())).toList();
+              element['EggOrEggless'].toString().toLowerCase().contains("EggAdded".toLowerCase())).toList();
         });
       }
 
