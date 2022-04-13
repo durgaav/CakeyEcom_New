@@ -356,8 +356,9 @@ class _CodeVerifyState extends State<CodeVerify> {
                         },
                         pinTheme: PinTheme(
                           inactiveColor: Colors.black54,
-                          activeColor: Colors.green,
-                          borderWidth: 2,
+                          activeColor: lightPink,
+
+                          borderWidth: 1,
                           borderRadius: BorderRadius.circular(6),
                           shape:PinCodeFieldShape.box
                         ),
@@ -407,7 +408,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                       shape: RoundedRectangleBorder(
                           borderRadius:BorderRadius.circular(30)
                       ),
-                      color: Colors.green,
+                      color: lightPink,
                     ),
                   )
                 ],

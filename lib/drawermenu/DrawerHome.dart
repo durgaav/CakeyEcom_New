@@ -76,9 +76,14 @@ class _DrawerHomeState extends State<DrawerHome> {
               FlatButton(
                   onPressed: (){
                     Navigator.pop(context);
-                    Navigator.pop(context);
                     FirebaseAuth.instance.signOut();
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => WelcomeScreen()
+                        ),
+                        ModalRoute.withName('/WelcomeScreen')
+                    );
                   },
                   child: Text('Logout',
                     style: TextStyle(color: Colors.deepPurple,fontWeight: FontWeight.bold,fontFamily: "Poppins"),

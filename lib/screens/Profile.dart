@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/ContextData.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
+
+import 'WelcomeScreen.dart';
 
 class Profile extends StatefulWidget {
   int defindex = 0 ;
@@ -35,6 +38,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
    late TabController tabControl ;
    //for expand the tiles..
    List<bool> isExpands = [];
+   List recentOrders = [];
+   bool notifiOnOrOf = true;
 
    //Phone number
    String phoneNumber = "";
@@ -76,6 +81,50 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   //region Alerts....
+
+  //Logout dialog
+
+  void showlogoutDialog() {
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text('Cakey'
+              ,style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+            ),
+            content: Text('Are you sure? you will be logged out!',
+              style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+            ),
+            actions: [
+              FlatButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel',
+                  style: TextStyle(color: Colors.green,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                ),
+              ),
+              FlatButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                      builder: (context) => WelcomeScreen()
+                      ),
+                      ModalRoute.withName('/WelcomeScreen')
+                  );
+                },
+                child: Text('Logout',
+                  style: TextStyle(color: Colors.deepPurple,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                ),
+              ),
+            ],
+          );
+        }
+    );
+  }
 
   //Alert Dialog....
   void showAlertDialog(){
@@ -199,6 +248,32 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   }
 
+  //getting order list...
+  Future<void> getOrderList() async{
+    try{
+      http.Response response = await http.get(
+          Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
+      );
+      if(response.statusCode==200){
+        print(jsonDecode(response.body));
+        setState(() {
+          recentOrders = jsonDecode(response.body);
+        });
+      }
+      else{
+        print(response.statusCode);
+        setState(() {
+
+        });
+      }
+    }catch(error){
+      setState(() {
+
+      });
+    }
+  }
+
+
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
     var prefs = await SharedPreferences.getInstance();
@@ -219,8 +294,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         userName = body[0]['UserName'].toString();
         prefs.setString('userID', userID);
         prefs.setString('userAddress', userAddress);
+        prefs.setString('userName', userName);
         context.read<ContextData>().setUserName(userName);
         print(userID + userAddress + userProfileUrl);
+        getOrderList();
       });
     }else{
       Navigator.pop(context);
@@ -399,9 +476,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             trailing: Transform.scale(
               scale: 0.7,
               child: CupertinoSwitch(
-                value: true,
-                onChanged: (bool? val){
-
+                value: notifiOnOrOf,
+                onChanged: (bool val){
+                  setState(() {
+                    notifiOnOrOf = val;
+                  });
                 },
                 activeColor: Colors.green,
               ),
@@ -416,6 +495,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               borderRadius: BorderRadius.circular(5)
           ),
           child: ListTile(
+            onTap: (){
+              showlogoutDialog();
+            },
             leading: Container(
               alignment: Alignment.center,
               height: 45,
@@ -439,7 +521,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     return Column(
       children: [
         ListView.builder(
-              itemCount: 4,
+              itemCount: recentOrders.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index){
@@ -474,8 +556,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),
-                                        image: const DecorationImage(
-                                          image: const NetworkImage('https://www.cakengifts.in/blog/wp-content/uploads/2018/09/happy-birthday-cake-hd-pic.jpg'),
+                                        image: DecorationImage(
+                                          image: NetworkImage('${recentOrders[index]['Images']}'),
                                           fit: BoxFit.cover
                                         )
                                     ),
@@ -491,20 +573,20 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           borderRadius: BorderRadius.circular(20),
                                           color: Colors.black26
                                         ),
-                                        child:const Text('Order ID #0000',style: const TextStyle(
+                                        child:Text('ID ${recentOrders[index]['_id']}',style: const TextStyle(
                                             fontSize: 10,fontFamily: "Poppins",color: Colors.black
                                         ),),
                                       ),
                                       Container(
                                         width: 200,
-                                        child: const Text("Cake name goes here",style: const TextStyle(
+                                        child:Text("${recentOrders[index]['Title']}",style: const TextStyle(
                                             fontSize: 13,fontFamily: "Poppins",
                                             color: Colors.black,fontWeight: FontWeight.bold
                                         ),overflow: TextOverflow.ellipsis,),
                                       ),
                                       Container(
                                         width:200,
-                                        child: const Text("Cake description goes here it should be long maximum height is 2"
+                                        child:Text("${recentOrders[index]['Description']}"
                                           ,style: const TextStyle(
                                             fontSize: 12,fontFamily: "Poppins",
                                             color: Colors.black26
@@ -520,23 +602,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text("₹ 450",style: TextStyle(color: lightPink,
+                                            Text("₹ ${recentOrders[index]['Price']}",style: TextStyle(color: lightPink,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
-                                            index/1==1?Column(
+                                            recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                                            Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Row(
                                                   children: [
-                                                    const Text("Delivered ",style: TextStyle(color: Colors.green,
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
                                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
                                                     const Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
                                                   ],
                                                 ),
-                                                const Text("28-03-2022",style: TextStyle(color: Colors.black26,
+                                                Text("${recentOrders[index]['Status_Updated_On']}",style: TextStyle(color: Colors.black26,
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            const Text("Pending",style: TextStyle(color: Colors.blueAccent,
+                                            Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
                                              fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
                                           ],
                                         ),
@@ -835,7 +918,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         ],
       ),
       body: Container(
-        margin: const EdgeInsets.all(15),
+        margin: const EdgeInsets.all(10),
         child: Column(
           children: [
             Container(
