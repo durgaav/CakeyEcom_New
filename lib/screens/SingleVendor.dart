@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
+import 'package:http/http.dart' as http;
 import 'Profile.dart';
 
 class SingleVendor extends StatefulWidget {
@@ -15,6 +18,7 @@ class SingleVendor extends StatefulWidget {
 
 class _SingleVendorState extends State<SingleVendor> {
 
+  //region Global
   //Colors
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
@@ -23,29 +27,107 @@ class _SingleVendorState extends State<SingleVendor> {
   String poppins = "Poppins";
   String profileUrl = "";
   String userCurLocation = 'Searching...';
-  String description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
-      "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut"
-      " aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate "
-      "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa "
-      "qui officia deserunt mollit anim id est laborum.";
+
+  String description = "";
+  String vendorID = '';
+  String vendorName = '';
+
+  bool ordersNull = false;
 
   List<bool> isExpands = [];
+  List vendorOrders = [];
+  
+  //endregion
 
+  //region Alerts
+
+  //Default loader dialog
+  void showAlertDialog(){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  //endregion
 
   //region Functions
+  
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
     });
   }
+
+  Future<void> receiveDataFromScreen() async{
+    var pref = await SharedPreferences.getInstance();
+
+    setState(() {
+
+      vendorID = pref.getString('singleVendorID')??'';
+      vendorName = pref.getString('singleVendorName')??'No name';
+      description = pref.getString('singleVendorDesc')??'No Description';
+
+      getOrdersByVendorId();
+    });
+  }
+  
+  Future<void> getOrdersByVendorId() async{
+    showAlertDialog();
+
+    print(vendorID);
+    
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/order/listbyvendorid/$vendorID'));
+
+    if(res.statusCode==200){
+      // print(jsonDecode(res.body));
+
+      setState(() {
+
+        vendorOrders = jsonDecode(res.body);
+        vendorOrders = vendorOrders.reversed.toList();
+        print(vendorOrders);
+
+        Navigator.pop(context);
+      });
+
+    }else{
+      print(res.statusCode);
+      Navigator.pop(context);
+    }
+
+  }
+
   //endregion
 
   @override
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
+      receiveDataFromScreen();
       loadPrefs();
     });
     super.initState();
@@ -76,7 +158,7 @@ class _SingleVendorState extends State<SingleVendor> {
                 )),
           ),
         ),
-        title: Text('Muthu Kumar',
+        title: Text('$vendorName',
             style: TextStyle(
                 color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
         elevation: 0.0,
@@ -211,7 +293,7 @@ class _SingleVendorState extends State<SingleVendor> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Vendor name',style: TextStyle(
+                          Text('$vendorName',style: TextStyle(
                             color: darkBlue,fontFamily:"Poppins",
                             fontSize: 16,fontWeight: FontWeight.bold
                           ),),
@@ -263,7 +345,7 @@ class _SingleVendorState extends State<SingleVendor> {
                             const SizedBox(width: 10,),
                             InkWell(
                               onTap: (){
-                                print('whatsapp');
+                                print('whatsapp : $vendorID');
                               },
                               child: Container(
                                 alignment: Alignment.center,
@@ -297,9 +379,11 @@ class _SingleVendorState extends State<SingleVendor> {
                   ),
                   SizedBox(height: 10,),
                   //Theme text
-                  Text('Special velvet theme cake made by Surya this hgafjgdfghg',
+                  Text('${description}',
                     style: TextStyle(color: darkBlue,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.bold,),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 10,),
                   ExpandableText(
@@ -324,25 +408,16 @@ class _SingleVendorState extends State<SingleVendor> {
               ),
             ),
 
+            vendorOrders.isNotEmpty?
             Container(
               margin: EdgeInsets.all(10),
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: 2,
+                  itemCount: vendorOrders.length,
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context,index){
                     isExpands.add(false);
-                    return GestureDetector(
-                      onTap:(){
-                        setState(() {
-                          if(isExpands[index]==false){
-                            isExpands[index]=true;
-                          }else{
-                            isExpands[index]=false;
-                          }
-                        });
-                      },
-                      child: Card(
+                    return Card(
                         elevation: 6.0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)
@@ -352,91 +427,118 @@ class _SingleVendorState extends State<SingleVendor> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Colors.black26
-                                ),
-                                child:const Text('Order ID #0007',style: const TextStyle(
-                                    fontSize: 10,fontFamily: "Poppins",color: Colors.black
-                                ),),
-                              ),
-                              SizedBox(height: 6,),
-                              //Theme text
-                              Text('Special velvet theme cake made by Surya this hgafjgdfghg',
-                                style: TextStyle(color: darkBlue,
-                                    fontWeight: FontWeight.bold,fontSize: 13
-                                ),
-                              ),
-                              SizedBox(height: 6,),
-                              Text('Cake description goskanfndsnfdsjfjdfCake',
-                                style: TextStyle(
-                                    color: Colors.grey,fontFamily: "Poppins",fontSize: 12
-                                ),
-                              ),
-                              SizedBox(height: 3,),
-                              Container(
-                                  height: 1,
-                                  color: Colors.black26,
-                              ),SizedBox(height: 3,),
-
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      RatingBar.builder(
-                                        initialRating: 4.1,
-                                        minRating: 1,
-                                        direction: Axis.horizontal,
-                                        allowHalfRating: true,
-                                        itemCount: 5,
-                                        itemSize: 14,
-                                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                        itemBuilder: (context, _) => Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
+                              GestureDetector(
+                                onTap:(){
+                                  setState(() {
+                                    if(isExpands[index]==false){
+                                      isExpands[index]=true;
+                                    }else{
+                                      isExpands[index]=false;
+                                    }
+                                  });
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: Colors.black26
+                                      ),
+                                      child:Text('Order ID # ${vendorOrders[index]["_id"]}',style: const TextStyle(
+                                          fontSize: 10,fontFamily: "Poppins",color: Colors.black
+                                      ),),
+                                    ),
+                                    SizedBox(height: 6,),
+                                    //Theme text
+                                    Text('${vendorOrders[index]['Title']}',
+                                      style: TextStyle(color: darkBlue,
+                                          fontWeight: FontWeight.bold,fontSize: 13
+                                      ),
+                                      maxLines: 2,
+                                    ),
+                                    SizedBox(height: 6,),
+                                    ExpandableText(
+                                      '${vendorOrders[index]['Description']}',
+                                      style: TextStyle(
+                                          color: Colors.grey,fontFamily: "Poppins",fontSize: 12
+                                      ),
+                                      expandText: '',
+                                      collapseText: 'collapse',
+                                      maxLines: 3,
+                                      collapseOnTextTap: true,
+                                      expandOnTextTap: true,
+                                    ),
+                                    SizedBox(height: 3,),
+                                    Container(
+                                      height: 1,
+                                      color: Colors.black26,
+                                    ),SizedBox(height: 3,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            RatingBar.builder(
+                                              initialRating: 4.1,
+                                              minRating: 1,
+                                              direction: Axis.horizontal,
+                                              allowHalfRating: true,
+                                              itemCount: 5,
+                                              itemSize: 14,
+                                              itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                              itemBuilder: (context, _) => Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                              ),
+                                              onRatingUpdate: (rating) {
+                                                print(rating);
+                                              },
+                                            ),
+                                            Text(' 4.5',style: TextStyle(
+                                                color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                            ),)
+                                          ],
                                         ),
-                                        onRatingUpdate: (rating) {
-                                          print(rating);
-                                        },
-                                      ),
-                                      Text(' 4.5',style: TextStyle(
-                                          color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                      ),)
-                                    ],
-                                  ),
-                                  Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text("Delivered ",style: TextStyle(color: Colors.green,
-                                                  fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                              Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
-                                            ],
-                                          ),
-                                          SizedBox(width: 5,),
-                                          Text("28-03-2022",style: TextStyle(color: Colors.black26,
-                                              fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
-                                        ],
-                                      ),
-                                ],
-                              ),
-                              SizedBox(height: 3,),
-                              Container(
-                                height: 1,
-                                color: Colors.black26,
-                              ),
-                              ListTile(
-                                title: Text('Customer',style: TextStyle(
-                                  fontSize: 12,color: Colors.grey,fontFamily: "Poppins"
-                                ),),
-                                subtitle: Text('Surya prakash',style: TextStyle(
-                                    fontSize: 13,color:darkBlue,fontFamily: "Poppins",
-                                    fontWeight: FontWeight.bold
-                                ),),
+                                        vendorOrders[index]['Status'].toString().toLowerCase().contains('delivered')?
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text("Delivered ",style: TextStyle(color: Colors.green,
+                                                    fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                                Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
+                                              ],
+                                            ),
+                                            SizedBox(width: 5,),
+                                            Text("${vendorOrders[index]['Status_Updated_On'].toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
+                                          ],
+                                        ):
+                                        Text('${vendorOrders[index]['Status'].toString()}',style: TextStyle(
+                                            color: vendorOrders[index]['Status'].toString().toLowerCase().contains('cancelled')?
+                                            Colors.red:Colors.blueAccent,
+                                            fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                      ],
+                                    ),
+                                    SizedBox(height: 3,),
+                                    Container(
+                                      height: 1,
+                                      color: Colors.black26,
+                                    ),
+                                    ListTile(
+                                      title: Text('Customer',style: TextStyle(
+                                          fontSize: 12,color: Colors.grey,fontFamily: "Poppins"
+                                      ),),
+                                      subtitle: Text('${vendorOrders[index]['UserName']}',style: TextStyle(
+                                          fontSize: 13,color:darkBlue,fontFamily: "Poppins",
+                                          fontWeight: FontWeight.bold
+                                      ),),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Visibility(
                                 visible:isExpands[index],
@@ -458,8 +560,8 @@ class _SingleVendorState extends State<SingleVendor> {
                                           const SizedBox(width: 8,),
                                           Container(
                                               width: 260,
-                                              child: const Text(
-                                                "1/4 Vellandipalayam thekkalur 641654",
+                                              child: Text(
+                                                "${vendorOrders[index]['DeliveryAddress']}",
                                                 style: TextStyle(
                                                     fontFamily: "Poppins",
                                                     color: Colors.black54,
@@ -486,7 +588,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                               fontFamily: "Poppins",
                                               color: Colors.black54,
                                             ),),
-                                            const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                             Text('₹${vendorOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                           ],
                                         ),
                                       ),
@@ -500,7 +602,8 @@ class _SingleVendorState extends State<SingleVendor> {
                                               fontFamily: "Poppins",
                                               color: Colors.black54,
                                             ),),
-                                            const Text('₹10',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                            Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
+                                              '₹${vendorOrders[index]['DeliveryCharge']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),)
                                           ],
                                         ),
                                       ),
@@ -514,7 +617,8 @@ class _SingleVendorState extends State<SingleVendor> {
                                               fontFamily: "Poppins",
                                               color: Colors.black54,
                                             ),),
-                                            const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                            Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
+                                            '₹${vendorOrders[index]['Discount']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
                                           ],
                                         ),
                                       ),
@@ -528,7 +632,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                               fontFamily: "Poppins",
                                               color: Colors.black54,
                                             ),),
-                                            const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                            Text('₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
                                           ],
                                         ),
                                       ),
@@ -549,7 +653,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.bold
                                             ),),
-                                            const Text('₹500',style: TextStyle(fontWeight: FontWeight.bold),),
+                                             Text('₹${vendorOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
                                           ],
                                         ),
                                       ),
@@ -559,7 +663,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
-                                            const Text('Paid via : Google pay',style: TextStyle(
+                                            Text('Paid via : ${vendorOrders[index]['PaymentType']}',style: TextStyle(
                                               fontFamily: "Poppins",
                                               color: Colors.black54,
                                             ),),
@@ -573,9 +677,17 @@ class _SingleVendorState extends State<SingleVendor> {
                             ],
                           ),
                         ),
-                      ),
-                    );
+                      );
                   }
+              ),
+            ):
+            Center(
+              child: Padding(
+                padding:EdgeInsets.all(8.0),
+                child: Text('No Orders Found!' , style: TextStyle(
+                  color: darkBlue , fontFamily: "Poppins" ,
+                  fontSize: 17 , fontWeight: FontWeight.bold
+                ),),
               ),
             )
           ],

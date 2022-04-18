@@ -13,7 +13,6 @@ import '../DrawerScreens/Notifications.dart';
 import '../screens/WelcomeScreen.dart';
 import 'package:provider/provider.dart';
 
-
 class DrawerHome extends StatefulWidget {
   const DrawerHome({Key? key}) : super(key: key);
 

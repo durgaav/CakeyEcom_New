@@ -427,9 +427,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting prefes
   Future<void> loadPrefs() async{
-    print("Prefs loading...");
+
     var prefs = await SharedPreferences.getInstance();
-    print("User Name : "+prefs.getString('userName').toString());
+
     setState(() {
       profileRemainder = prefs.getBool("profileUpdated")??false;
       phoneNumber = prefs.getString("phoneNumber")??"";
@@ -452,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       });
     }else{
-      print("$newRegUser");
+      print("New reg user $newRegUser");
     }
 
   }
@@ -465,11 +465,9 @@ class _HomeScreenState extends State<HomeScreen> {
     http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
         "${int.parse(phoneNumber)}"));
     if(response.statusCode==200){
-      // print(jsonDecode(response.body));
       // Navigator.pop(context);
       setState(() {
         List body = jsonDecode(response.body);
-        print("body $body");
         userID = body[0]['_id'].toString();
         userAddress = body[0]['Address'].toString();
         userProfileUrl = body[0]['ProfileImage'].toString();
@@ -479,7 +477,6 @@ class _HomeScreenState extends State<HomeScreen> {
         prefs.setString('userAddress', userAddress);
         prefs.setString('userName', userName);
         context.read<ContextData>().setUserName(userName);
-        print(userID + userAddress + userProfileUrl);
         getOrderList();
       });
     }else{
@@ -489,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Fetching user's current location...Lat Long
   Future<Position> _getGeoLocationPosition() async {
-    print('fetching...');
+
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -527,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    print('fetched...');
+
     return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
 
@@ -541,8 +538,10 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(()  {
       // Address = '${place.street}, ${place.subLocality}, '
       //     '${place.thoroughfare}, ${place.locality},${place.postalCode}, ${place.country}';
-      userLocalityAdr = '${place.thoroughfare}';
-      prefs.setString("userCurrentLocation",userLocalityAdr);
+      userLocalityAdr = '${place.subLocality}';
+      prefs.setString("userCurrentLocation",place.subLocality.toString());
+      prefs.setString("userMainLocation",place.locality.toString());
+
     });
   }
 
@@ -553,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Uri.parse("https://cakey-database.vercel.app/api/cake/list")
       );
       if(response.statusCode==200){
-        print(jsonDecode(response.body));
+
         checkNetwork();
         setState(() {
           isNetworkError = false;
@@ -626,7 +625,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
       );
       if(response.statusCode==200){
-        print(jsonDecode(response.body));
         checkNetwork();
         setState(() {
           isNetworkError = false;
@@ -634,7 +632,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
       else{
-        print(response.statusCode);
         setState(() {
           isNetworkError = true;
         });
@@ -725,7 +722,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child:IconButton(
                                 splashColor: Colors.black26,
                                 onPressed:(){
-                                  print(MediaQuery.of(context).viewInsets.bottom);
                                   FocusScope.of(context).unfocus();
                                   showFilterBottom();
                                   // showDpUpdtaeDialog();
@@ -840,7 +836,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:18,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
                                           onTap: (){
-                                            print('see more.. $newRegUser');
                                             Navigator.of(context).push(
                                               PageRouteBuilder(
                                                 pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
@@ -1109,7 +1104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   InkWell(
                                     onTap: (){
-                                      print('see more..');
+
                                       Navigator.of(context).push(
                                         PageRouteBuilder(
                                           pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
@@ -1252,7 +1247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         color: Colors.amber,
                                                                       ),
                                                                       onRatingUpdate: (rating) {
-                                                                        print(rating);
+
                                                                       },
                                                                     ),
                                                                     Text(' 4.5',style: TextStyle(

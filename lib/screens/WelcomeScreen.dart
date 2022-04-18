@@ -34,9 +34,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   //this is svg
   var pics = [
-    "assets/images/picone.svg",
-    "assets/images/pictwo.svg",
-    "assets/images/picthree.svg",
+    "assets/images/picone.png",
+    "assets/images/pictwo.png",
+    "assets/images/picthree.png",
   ];
 
 
@@ -83,7 +83,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         height: MediaQuery.of(context).size.height*0.4,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image:Svg(pics[index]),
+                            image:AssetImage(pics[index]),
                           ),
                         ),
                       ),

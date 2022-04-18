@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../ContextData.dart';
 import '../screens/Profile.dart';
+import 'package:http/http.dart' as http;
 
 class VendorsList extends StatefulWidget {
   const VendorsList({Key? key}) : super(key: key);
@@ -27,6 +30,7 @@ class _VendorsListState extends State<VendorsList> {
   String poppins = "Poppins";
   String profileUrl = '';
   String userCurLocation = 'Searching...';
+  String userMainLocation = '';
   String searchLocation = '';
 
   //booleans
@@ -35,18 +39,110 @@ class _VendorsListState extends State<VendorsList> {
   //Lists
   List locations = ["Tirupur","Avinashi","Avinashi",'Coimbatore','Neelambur','Thekkalur','Chennai'];
   List locationBySearch = [];
+  List nearestVendors = [];
+  List vendorsList = [];
 
   TextEditingController searchCtrl = new TextEditingController();
 
   //endregion
 
+  //region Alerts
+
+  //Default loader dialog
+  void showAlertDialog(){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  //endregion
+
   //region Functions
+
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
+      getVendorsList();
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+      userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
   }
+
+  Future<void> getVendorsList() async{
+    showAlertDialog();
+    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+
+    if(res.statusCode==200){
+
+      setState(() {
+        vendorsList = jsonDecode(res.body);
+
+        nearestVendors = vendorsList.where((element) =>
+        element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
+        ).toList();
+
+        Navigator.pop(context);
+      });
+
+    }else{
+      Navigator.pop(context);
+    }
+  }
+
+  Future<void> sendDataToScreen(int index) async{
+    var pref = await SharedPreferences.getInstance();
+
+    //common keyword single****
+    pref.setString('singleVendorID', locationBySearch[index]['_id']);
+    pref.setString('singleVendorName', locationBySearch[index]['VendorName']);
+    pref.setString('singleVendorDesc', locationBySearch[index]['Description']??'No Description');
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
+  }
+
   //endregion
 
   @override
@@ -65,12 +161,13 @@ class _VendorsListState extends State<VendorsList> {
       setState(() {
         isSearching = false;
         locationBySearch =
-            locations.where((element) => element.toLowerCase().contains(searchLocation.toLowerCase())).toList();
+            vendorsList.where((element) => element['Address']['City'].toString().toLowerCase()
+                .contains(searchLocation.toLowerCase())).toList();
       });
     }else{
       setState(() {
         isSearching = true;
-        locationBySearch = locations.toList();
+        locationBySearch = vendorsList.toList();
       });
 
     }
@@ -237,7 +334,7 @@ class _VendorsListState extends State<VendorsList> {
                   hintText: "Search location",
                   hintStyle: TextStyle(fontFamily: "Poppins"),
                   prefixIcon: Icon(Icons.location_on),
-                  suffixIcon: searchLocation.isNotEmpty?IconButton(
+                  suffixIcon:IconButton(
                     onPressed: (){
                       FocusScope.of(context).unfocus();
                       setState(() {
@@ -246,7 +343,7 @@ class _VendorsListState extends State<VendorsList> {
                       });
                     },
                     icon: Icon(Icons.close,size: 20,),
-                  ):Text(''),
+                  ),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5)
                   ),
@@ -261,6 +358,7 @@ class _VendorsListState extends State<VendorsList> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //All nearest vendors
                     Visibility(
                       visible: isSearching,
                       child: Column(
@@ -277,11 +375,11 @@ class _VendorsListState extends State<VendorsList> {
                           Container(
                             padding: EdgeInsets.all(8),
                             child: Container(
-                              height: 200,
+                              height: 190,
                               child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   shrinkWrap: true,
-                                  itemCount: 4,
+                                  itemCount: nearestVendors.length,
                                   itemBuilder: (context , index){
                                     return Card(
                                       shape: RoundedRectangleBorder(
@@ -289,67 +387,106 @@ class _VendorsListState extends State<VendorsList> {
                                       ),
                                       child: Container(
                                         padding: EdgeInsets.all(10),
-                                        width: 250,
+                                        width: 260,
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
+                                                nearestVendors[index]['ProfileImage']!=null?
                                                 CircleAvatar(
                                                   radius:32,
                                                   backgroundColor: Colors.white,
                                                   child: CircleAvatar(
                                                     radius:30,
-                                                    backgroundImage: NetworkImage(
-                                                        "https://www.areinfotech.com/services/android-app-development-in-ahmedabad.png"
-                                                    ),
+                                                    backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                  ),
+                                                ):
+                                                CircleAvatar(
+                                                  radius:32,
+                                                  backgroundColor: Colors.white,
+                                                  child: CircleAvatar(
+                                                    radius:30,
+                                                    backgroundImage:Svg('assets/images/pictwo.svg'),
                                                   ),
                                                 ),
-                                                SizedBox(width: 8,),
-                                                Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      width:155,
-                                                      child: Text('Vendor name',style: TextStyle(
-                                                          color: darkBlue,fontWeight: FontWeight.bold,
-                                                          fontFamily: "Poppins"
-                                                      ),overflow: TextOverflow.ellipsis,),
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        RatingBar.builder(
-                                                          initialRating: 4.1,
-                                                          minRating: 1,
-                                                          direction: Axis.horizontal,
-                                                          allowHalfRating: true,
-                                                          itemCount: 5,
-                                                          itemSize: 14,
-                                                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                          itemBuilder: (context, _) => Icon(
-                                                            Icons.star,
-                                                            color: Colors.amber,
+                                                SizedBox(width: 6,),
+                                                Container(
+                                                  width:170,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            width:120,
+                                                            child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                            'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                            }',style: TextStyle(
+                                                                color: darkBlue,fontWeight: FontWeight.bold,
+                                                                fontFamily: "Poppins"
+                                                            ),overflow: TextOverflow.ellipsis,),
                                                           ),
-                                                          onRatingUpdate: (rating) {
-                                                            print(rating);
-                                                          },
+                                                          Row(
+                                                            children: [
+                                                              RatingBar.builder(
+                                                                initialRating: 4.1,
+                                                                minRating: 1,
+                                                                direction: Axis.horizontal,
+                                                                allowHalfRating: true,
+                                                                itemCount: 5,
+                                                                itemSize: 14,
+                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                itemBuilder: (context, _) => Icon(
+                                                                  Icons.star,
+                                                                  color: Colors.amber,
+                                                                ),
+                                                                onRatingUpdate: (rating) {
+                                                                  print(rating);
+                                                                },
+                                                              ),
+                                                              Text(' 4.5',style: TextStyle(
+                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                              ),)
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      InkWell(
+                                                        onTap: (){
+
+                                                        },
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: lightGrey,
+                                                              shape: BoxShape.circle
+                                                          ),
+                                                          padding: EdgeInsets.all(4),
+                                                          height: 35,
+                                                          width: 35,
+                                                          child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
                                                         ),
-                                                        Text(' 4.5',style: TextStyle(
-                                                            color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,
-                                                            fontFamily: "Poppins"
-                                                        ),)
-                                                      ],
-                                                    ),
-                                                  ],
-                                                )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ],
                                             ),
-                                            Text('the vendors description goes here it may come long',
-                                              style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
-                                              overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                            SizedBox(height: 10,),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(nearestVendors[index]['Description']!=null?
+                                                 " "+nearestVendors[index]['Description']:'',
+                                                style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                textAlign: TextAlign.start,
+                                              ),
+                                            ),
                                             Container(
                                               margin:EdgeInsets.only(top: 10),
                                               height: 0.5,
@@ -406,26 +543,7 @@ class _VendorsListState extends State<VendorsList> {
                           itemBuilder: (context,index){
                             return GestureDetector(
                               onTap: (){
-                                Navigator.of(context).push(
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      const begin = Offset(1.0, 0.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.ease;
-
-                                      final tween = Tween(begin: begin, end: end);
-                                      final curvedAnimation = CurvedAnimation(
-                                        parent: animation,
-                                        curve: curve,
-                                      );
-                                      return SlideTransition(
-                                        position: tween.animate(curvedAnimation),
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
+                               sendDataToScreen(index);
                               },
                               child: Card(
                                 margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
@@ -441,6 +559,7 @@ class _VendorsListState extends State<VendorsList> {
                                   ),
                                   child: Row(
                                     children: [
+                                      locationBySearch[index]['ProfileImage']!=null?
                                       Container(
                                         height: 120,
                                         width: 90,
@@ -448,7 +567,18 @@ class _VendorsListState extends State<VendorsList> {
                                             borderRadius: BorderRadius.circular(15),
                                             image: DecorationImage(
                                               fit: BoxFit.cover,
-                                              image: NetworkImage("https://www.teahub.io/photos/full/335-3350221_birthday-cake-wallpaper-for-desktop-happy-birthday-image.jpg"),
+                                              image: NetworkImage('${locationBySearch[index]['ProfileImage']}')
+                                            )
+                                        ),
+                                      ):
+                                      Container(
+                                        height: 120,
+                                        width: 90,
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(15),
+                                            image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: Svg('assets/images/pictwo.svg')
                                             )
                                         ),
                                       ),
@@ -468,7 +598,11 @@ class _VendorsListState extends State<VendorsList> {
                                                     children: [
                                                       Container(
                                                         width:width*0.5,
-                                                        child: Text('Suryaprakash',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                        child: Text(locationBySearch[index]['VendorName'].toString().isEmpty?
+                                                            'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
+                                                            locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                          }'
+                                                          ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                             color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
                                                         ),),
                                                       ),
@@ -499,26 +633,7 @@ class _VendorsListState extends State<VendorsList> {
                                                   ),
                                                   InkWell(
                                                     onTap: (){
-                                                      Navigator.of(context).push(
-                                                        PageRouteBuilder(
-                                                          pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-                                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                            const begin = Offset(1.0, 0.0);
-                                                            const end = Offset.zero;
-                                                            const curve = Curves.ease;
-
-                                                            final tween = Tween(begin: begin, end: end);
-                                                            final curvedAnimation = CurvedAnimation(
-                                                              parent: animation,
-                                                              curve: curve,
-                                                            );
-                                                            return SlideTransition(
-                                                              position: tween.animate(curvedAnimation),
-                                                              child: child,
-                                                            );
-                                                          },
-                                                        ),
-                                                      );
+                                                      sendDataToScreen(index);
                                                     },
                                                     child: Container(
                                                       decoration: BoxDecoration(
@@ -536,7 +651,9 @@ class _VendorsListState extends State<VendorsList> {
                                             ),
                                             Container(
                                               width: width*0.63,
-                                              child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
+                                              child: Text(locationBySearch[index]['Description'].toString()=='null'?
+                                              '':'${locationBySearch[index]['Description']}'
+                                                ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                   color: Colors.black54,fontFamily: poppins,fontSize: 13
                                               ),maxLines: 1,),
                                             ),
@@ -550,13 +667,17 @@ class _VendorsListState extends State<VendorsList> {
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
-                                                  index/1==0?Text('DELIVERY FREE',style: TextStyle(
+                                                  locationBySearch[index]['DeliveryCharge'].toString()=='null'?
+                                                  Text('DELIVERY FREE',style: TextStyle(
                                                       color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                  ),):Text('10 Km Delivery fee ₹ 49',style: TextStyle(
+                                                  ),):Text('Delivery Charge ${locationBySearch[index]['DeliveryCharge'].toString()}'
+                                                    ,style: TextStyle(
                                                       color: darkBlue,fontSize: 12,fontFamily: poppins
                                                   ),),
                                                   TextButton(
-                                                    onPressed: (){},
+                                                    onPressed: (){
+                                                      print(width*0.63);
+                                                     },
                                                     child:Text('Select',style: TextStyle(
                                                         color: Colors.black,fontSize: 10,fontWeight:
                                                     FontWeight.bold,fontFamily: poppins,

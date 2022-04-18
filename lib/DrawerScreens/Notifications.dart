@@ -82,57 +82,56 @@ class _NotificationsState extends State<Notifications> {
       body: SingleChildScrollView(
         child: Container(
           child: i==0?
-          Shimmer.fromColors(
-            baseColor:Colors.grey,
-            highlightColor: Colors.black26,
-            direction: ShimmerDirection.ttb,
-            child: ListView.builder(
+          ListView.builder(
                 itemCount: 10,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (count,index){
-                  return Container(
-                    padding: EdgeInsets.all(10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 55,
-                          width: 55,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(width: 10,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 275,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  // borderRadius: BorderRadius.circular(25),
-                                  color: Colors.grey
-                              ),
+                  return Shimmer.fromColors(
+                    baseColor:Colors.grey,
+                    highlightColor: Colors.black26,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey,
                             ),
-                            SizedBox(height: 10,),
-                            Container(
-                              width: 100,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                  // borderRadius: BorderRadius.circular(25),
-                                  color: Colors.grey
+                          ),
+                          SizedBox(width: 10,),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 275,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.grey
+                                ),
                               ),
-                            )
-                          ],
-                        )
-                      ],
+                              SizedBox(height: 10,),
+                              Container(
+                                width: 100,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.grey
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   );
                 }
-            ),
-          ):
+            ):
           ListView.builder(
               itemCount: 10,
               shrinkWrap: true,

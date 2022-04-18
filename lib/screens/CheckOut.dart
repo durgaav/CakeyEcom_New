@@ -104,6 +104,7 @@ class _CheckOutState extends State<CheckOut> {
   
   //confirm order
   Future<void> confirmOrder() async{
+    showAlertDialog();
     String payStatus = '';
     if(paymentType.toLowerCase()=="cash on delivery"){
       setState(() {
@@ -115,7 +116,6 @@ class _CheckOutState extends State<CheckOut> {
       });
     }
 
-    showAlertDialog();
     var headers = {
       'Content-Type': 'application/json'
     };
@@ -157,12 +157,12 @@ class _CheckOutState extends State<CheckOut> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      Navigator.pop(context);
       print(await response.stream.bytesToString());
+      Navigator.pop(context);
     }
     else {
-      Navigator.pop(context);
       print(response.reasonPhrase);
+      Navigator.pop(context);
     }
 
   }

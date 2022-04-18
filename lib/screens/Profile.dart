@@ -258,6 +258,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         print(jsonDecode(response.body));
         setState(() {
           recentOrders = jsonDecode(response.body);
+          recentOrders = recentOrders.reversed.toList();
         });
       }
       else{
@@ -283,7 +284,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         "${int.parse(phoneNumber)}"));
     if(response.statusCode==200){
       // print(jsonDecode(response.body));
-      Navigator.pop(context);
       setState(() {
         List body = jsonDecode(response.body);
         print("body $body");
@@ -298,6 +298,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         context.read<ContextData>().setUserName(userName);
         print(userID + userAddress + userProfileUrl);
         getOrderList();
+        Navigator.pop(context);
       });
     }else{
       Navigator.pop(context);
@@ -615,7 +616,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     const Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
                                                   ],
                                                 ),
-                                                Text("${recentOrders[index]['Status_Updated_On']}",style: TextStyle(color: Colors.black26,
+                                                Text("${recentOrders[index]['Status_Updated_On']
+                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
@@ -630,6 +632,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               )
                             ),
                         ),
+                        SizedBox(height: 10,),
                         Visibility(
                           visible:isExpands[index],
                           child: AnimatedContainer(
@@ -642,7 +645,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   title: const Text('Vendor',style: const TextStyle(
                                     fontSize: 11,fontFamily: "Poppins"
                                   ),),
-                                  subtitle: const Text('Naveen',style: TextStyle(
+                                  subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
                                       fontSize: 14,fontFamily: "Poppins",
                                     fontWeight: FontWeight.bold,color: Colors.black
                                   ),),
@@ -696,7 +699,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       const Text('Cake Type',style: TextStyle(
                                           fontSize: 11,fontFamily: "Poppins"
                                       ),),
-                                      const Text('Birthday',style: TextStyle(
+                                      Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
                                           fontSize: 14,fontFamily: "Poppins",
                                           fontWeight: FontWeight.bold,color: Colors.black
                                       ),),
@@ -720,8 +723,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       const SizedBox(width: 8,),
                                       Container(
                                           width: 260,
-                                          child: const Text(
-                                              "1/4 Vellandipalayam thekkalur 641654",
+                                          child:Text(
+                                              "${recentOrders[index]['DeliveryAddress']}",
                                               style: TextStyle(
                                                 fontFamily: "Poppins",
                                                 color: Colors.black54,
@@ -748,7 +751,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                     Text('₹${recentOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -762,7 +765,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      const Text('₹10',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -776,7 +779,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('₹${recentOrders[index]['Discount']}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -790,7 +793,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      const Text('₹500',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -811,7 +814,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold
                                       ),),
-                                      const Text('₹500',style: TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('₹${recentOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -821,7 +824,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      const Text('Paid via : Google pay',style: TextStyle(
+                                      Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
@@ -961,7 +964,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         child: ProfileView()
                     ),
                     SingleChildScrollView(
-                        child: OrdersView()
+                        child: recentOrders.length==0?
+                        Center(
+                          child: Padding(
+                            padding:EdgeInsets.all(8.0),
+                            child: Text('No Orders Found!' , style: TextStyle(
+                                color: darkBlue , fontFamily: "Poppins" ,
+                                fontSize: 17 , fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                        ):
+                        OrdersView()
                     ),
                   ]
               ),
