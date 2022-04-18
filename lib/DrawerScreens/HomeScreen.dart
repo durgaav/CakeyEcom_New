@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:cakey/ContextData.dart';
@@ -459,6 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
+    showAlertDialog();
     var prefs = await SharedPreferences.getInstance();
     // showAlertDialog();
     //needs to imple..
@@ -478,6 +480,8 @@ class _HomeScreenState extends State<HomeScreen> {
         prefs.setString('userName', userName);
         context.read<ContextData>().setUserName(userName);
         getOrderList();
+        getCakeList();
+        Navigator.pop(context);
       });
     }else{
       // Navigator.pop(context);
@@ -553,12 +557,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if(response.statusCode==200){
 
-        checkNetwork();
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
           cakesList = cakesList.reversed.toList();
-
           for(int i =0 ;i<cakesList.length;i++){
             if(i==0){
               cakesTypes.add('Customize your cake');
@@ -579,7 +581,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }catch(error){
       setState(() {
         isNetworkError = true;
-        checkNetwork();
       });
     }
   }
@@ -625,7 +626,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
       );
       if(response.statusCode==200){
-        checkNetwork();
         setState(() {
           isNetworkError = false;
           recentOrders = jsonDecode(response.body);
@@ -639,7 +639,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }catch(error){
       setState(() {
         isNetworkError = true;
-        checkNetwork();
       });
     }
   }
@@ -653,7 +652,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     Future.delayed(Duration.zero ,() async{
       loadPrefs();
-      getCakeList();
       fetchProfileByPhn();
     });
   }
@@ -741,9 +739,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: height*0.71,
                 child: RefreshIndicator(
                   onRefresh: () async{
+                    Position position = await _getGeoLocationPosition();
                     setState(() {
+                      location ='Lat: ${position.latitude} , Long: ${position.longitude}';
+                      GetAddressFromLatLong(position);
                       loadPrefs();
-                      getCakeList();
                       fetchProfileByPhn();
                     });
                   },
@@ -910,8 +910,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         borderRadius: BorderRadius.circular(20),
                                                         border: Border.all(color: Colors.white,width: 2),
                                                         image: DecorationImage(
-                                                            image:
-                                                            NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'),
+                                                            image:AssetImage('assets/images/customcake.png'),
                                                             fit: BoxFit.cover
                                                         )
                                                     ),
@@ -1001,8 +1000,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   Container(
                                     height: 220,
-                                    child: ListView.builder(
-                                        itemCount: recentOrders.length,
+                                    child: recentOrders.length>0?
+                                    ListView.builder(
+                                        itemCount: 3,
                                         scrollDirection: Axis.horizontal,
                                         itemBuilder: (context,index){
                                           return Container(
@@ -1084,8 +1084,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           );
                                         }
-                                    ),
-                                  ),
+                                    ):
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.shopping_basket_outlined,
+                                            color: lightPink,
+                                            size: 35,
+                                          ),
+
+                                          Text('No Recent Orders',style: TextStyle(
+                                              color: darkBlue,
+                                              fontFamily: "Poppins",
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15
+                                          ),),
+
+                                        ],
+                                    )
+                                  )
                                 ],
                               ),
                             ),

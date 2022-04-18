@@ -111,6 +111,36 @@ class _VendorsListState extends State<VendorsList> {
       Navigator.pop(context);
     }
   }
+  Future<void> sendNearVendorDataToScreen(int index) async{
+    var pref = await SharedPreferences.getInstance();
+
+    //common keyword single****
+    pref.setString('singleVendorID', nearestVendors[index]['_id']);
+    pref.setString('singleVendorName', nearestVendors[index]['VendorName']);
+    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'No Description');
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
+  }
 
   Future<void> sendDataToScreen(int index) async{
     var pref = await SharedPreferences.getInstance();
@@ -381,140 +411,145 @@ class _VendorsListState extends State<VendorsList> {
                                   shrinkWrap: true,
                                   itemCount: nearestVendors.length,
                                   itemBuilder: (context , index){
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Container(
-                                        padding: EdgeInsets.all(10),
-                                        width: 260,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                nearestVendors[index]['ProfileImage']!=null?
-                                                CircleAvatar(
-                                                  radius:32,
-                                                  backgroundColor: Colors.white,
-                                                  child: CircleAvatar(
-                                                    radius:30,
-                                                    backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                    return GestureDetector(
+                                      onTap: (){
+                                        sendNearVendorDataToScreen(index);
+                                      },
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10)
+                                        ),
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          width: 260,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  nearestVendors[index]['ProfileImage']!=null?
+                                                  CircleAvatar(
+                                                    radius:32,
+                                                    backgroundColor: Colors.white,
+                                                    child: CircleAvatar(
+                                                      radius:30,
+                                                      backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                    ),
+                                                  ):
+                                                  CircleAvatar(
+                                                    radius:32,
+                                                    backgroundColor: Colors.white,
+                                                    child: CircleAvatar(
+                                                      radius:30,
+                                                      backgroundImage:Svg('assets/images/pictwo.svg'),
+                                                    ),
                                                   ),
-                                                ):
-                                                CircleAvatar(
-                                                  radius:32,
-                                                  backgroundColor: Colors.white,
-                                                  child: CircleAvatar(
-                                                    radius:30,
-                                                    backgroundImage:Svg('assets/images/pictwo.svg'),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 6,),
-                                                Container(
-                                                  width:170,
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Container(
-                                                            width:120,
-                                                            child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
-                                                            'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
-                                                            }',style: TextStyle(
-                                                                color: darkBlue,fontWeight: FontWeight.bold,
-                                                                fontFamily: "Poppins"
-                                                            ),overflow: TextOverflow.ellipsis,),
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              RatingBar.builder(
-                                                                initialRating: 4.1,
-                                                                minRating: 1,
-                                                                direction: Axis.horizontal,
-                                                                allowHalfRating: true,
-                                                                itemCount: 5,
-                                                                itemSize: 14,
-                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                itemBuilder: (context, _) => Icon(
-                                                                  Icons.star,
-                                                                  color: Colors.amber,
+                                                  SizedBox(width: 6,),
+                                                  Container(
+                                                    width:170,
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Container(
+                                                              width:120,
+                                                              child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                              'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                  nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                              }',style: TextStyle(
+                                                                  color: darkBlue,fontWeight: FontWeight.bold,
+                                                                  fontFamily: "Poppins"
+                                                              ),overflow: TextOverflow.ellipsis,),
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                RatingBar.builder(
+                                                                  initialRating: 4.1,
+                                                                  minRating: 1,
+                                                                  direction: Axis.horizontal,
+                                                                  allowHalfRating: true,
+                                                                  itemCount: 5,
+                                                                  itemSize: 14,
+                                                                  itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                  itemBuilder: (context, _) => Icon(
+                                                                    Icons.star,
+                                                                    color: Colors.amber,
+                                                                  ),
+                                                                  onRatingUpdate: (rating) {
+                                                                    print(rating);
+                                                                  },
                                                                 ),
-                                                                onRatingUpdate: (rating) {
-                                                                  print(rating);
-                                                                },
-                                                              ),
-                                                              Text(' 4.5',style: TextStyle(
-                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                              ),)
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      InkWell(
-                                                        onTap: (){
-
-                                                        },
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                              color: lightGrey,
-                                                              shape: BoxShape.circle
-                                                          ),
-                                                          padding: EdgeInsets.all(4),
-                                                          height: 35,
-                                                          width: 35,
-                                                          child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                                Text(' 4.5',style: TextStyle(
+                                                                    color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                                ),)
+                                                              ],
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ),
+                                                        InkWell(
+                                                          onTap: (){
+                                                            sendNearVendorDataToScreen(index);
+                                                          },
+                                                          child: Container(
+                                                            decoration: BoxDecoration(
+                                                                color: lightGrey,
+                                                                shape: BoxShape.circle
+                                                            ),
+                                                            padding: EdgeInsets.all(4),
+                                                            height: 35,
+                                                            width: 35,
+                                                            child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10,),
+                                              Container(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(nearestVendors[index]['Description']!=null?
+                                                   " "+nearestVendors[index]['Description']:'',
+                                                  style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Container(
+                                                margin:EdgeInsets.only(top: 10),
+                                                height: 0.5,
+                                                color: Colors.black26,
+                                              ),
+                                              SizedBox(height: 15,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text('Includes eggless',style: TextStyle(
+                                                          color: darkBlue,
+                                                          fontSize: 13
+                                                      ),),
+                                                      SizedBox(height: 8,),
+                                                      Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
+                                                      'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
+                                                          color: Colors.orange,
+                                                          fontSize: 12
+                                                      ),),
                                                     ],
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10,),
-                                            Container(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(nearestVendors[index]['Description']!=null?
-                                                 " "+nearestVendors[index]['Description']:'',
-                                                style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
-                                                textAlign: TextAlign.start,
-                                              ),
-                                            ),
-                                            Container(
-                                              margin:EdgeInsets.only(top: 10),
-                                              height: 0.5,
-                                              color: Colors.black26,
-                                            ),
-                                            SizedBox(height: 15,),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text('Includes eggless',style: TextStyle(
-                                                        color: darkBlue,
-                                                        fontSize: 13
-                                                    ),),
-                                                    SizedBox(height: 8,),
-                                                    Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
-                                                    'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
-                                                        color: Colors.orange,
-                                                        fontSize: 12
-                                                    ),),
-                                                  ],
-                                                ),
-                                                Icon(Icons.check_circle,color: Colors.green,)
-                                              ],
-                                            )
-                                          ],
+                                                  Icon(Icons.check_circle,color: Colors.green,)
+                                                ],
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     );
