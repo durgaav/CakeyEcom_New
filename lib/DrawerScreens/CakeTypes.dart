@@ -1792,18 +1792,30 @@ class _CakeTypesState extends State<CakeTypes> {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(left: 10,top: 10,bottom: 10),
-                width: width,
-                child: Text(
-                  'Find And Order Your\nFavourite Cakes ',
-                  style: TextStyle(
-                      color: darkBlue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      fontFamily: "Poppins"
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(left: 10,top: 10,bottom: 10),
+                    width: 200,
+                    child: Text(
+                      'Find And Order Your\nFavourite Cakes ',
+                      style: TextStyle(
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontFamily: "Poppins"
+                        ),
                     ),
-                ),
+                  ),
+                  Container(
+                      child:Image(
+                        height: 40,
+                        width: 40,
+                        image: AssetImage('assets/images/smilyfood.png'),
+                      )
+                  )
+                ],
               ),
 
               //Searchbar..

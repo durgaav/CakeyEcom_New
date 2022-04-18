@@ -57,7 +57,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 controller: controll,
                 itemCount:3,
                 itemBuilder: (context, index){
-                  precacheImage(Svg(pics[index]), context);
+                  precacheImage(AssetImage(pics[index]), context);
                   currentindex=index;
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,

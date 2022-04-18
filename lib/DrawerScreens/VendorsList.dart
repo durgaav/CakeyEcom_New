@@ -503,7 +503,9 @@ class _VendorsListState extends State<VendorsList> {
                                                         color: darkBlue,
                                                         fontSize: 13
                                                     ),),
-                                                    Text('Delivery fee goes here',style: TextStyle(
+                                                    SizedBox(height: 8,),
+                                                    Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
+                                                    'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
                                                         color: Colors.orange,
                                                         fontSize: 12
                                                     ),),
@@ -670,7 +672,7 @@ class _VendorsListState extends State<VendorsList> {
                                                   locationBySearch[index]['DeliveryCharge'].toString()=='null'?
                                                   Text('DELIVERY FREE',style: TextStyle(
                                                       color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                  ),):Text('Delivery Charge ${locationBySearch[index]['DeliveryCharge'].toString()}'
+                                                  ),):Text('Delivery Charge ₹${locationBySearch[index]['DeliveryCharge'].toString()}'
                                                     ,style: TextStyle(
                                                       color: darkBlue,fontSize: 12,fontFamily: poppins
                                                   ),),

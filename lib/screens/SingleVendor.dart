@@ -545,7 +545,13 @@ class _SingleVendorState extends State<SingleVendor> {
                                 child: AnimatedContainer(
                                   duration: const Duration(seconds: 3),
                                   curve: Curves.elasticInOut,
-                                  color: Colors.black12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(15),
+                                      bottomRight: Radius.circular(15),
+                                    )
+                                  ),
                                   child: Column(
                                     children: [
                                       const SizedBox(height: 15,),
