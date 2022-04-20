@@ -621,7 +621,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
+                                            Text("${recentOrders[index]['Status']}",style: TextStyle(
+                                                color:recentOrders[index]['Status'].toString().toLowerCase()
+                                                    =='cancelled'?Colors.red:Colors.blueAccent,
                                              fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
                                           ],
                                         ),

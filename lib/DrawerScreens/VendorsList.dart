@@ -111,6 +111,8 @@ class _VendorsListState extends State<VendorsList> {
       Navigator.pop(context);
     }
   }
+
+  //send nearest vendor details.
   Future<void> sendNearVendorDataToScreen(int index) async{
     var pref = await SharedPreferences.getInstance();
 

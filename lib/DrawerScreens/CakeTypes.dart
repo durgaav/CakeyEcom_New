@@ -101,6 +101,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //Shapes showing...
   List<bool> filterShapesCheck = [];
   List filterShapes = [];
+  List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagan"];
 
   //endregion
 
@@ -525,197 +526,244 @@ class _CakeTypesState extends State<CakeTypes> {
         context: context,
         isScrollControlled: true,
         builder: (context){
-          return Container(
-            // padding: EdgeInsets.all(15),
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child:SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: 8,),
-                    //Title text...
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
-                            fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                        GestureDetector(
-                          onTap: ()=>Navigator.pop(context),
-                          child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                  color: Colors.black12,
-                                  borderRadius: BorderRadius.circular(10)
+          return StatefulBuilder(
+              builder: (BuildContext context , void Function(void Function()) setState){
+                return Container(
+                  // padding: EdgeInsets.all(15),
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child:SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(height: 8,),
+                          //Title text...
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
+                                  fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                              GestureDetector(
+                                onTap: ()=>Navigator.pop(context),
+                                child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black12,
+                                        borderRadius: BorderRadius.circular(10)
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Icon(Icons.close_outlined,color: lightPink,)
+                                ),
                               ),
-                              alignment: Alignment.center,
-                              child: Icon(Icons.close_outlined,color: lightPink,)
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    //Edit texts...
-                    Container(
-                      height: 45,
-                      child: TextField(
-                        controller: cakeCategoryCtrl,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5),
-                            hintText: "Category eg:birthday",
-                            hintStyle: TextStyle(fontFamily: "Poppins" , fontSize:13),
-                            prefixIcon: Icon(Icons.search_outlined),
-                            border: OutlineInputBorder()
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Container(
-                      height: 45,
-                      child: TextField(
-                        controller: cakeSubCategoryCtrl,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5),
-                            hintText: "Sub Category",
-                            hintStyle: TextStyle(fontFamily: "Poppins", fontSize:13),
-                            prefixIcon: Icon(Icons.search_outlined),
-                            border: OutlineInputBorder()
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Container(
-                      height: 45,
-                      child: TextField(
-                        controller: cakeVendorCtrl,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5),
-                            hintText: "Vendors",
-                            hintStyle: TextStyle(fontFamily: "Poppins", fontSize:13),
-                            prefixIcon: Icon(Icons.account_circle),
-                            border: OutlineInputBorder()
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Container(
-                      height: 45,
-                      child: TextField(
-                        controller: cakeLocationCtrl,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5),
-                            hintText: "Location",
-                            hintStyle: TextStyle(fontFamily: "Poppins", fontSize:13),
-                            prefixIcon: Icon(Icons.location_on),
-                            suffixIcon: IconButton(
-                              onPressed: (){},
-                              icon: Icon(Icons.my_location),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          //Edit texts...
+                          Container(
+                            height: 45,
+                            child: TextField(
+                              controller: cakeCategoryCtrl,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(5),
+                                  hintText: "Category",
+                                  hintStyle: TextStyle(fontFamily: "Poppins" , fontSize: 13),
+                                  prefixIcon: Icon(Icons.search_outlined),
+                                  border: OutlineInputBorder()
+                              ),
                             ),
-                            border: OutlineInputBorder()
-                        ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            height: 45,
+                            child: TextField(
+                              controller: cakeSubCategoryCtrl,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(5),
+                                  hintText: "Sub Category",
+                                  hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                                  prefixIcon: Icon(Icons.search_outlined),
+                                  border: OutlineInputBorder()
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            height: 45,
+                            child: TextField(
+                              controller: cakeVendorCtrl,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(5),
+                                  hintText: "Vendors",
+                                  hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                                  prefixIcon: Icon(Icons.sentiment_very_satisfied_rounded),
+                                  border: OutlineInputBorder()
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text("nearest 10 km radius from your location", style:  TextStyle(
+                              color: darkBlue , fontSize: 11 , fontFamily: "Poppins"),),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            height: 45,
+                            child: TextField(
+                              controller: cakeLocationCtrl,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(5),
+                                  hintText: "Location",
+                                  hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                                  prefixIcon: Icon(Icons.location_on),
+                                  suffixIcon: IconButton(
+                                    onPressed: (){},
+                                    icon: Icon(Icons.my_location),
+                                  ),
+                                  border: OutlineInputBorder()
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          //kilo meter radius buttons.........
+                          Wrap(
+                            runSpacing: 5.0,
+                            spacing: 5.0,
+                            children: [
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                            ],
+
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+
+                          //Divider
+                          Container(
+                            height: 1.0,
+                            color: Colors.black26,
+                          ),
+
+                          SizedBox(height: 5,),
+
+
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
+                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                          ),
+                          SizedBox(height: 5,),
+                          //stars rattings...
+                          Wrap(
+                            runSpacing: 5.0,
+                            spacing: 5.0,
+                            children: [
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 5,),
+                          //Divider
+                          Container(
+                            height: 1.0,
+                            color: Colors.black26,
+                          ),
+                          //cake types....
+                          SizedBox(height: 5,),
+
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
+                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                          ),
+                          SizedBox(height: 5,),
+                          //types of cakes btn...
+                          Wrap(
+                            runSpacing: 5.0,
+                            spacing: 5.0,
+                            children: [
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                              OutlinedButton(
+                                onPressed: (){},
+                                child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 10,),
+                          //Search button...
+                          Center(
+                            child: Container(
+                              height: 55,
+                              width: 200,
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                color: lightPink,
+                                onPressed: (){
+                                  Navigator.pop(context);
+                                },
+                                child: Text("SEARCH",style: TextStyle(
+                                    color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
+                                ),),
+                              ),
+                            ),
+                          )
+
+                        ],
                       ),
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    //kilo meter radius buttons.........
-                    Wrap(
-                      runSpacing: 5.0,
-                      spacing: 5.0,
-                      children: [
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('25 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                      ],
-
-                    ),
-                    SizedBox(height: 8,),
-                    Container(
-                      height: 1.0,
-                      color: Colors.black26,
-                    ),
-                    //cake types....
-                    SizedBox(height: 8,),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
-                          fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                    ),
-                    SizedBox(height: 10,),
-
-                    //types of cakes btn...
-                    Wrap(
-                      runSpacing: 5.0,
-                      spacing: 5.0,
-                      children: [
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 10,),
-                    //Search button...
-                    Container(
-                      height: 55,
-                      width: 200,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        color: lightPink,
-                        onPressed: (){
-                          Navigator.pop(context);
-                          applySearchFiltersSettings();
-                        },
-                        child: Text("SEARCH",style: TextStyle(
-                            color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
-                        ),),
-                      ),
-                    )
-
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+              }
           );
         }
     );
@@ -766,75 +814,81 @@ class _CakeTypesState extends State<CakeTypes> {
                     Container(
                       height: 300,
                       child: SingleChildScrollView(
-                          child: ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: filterCakesShapList.length,
-                              itemBuilder: (context , index){
-                                filterShapesCheck.add(false);
-                                return InkWell(
-                                  splashColor: Colors.red[200],
-                                  onTap:(){
-                                    setState((){
-                                      if(filterShapesCheck[index]==false){
-                                        filterShapesCheck[index]=true;
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: shapesForFilter.length,
+                                  itemBuilder: (context , index){
+                                    filterShapesCheck.add(false);
+                                    return InkWell(
+                                      splashColor: Colors.red[200],
+                                      onTap:(){
+                                        setState((){
+                                          if(filterShapesCheck[index]==false){
+                                            filterShapesCheck[index]=true;
 
-                                        if(filterShapes.contains(filterCakesShapList[index])){
+                                            if(filterShapes.contains(shapesForFilter[index])){
 
-                                        }else{
-                                          filterShapes.add(filterCakesShapList[index]);
-                                        }
-                                      }else{
-                                        filterShapes.remove(filterCakesShapList[index]);
-                                        filterShapesCheck[index]=false;
-                                      }
-                                    });
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 5,),
-                                      Wrap(
-                                        crossAxisAlignment: WrapCrossAlignment.center,
-                                        runSpacing: 5,
-                                        spacing: 5,
+                                            }else{
+                                              filterShapes.add(shapesForFilter[index]);
+                                            }
+                                          }else{
+                                            filterShapes.remove(shapesForFilter[index]);
+                                            filterShapesCheck[index]=false;
+                                          }
+                                        });
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Checkbox(
-                                            shape: CircleBorder(),
-                                            activeColor: Colors.white,
-                                            fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
-                                            value: filterShapesCheck[index],
-                                            onChanged: (bool? check){
-                                              setState((){
-                                                if(filterShapesCheck[index]==false){
-                                                  filterShapesCheck[index]=true;
-                                                  if(filterShapes.contains(filterCakesShapList[index])){
+                                          SizedBox(height: 5,),
+                                          Wrap(
+                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            runSpacing: 5,
+                                            children: [
+                                              Checkbox(
+                                                shape: CircleBorder(),
+                                                activeColor: Colors.white,
+                                                fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
+                                                value: filterShapesCheck[index],
+                                                onChanged: (bool? check){
+                                                  setState((){
+                                                    if(filterShapesCheck[index]==false){
+                                                      filterShapesCheck[index]=true;
 
-                                                  }else{
-                                                    filterShapes.add(filterCakesShapList[index]);
-                                                  }
-                                                }else{
-                                                  filterShapes.remove(filterCakesShapList[index]);
-                                                  filterShapesCheck[index]=false;
-                                                }
-                                              });
-                                            },
+                                                      if(filterShapes.contains(shapesForFilter[index])){
+
+                                                      }else{
+                                                        filterShapes.add(shapesForFilter[index]);
+                                                      }
+                                                    }else{
+                                                      filterShapes.remove(shapesForFilter[index]);
+                                                      filterShapesCheck[index]=false;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              Text(shapesForFilter[index].toString(),style: TextStyle(
+                                                  color: darkBlue , fontFamily: "Poppins",fontSize: 15
+                                              ),),
+                                            ],
                                           ),
-                                          Text(filterCakesShapList[index].toString(),style: TextStyle(
-                                              color: darkBlue , fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold
-                                          ),),
                                         ],
                                       ),
-                                      SizedBox(height: 5,),
-                                      Container(
-                                        height: 0.5,
-                                        width:double.infinity,
-                                        color: lightPink,
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }
+                                    );
+                                  }
+                              ),
+                              SizedBox(height:6),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('OTHERS',style: TextStyle(
+                                    color: darkBlue , fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.bold
+                                ),),
+                              ),
+                            ],
                           )
                       ),
                     ),
@@ -1519,18 +1573,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     print("$searchCakeCate \n $searchCakeSubType \n $searchCakeVendor \n $searchCakeLocation \n");
 
-    setState((){
 
-      if(searchCakeCate.isNotEmpty){
-        cakeSearchList = eggOrEgglesList.where((element) => element['TypeOfCake'].toString()
-            .toLowerCase().contains(searchCakeCate.toLowerCase())).toList();
-      }else{
-        cakeSearchList = eggOrEgglesList.where((element) => element['TypeOfCake'].toString()
-            .toLowerCase().contains(searchCakesText.toLowerCase())).toList();
-      }
-
-
-    });
 
   }
 
@@ -1796,9 +1839,9 @@ class _CakeTypesState extends State<CakeTypes> {
         child: RefreshIndicator(
           onRefresh : () async{
             setState((){
-              getCakeList();
-              clearShapesFilter();
-              clearAllFilters();
+              // getCakeList();
+              // clearShapesFilter();
+              // clearAllFilters();
             });
           },
           child: SingleChildScrollView(
@@ -2204,13 +2247,12 @@ class _CakeTypesState extends State<CakeTypes> {
                               child: Column(
                                 children: [
                                   SizedBox(height: 10,),
-                                  Text('Found\n${filterCakesSearchList.length} Item(s)',style: TextStyle(
-                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
+                                  Text('Found\n${filterCakesSearchList.length} Items',style: TextStyle(
+                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: "Poppins"
                                   )),
                                   SizedBox(height: 5,),
                                   Container(
                                     margin: EdgeInsets.only(top: 10),
-                                    height:height*0.3,
                                     padding:EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
@@ -2218,9 +2260,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
                                     ),
                                     child:Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-
                                         CircleAvatar(
                                           radius: 45,
                                           backgroundImage:
@@ -2228,11 +2268,13 @@ class _CakeTypesState extends State<CakeTypes> {
                                           NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                           NetworkImage(filterCakesSearchList[index]['Images'][0].toString()),
                                         ),
+                                        SizedBox(height: 5,),
                                         Text("${filterCakesSearchList[index]['Title'][0].toString().toUpperCase()+
                                             filterCakesSearchList[index]['Title'].toString().substring(1).toLowerCase()
                                         }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
+                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                         )),
+                                        SizedBox(height: 5,),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
@@ -2267,7 +2309,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                   children: [
                                     Container(
                                       margin: EdgeInsets.only(top: 10),
-                                      height:height*0.3,
                                       padding:EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(14),
@@ -2284,10 +2325,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                             NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                             NetworkImage(filterCakesSearchList[index]['Images'][0].toString()),
                                           ),
+                                          SizedBox(height: 5,),
                                           Text("${filterCakesSearchList[index]['Title'][0].toString().toUpperCase()+
                                               filterCakesSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                               color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
                                           )),
+                                          SizedBox(height: 5,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
@@ -2403,12 +2446,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                 children: [
                                   SizedBox(height: 10,),
                                   Text('Found\n${cakeSearchList.length} Items',style: TextStyle(
-                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 16
+                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: "Poppins"
                                   )),
                                   SizedBox(height: 5,),
                                   Container(
                                     margin: EdgeInsets.only(top: 10),
-                                    height:height*0.3,
                                     padding:EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
@@ -2416,7 +2458,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                       boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
                                     ),
                                     child:Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         CircleAvatar(
                                           radius: 45,
@@ -2425,11 +2466,13 @@ class _CakeTypesState extends State<CakeTypes> {
                                           NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                           NetworkImage(cakeSearchList[index]['Images'][0].toString()),
                                         ),
+                                        SizedBox(height: 5,),
                                         Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
                                             cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()
                                             }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
+                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                         )),
+                                        SizedBox(height: 5,),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
@@ -2467,7 +2510,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                 children: [
                                   Container(
                                     margin: EdgeInsets.only(top: 10),
-                                    height:height*0.3,
                                     padding:EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
@@ -2475,7 +2517,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                       boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
                                     ),
                                     child:Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         CircleAvatar(
                                           radius: 45,
@@ -2484,10 +2525,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                           NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                           NetworkImage(cakeSearchList[index]['Images'][0].toString()),
                                         ),
+                                        SizedBox(height: 5,),
                                         Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
                                             cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
+                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                         )),
+                                        SizedBox(height: 5,),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [

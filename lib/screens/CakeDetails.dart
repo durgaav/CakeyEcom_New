@@ -47,6 +47,15 @@ class _CakeDetailsState extends State<CakeDetails> {
   //Pageview dots
   List<Widget> dots = [];
 
+  //Articles
+  var articals = ["Happy Birth Day" , "Butterflies" , "Hello World"];
+  var articalsPrice = ['Rs.100' , 'Rs.125','Rs.50'];
+  int articGroupVal = 0;
+
+  //Pick Or Deliver
+  var picOrDeliver = ['Pickup' , 'Delivery'];
+  var picOrDel = [false , true];
+
   //Strings......Cake Details
   String cakeId = "";
   String cakeName = "";
@@ -1517,7 +1526,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   //region PGDots
   //Indecator pageview
   Widget _indicator(bool isActive) {
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(seconds: 1),
+      curve: Curves.linear,
       height: 10,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 4.0),
@@ -1720,48 +1731,49 @@ class _CakeDetailsState extends State<CakeDetails> {
                       child: cakeImages.length != 0
                           ? StatefulBuilder(
                           builder:(BuildContext context , void Function(void Function()) setState){
-                            return PageView.builder(
-                                itemCount: cakeImages.length,
-                                onPageChanged: (int i){
-                                  setState((){
-                                    pageViewCurIndex = i;
-                                  });
-                                },
-                                itemBuilder: (context, index) {
-                                  return Stack(
+                            return Stack(
+                              children:[
+                                PageView.builder(
+                                    itemCount: cakeImages.length,
+                                    onPageChanged: (int i){
+                                      setState((){
+                                        pageViewCurIndex = i;
+                                      });
+                                    },
+                                    itemBuilder: (context, index) {
+                                      return
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius.circular(20),
+                                              color: Colors.black12,
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      "${cakeImages[index]}"
+                                                  ),
+                                                  fit: BoxFit.cover)),
+                                        );
+                                    }),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(20),
-                                            color: Colors.black12,
-                                            image: DecorationImage(
-                                                image: NetworkImage(
-                                                    "${cakeImages[index]}"
-                                                ),
-                                                fit: BoxFit.cover)),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: _buildPageIndicator(),
                                       ),
-                                      Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: _buildPageIndicator(),
-                                            ),
-                                            SizedBox(
-                                              height: 15,
-                                            )
-                                          ],
-                                        ),
-                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      )
                                     ],
-                                  );
-                                });
+                                  ),
+                                ),
+
+                              ]
+                            );
                           }
-                         )
-                          : Center(
+                         ) : Center(
                               child: Text(
                               'No Images Found!',
                               style: TextStyle(
@@ -1821,16 +1833,21 @@ class _CakeDetailsState extends State<CakeDetails> {
                             ),
                             Row(
                               children: [
-                                Icon(
-                                  Icons.egg,
-                                  color: Colors.amber,
+                                Transform.rotate(
+                                  angle:120,
+                                  child: Icon(
+                                    Icons.egg_outlined,
+                                    color: Colors.amber,
+                                  ),
                                 ),
                                 Text(
                                   '$cakeEggorEgless',
                                   style: TextStyle(
                                       color: Colors.amber,
                                       fontFamily: poppins,
-                                      fontSize: 13),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold
+                                  ),
                                 )
                               ],
                             )
@@ -1891,137 +1908,231 @@ class _CakeDetailsState extends State<CakeDetails> {
                           child: Divider(
                             color: Colors.pink[100],
                           )),
-                      IntrinsicHeight(
+
+                      //Flavours and shapes
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
                         child: Container(
-                          margin: EdgeInsets.all(10),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                            margin:EdgeInsets.only(left:15 , right:15),
+                            width:MediaQuery.of(context).size.width,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Flavours',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                            fontFamily: "Poppins"
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Flavours',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontFamily: "Poppins"
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(
-                                        height: 7,
-                                      ),
-                                      fixedFlavour.isEmpty
-                                          ? Text(
-                                              flavour.isEmpty
-                                                  ? 'None'
-                                                  : '${flavour[0]}',
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: darkBlue,
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600),
-                                            )
-                                          : Text(
-                                              '$fixedFlavour',
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: "Poppins"),
-                                            )
-                                    ],
-                                  ),
+                                        SizedBox(
+                                          height: 2,
+                                        ),
+                                        fixedFlavour.isEmpty
+                                            ? Text(
+                                          flavour.isEmpty
+                                              ? 'None'
+                                              : '${flavour[0]}',
+                                          style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              color: darkBlue,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600),
+                                        )
+                                            : Text(
+                                          '$fixedFlavour',
+                                          style: TextStyle(
+                                              color: darkBlue,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: "Poppins"),
+                                        )
+                                      ],
+                                    ),
+                                    Expanded(child: Container()),
+                                    Container(
+                                      height: 45,
+                                      width: 1,
+                                      color: Colors.pink[100],
+                                    ),
+                                    SizedBox(width: 25,),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Shapes',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontFamily: "Poppins"),
+                                        ),
+                                        SizedBox(
+                                          height: 2,
+                                        ),
+                                        fixedShape.isEmpty
+                                            ? Text(
+                                          shapes.isEmpty
+                                              ? 'None'
+                                              : '${shapes[0]}',
+                                          style: TextStyle(
+                                              color: darkBlue,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: "Poppins"),
+                                        )
+                                            : Text(
+                                          '$fixedShape',
+                                          style: TextStyle(
+                                              color: darkBlue,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: "Poppins"),
+                                        )
+                                      ],
+                                    ),
+                                    Expanded(child: Container()),
+                                    SizedBox(width: 2,),
+                                  ],
                                 ),
-                                Container(
-                                  height: 45,
-                                  width: 1,
-                                  color: Colors.pink[100],
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Shapes',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                            fontFamily: "Poppins"),
-                                      ),
-                                      SizedBox(
-                                        height: 7,
-                                      ),
-                                      fixedShape.isEmpty
-                                          ? Text(
-                                              shapes.isEmpty
-                                                  ? 'None'
-                                                  : '${shapes[0]}',
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: "Poppins"),
-                                            )
-                                          : Text(
-                                              '$fixedShape',
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: "Poppins"),
-                                            )
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  height: 45,
-                                  width: 1,
-                                  color: Colors.pink[100],
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Cake Toppings',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                            fontFamily: "Poppins"),
-                                      ),
-                                      SizedBox(
-                                        height: 7,
-                                      ),
-                                      Text(
-                                        fixedToppings.length > 0
-                                            ? '${fixedToppings.length}+ Topping(s)'
-                                            : fixedToppings.isEmpty
-                                                ? 'None'
-                                                : '${fixedToppings[0]}',
-                                        style: TextStyle(
-                                            color: darkBlue,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: "Poppins"),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
                           ),
-                        ),
                       ),
+
+
+                      // IntrinsicHeight(
+                      //   child: Container(
+                      //     margin: EdgeInsets.all(10),
+                      //     child: SingleChildScrollView(
+                      //       scrollDirection: Axis.horizontal,
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //         children: [
+                      //           Padding(
+                      //             padding:
+                      //                 const EdgeInsets.symmetric(horizontal: 10),
+                      //             child: Column(
+                      //               crossAxisAlignment: CrossAxisAlignment.start,
+                      //               children: [
+                      //                 Text(
+                      //                   'Flavours',
+                      //                   style: TextStyle(
+                      //                       fontSize: 14,
+                      //                       color: Colors.grey,
+                      //                       fontFamily: "Poppins"
+                      //                   ),
+                      //                 ),
+                      //                 SizedBox(
+                      //                   height: 7,
+                      //                 ),
+                      //                 fixedFlavour.isEmpty
+                      //                     ? Text(
+                      //                         flavour.isEmpty
+                      //                             ? 'None'
+                      //                             : '${flavour[0]}',
+                      //                         style: TextStyle(
+                      //                             fontFamily: "Poppins",
+                      //                             color: darkBlue,
+                      //                             fontSize: 15,
+                      //                             fontWeight: FontWeight.w600),
+                      //                       )
+                      //                     : Text(
+                      //                         '$fixedFlavour',
+                      //                         style: TextStyle(
+                      //                             color: darkBlue,
+                      //                             fontSize: 15,
+                      //                             fontWeight: FontWeight.w600,
+                      //                             fontFamily: "Poppins"),
+                      //                       )
+                      //               ],
+                      //             ),
+                      //           ),
+                      //           Container(
+                      //             height: 45,
+                      //             width: 1,
+                      //             color: Colors.pink[100],
+                      //           ),
+                      //           Padding(
+                      //             padding:
+                      //                 const EdgeInsets.symmetric(horizontal: 10),
+                      //             child: Column(
+                      //               crossAxisAlignment: CrossAxisAlignment.start,
+                      //               children: [
+                      //                 Text(
+                      //                   'Shapes',
+                      //                   style: TextStyle(
+                      //                       fontSize: 14,
+                      //                       color: Colors.grey,
+                      //                       fontFamily: "Poppins"),
+                      //                 ),
+                      //                 SizedBox(
+                      //                   height: 7,
+                      //                 ),
+                      //                 fixedShape.isEmpty
+                      //                     ? Text(
+                      //                         shapes.isEmpty
+                      //                             ? 'None'
+                      //                             : '${shapes[0]}',
+                      //                         style: TextStyle(
+                      //                             color: darkBlue,
+                      //                             fontSize: 14,
+                      //                             fontWeight: FontWeight.w600,
+                      //                             fontFamily: "Poppins"),
+                      //                       )
+                      //                     : Text(
+                      //                         '$fixedShape',
+                      //                         style: TextStyle(
+                      //                             color: darkBlue,
+                      //                             fontSize: 14,
+                      //                             fontWeight: FontWeight.w600,
+                      //                             fontFamily: "Poppins"),
+                      //                       )
+                      //               ],
+                      //             ),
+                      //           ),
+                      //           Container(
+                      //             height: 45,
+                      //             width: 1,
+                      //             color: Colors.pink[100],
+                      //           ),
+                      //           Padding(
+                      //             padding:
+                      //                 const EdgeInsets.symmetric(horizontal: 10),
+                      //             child: Column(
+                      //               crossAxisAlignment: CrossAxisAlignment.start,
+                      //               children: [
+                      //                 Text(
+                      //                   'Cake Toppings',
+                      //                   style: TextStyle(
+                      //                       fontSize: 14,
+                      //                       color: Colors.grey,
+                      //                       fontFamily: "Poppins"),
+                      //                 ),
+                      //                 SizedBox(
+                      //                   height: 7,
+                      //                 ),
+                      //                 Text(
+                      //                   fixedToppings.length > 0
+                      //                       ? '${fixedToppings.length}+ Topping(s)'
+                      //                       : fixedToppings.isEmpty
+                      //                           ? 'None'
+                      //                           : '${fixedToppings[0]}',
+                      //                   style: TextStyle(
+                      //                       color: darkBlue,
+                      //                       fontSize: 14,
+                      //                       fontWeight: FontWeight.w600,
+                      //                       fontFamily: "Poppins"),
+                      //                 ),
+                      //               ],
+                      //             ),
+                      //           )
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       Container(
                         margin:
                             EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -2203,45 +2314,45 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         size: 30,
                                       )),
                             ),
-                            ListTile(
-                              leading: Text(
-                                'Cake Toppings',
-                                style: TextStyle(fontFamily: "Poppins"),
-                              ),
-                              title: Text(
-                                fixedToppings.length > 0
-                                    ? '${fixedToppings.length}+ Toppings'
-                                    : '',
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 12,
-                                    color: darkBlue),
-                              ),
-                              trailing: GestureDetector(
-                                onTap: () {
-                                  showCakeToppingsSheet();
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 3,
-                                          color: Colors.black26,
-                                          spreadRadius: 1)
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.add,
-                                    color: darkBlue,
-                                  ),
-                                ),
-                              ),
-                            )
+                            // ListTile(
+                            //   leading: Text(
+                            //     'Cake Toppings',
+                            //     style: TextStyle(fontFamily: "Poppins"),
+                            //   ),
+                            //   title: Text(
+                            //     fixedToppings.length > 0
+                            //         ? '${fixedToppings.length}+ Toppings'
+                            //         : '',
+                            //     style: TextStyle(
+                            //         fontFamily: "Poppins",
+                            //         fontSize: 12,
+                            //         color: darkBlue),
+                            //   ),
+                            //   trailing: GestureDetector(
+                            //     onTap: () {
+                            //       showCakeToppingsSheet();
+                            //     },
+                            //     child: Container(
+                            //       width: 30,
+                            //       height: 30,
+                            //       alignment: Alignment.center,
+                            //       decoration: BoxDecoration(
+                            //         shape: BoxShape.circle,
+                            //         color: Colors.white,
+                            //         boxShadow: [
+                            //           BoxShadow(
+                            //               blurRadius: 3,
+                            //               color: Colors.black26,
+                            //               spreadRadius: 1)
+                            //         ],
+                            //       ),
+                            //       child: Icon(
+                            //         Icons.add,
+                            //         color: darkBlue,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // )
                           ],
                         ),
                       ),
@@ -2251,7 +2362,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                         child: Text(
                           'Weight',
                           style: TextStyle(
-                              color: Colors.grey, fontFamily: "Poppins"),
+                              color: darkBlue, fontFamily: "Poppins"),
                         ),
                       ),
                       Container(
@@ -2279,6 +2390,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   },
                                   child: Container(
                                     width: 60,
+                                    height: 45,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.all(10),
                                     margin: EdgeInsets.all(5),
@@ -2298,7 +2410,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           fontFamily: poppins,
                                           color: selwIndex[index]
                                               ? Colors.white
-                                              : darkBlue),
+                                              : darkBlue
+                                      ),
                                     ),
                                   ),
                                 );
@@ -2318,7 +2431,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                               Text(
                                 ' Message on the cake',
                                 style: TextStyle(
-                                    fontFamily: poppins, color: Colors.grey),
+                                    fontFamily: poppins, color: darkBlue),
                               ),
                               Container(
                                 margin: EdgeInsets.symmetric(horizontal: 10),
@@ -2332,12 +2445,62 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       )),
                                 ),
                               ),
+
+
+                              //Articlessss
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  ' Articles',
+                                  style: TextStyle(
+                                      fontFamily: poppins, color: darkBlue),
+                                ),
+                              ),
+
+                              Container(
+                                  child:ListView.builder(
+                                    shrinkWrap : true,
+                                    physics : NeverScrollableScrollPhysics(),
+                                    itemCount:articals.length,
+                                    itemBuilder: (context , index){
+                                      return InkWell(
+                                        onTap:(){
+                                          setState(() {
+                                            articGroupVal = index;
+                                          });
+                                        },
+                                        child: Row(
+                                          children:[
+                                            Radio(
+                                                value: index,
+                                                groupValue: articGroupVal,
+                                                onChanged: (int? val){
+                                                  setState(() {
+                                                    articGroupVal = val!;
+                                                  });
+                                                }
+                                            ),
+
+                                            Text('${articals[index]} - ',style: TextStyle(
+                                                fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                            ),),
+
+                                            Text('${articalsPrice[index]}',style: TextStyle(
+                                                fontFamily: poppins, color:darkBlue , fontSize: 13
+                                            ),),
+                                          ]
+                                        ),
+                                      );
+                                    },
+                                  )
+                              ),
+
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
                                   ' Special request to bakers',
                                   style: TextStyle(
-                                      fontFamily: poppins, color: Colors.grey),
+                                      fontFamily: poppins, color: darkBlue),
                                 ),
                               ),
                               Container(
@@ -2364,7 +2527,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   Text(
                                     'Delivery Date',
                                     style: TextStyle(
-                                        color: Colors.grey,
+                                        color: darkBlue,
                                         fontFamily: "Poppins"),
                                   ),
                                   SizedBox(
@@ -2373,7 +2536,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   Text(
                                     'Delivery Session',
                                     style: TextStyle(
-                                        color: Colors.grey,
+                                        color:darkBlue,
                                         fontFamily: "Poppins"),
                                   )
                                 ],
@@ -2528,7 +2691,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                         child: Text(
                           ' Address',
                           style: TextStyle(
-                              fontFamily: poppins, color: Colors.grey),
+                              fontFamily: poppins, color: darkBlue),
                         ),
                       ),
                       ListTile(
@@ -2557,6 +2720,68 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   decoration: TextDecoration.underline),
                             )),
                       ),
+
+                      Container(
+                          margin: EdgeInsets.symmetric(horizontal: 15),
+                          child: Divider(
+                            color: Colors.pink[100],
+                       )),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: 10 , left: 10),
+                        child: Text(
+                          'Delivery Information',
+                          style: TextStyle(
+                              fontFamily: poppins, color: darkBlue , fontSize: 15),
+                        ),
+                      ),
+
+                      Container(
+                          child:ListView.builder(
+                            shrinkWrap : true,
+                            physics : NeverScrollableScrollPhysics(),
+                            itemCount:picOrDeliver.length,
+                            itemBuilder: (context , index){
+                              return InkWell(
+                                onTap:(){
+                                  setState(() {
+                                    for (int i = 0; i < picOrDel.length; i++) {
+                                      if (i == index) {
+                                        picOrDel[i] = true;
+                                      } else {
+                                        picOrDel[i] = false;
+                                      }
+                                    }
+                                  });
+                                },
+                                child: Row(
+                                    children:[
+                                      Checkbox(
+                                          shape: CircleBorder(),
+                                          activeColor: Colors.green,
+                                          value: picOrDel[index],
+                                          onChanged: (bool? val){
+                                            setState(() {
+                                              for (int i = 0; i < picOrDel.length; i++) {
+                                                if (i == index) {
+                                                  picOrDel[i] = true;
+                                                } else {
+                                                  picOrDel[i] = false;
+                                                }
+                                              }
+                                            });
+                                          }
+                                      ),
+                                      Text('${picOrDeliver[index]}',style: TextStyle(
+                                          fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                      ),),
+                                    ]
+                                ),
+                              );
+                            },
+                          )
+                      ),
+                      SizedBox(height: 15,),
                       Container(
                         padding: EdgeInsets.all(10.0),
                         color: Colors.black12,
@@ -2818,19 +3043,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     //If ok go to Confirm sheet
                                     if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"&&deliverSession.isNotEmpty){
                                       showOrderConfirmSheet();
-                                      // setState(() {
-                                      //   if(flavour.isNotEmpty){
-                                      //     fixedFlavour = flavour[0];
-                                      //   }
-                                      //   else{
-                                      //     fixedFlavour = 'None';
-                                      //   }
-                                      //   if(shapes.isNotEmpty){
-                                      //     fixedShape = shapes[0];
-                                      //   }else{
-                                      //     fixedShape = 'None';
-                                      //   }
-                                      // });
+
                                     }
                                   }
 

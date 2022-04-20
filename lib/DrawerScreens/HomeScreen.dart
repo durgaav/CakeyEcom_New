@@ -63,12 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
   String userAddress = "";
   String userProfileUrl = "";
   String userName = "";
+  String userMainLocation = "";
 
   //Lists
   List cakesList = [];
   List<String> cakeTypeImages = [];
   List cakesTypes = [];
   List recentOrders = [];
+  List vendorsList = [];
+  List nearestVendors = [];
 
 
   //TextFields controls for search....
@@ -114,6 +117,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Filter Bottom sheet(**important...)
   void showFilterBottom(){
+
+    setState(() {
+      cakeLocationCtrl.text = userLocalityAdr;
+    });
+
       showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(20),topLeft: Radius.circular(20)),
@@ -121,198 +129,246 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       isScrollControlled: true,
       builder: (context){
-       return Container(
-         // padding: EdgeInsets.all(15),
-         padding: EdgeInsets.only(
-           bottom: MediaQuery.of(context).viewInsets.bottom,
-         ),
-        child:SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: 8,),
-                  //Title text...
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
-                            fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                        GestureDetector(
-                          onTap: ()=>Navigator.pop(context),
-                          child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                  color: Colors.black12,
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon(Icons.close_outlined,color: lightPink,)
-                          ),
-                        ),
-                      ],
-                    ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  //Edit texts...
-                  Container(
-                    height: 45,
-                    child: TextField(
-                      controller: cakeCategoryCtrl,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(5),
-                        hintText: "Category",
-                        hintStyle: TextStyle(fontFamily: "Poppins"),
-                        prefixIcon: Icon(Icons.search_outlined),
-                        border: OutlineInputBorder()
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    height: 45,
-                    child: TextField(
-                      controller: cakeSubCategoryCtrl,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
-                          hintText: "Sub Category",
-                          hintStyle: TextStyle(fontFamily: "Poppins"),
-                          prefixIcon: Icon(Icons.search_outlined),
-                          border: OutlineInputBorder()
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    height: 45,
-                    child: TextField(
-                      controller: cakeVendorCtrl,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
-                          hintText: "Vendors",
-                          hintStyle: TextStyle(fontFamily: "Poppins"),
-                          prefixIcon: Icon(Icons.account_circle),
-                          border: OutlineInputBorder()
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    height: 45,
-                    child: TextField(
-                      controller: cakeLocationCtrl,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
-                          hintText: "Location",
-                          hintStyle: TextStyle(fontFamily: "Poppins"),
-                          prefixIcon: Icon(Icons.location_on),
-                          suffixIcon: IconButton(
-                            onPressed: (){},
-                            icon: Icon(Icons.my_location),
-                          ),
-                          border: OutlineInputBorder()
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  //kilo meter radius buttons.........
-                  Wrap(
-                    runSpacing: 5.0,
-                    spacing: 5.0,
-                      children: [
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                        OutlinedButton(
-                          onPressed: (){},
-                          child: Text('25 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                        ),
-                      ],
+       return StatefulBuilder(
+           builder: (BuildContext context , void Function(void Function()) setState){
+             return Container(
+               // padding: EdgeInsets.all(15),
+               padding: EdgeInsets.only(
+                 bottom: MediaQuery.of(context).viewInsets.bottom,
+               ),
+               child:SingleChildScrollView(
+                 child: Container(
+                   padding: EdgeInsets.all(20),
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     mainAxisSize: MainAxisSize.min,
+                     children: [
+                       SizedBox(height: 8,),
+                       //Title text...
+                       Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: [
+                           Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
+                               fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                           GestureDetector(
+                             onTap: ()=>Navigator.pop(context),
+                             child: Container(
+                                 width: 35,
+                                 height: 35,
+                                 decoration: BoxDecoration(
+                                     color: Colors.black12,
+                                     borderRadius: BorderRadius.circular(10)
+                                 ),
+                                 alignment: Alignment.center,
+                                 child: Icon(Icons.close_outlined,color: lightPink,)
+                             ),
+                           ),
+                         ],
+                       ),
+                       SizedBox(
+                         height: 15,
+                       ),
+                       //Edit texts...
+                       Container(
+                         height: 45,
+                         child: TextField(
+                           controller: cakeCategoryCtrl,
+                           decoration: InputDecoration(
+                               contentPadding: EdgeInsets.all(5),
+                               hintText: "Category",
+                               hintStyle: TextStyle(fontFamily: "Poppins" , fontSize: 13),
+                               prefixIcon: Icon(Icons.search_outlined),
+                               border: OutlineInputBorder()
+                           ),
+                         ),
+                       ),
+                       SizedBox(
+                         height: 15,
+                       ),
+                       Container(
+                         height: 45,
+                         child: TextField(
+                           controller: cakeSubCategoryCtrl,
+                           decoration: InputDecoration(
+                               contentPadding: EdgeInsets.all(5),
+                               hintText: "Sub Category",
+                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                               prefixIcon: Icon(Icons.search_outlined),
+                               border: OutlineInputBorder()
+                           ),
+                         ),
+                       ),
+                       SizedBox(
+                         height: 15,
+                       ),
+                       Container(
+                         height: 45,
+                         child: TextField(
+                           controller: cakeVendorCtrl,
+                           decoration: InputDecoration(
+                               contentPadding: EdgeInsets.all(5),
+                               hintText: "Vendors",
+                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                               prefixIcon: Icon(Icons.sentiment_very_satisfied_rounded),
+                               border: OutlineInputBorder()
+                           ),
+                         ),
+                       ),
+                       SizedBox(
+                         height: 4,
+                       ),
+                       Text("nearest 10 km radius from your location", style:  TextStyle(
+                           color: darkBlue , fontSize: 11 , fontFamily: "Poppins"),),
+                       SizedBox(
+                         height: 15,
+                       ),
+                       Container(
+                         height: 45,
+                         child: TextField(
+                           controller: cakeLocationCtrl,
+                           decoration: InputDecoration(
+                               contentPadding: EdgeInsets.all(5),
+                               hintText: "Location",
+                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                               prefixIcon: Icon(Icons.location_on),
+                               suffixIcon: IconButton(
+                                 onPressed: (){},
+                                 icon: Icon(Icons.my_location),
+                               ),
+                               border: OutlineInputBorder()
+                           ),
+                         ),
+                       ),
+                       SizedBox(
+                         height: 5,
+                       ),
+                       //kilo meter radius buttons.........
+                       Wrap(
+                         runSpacing: 5.0,
+                         spacing: 5.0,
+                         children: [
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                         ],
 
-                  ),
-                  SizedBox(height: 8,),
-                  Container(
-                    height: 1.0,
-                    color: Colors.black26,
-                  ),
-                  //cake types....
-                  SizedBox(height: 8,),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
-                        fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                  ),
-                  SizedBox(height: 10,),
+                       ),
+                       SizedBox(
+                         height: 10,
+                       ),
 
-                  //types of cakes btn...
-                  Wrap(
-                    runSpacing: 5.0,
-                    spacing: 5.0,
-                    children: [
-                      OutlinedButton(
-                        onPressed: (){},
-                        child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                      ),
-                      OutlinedButton(
-                        onPressed: (){},
-                        child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                      ),
-                      OutlinedButton(
-                        onPressed: (){},
-                        child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                      ),
-                    ],
-                  ),
+                       //Divider
+                       Container(
+                         height: 1.0,
+                         color: Colors.black26,
+                       ),
 
-                  SizedBox(height: 10,),
-                  //Search button...
-                  Container(
-                    height: 55,
-                    width: 200,
-                    child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        color: lightPink,
-                        onPressed: (){
-                          Navigator.pop(context);
-                          showDpUpdtaeDialog();
-                        },
-                        child: Text("SEARCH",style: TextStyle(
-                          color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
-                        ),),
-                    ),
-                  )
+                       SizedBox(height: 5,),
 
-                ],
-              ),
-          ),
-        ),
-      );
+
+                       Align(
+                         alignment: Alignment.centerLeft,
+                         child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
+                             fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                       ),
+                       SizedBox(height: 5,),
+                       //stars rattings...
+                       Wrap(
+                         runSpacing: 5.0,
+                         spacing: 5.0,
+                         children: [
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                         ],
+                       ),
+
+                       SizedBox(height: 5,),
+                       //Divider
+                       Container(
+                         height: 1.0,
+                         color: Colors.black26,
+                       ),
+                       //cake types....
+                       SizedBox(height: 5,),
+
+                       Align(
+                         alignment: Alignment.centerLeft,
+                         child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
+                             fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                       ),
+                       SizedBox(height: 5,),
+                       //types of cakes btn...
+                       Wrap(
+                         runSpacing: 5.0,
+                         spacing: 5.0,
+                         children: [
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                         ],
+                       ),
+
+                       SizedBox(height: 10,),
+                       //Search button...
+                       Center(
+                         child: Container(
+                           height: 55,
+                           width: 200,
+                           child: RaisedButton(
+                             shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(30),
+                             ),
+                             color: lightPink,
+                             onPressed: (){
+                               Navigator.pop(context);
+                               showDpUpdtaeDialog();
+                             },
+                             child: Text("SEARCH",style: TextStyle(
+                                 color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
+                             ),),
+                           ),
+                         ),
+                       )
+
+                     ],
+                   ),
+                 ),
+               ),
+             );
+           }
+       );
     }
     );
   }
@@ -347,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(10)
                       ),
                       alignment: Alignment.center,
-                      child: Icon(Icons.volume_up_rounded,color: darkBlue,)
+                      child: Icon(Icons.volume_up_rounded,color: darkBlue,size: 30,)
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,6 +599,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Address = '${place.street}, ${place.subLocality}, '
       //     '${place.thoroughfare}, ${place.locality},${place.postalCode}, ${place.country}';
       userLocalityAdr = '${place.subLocality}';
+      userMainLocation = '${place.locality}';
       prefs.setString("userCurrentLocation",place.subLocality.toString());
       prefs.setString("userMainLocation",place.locality.toString());
 
@@ -619,7 +676,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //getting recent orders list by UserId
-  //Fetching cake list API...
   Future<void> getOrderList() async{
     try{
       http.Response response = await http.get(
@@ -643,6 +699,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  //Get vendors list
+  Future<void> getVendorsList() async{
+    showAlertDialog();
+    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+
+    if(res.statusCode==200){
+
+      setState(() {
+        vendorsList = jsonDecode(res.body);
+
+        nearestVendors = vendorsList.where((element) =>
+            element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
+        ).toList();
+
+        Navigator.pop(context);
+      });
+
+    }else{
+      Navigator.pop(context);
+    }
+  }
+
   //endregion
 
   //onStart
@@ -653,6 +731,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(Duration.zero ,() async{
       loadPrefs();
       fetchProfileByPhn();
+      getVendorsList();
     });
   }
 
@@ -745,6 +824,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       GetAddressFromLatLong(position);
                       loadPrefs();
                       fetchProfileByPhn();
+                      getVendorsList();
                     });
                   },
                   child: SingleChildScrollView(
@@ -1123,7 +1203,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   InkWell(
                                     onTap: (){
-
                                       Navigator.of(context).push(
                                         PageRouteBuilder(
                                           pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
@@ -1163,21 +1242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      // Container(
-                                      //   child: RaisedButton(
-                                      //     color:Colors.white,
-                                      //     shape: RoundedRectangleBorder(
-                                      //       borderRadius: BorderRadius.circular(25)
-                                      //     ),
-                                      //     onPressed: (){},
-                                      //     child: Row(
-                                      //       children: [
-                                      //         Icon(Icons.filter_list,color: lightPink,),
-                                      //         Text(' Filter',style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold))
-                                      //       ],
-                                      //     ),
-                                      //   ),
-                                      // ),
+
                                       Row(
                                         children: [
                                           Transform.scale(
@@ -1202,7 +1267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 Container(
                                   child: ListView.builder(
-                                      itemCount: 5,
+                                      itemCount: nearestVendors.length,
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
                                       itemBuilder: (context,index){
@@ -1220,6 +1285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                             child: Row(
                                               children: [
+                                                nearestVendors[index]['ProfileImage']!=null?
                                                 Container(
                                                   height: 120,
                                                   width: 90,
@@ -1227,7 +1293,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       borderRadius: BorderRadius.circular(15),
                                                       image: DecorationImage(
                                                         fit: BoxFit.cover,
-                                                        image: NetworkImage("https://www.teahub.io/photos/full/335-3350221_birthday-cake-wallpaper-for-desktop-happy-birthday-image.jpg"),
+                                                        image: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                      )
+                                                  ),
+                                                ):
+                                                Container(
+                                                  height: 120,
+                                                  width: 90,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(15),
+                                                      image: DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: Svg('assets/images/pictwo.svg'),
                                                       )
                                                   ),
                                                 ),
@@ -1247,7 +1324,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               children: [
                                                                 Container(
                                                                   width:width*0.5,
-                                                                  child: Text('Surya prakash',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                  child: Text(
+                                                                    '${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                    "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}'
+                                                                    ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                                       color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
                                                                   ),),
                                                                 ),
@@ -1294,7 +1374,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                       Container(
                                                         width: width*0.63,
-                                                        child: Text("Special velvet chocolate cakeeee",overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                        child: Text(nearestVendors[index]['Description']!=null?
+                                                        "${nearestVendors[index]['Description']}":'No description',overflow: TextOverflow.ellipsis,style: TextStyle(
                                                             color: Colors.black54,fontFamily: poppins,fontSize: 13
                                                         ),maxLines: 1,),
                                                       ),
@@ -1305,15 +1386,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                       Container(
                                                         width: width*0.63,
-                                                        child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        child: Wrap(
+                                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          runSpacing: 5.0,
+                                                          spacing: 5.0,
+                                                          runAlignment: WrapAlignment.spaceBetween,
                                                           children: [
+                                                            nearestVendors[index]['DeliveryCharge']==null?
                                                             Text('DELIVERY FREE',style: TextStyle(
                                                                 color: Colors.orange,fontSize: 10,fontFamily: poppins
+                                                            ),):
+                                                            Text('10 km Delivery Fee Rs.${nearestVendors[index]['DeliveryCharge']}',style: TextStyle(
+                                                                color: darkBlue,fontSize: 10,fontFamily: poppins,fontWeight: FontWeight.bold
                                                             ),),
-                                                            Text('Includs eggless cake',style: TextStyle(
-                                                                color: Colors.black,fontSize: 11,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                            ),),
+                                                            SizedBox(
+                                                              width: 20,
+                                                            ),
+                                                            Text('Includes eggless cake',style: TextStyle(
+                                                                color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                            ),overflow: TextOverflow.ellipsis,),
                                                           ],
                                                         ),
                                                       )
@@ -1327,6 +1418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       }
                                   ),
                                 ),
+                                SizedBox(height: 15,),
                               ],
                             ),
                           ],

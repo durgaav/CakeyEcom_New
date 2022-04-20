@@ -2,7 +2,12 @@ import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dotted_border/dotted_border.dart';
+
+import '../ContextData.dart';
+import '../screens/Profile.dart';
 
 class CustomiseCake extends StatefulWidget {
   const CustomiseCake({Key? key}) : super(key: key);
@@ -18,25 +23,34 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
 
+  //Articles
+  var articals = ["Happy Birth Day" , "Butterflies" , "Hello World"];
+  var articalsPrice = ['Rs.100' , 'Rs.125','Rs.50'];
+  int articGroupVal = 0;
+
   //Font family
   String poppins = "Poppins";
+  String profileUrl = '';
+  String fixedWeight = '';
+  String btnMsg = 'ORDER NOW';
 
   //main variables
   bool egglesSwitch = true;
   String userCurLocation = 'Searching...';
 
   var weight = [
-    "1.5Kg",
-    "2 Kg",
-    "3 Kg",
-    "5 Kg"
+    1.5,2,2.5,3,4,5,6,7,8
   ];
 
   var cakeTowers = ["2","3","5","8"];
 
   List<bool> selwIndex = [];
-
   List<bool> selCakeTower = [];
+
+  //For category selecions
+  List<Widget> cateWidget = [];
+  List<bool> selCategory = [];
+  List categories = ["Birthday" , "Wedding" , "Others" , "Anniversary" , "Farewell"];
 
 
   //region Functions
@@ -46,6 +60,68 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
     });
   }
+
+  void addCategories(){
+    setState(() {
+      for(int index=0;index<categories.length;index++){
+        selCategory.add(false);
+        cateWidget.add(
+          StatefulBuilder(
+            builder: (context , void Function(void Function()) setState){
+              return InkWell(
+                onTap:(){
+                  setState((){
+                    print('$index');
+                    for(int i = 0 ; i<selCategory.length;i++){
+                      if(i==index){
+                        selCategory[index] = true;
+                      }else{
+                        selCategory[index] = false;
+                      }
+                    }
+                  });
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(5),
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: lightPink,width: 1),
+                            borderRadius: BorderRadius.circular(8)
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.cake_outlined,color: lightPink,),
+                            SizedBox(width: 10,),
+                            Text('${categories[index]}',style: TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black26
+                            ),)
+                          ],
+                        ),
+                      ),
+                    ),
+                    selCategory[index]==true?
+                    Positioned(
+                      right: 0,
+                      child: Icon(Icons.check_circle,color: Colors.green,),
+                    ):Positioned(
+                      right: 0,
+                      child:Container(),
+                    )
+                  ],
+                ),
+              );
+           },
+          )
+        );
+      }
+    });
+  }
+
   //endregion
 
   @override
@@ -53,13 +129,132 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       loadPrefs();
+      addCategories();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    profileUrl = context.watch<ContextData>().getProfileUrl();
+
     return Scaffold(
+      appBar: AppBar(
+        leading:Container(
+          margin: const EdgeInsets.all(10),
+          child: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10)),
+                alignment: Alignment.center,
+                height: 20,
+                width: 20,
+                child: Icon(
+                  Icons.chevron_left,
+                  color: lightPink,
+                  size: 35,
+                )),
+          ),
+        ),
+        title: Text('FULLY CUSTOMIZATION',
+            style: TextStyle(
+                color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
+        elevation: 0.0,
+        backgroundColor: lightGrey,
+        actions: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              InkWell(
+                onTap: () => print("hii"),
+                child: Container(
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Icon(
+                    Icons.notifications_none,
+                    color: darkBlue,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 15,
+                top: 18,
+                child: CircleAvatar(
+                  radius: 4.5,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: 3.5,
+                    backgroundColor: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
+              ],
+            ),
+            child: InkWell(
+              onTap: () {
+                print('hello surya....');
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.ease;
+
+                      final tween = Tween(begin: begin, end: end);
+                      final curvedAnimation = CurvedAnimation(
+                        parent: animation,
+                        curve: curve,
+                      );
+
+                      return SlideTransition(
+                        position: tween.animate(curvedAnimation),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: profileUrl!="null"?CircleAvatar(
+                radius: 17.5,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage:NetworkImage("$profileUrl")
+                ),
+              ):CircleAvatar(
+                radius: 17.5,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage:AssetImage("assets/images/user.png")
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
       resizeToAvoidBottomInset: false,
       body:SingleChildScrollView(
         child: Column(
@@ -100,7 +295,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Padding(
                               padding: const EdgeInsets.all(10),
                               child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
-                                style: TextStyle(color: darkBlue,fontSize: 17,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
                               ),
                             ),
 
@@ -108,7 +303,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Row(
                               children: [
                                 Transform.scale(
-                                  scale: 0.7,
+                                  scale: 0.6,
                                   child: CupertinoSwitch(
                                     thumbColor: Colors.white,
                                     value: egglesSwitch,
@@ -121,7 +316,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                 ),
                                 Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
-                                    fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                                    fontWeight: FontWeight.bold,fontFamily: "Poppins" ,fontSize: 13),),
                               ],
                             ),
 
@@ -137,183 +332,40 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Container(
                               padding: EdgeInsets.all(10),
                               child: Wrap(
-                                runSpacing: 5.0,
-                                spacing: 5.0,
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: lightPink,width: 1),
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.cake_outlined,color: lightPink,),
-                                              SizedBox(width: 10,),
-                                              Text('Others',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Positioned(
-                                      //   right: 0,
-                                      //   child: Icon(Icons.check_circle,color: Colors.green,),
-                                      // )
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: lightPink,width: 1),
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.cake_outlined,color: lightPink,),
-                                              SizedBox(width: 10,),
-                                              Text('Birthday',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Positioned(
-                                      //   right: 0,
-                                      //   child: Icon(Icons.check_circle,color: Colors.green,),
-                                      // )
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: lightPink,width: 1),
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.cake_outlined,color: lightPink,),
-                                              SizedBox(width: 10,),
-                                              Text('Wedding',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Positioned(
-                                      //   right: 0,
-                                      //   child: Icon(Icons.check_circle,color: Colors.green,),
-                                      // )
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: lightPink,width: 1),
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.cake_outlined,color: lightPink,),
-                                              SizedBox(width: 10,),
-                                              Text('Party',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        child: Icon(Icons.check_circle,color: Colors.green,),
-                                      )
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: lightPink,width: 1),
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.cake_outlined,color: lightPink,),
-                                              SizedBox(width: 10,),
-                                              Text('Farewell',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Positioned(
-                                      //   right: 0,
-                                      //   child: Icon(Icons.check_circle,color: Colors.green,),
-                                      // )
-                                    ],
-                                  ),
-                                ],
+                                runSpacing: 4.0,
+                                spacing: 4.0,
+                                children:cateWidget
                               ),
                             ),
 
                             //Shapes....flav...toppings
                             ExpansionTile(
                               title: Text('Shapes',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold
+                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
                               ),),
-                              subtitle:Text('Selected shape',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w500
+                              subtitle:Text('Heart',style: TextStyle(
+                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                  color: darkBlue
                               ),),
                               children: [
                                 Text('Shapes.....',style: TextStyle(
-                                    fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold
+                                    fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.w900,
+                                    color: darkBlue
                                 ),),
                               ],
                             ),
                             Container(
                               margin: EdgeInsets.only(left: 8,right: 8),
                               height: 0.5,
-                              color: Colors.black26,
+                              color:Colors.pink[200],
                             ),
                             ExpansionTile(
                               title: Text('Flavours',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold
+                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
                               ),),
-                              subtitle:Text('Selected Flavours',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w500
+                              subtitle:Text('Strawberry',style: TextStyle(
+                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                  color: darkBlue
                               ),),
                               children: [
                                 Text('Flavours.....',style: TextStyle(
@@ -324,14 +376,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Container(
                               margin: EdgeInsets.only(left: 8,right: 8),
                               height: 0.5,
-                              color: Colors.black26,
+                              color:Colors.pink[200],
                             ),
                             ExpansionTile(
-                              title: Text('Toppings',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold
+                              title: Text('Cake Articles',style: TextStyle(
+                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
+                                  color: Colors.grey
                               ),),
-                              subtitle:Text('Selected Toppings',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w500
+                              subtitle:Text('- - - - - - - -',style: TextStyle(
+                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                  color: darkBlue
                               ),),
                               children: [
                                 Text('Toppings.....',style: TextStyle(
@@ -342,7 +396,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Container(
                               margin: EdgeInsets.only(left: 8,right: 8),
                               height: 0.5,
-                              color: Colors.black26,
+                              color:Colors.pink[200],
                             ),
 
                             //Weight...
@@ -372,10 +426,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 selwIndex[i] = false;
                                               }
                                             }
+
+                                            if(weight[index]>=5){
+                                              setState(() {
+                                                btnMsg = "CONNECT - HELP DESK";
+                                              });
+                                            }else{
+                                              btnMsg = "ORDER NOW";
+                                            }
+
                                           });
                                         },
                                         child:Container(
-                                          width: 60,
+                                          width: 70,
                                           alignment: Alignment.center,
                                           padding: EdgeInsets.all(10),
                                           margin: EdgeInsets.all(5),
@@ -390,7 +453,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   : Colors.white),
                                           child:
                                           Text(
-                                            weight[index],
+                                            '${weight[index]} Kg',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "Poppins",color: selwIndex[index]?Colors.white:darkBlue
@@ -399,6 +462,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         ),
                                       );
                                     })),
+
+                            SizedBox(height:15),
+                             Container(
+                              margin: EdgeInsets.only(left: 8,right: 8),
+                              height: 0.5,
+                              color:Colors.pink[200],
+                            ),
 
                             //Tower...
                             Padding(
@@ -413,7 +483,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 margin: EdgeInsets.symmetric(horizontal: 10),
                                 //  color: Colors.grey,
                                 child: ListView.builder(
-                                    itemCount: weight.length,
+                                    itemCount: cakeTowers.length,
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, index) {
                                       selCakeTower.add(false);
@@ -455,6 +525,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       );
                                     })),
 
+                            SizedBox(height:15),
+                            Container(
+                              margin: EdgeInsets.only(left: 8,right: 8),
+                              height: 0.5,
+                              color:Colors.pink[200],
+                            ),
+
                             Container(
                               //margin
                                 margin: EdgeInsets.all(10),
@@ -462,7 +539,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(' Message on the cake',style: TextStyle(fontFamily: poppins,color: Colors.grey),),
+                                    Text(' Message on the cake',
+                                      style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                    ),
                                     Container(
                                       margin: EdgeInsets.symmetric(horizontal: 10),
                                       child: TextField(
@@ -472,9 +551,60 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         ),
                                       ),
                                     ),
+
+
+                                    //Articlessss
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        ' Articles',
+                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+
+                                    Container(
+                                        child:ListView.builder(
+                                          shrinkWrap : true,
+                                          physics : NeverScrollableScrollPhysics(),
+                                          itemCount:articals.length,
+                                          itemBuilder: (context , index){
+                                            return InkWell(
+                                              onTap:(){
+                                                setState(() {
+                                                  articGroupVal = index;
+                                                });
+                                              },
+                                              child: Row(
+                                                  children:[
+                                                    Radio(
+                                                        value: index,
+                                                        groupValue: articGroupVal,
+                                                        onChanged: (int? val){
+                                                          setState(() {
+                                                            articGroupVal = val!;
+                                                          });
+                                                        }
+                                                    ),
+
+                                                    Text('${articals[index]} - ',style: TextStyle(
+                                                        fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                                    ),),
+
+                                                    Text('${articalsPrice[index]}',style: TextStyle(
+                                                        fontFamily: poppins, color:darkBlue , fontSize: 13
+                                                    ),),
+                                                  ]
+                                              ),
+                                            );
+                                          },
+                                        )
+                                    ),
+
                                     Padding(
                                       padding: const EdgeInsets.only(top:10),
-                                      child: Text(' Special request to bakers',style: TextStyle(fontFamily: poppins,color: Colors.grey),),
+                                      child: Text(' Special request to bakers',
+                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                     Container(
                                       margin: EdgeInsets.all(10),
@@ -495,15 +625,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     Row(
                                       children: [
                                         SizedBox(width: 8,),
-                                        Text('Delivery Date',style: TextStyle(
-                                            color: Colors.grey,
-                                            fontFamily: "Poppins"
-                                        ),),
+                                        Text('Delivery Date',
+                                          style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                        ),
                                         SizedBox(width: 65,),
-                                        Text('Delivery Session',style: TextStyle(
-                                            color: Colors.grey,
-                                            fontFamily: "Poppins"
-                                        ),)
+                                        Text('Delivery Session',
+                                          style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                        )
                                       ],
                                     ),
                                     Row(
@@ -520,10 +648,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           },
                                           child: Row(
                                             children: [
-                                              Text('31-03-2022',style: TextStyle(
+                                              Text('31-03-2022',
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.bold,color: Colors.grey,
                                                   fontSize: 13
-                                              ),),
+                                              ),
+                                              ),
                                               SizedBox(width: 10,),
                                               Icon(Icons.date_range_outlined,color:darkBlue)
                                             ],
@@ -580,13 +710,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 )),
                             Padding(
                               padding: const EdgeInsets.only(left: 10.0),
-                              child: Text(' Address',style: TextStyle(fontFamily: poppins,color: Colors.grey),),
+                              child: Text(' Address',
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                              ),
                             ),
                             ListTile(
                               title: Text('1/4 vellandipalaym , thekkalur , 641654  ',
                                 style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
                               ),
-                              trailing: Icon(Icons.verified_rounded,color: Colors.green),
+                              trailing: Icon(Icons.check_circle,color: Colors.green,),
                             ),
                             Container(
                               margin: EdgeInsets.only(left: 10),
@@ -598,11 +730,46 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),)
                               ),
                             ),
+
+                            //Image Upload
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(' Upload Image',
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: DottedBorder(
+                                radius: Radius.circular(20),
+                                color: Colors.grey,//color of dotted/dash line
+                                strokeWidth: 1, //thickness of dash/dots
+                                dashPattern: [3,2],
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 160,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.image_rounded , color: Colors.blueAccent,size: 40,),
+                                      Text('Pick Your Image',
+                                        style: TextStyle(color: darkBlue,fontSize: 16,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: 15,),
+                            
                             Container(
                               padding: EdgeInsets.all(10.0),
                               color: Colors.black12,
                               child: Column(
                                 children: [
+                                  btnMsg.toLowerCase()!='connect - help desk'?
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -645,7 +812,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         ),
                                       ),
                                     ],
-                                  ),
+                                  ):Container(),
+                                  btnMsg.toLowerCase()!='connect - help desk'?
                                   Container(
                                     height: 200,
                                     child: ListView.builder(
@@ -750,7 +918,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           );
                                         }
                                     ),
-                                  ),
+                                  ):Container(),
                                   SizedBox(height: 15,),
                                   Container(
                                     height: 50,
@@ -764,12 +932,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       ),
                                       onPressed: (){},
                                       color: lightPink,
-                                      child: Text("ORDER NOW",style: TextStyle(
+                                      child: Text("$btnMsg",style: TextStyle(
                                           color: Colors.white,fontWeight: FontWeight.bold
                                       ),),
                                     ),
-                                  )
-
+                                  ),
+                                  SizedBox(height: 15,),
                                 ],
                               ),
                             ),
@@ -784,3 +952,4 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     );
   }
 }
+

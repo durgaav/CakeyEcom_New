@@ -52,6 +52,7 @@ dependencies:
   shimmer: ^2.0.0
   animated_text_kit: ^4.2.1
   sizer: ^2.0.15 #responsive screens
+  dotted_border: #for container in custom cake screen
 
 dev_dependencies:
   flutter_test:
