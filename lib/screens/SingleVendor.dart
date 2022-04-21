@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -31,6 +32,10 @@ class _SingleVendorState extends State<SingleVendor> {
   String description = "";
   String vendorID = '';
   String vendorName = '';
+  String vendorPhone = '';
+  String deliverCharge = '';
+  String profileImage = '';
+
 
   bool ordersNull = false;
 
@@ -74,7 +79,8 @@ class _SingleVendorState extends State<SingleVendor> {
   //endregion
 
   //region Functions
-  
+
+  //loadPrefs
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
@@ -82,6 +88,7 @@ class _SingleVendorState extends State<SingleVendor> {
     });
   }
 
+  //get datas
   Future<void> receiveDataFromScreen() async{
     var pref = await SharedPreferences.getInstance();
 
@@ -90,11 +97,15 @@ class _SingleVendorState extends State<SingleVendor> {
       vendorID = pref.getString('singleVendorID')??'';
       vendorName = pref.getString('singleVendorName')??'No name';
       description = pref.getString('singleVendorDesc')??'No Description';
+      vendorPhone = pref.getString('singleVendorPhone')??'0000000000';
+      deliverCharge = pref.getString('singleVendorDelivery')??'';
+      profileImage = pref.getString('singleVendorDpImage')??'';
 
       getOrdersByVendorId();
     });
   }
-  
+
+  //getting oreders by id
   Future<void> getOrdersByVendorId() async{
     showAlertDialog();
 
@@ -118,6 +129,43 @@ class _SingleVendorState extends State<SingleVendor> {
       print(res.statusCode);
       Navigator.pop(context);
     }
+
+  }
+
+  //load select Vendor data to CakeTypeScreen
+  Future<void> loadSelVendorDataToCTscreen() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    pref.setString('myVendorId', vendorID);
+    pref.setString('myVendorName', vendorName);
+    pref.setString('myVendorPhone', vendorPhone);
+    pref.setString('myVendorDesc', description);
+    pref.setString('myVendorProfile', profileImage);
+    pref.setString('myVendorDeliverChrg', deliverCharge);
+    pref.setBool('iamYourVendor', true);
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
 
   }
 
@@ -329,7 +377,7 @@ class _SingleVendorState extends State<SingleVendor> {
                           children: [
                             InkWell(
                               onTap: (){
-                                print('phone..');
+                                print('phone.. $vendorPhone');
                               },
                               child: Container(
                                 alignment: Alignment.center,
@@ -345,7 +393,7 @@ class _SingleVendorState extends State<SingleVendor> {
                             const SizedBox(width: 10,),
                             InkWell(
                               onTap: (){
-                                print('whatsapp : $vendorID');
+                                print('whatsapp : $vendorPhone');
                               },
                               child: Container(
                                 alignment: Alignment.center,
@@ -366,16 +414,20 @@ class _SingleVendorState extends State<SingleVendor> {
                   ),
                   SizedBox(height: 10,),
                   //Sel button
-                  Container(
-                    height: 30,
-                    width: 80,
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: darkBlue,width: 0.5)
+                  InkWell(
+                    splashColor: Colors.red[200],
+                    onTap: ()=>loadSelVendorDataToCTscreen(),
+                    child: Container(
+                      height: 30,
+                      width: 80,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: darkBlue,width: 0.5)
+                      ),
+                      child: Text('SELECT',style: TextStyle(color: darkBlue,fontSize: 12),)
                     ),
-                    child: Text('SELECT',style: TextStyle(color: darkBlue,fontSize: 12),)
                   ),
                   SizedBox(height: 10,),
                   //Theme text
@@ -520,7 +572,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                         Text('${vendorOrders[index]['Status'].toString()}',style: TextStyle(
                                             color: vendorOrders[index]['Status'].toString().toLowerCase().contains('cancelled')?
                                             Colors.red:Colors.blueAccent,
-                                            fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                            fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 10),)
                                       ],
                                     ),
                                     SizedBox(height: 3,),

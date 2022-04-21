@@ -187,16 +187,15 @@ class _CheckOutState extends State<CheckOut> {
       
       vendorID = prefs.getString('orderCakeVendorId')!;
       vendorAddress = prefs.getString('orderCakeVendorAddress')!;
-      
+
+
       deliverSession = prefs.getString('orderCakeDeliverSession')!;
       deliverDate = prefs.getString('orderCakeDeliverDate')!;
       
       cakeMessage = prefs.getString('orderCakeMessage')!;
       cakeSplReq = prefs.getString('orderCakeRequest')!;
 
-
       counts = prefs.getInt('orderCakeCounts')!;
-
 
       print(prefs.getString('orderCakeEggOrEggless'));
       print(prefs.getString('orderCakeFlavour'));

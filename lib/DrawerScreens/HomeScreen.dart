@@ -20,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../screens/Profile.dart';
+import '../screens/SingleVendor.dart';
 import 'CustomiseCake.dart';
 //This is home screen.........
 class HomeScreen extends StatefulWidget {
@@ -482,6 +483,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Functions
 
+
+  //send nearest vendor details.
+  Future<void> sendNearVendorDataToScreen(int index) async{
+    var pref = await SharedPreferences.getInstance();
+
+    //common keyword single****
+    pref.setString('singleVendorID', nearestVendors[index]['_id']);
+    pref.setString('singleVendorName', nearestVendors[index]['VendorName']);
+    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'No description');
+    pref.setString('singleVendorPhone', nearestVendors[index]['PhoneNumber']??'0000000000');
+    pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
+    pref.setString('singleVendorDelivery', nearestVendors[index]['DeliveryCharge']??'null');
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
+  }
+
   //getting prefes
   Future<void> loadPrefs() async{
 
@@ -504,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         Timer(
             Duration(seconds: 5),(){
-          showDpUpdtaeDialog();
+            showDpUpdtaeDialog();
         }
         );
       });
@@ -526,15 +563,19 @@ class _HomeScreenState extends State<HomeScreen> {
       // Navigator.pop(context);
       setState(() {
         List body = jsonDecode(response.body);
+
         userID = body[0]['_id'].toString();
         userAddress = body[0]['Address'].toString();
         userProfileUrl = body[0]['ProfileImage'].toString();
         context.read<ContextData>().setProfileUrl(userProfileUrl);
         userName = body[0]['UserName'].toString();
+
         prefs.setString('userID', userID);
         prefs.setString('userAddress', userAddress);
         prefs.setString('userName', userName);
+
         context.read<ContextData>().setUserName(userName);
+
         getOrderList();
         getCakeList();
         Navigator.pop(context);
@@ -590,19 +631,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting users accurate location address...
   Future<void> GetAddressFromLatLong(Position position)async {
+    // print(position.latitude);
+    // print(position.longitude);
+    // print(Geolocator.distanceBetween(position.latitude, position.longitude, 11.004230, 77.024323));
+
     var prefs = await SharedPreferences.getInstance();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    print(placemarks[1]);
+    print(placemarks);
     Placemark place = placemarks[1];
     // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
     setState(()  {
-      // Address = '${place.street}, ${place.subLocality}, '
-      //     '${place.thoroughfare}, ${place.locality},${place.postalCode}, ${place.country}';
       userLocalityAdr = '${place.subLocality}';
       userMainLocation = '${place.locality}';
       prefs.setString("userCurrentLocation",place.subLocality.toString());
       prefs.setString("userMainLocation",place.locality.toString());
-
     });
   }
 
@@ -613,7 +656,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Uri.parse("https://cakey-database.vercel.app/api/cake/list")
       );
       if(response.statusCode==200){
-
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
@@ -712,6 +754,9 @@ class _HomeScreenState extends State<HomeScreen> {
         nearestVendors = vendorsList.where((element) =>
             element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
         ).toList();
+
+        nearestVendors = nearestVendors.toSet().toList();
+        nearestVendors = nearestVendors.reversed.toList();
 
         Navigator.pop(context);
       });
@@ -1271,147 +1316,152 @@ class _HomeScreenState extends State<HomeScreen> {
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
                                       itemBuilder: (context,index){
-                                        return Card(
-                                          margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(15)
-                                          ),
-                                          child: Container(
-                                            // margin: EdgeInsets.all(5),
-                                            padding: EdgeInsets.all(6),
-                                            height: 130,
-                                            decoration: BoxDecoration(
+                                        return InkWell(
+                                          splashColor: Colors.pink[100],
+                                          onTap:()=>sendNearVendorDataToScreen(index),
+                                          child: Card(
+                                            margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
+                                            shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(15)
                                             ),
-                                            child: Row(
-                                              children: [
-                                                nearestVendors[index]['ProfileImage']!=null?
-                                                Container(
-                                                  height: 120,
-                                                  width: 90,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(15),
-                                                      image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
-                                                      )
+                                            child: Container(
+                                              // margin: EdgeInsets.all(5),
+                                              padding: EdgeInsets.all(6),
+                                              height: 130,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(15)
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  nearestVendors[index]['ProfileImage']!=null?
+                                                  Container(
+                                                    height: 120,
+                                                    width: 90,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(15),
+                                                        image: DecorationImage(
+                                                          fit: BoxFit.cover,
+                                                          image: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                        )
+                                                    ),
+                                                  ):
+                                                  Container(
+                                                    height: 120,
+                                                    width: 90,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(15),
+                                                        image: DecorationImage(
+                                                          fit: BoxFit.cover,
+                                                          image: Svg('assets/images/pictwo.svg'),
+                                                        )
+                                                    ),
                                                   ),
-                                                ):
-                                                Container(
-                                                  height: 120,
-                                                  width: 90,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(15),
-                                                      image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: Svg('assets/images/pictwo.svg'),
-                                                      )
-                                                  ),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.only(left: 10),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                    children: [
-                                                      Container(
-                                                        width:width*0.63,
-                                                        child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          children: [
-                                                            Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-                                                                Container(
-                                                                  width:width*0.5,
-                                                                  child: Text(
-                                                                    '${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                    "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}'
-                                                                    ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                      color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
-                                                                  ),),
-                                                                ),
-                                                                Row(
-                                                                  children: [
-                                                                    RatingBar.builder(
-                                                                      initialRating: 4.1,
-                                                                      minRating: 1,
-                                                                      direction: Axis.horizontal,
-                                                                      allowHalfRating: true,
-                                                                      itemCount: 5,
-                                                                      itemSize: 14,
-                                                                      itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                      itemBuilder: (context, _) => Icon(
-                                                                        Icons.star,
-                                                                        color: Colors.amber,
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 10),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                      children: [
+                                                        Container(
+                                                          width:width*0.63,
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Container(
+                                                                    width:width*0.5,
+                                                                    child: Text(
+                                                                      '${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                      "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}'
+                                                                      ,overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                        color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
+                                                                    ),),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      RatingBar.builder(
+                                                                        initialRating: 4.1,
+                                                                        minRating: 1,
+                                                                        direction: Axis.horizontal,
+                                                                        allowHalfRating: true,
+                                                                        itemCount: 5,
+                                                                        itemSize: 14,
+                                                                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                        itemBuilder: (context, _) => Icon(
+                                                                          Icons.star,
+                                                                          color: Colors.amber,
+                                                                        ),
+                                                                        onRatingUpdate: (rating) {
+                                                                        },
                                                                       ),
-                                                                      onRatingUpdate: (rating) {
-
-                                                                      },
-                                                                    ),
-                                                                    Text(' 4.5',style: TextStyle(
-                                                                        color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                    ),)
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            InkWell(
-                                                              onTap: (){},
-                                                              child: Container(
-                                                                decoration: BoxDecoration(
-                                                                    color: lightGrey,
-                                                                    shape: BoxShape.circle
-                                                                ),
-                                                                padding: EdgeInsets.all(4),
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                                      Text(' 4.5',style: TextStyle(
+                                                                          color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                                      ),)
+                                                                    ],
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ),
-                                                          ],
+                                                              InkWell(
+                                                                onTap: (){
+                                                                  sendNearVendorDataToScreen(index);
+                                                                },
+                                                                child: Container(
+                                                                  decoration: BoxDecoration(
+                                                                      color: lightGrey,
+                                                                      shape: BoxShape.circle
+                                                                  ),
+                                                                  padding: EdgeInsets.all(4),
+                                                                  height: 35,
+                                                                  width: 35,
+                                                                  child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Container(
-                                                        width: width*0.63,
-                                                        child: Text(nearestVendors[index]['Description']!=null?
-                                                        "${nearestVendors[index]['Description']}":'No description',overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                            color: Colors.black54,fontFamily: poppins,fontSize: 13
-                                                        ),maxLines: 1,),
-                                                      ),
-                                                      Container(
-                                                        height: 1,
-                                                        width: width*0.63,
-                                                        color: Colors.black26,
-                                                      ),
-                                                      Container(
-                                                        width: width*0.63,
-                                                        child: Wrap(
-                                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          runSpacing: 5.0,
-                                                          spacing: 5.0,
-                                                          runAlignment: WrapAlignment.spaceBetween,
-                                                          children: [
-                                                            nearestVendors[index]['DeliveryCharge']==null?
-                                                            Text('DELIVERY FREE',style: TextStyle(
-                                                                color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                            ),):
-                                                            Text('10 km Delivery Fee Rs.${nearestVendors[index]['DeliveryCharge']}',style: TextStyle(
-                                                                color: darkBlue,fontSize: 10,fontFamily: poppins,fontWeight: FontWeight.bold
-                                                            ),),
-                                                            SizedBox(
-                                                              width: 20,
-                                                            ),
-                                                            Text('Includes eggless cake',style: TextStyle(
-                                                                color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                            ),overflow: TextOverflow.ellipsis,),
-                                                          ],
+                                                        Container(
+                                                          width: width*0.63,
+                                                          child: Text(nearestVendors[index]['Description']!=null?
+                                                          "${nearestVendors[index]['Description']}":'No description',overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                              color: Colors.black54,fontFamily: poppins,fontSize: 13
+                                                          ),maxLines: 1,),
                                                         ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
+                                                        Container(
+                                                          height: 1,
+                                                          width: width*0.63,
+                                                          color: Colors.black26,
+                                                        ),
+                                                        Container(
+                                                          width: width*0.63,
+                                                          child: Wrap(
+                                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            runSpacing: 5.0,
+                                                            spacing: 5.0,
+                                                            runAlignment: WrapAlignment.spaceBetween,
+                                                            children: [
+                                                              nearestVendors[index]['DeliveryCharge']==null?
+                                                              Text('DELIVERY FREE',style: TextStyle(
+                                                                  color: Colors.orange,fontSize: 10,fontFamily: poppins
+                                                              ),):
+                                                              Text('10 km Delivery Fee Rs.${nearestVendors[index]['DeliveryCharge']}',style: TextStyle(
+                                                                  color: darkBlue,fontSize: 10,fontFamily: poppins,fontWeight: FontWeight.bold
+                                                              ),),
+                                                              SizedBox(
+                                                                width: 20,
+                                                              ),
+                                                              Text('Includes eggless cake',style: TextStyle(
+                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                              ),overflow: TextOverflow.ellipsis,),
+                                                            ],
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         );

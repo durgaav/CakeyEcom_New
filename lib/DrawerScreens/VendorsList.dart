@@ -119,7 +119,11 @@ class _VendorsListState extends State<VendorsList> {
     //common keyword single****
     pref.setString('singleVendorID', nearestVendors[index]['_id']);
     pref.setString('singleVendorName', nearestVendors[index]['VendorName']);
-    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'No Description');
+    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'No description');
+    pref.setString('singleVendorPhone', nearestVendors[index]['PhoneNumber']??'0000000000');
+    pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
+    pref.setString('singleVendorDelivery', nearestVendors[index]['DeliveryCharge']??'null');
+
 
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -151,6 +155,9 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorID', locationBySearch[index]['_id']);
     pref.setString('singleVendorName', locationBySearch[index]['VendorName']);
     pref.setString('singleVendorDesc', locationBySearch[index]['Description']??'No Description');
+    pref.setString('singleVendorPhone', locationBySearch[index]['PhoneNumber']??'0000000000');
+    pref.setString('singleVendorDpImage', locationBySearch[index]['ProfileImage']??'null');
+    pref.setString('singleVendorDelivery', locationBySearch[index]['DeliveryCharge']??'null');
 
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -414,9 +421,7 @@ class _VendorsListState extends State<VendorsList> {
                                   itemCount: nearestVendors.length,
                                   itemBuilder: (context , index){
                                     return GestureDetector(
-                                      onTap: (){
-                                        sendNearVendorDataToScreen(index);
-                                      },
+                                      onTap: ()=>sendNearVendorDataToScreen(index),
                                       child: Card(
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(10)
@@ -493,9 +498,7 @@ class _VendorsListState extends State<VendorsList> {
                                                           ],
                                                         ),
                                                         InkWell(
-                                                          onTap: (){
-                                                            sendNearVendorDataToScreen(index);
-                                                          },
+                                                          onTap: ()=>sendNearVendorDataToScreen(index),
                                                           child: Container(
                                                             decoration: BoxDecoration(
                                                                 color: lightGrey,
@@ -547,7 +550,7 @@ class _VendorsListState extends State<VendorsList> {
                                                       ),),
                                                     ],
                                                   ),
-                                                  Icon(Icons.check_circle,color: Colors.green,)
+                                                  // Icon(Icons.check_circle,color: Colors.green,)
                                                 ],
                                               )
                                             ],
@@ -581,9 +584,7 @@ class _VendorsListState extends State<VendorsList> {
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context,index){
                             return GestureDetector(
-                              onTap: (){
-                               sendDataToScreen(index);
-                              },
+                              onTap: ()=>sendDataToScreen(index),
                               child: Card(
                                 margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
                                 shape: RoundedRectangleBorder(
@@ -671,9 +672,7 @@ class _VendorsListState extends State<VendorsList> {
                                                     ],
                                                   ),
                                                   InkWell(
-                                                    onTap: (){
-                                                      sendDataToScreen(index);
-                                                    },
+                                                    onTap: ()=>sendDataToScreen(index),
                                                     child: Container(
                                                       decoration: BoxDecoration(
                                                           color: lightGrey,
@@ -691,7 +690,7 @@ class _VendorsListState extends State<VendorsList> {
                                             Container(
                                               width: width*0.63,
                                               child: Text(locationBySearch[index]['Description'].toString()=='null'?
-                                              '':'${locationBySearch[index]['Description']}'
+                                              'No description':'${locationBySearch[index]['Description']}'
                                                 ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                   color: Colors.black54,fontFamily: poppins,fontSize: 13
                                               ),maxLines: 1,),
@@ -711,7 +710,7 @@ class _VendorsListState extends State<VendorsList> {
                                                       color: Colors.orange,fontSize: 10,fontFamily: poppins
                                                   ),):Text('Delivery Charge ₹${locationBySearch[index]['DeliveryCharge'].toString()}'
                                                     ,style: TextStyle(
-                                                      color: darkBlue,fontSize: 12,fontFamily: poppins
+                                                      color: darkBlue,fontSize: 10,fontFamily: poppins
                                                   ),),
                                                   TextButton(
                                                     onPressed: (){
@@ -737,6 +736,9 @@ class _VendorsListState extends State<VendorsList> {
                           }
                       ),
                     ),
+
+
+
                   ],
                 ),
               ),

@@ -44,6 +44,12 @@ class _CakeTypesState extends State<CakeTypes> {
   String searchCakeVendor = '';
   String searchCakeLocation = '';
 
+  //my selected vendor
+  String myVendorId = '';
+  String vendorName = '';
+  String vendorPhone = "";
+  bool iamYourVendor = false;
+
 
   //booleans
   bool egglesSwitch = false;
@@ -52,6 +58,7 @@ class _CakeTypesState extends State<CakeTypes> {
   bool isFiltered = false;
   bool isFilterisOn = false ;
   bool shapeOnlyFilter = false;
+  bool searchModeis = false;
 
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
@@ -87,7 +94,9 @@ class _CakeTypesState extends State<CakeTypes> {
   List filterCakesFlavList = [];
   List filterCakesShapList = [];
   List filterCakesTopingList = [];
+  List myFilterList = [];
   List filteredListByUser = [];
+
   //Fil flav
   List<bool> flavsCheck = [];
   List fixedFilterFlav = [];
@@ -102,6 +111,8 @@ class _CakeTypesState extends State<CakeTypes> {
   List<bool> filterShapesCheck = [];
   List filterShapes = [];
   List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagan"];
+  List shapesOthersForFilter = ["Star" , "House"];
+  List myShapesFilter = [];
 
   //endregion
 
@@ -314,7 +325,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       ListView.builder(
                                           physics: NeverScrollableScrollPhysics(),
                                           shrinkWrap: true,
-                                          itemCount: filterCakesShapList.length,
+                                          itemCount: shapesForFilter.length,
                                           itemBuilder: (context , index){
                                             shapesCheck.add(false);
                                             return InkWell(
@@ -324,13 +335,13 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   if(shapesCheck[index]==false){
                                                     shapesCheck[index]=true;
 
-                                                    if(fixedFilterShapes.contains(filterCakesShapList[index])){
+                                                    if(fixedFilterShapes.contains(shapesForFilter[index])){
 
                                                     }else{
-                                                      fixedFilterShapes.add(filterCakesShapList[index]);
+                                                      fixedFilterShapes.add(shapesForFilter[index]);
                                                     }
                                                   }else{
-                                                    fixedFilterShapes.remove(filterCakesShapList[index]);
+                                                    fixedFilterShapes.remove(shapesForFilter[index]);
                                                     shapesCheck[index]=false;
                                                   }
                                                 });
@@ -342,7 +353,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   Wrap(
                                                     crossAxisAlignment: WrapCrossAlignment.center,
                                                     runSpacing: 5,
-                                                    spacing: 5,
                                                     children: [
                                                       Checkbox(
                                                         shape: CircleBorder(),
@@ -354,34 +364,28 @@ class _CakeTypesState extends State<CakeTypes> {
                                                             if(shapesCheck[index]==false){
                                                               shapesCheck[index]=true;
 
-                                                              if(fixedFilterShapes.contains(filterCakesShapList[index])){
+                                                              if(fixedFilterShapes.contains(shapesForFilter[index])){
 
                                                               }else{
-                                                                fixedFilterShapes.add(filterCakesShapList[index]);
+                                                                fixedFilterShapes.add(shapesForFilter[index]);
                                                               }
                                                             }else{
-                                                              fixedFilterShapes.remove(filterCakesShapList[index]);
+                                                              fixedFilterShapes.remove(shapesForFilter[index]);
                                                               shapesCheck[index]=false;
                                                             }
                                                           });
                                                         },
                                                       ),
-                                                      Text(filterCakesShapList[index].toString(),style: TextStyle(
-                                                          color: darkBlue , fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold
+                                                      Text(shapesForFilter[index].toString(),style: TextStyle(
+                                                          color: darkBlue , fontFamily: "Poppins",fontSize: 15
                                                       ),),
                                                     ],
                                                   ),
-                                                  SizedBox(height: 5,),
-                                                  Container(
-                                                    height: 0.5,
-                                                    width:double.infinity,
-                                                    color: lightPink,
-                                                  )
                                                 ],
                                               ),
                                             );
                                           }
-                                      )
+                                      ),
                                     ],
                                   ),
                                   Container(
@@ -569,6 +573,15 @@ class _CakeTypesState extends State<CakeTypes> {
                           Container(
                             height: 45,
                             child: TextField(
+                              onChanged: (String text){
+                                // searchCakeCate = cakeCategoryCtrl.text;
+                                // searchCakeSubType = cakeSubCategoryCtrl.text;
+                                // searchCakeVendor = cakeVendorCtrl.text;
+                                // searchCakeLocation = cakeLocationCtrl.text;
+                                setState((){
+                                  searchCakeCate = text;
+                                });
+                              },
                               controller: cakeCategoryCtrl,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(5),
@@ -749,14 +762,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                 ),
                                 color: lightPink,
                                 onPressed: (){
-                                  Navigator.pop(context);
+                                  setState((){
+
+                                    applySearchFiltersSettings(searchCakeCate ,searchCakeSubType, searchCakeVendor,searchCakeLocation);
+
+                                  });
+
                                 },
                                 child: Text("SEARCH",style: TextStyle(
                                     color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
                                 ),),
                               ),
                             ),
-                          )
+                          ),
 
                         ],
                       ),
@@ -882,12 +900,77 @@ class _CakeTypesState extends State<CakeTypes> {
                                   }
                               ),
                               SizedBox(height:6),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('OTHERS',style: TextStyle(
+                              ExpansionTile(
+                                title: Text('OTHERS',style: TextStyle(
                                     color: darkBlue , fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.bold
                                 ),),
-                              ),
+                                children: [
+                                  ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: shapesOthersForFilter.length,
+                                      itemBuilder: (context , index){
+                                        filterShapesCheck.add(false);
+                                        return InkWell(
+                                          splashColor: Colors.red[200],
+                                          onTap:(){
+                                            setState((){
+                                              if(filterShapesCheck[index]==false){
+                                                filterShapesCheck[index]=true;
+
+                                                if(filterShapes.contains(shapesForFilter[index])){
+
+                                                }else{
+                                                  filterShapes.add(shapesForFilter[index]);
+                                                }
+                                              }else{
+                                                filterShapes.remove(shapesForFilter[index]);
+                                                filterShapesCheck[index]=false;
+                                              }
+                                            });
+                                          },
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(height: 5,),
+                                              Wrap(
+                                                crossAxisAlignment: WrapCrossAlignment.center,
+                                                runSpacing: 5,
+                                                children: [
+                                                  Checkbox(
+                                                    shape: CircleBorder(),
+                                                    activeColor: Colors.white,
+                                                    fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
+                                                    value: filterShapesCheck[index],
+                                                    onChanged: (bool? check){
+                                                      setState((){
+                                                        if(filterShapesCheck[index]==false){
+                                                          filterShapesCheck[index]=true;
+
+                                                          if(filterShapes.contains(shapesForFilter[index])){
+
+                                                          }else{
+                                                            filterShapes.add(shapesForFilter[index]);
+                                                          }
+                                                        }else{
+                                                          filterShapes.remove(shapesForFilter[index]);
+                                                          filterShapesCheck[index]=false;
+                                                        }
+                                                      });
+                                                    },
+                                                  ),
+                                                  Text(shapesOthersForFilter[index].toString(),style: TextStyle(
+                                                      color: darkBlue , fontFamily: "Poppins",fontSize: 15
+                                                  ),),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                  ),
+                                ],
+                              )
                             ],
                           )
                       ),
@@ -907,7 +990,7 @@ class _CakeTypesState extends State<CakeTypes> {
                             color: lightPink,
                             onPressed: (){
                               //Going to Aply filters....
-                              applyFilterByShape(filterShapes);
+                              setState((){applyFilterByShape(filterShapes);});
                             },
                             child: Text("FILTER",style: TextStyle(
                                 color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
@@ -945,14 +1028,25 @@ class _CakeTypesState extends State<CakeTypes> {
     var pref = await SharedPreferences.getInstance();
     setState(() {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+      myVendorId = pref.getString('myVendorId')??'Not Found';
+      vendorName = pref.getString('myVendorName')??'Un Name';
+      vendorPhone = pref.getString('myVendorPhone')??'0000000000';
+      iamYourVendor = pref.getBool('iamYourVendor')??false;
+      getCakeList();
     });
   }
 
   //Fetching cake list API...
   Future<void> getCakeList() async{
+
+    showAlertDialog();
+
+    String commonCake = 'https://cakey-database.vercel.app/api/cake/list';
+    String vendorCake = 'https://cakey-database.vercel.app/api/cake/listbyId/$myVendorId';
+
     try{
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/cake/list")
+          Uri.parse(iamYourVendor==true?vendorCake:commonCake)
       );
       if(response.statusCode==200){
         setState(() {
@@ -971,7 +1065,6 @@ class _CakeTypesState extends State<CakeTypes> {
             }
 
             filterCakesFlavList = filterCakesFlavList.toSet().toList();
-
 
             //Cakes shapes
             for(int i=0;i<cakesList.length;i++){
@@ -1008,6 +1101,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
         }
      }
+          Navigator.pop(context);
    });
       }else{
 
@@ -1015,12 +1109,14 @@ class _CakeTypesState extends State<CakeTypes> {
           isNetworkError = true;
           networkMsg = "Server error! try again latter";
         });
+        Navigator.pop(context);
       }
     }catch(error){
       setState(() {
         isNetworkError = true;
         checkNetwork();
       });
+      Navigator.pop(context);
     }
   }
 
@@ -1327,17 +1423,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
     List a = [] , b = [] , c = [] ,d = [];
 
-    if(shapeOnlyFilter == true){
-      print('shapeOnlyFilter is onn...');
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Clear shapes filter, then apply filter only.'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }else{
       setState(() {
         //all are empty
         if(priceStart.isEmpty&&priceEnd.isEmpty&&flavours.isEmpty&&shapes.isEmpty&&topings.isEmpty){
@@ -1417,7 +1502,7 @@ class _CakeTypesState extends State<CakeTypes> {
             print('topings ok');
 
             setState(() {
-              List b = [];
+
               for(int i=0;i<eggOrEgglesList.length;i++){
                 if(eggOrEgglesList[i]['CakeToppings'].isNotEmpty){
                   for(int j = 0 ; j<topings.length;j++){
@@ -1433,21 +1518,21 @@ class _CakeTypesState extends State<CakeTypes> {
             });
           }
 
-          filteredListByUser = a + b + c + d;
+
+          myFilterList = a+b+c+d;
+          filteredListByUser = myFilterList+ myShapesFilter;
           filteredListByUser = filteredListByUser.toSet().toList();
           filteredListByUser = filteredListByUser.reversed.toList();
 
         }
 
       });
-    }
+
   }
 
   //Clear all applied filters...
   void clearAllFilters(){
-    if(shapeOnlyFilter==true){
-      Navigator.pop(context);
-    }else{
+
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1460,7 +1545,7 @@ class _CakeTypesState extends State<CakeTypes> {
         //Filterd notify text
         isFilterisOn = false;
 
-        filteredListByUser = [];
+        myFilterList = [];
 
         //price range = 0
         priceRangeStart = "";
@@ -1476,43 +1561,35 @@ class _CakeTypesState extends State<CakeTypes> {
         shapesCheck = [];
         topingCheck = [];
 
+        filteredListByUser = myFilterList + myShapesFilter;
+        filteredListByUser = filteredListByUser.toSet().toList();
+        filteredListByUser = filteredListByUser.reversed.toList();
+
       });
-    }
 
   }
 
   //applying shape only filter
   void applyFilterByShape(List shapes){
-    List a = [];
 
-    if(isFilterisOn==true){
-      print('Filter is onn...');
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Clear filter mode, then apply shapes only.'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }else{
       setState(() {
         if(shapes.isEmpty){
           Navigator.pop(context);
           shapeOnlyFilter = false;
         }
         else{
+          myShapesFilter.clear();
           print('shapes okk!');
           setState(() {
             for(int i=0;i<eggOrEgglesList.length;i++){
               if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-                for(int j = 0 ; j<shapes.length;j++){
-                  if(eggOrEgglesList[i]['ShapeList'].contains(shapes[j])){
-                    a.add(eggOrEgglesList[i]);
+                  for(int k = 0 ;k < shapes.length;k++){
+                    if(eggOrEgglesList[i]['ShapeList'].contains(shapes[k])){
+                      setState(() {
+                        myShapesFilter.add(eggOrEgglesList[i]);
+                      });
+                    }
                   }
-                }
-              }else{
-
               }
             }
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1526,25 +1603,19 @@ class _CakeTypesState extends State<CakeTypes> {
             Navigator.pop(context);
           });
 
-          if(filteredListByUser.isNotEmpty){
-            filteredListByUser = filteredListByUser + a;
-          }else{
-            filteredListByUser = a;
-          }
+
+          filteredListByUser = myFilterList+ myShapesFilter;
           filteredListByUser = filteredListByUser.toSet().toList();
           filteredListByUser = filteredListByUser.reversed.toList();
         }
 
       });
 
-    }
+
   }
 
   //Clr shapes filter..
   void clearShapesFilter(){
-    if(isFilterisOn==true){
-      Navigator.pop(context);
-    }else{
       setState(() {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1553,29 +1624,53 @@ class _CakeTypesState extends State<CakeTypes> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+
+        myShapesFilter=[];
         filterShapesCheck = [];
         filterShapes = [];
-        filteredListByUser = [];
-        shapeOnlyFilter=false;
+        shapeOnlyFilter = false;
+
+
+        filteredListByUser = myFilterList + myShapesFilter;
+        filteredListByUser = filteredListByUser.toSet().toList();
+        filteredListByUser = filteredListByUser.reversed.toList();
+
         Navigator.pop(context);
       });
-    }
+
   }
 
-  void applySearchFiltersSettings(){
+  void applySearchFiltersSettings(String categ , String subCate , String venName , String location){
 
-    setState((){
-      searchCakeCate = cakeCategoryCtrl.text;
-      searchCakeSubType = cakeSubCategoryCtrl.text;
-      searchCakeVendor = cakeVendorCtrl.text;
-      searchCakeLocation = cakeLocationCtrl.text;
+    print(categ);
+
+    Navigator.pop(context);
+
+    setState(() {
+
+      searchModeis = true;
+
+      filteredListByUser = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+          .contains(categ.toLowerCase())).toList();
     });
 
-    print("$searchCakeCate \n $searchCakeSubType \n $searchCakeVendor \n $searchCakeLocation \n");
+  }
 
+  //remove sel vendor prefs
+  Future<void> removeMyVendorPref() async{
 
+    var pref = await SharedPreferences.getInstance();
+
+    pref.remove('myVendorId');
+    pref.remove('myVendorName');
+    pref.remove('myVendorPhone');
+    pref.remove('myVendorDesc');
+    pref.remove('myVendorProfile');
+    pref.remove('myVendorDeliverChrg');
+    pref.remove('iamYourVendor');
 
   }
+
 
   //endregion
 
@@ -1584,10 +1679,19 @@ class _CakeTypesState extends State<CakeTypes> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       loadPrefs();
-      getCakeList();
     });
     super.initState();
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    Future.delayed(Duration.zero , () async{
+      removeMyVendorPref();
+    });
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1609,7 +1713,7 @@ class _CakeTypesState extends State<CakeTypes> {
       else if(egglesSwitch == false){
         setState(() {
           eggOrEgglesList = cakesList.where((element) =>
-              element['EggOrEggless'].toString().toLowerCase()=="egg" ||
+              element['EggOrEggless'].toString().toLowerCase()=="egg"||
               element['EggOrEggless'].toString().toLowerCase()=="eggadded"
           ).toList();
 
@@ -1619,13 +1723,14 @@ class _CakeTypesState extends State<CakeTypes> {
         });
       }
 
-    if(isFilterisOn ==true || shapeOnlyFilter == true){
+    if(isFilterisOn ==true || shapeOnlyFilter == true || searchModeis == true){
       setState(() {
         cakeSearchList = filteredListByUser.toList();
       });
       if(searchCakesText.isNotEmpty){
         setState(() {
-          cakeSearchList = filteredListByUser.where((element) => element['Title'].toString().toLowerCase().contains(searchCakesText.toLowerCase())).toList();
+          cakeSearchList = filteredListByUser.where((element) =>
+              element['Title'].toString().toLowerCase().contains(searchCakesText.toLowerCase())).toList();
         });
       }
       else{
@@ -1889,6 +1994,8 @@ class _CakeTypesState extends State<CakeTypes> {
                     ],
                   ),
                 ),
+
+                iamYourVendor==false?
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -1913,6 +2020,85 @@ class _CakeTypesState extends State<CakeTypes> {
                         )
                     )
                   ],
+                ):
+                //Vendor name and whatsapp...
+                Container(
+                  padding:EdgeInsets.only(left: 10,right: 10),
+                  child: Column(
+                    crossAxisAlignment:CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10,),
+                      Row(
+                        children: [
+                          Icon(Icons.account_circle_outlined, color: darkBlue,),
+                          Text(' VENDOR' , style:TextStyle(color: Colors.grey , fontSize: 12 , fontFamily: 'Poppins' ))
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                                children: [
+                                  Container(
+                                    child: Text('$vendorName ',style: TextStyle(
+                                        color: darkBlue,fontFamily:"Poppins",
+                                        fontSize: 18,fontWeight: FontWeight.bold
+                                    ),),
+                                  ),
+
+                                  Container(
+                                      child:Image(
+                                        height: 30,
+                                        width: 30,
+                                        image: AssetImage('assets/images/smilyfood.png'),
+                                      )
+                                  )
+
+                                ],
+                              ),
+                          Container(
+                            width: 100,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    print('phone.. $vendorPhone');
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 35,
+                                    width: 35,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey[200],
+                                    ),
+                                    child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                InkWell(
+                                  onTap: (){
+                                    print('whatsapp : $vendorPhone');
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 35,
+                                    width: 35,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color:Colors.grey[200]
+                                    ),
+                                    child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
 
                 //Searchbar..
@@ -2378,55 +2564,6 @@ class _CakeTypesState extends State<CakeTypes> {
                   visible: isFiltered?false:true,
                   child: Column(
                     children: [
-                      cakesList.length==0?
-                      StaggeredGridView.countBuilder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(12.0),
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 12,
-                          itemCount: 20,
-                          staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
-                          itemBuilder: (BuildContext context, int index){
-                            return Shimmer.fromColors(
-                              direction: ShimmerDirection.ttb,
-                              baseColor: Colors.grey,
-                              highlightColor: Colors.white,
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                height: 250,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.black,width: 1)
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.black,
-                                      radius: 45,
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 25,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                      ):
                       StaggeredGridView.countBuilder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
