@@ -33,6 +33,7 @@ class _SingleVendorState extends State<SingleVendor> {
   String vendorID = '';
   String vendorName = '';
   String vendorPhone = '';
+  String vendorLocalAddres = '';
   String deliverCharge = '';
   String profileImage = '';
 
@@ -100,6 +101,7 @@ class _SingleVendorState extends State<SingleVendor> {
       vendorPhone = pref.getString('singleVendorPhone')??'0000000000';
       deliverCharge = pref.getString('singleVendorDelivery')??'';
       profileImage = pref.getString('singleVendorDpImage')??'';
+      vendorLocalAddres = pref.getString('singleVendorAddress')??'';
 
       getOrdersByVendorId();
     });
@@ -109,31 +111,37 @@ class _SingleVendorState extends State<SingleVendor> {
   Future<void> getOrdersByVendorId() async{
     showAlertDialog();
 
-    print(vendorID);
-    
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/order/listbyvendorid/$vendorID'));
+    try{
+      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/order/listbyvendorid/$vendorID'));
 
-    if(res.statusCode==200){
-      // print(jsonDecode(res.body));
+      if(res.statusCode==200){
 
-      setState(() {
+        print(jsonDecode(res.body));
 
-        vendorOrders = jsonDecode(res.body);
-        vendorOrders = vendorOrders.reversed.toList();
-        print(vendorOrders);
+        setState(() {
+          vendorOrders = jsonDecode(res.body);
+          vendorOrders = vendorOrders.reversed.toList();
+          print(vendorOrders);
 
+          Navigator.pop(context);
+        });
+
+      }else{
+        print(res.statusCode);
         Navigator.pop(context);
-      });
-
-    }else{
-      print(res.statusCode);
+      }
+    }catch (error){
+      print(error);
       Navigator.pop(context);
     }
+
 
   }
 
   //load select Vendor data to CakeTypeScreen
   Future<void> loadSelVendorDataToCTscreen() async{
+
+
 
     var pref = await SharedPreferences.getInstance();
 
@@ -143,6 +151,7 @@ class _SingleVendorState extends State<SingleVendor> {
     pref.setString('myVendorDesc', description);
     pref.setString('myVendorProfile', profileImage);
     pref.setString('myVendorDeliverChrg', deliverCharge);
+    pref.setString('myVendorAddress', deliverCharge);
     pref.setBool('iamYourVendor', true);
 
     Navigator.of(context).push(
@@ -370,6 +379,7 @@ class _SingleVendorState extends State<SingleVendor> {
                           ),
                         ],
                       ),
+
                       Container(
                         width: 100,
                         child: Row(
@@ -412,6 +422,10 @@ class _SingleVendorState extends State<SingleVendor> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 10,),
+                  Text('$vendorLocalAddres', style:TextStyle(
+                    fontFamily: "Poppins",
+                  )),
                   SizedBox(height: 10,),
                   //Sel button
                   InkWell(

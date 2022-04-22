@@ -11,6 +11,8 @@ import '../ContextData.dart';
 import '../screens/Profile.dart';
 import 'package:http/http.dart' as http;
 
+import 'CakeTypes.dart';
+
 class VendorsList extends StatefulWidget {
   const VendorsList({Key? key}) : super(key: key);
 
@@ -35,6 +37,7 @@ class _VendorsListState extends State<VendorsList> {
 
   //booleans
   bool isSearching = false;
+  int currentIndex = 0;
 
   //Lists
   List locations = ["Tirupur","Avinashi","Avinashi",'Coimbatore','Neelambur','Thekkalur','Chennai'];
@@ -100,9 +103,15 @@ class _VendorsListState extends State<VendorsList> {
       setState(() {
         vendorsList = jsonDecode(res.body);
 
-        nearestVendors = vendorsList.where((element) =>
-        element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
-        ).toList();
+        nearestVendors = vendorsList.where((element){
+
+          if(element['Address']!=null){
+            return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
+          }else{
+            return false;
+          }
+
+        }).toList();
 
         Navigator.pop(context);
       });
@@ -112,8 +121,69 @@ class _VendorsListState extends State<VendorsList> {
     }
   }
 
+  //load select Vendor data to CakeTypeScreen
+  Future<void> loadSelVendorDataToCTscreen(int index) async{
+
+    // setState((){
+    //   for(int i = 0 ; i<locationBySearch.length;i++){
+    //     if(i == index){
+    //       currentIndex = index;
+    //     }else{
+    //       currentIndex = 0;
+    //     }
+    //   }
+    // });
+
+    String address = "${locationBySearch[index]['Address']['Street']} , "
+        "${locationBySearch[index]['Address']['City']} , "
+        "${locationBySearch[index]['Address']['District']} , "
+        "${locationBySearch[index]['Address']['Pincode']} , ";
+
+    var pref = await SharedPreferences.getInstance();
+
+    pref.setString('myVendorId', locationBySearch[index]['_id']);
+    pref.setString('myVendorName', locationBySearch[index]['VendorName']);
+    pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'No Description');
+    pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
+    pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
+    pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
+    pref.setString('myVendorAddress',address??'null');
+    pref.setBool('iamYourVendor', true);
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
+
+  }
+
+
   //send nearest vendor details.
   Future<void> sendNearVendorDataToScreen(int index) async{
+
+    String address = "${nearestVendors[index]['Address']['Street']} , "
+        "${nearestVendors[index]['Address']['City']} , "
+        "${nearestVendors[index]['Address']['District']} , "
+        "${nearestVendors[index]['Address']['Pincode']} , ";
+
+
     var pref = await SharedPreferences.getInstance();
 
     //common keyword single****
@@ -123,6 +193,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorPhone', nearestVendors[index]['PhoneNumber']??'0000000000');
     pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
     pref.setString('singleVendorDelivery', nearestVendors[index]['DeliveryCharge']??'null');
+    pref.setString('singleVendorAddress', address??'null');
 
 
     Navigator.of(context).push(
@@ -148,7 +219,14 @@ class _VendorsListState extends State<VendorsList> {
 
   }
 
+
   Future<void> sendDataToScreen(int index) async{
+
+    String address = "${locationBySearch[index]['Address']['Street']} , "
+        "${locationBySearch[index]['Address']['City']} , "
+        "${locationBySearch[index]['Address']['District']} , "
+        "${locationBySearch[index]['Address']['Pincode']} , ";
+
     var pref = await SharedPreferences.getInstance();
 
     //common keyword single****
@@ -158,6 +236,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorPhone', locationBySearch[index]['PhoneNumber']??'0000000000');
     pref.setString('singleVendorDpImage', locationBySearch[index]['ProfileImage']??'null');
     pref.setString('singleVendorDelivery', locationBySearch[index]['DeliveryCharge']??'null');
+    pref.setString('singleVendorAddress', address??'null');
 
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -540,13 +619,15 @@ class _VendorsListState extends State<VendorsList> {
                                                     children: [
                                                       Text('Includes eggless',style: TextStyle(
                                                           color: darkBlue,
-                                                          fontSize: 13
+                                                          fontSize: 10,
+                                                          fontFamily: "Poppins"
                                                       ),),
                                                       SizedBox(height: 8,),
                                                       Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
                                                       'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
                                                           color: Colors.orange,
-                                                          fontSize: 12
+                                                          fontSize: 10 ,
+                                                          fontFamily: "Poppins"
                                                       ),),
                                                     ],
                                                   ),
@@ -712,16 +793,16 @@ class _VendorsListState extends State<VendorsList> {
                                                     ,style: TextStyle(
                                                       color: darkBlue,fontSize: 10,fontFamily: poppins
                                                   ),),
+                                                  // currentIndex==index?
                                                   TextButton(
-                                                    onPressed: (){
-                                                      print(width*0.63);
-                                                     },
+                                                    onPressed: ()=>loadSelVendorDataToCTscreen(index),
                                                     child:Text('Select',style: TextStyle(
                                                         color: Colors.black,fontSize: 10,fontWeight:
                                                     FontWeight.bold,fontFamily: poppins,
                                                         decoration: TextDecoration.underline
                                                     ),),
-                                                  ),
+                                                  )
+                                                 // :Icon(Icons.check_circle,color: Colors.green,)
                                                 ],
                                               ),
                                             )

@@ -203,14 +203,16 @@ class _CheckOutState extends State<CheckOut> {
       print(prefs.getString('orderCakeWeight'));
       print(prefs.getStringList('orderCakeTopings'));
       print("ven id : "+prefs.getString('orderCakeID')!);
-      print(vendorMobile);
+      print("ven"+vendorMobile);
       print("User id : "+prefs.getString('orderCakeUserID')!);
       print(prefs.getString('orderCakeUserName'));
       print(prefs.getString('orderCakeUserNum'));
       print(userAddress);
+      print("ven"+vendorName);
+
       print(prefs.getString('orderCakeDeliverDate'));
       print(prefs.getString('orderCakeDeliverSession'));
-      print(prefs.getString('orderCakeVendorAddress'));
+      print("ven"+prefs.getString('orderCakeVendorAddress').toString());
       print(prefs.getInt('orderCakeCounts'));
       print(prefs.getInt('orderCakeDeliverAmt'));
     });
@@ -383,7 +385,7 @@ class _CheckOutState extends State<CheckOut> {
                 Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(bottomRight: Radius.circular(25)
-                      ,bottomLeft:  Radius.circular(25)
+                      ,bottomLeft:  Radius.circular(15)
                       ),
                       color: Colors.black12
                   ),
@@ -569,6 +571,7 @@ class _CheckOutState extends State<CheckOut> {
                   ),
                 ),
                 ExpansionTile(
+
                   title: Text('Payment type',style: TextStyle(
                     color: Colors.black26,fontFamily: "Poppins",fontSize: 12
                   ),),
@@ -678,27 +681,6 @@ class _CheckOutState extends State<CheckOut> {
                     ),
                     onPressed: (){
                        confirmOrder();
-                      // Navigator.of(context).push(
-                      //   PageRouteBuilder(
-                      //     pageBuilder: (context, animation, secondaryAnimation) => CheckOut(),
-                      //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      //       const begin = Offset(1.0, 0.0);
-                      //       const end = Offset.zero;
-                      //       const curve = Curves.ease;
-                      //
-                      //       final tween = Tween(begin: begin, end: end);
-                      //       final curvedAnimation = CurvedAnimation(
-                      //         parent: animation,
-                      //         curve: curve,
-                      //       );
-                      //
-                      //       return SlideTransition(
-                      //         position: tween.animate(curvedAnimation),
-                      //         child: child,
-                      //       );
-                      //     },
-                      //   ),
-                      // );
                     },
                     color: lightPink,
                     child: Text("PROCEED TO PAY",style: TextStyle(

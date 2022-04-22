@@ -521,9 +521,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting prefes
   Future<void> loadPrefs() async{
-
     var prefs = await SharedPreferences.getInstance();
-
     setState(() {
       profileRemainder = prefs.getBool("profileUpdated")??false;
       phoneNumber = prefs.getString("phoneNumber")??"";
@@ -533,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Position position = await _getGeoLocationPosition();
     location ='Lat: ${position.latitude} , Long: ${position.longitude}';
     GetAddressFromLatLong(position);
+
   }
 
   //update profile timer dialog for new users
@@ -576,8 +575,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
         context.read<ContextData>().setUserName(userName);
 
-        getOrderList();
         getCakeList();
+        getOrderList();
         Navigator.pop(context);
       });
     }else{
@@ -631,10 +630,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting users accurate location address...
   Future<void> GetAddressFromLatLong(Position position)async {
-    // print(position.latitude);
-    // print(position.longitude);
-    // print(Geolocator.distanceBetween(position.latitude, position.longitude, 11.004230, 77.024323));
-
+    
     var prefs = await SharedPreferences.getInstance();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     print(placemarks);
@@ -751,9 +747,17 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         vendorsList = jsonDecode(res.body);
 
-        nearestVendors = vendorsList.where((element) =>
-            element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
-        ).toList();
+        nearestVendors = vendorsList.where((element){
+
+          if(element['Address']!=null){
+            return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
+          }
+          else{
+            return false;
+          }
+
+        }).toList();
+        
 
         nearestVendors = nearestVendors.toSet().toList();
         nearestVendors = nearestVendors.reversed.toList();

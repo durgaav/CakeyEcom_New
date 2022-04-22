@@ -110,7 +110,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //Shapes showing...
   List<bool> filterShapesCheck = [];
   List filterShapes = [];
-  List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagan"];
+  List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagon"];
   List shapesOthersForFilter = ["Star" , "House"];
   List myShapesFilter = [];
 
@@ -1049,6 +1049,8 @@ class _CakeTypesState extends State<CakeTypes> {
           Uri.parse(iamYourVendor==true?vendorCake:commonCake)
       );
       if(response.statusCode==200){
+
+        //region lists
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
@@ -1103,8 +1105,10 @@ class _CakeTypesState extends State<CakeTypes> {
      }
           Navigator.pop(context);
    });
-      }else{
+    //endregion
 
+      }
+      else{
         setState(() {
           isNetworkError = true;
           networkMsg = "Server error! try again latter";
@@ -1114,7 +1118,7 @@ class _CakeTypesState extends State<CakeTypes> {
     }catch(error){
       setState(() {
         isNetworkError = true;
-        checkNetwork();
+        networkMsg = "No data found!";
       });
       Navigator.pop(context);
     }

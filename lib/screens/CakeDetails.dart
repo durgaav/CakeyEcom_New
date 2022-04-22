@@ -48,8 +48,19 @@ class _CakeDetailsState extends State<CakeDetails> {
   List<String> cakeImages = [];
 
   //Cakes Listed Data
-  List shapes = [];
-  List flavour = [];
+  List shapes = [
+    "Default" ,
+    "Round" ,
+    "Square" ,
+    "Rectangle" ,
+    "Heart" ,
+    "Octagon" ,
+  ];
+  List flavour = [
+    "Default flavour - included in price",
+    "Strawberry - additional Rs.100/kg",
+    "ButterScotch - additional Rs.85/kg",
+  ];
   List topings = [];
   var weight = [];
   List nearestVendors = [];
@@ -64,12 +75,14 @@ class _CakeDetailsState extends State<CakeDetails> {
 
   //Articles
   var articals = ["Happy Birth Day" , "Butterflies" , "Hello World"];
-  var articalsPrice = ['Rs.100' , 'Rs.125','Rs.50'];
+  var articalsPrice = ['100' , '125','50'];
   int articGroupVal = 0;
+  String fixedArticle = '';
+  int articleExtraCharge = 0;
 
   //Pick Or Deliver
   var picOrDeliver = ['Pickup' , 'Delivery'];
-  var picOrDel = [false , true];
+  var picOrDel = [false , false];
 
   //Strings......Cake Details
   String cakeId = "";
@@ -103,6 +116,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   String cakeMsg = '';
   String specialReq = '';
   String fixedAddress = '';
+  String fixedDelliverMethod = "";
 
   //ints
   int flavGrpValue = 0;
@@ -116,6 +130,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   int taxes = 0;
   int counts = 1;
   int selVendorIndex = 0;
+  int flavExtraCharge = 0;
 
   //Text controls
   var messageCtrl = new TextEditingController();
@@ -458,7 +473,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
+                            fontFamily: "Poppins"
+                        ),
                       ),
                     ),
                   ),
@@ -781,31 +797,44 @@ class _CakeDetailsState extends State<CakeDetails> {
   //Order confirmation dialog
   void showOrderConfirmSheet(){
 
+    int count = counts;
+    int itemPrice = int.parse(cakePrice);
+    int cakesPrice = 0;
+    int deliverCharge = 0;
+    int tax = 0;
+    int totalAmt = 0;
+    int afterdiscount = 0;
+    int additionals = 0;
+
     String fixflavour = '';
     String fixshape = '';
     String fixtopings = '';
     String fixweight = '';
 
 
-    int count = counts;
-    int itemPrice = int.parse(cakePrice);
-    int cakesPrice = 0;
-    int deliverCharge = int.parse(cakeDeliverCharge ,onError: (e)=> 0);
-    int discount = int.parse(cakeDiscounts ,onError: (e)=> 0);
-    int tax = 0;
-    int totalAmt = 0;
-
     if(fixedFlavour.isEmpty){
       setState(() {
-         if(flavour.isNotEmpty){
-           fixflavour = flavour[0].toString();
-         }else{
-           fixflavour = 'None';
-         }
+        if(flavour.isNotEmpty){
+          setState(() {
+            fixflavour = flavour[0].toString();
+            fixflavour = fixedFlavour;
+            flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
+            additionals = flavExtraCharge;
+          });
+        }else{
+          fixflavour = 'None';
+          setState(() {
+            fixflavour = fixedFlavour;
+            flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
+            additionals = flavExtraCharge;
+          });
+        }
       });
     }else{
       setState(() {
         fixflavour = fixedFlavour;
+        flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
+        additionals = flavExtraCharge;
       });
     }
 
@@ -848,16 +877,32 @@ class _CakeDetailsState extends State<CakeDetails> {
     }
 
 
-      if(discounts>0){
-        setState(() {
-          cakesPrice = double.parse('${itemPrice - (itemPrice * discounts / 100)}').toInt();
-          totalAmt = cakesPrice + deliverCharge + tax;
-        });
-      }else{
-       setState(() {
-         totalAmt = itemPrice + deliverCharge + tax;
-       });
-      }
+    if(iamYourVendor==true){
+      setState(() {
+        deliveryCharge = int.parse(myVendorDelCharge.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0);
+      });
+    }else{
+      setState(() {
+        deliveryCharge = int.parse(cakeDeliverCharge.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0);
+      });
+    }
+
+
+    int discount = int.parse(cakeDiscounts.replaceAll(new RegExp(r'[^0-9]'),''));
+    print('discounts $discount');
+
+
+    setState(() {
+      afterdiscount = (itemPrice/100*discount).toInt();
+    });
+    print('after dis total : $afterdiscount');
+
+    setState(() {
+      cakesPrice = itemPrice-afterdiscount.toInt();
+      totalAmt = additionals +  cakesPrice + deliverCharge + tax;
+      print('Bill total : $totalAmt');
+    });
+
 
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
@@ -955,7 +1000,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       Text('Flavour',style: TextStyle(
                                         color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
                                       ),),
-                                      Text('$fixflavour',style: TextStyle(
+                                      Text('${fixflavour.split("-").first.toString()}',style: TextStyle(
                                         color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
                                       ),),
                                       SizedBox(height: 5,),
@@ -1080,17 +1125,10 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         onTap: (){
                                           setState((){
                                             count++;
-                                            if(discounts>0){
-                                              setState((){
-                                                cakesPrice = double.parse('${itemPrice - (itemPrice * discounts / 100)}').toInt();
-                                                totalAmt = cakesPrice + deliverCharge + tax;
-                                              });
-                                            }else{
-                                              setState((){
-                                                totalAmt = itemPrice + deliverCharge + tax;
-                                              });
-                                            }
-
+                                            setState(() {
+                                              cakesPrice = itemPrice-afterdiscount.toInt();
+                                              totalAmt = additionals +  cakesPrice + deliverCharge + tax;
+                                            });
                                           });
                                         },
                                         child: Row(
@@ -1155,6 +1193,20 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             color: Colors.black54,
                                           ),),
                                           Text('₹${count*int.parse(cakePrice)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text('Additionals',style: const TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: Colors.black54,
+                                          ),),
+                                          Text('₹${flavExtraCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                         ],
                                       ),
                                     ),
@@ -1419,12 +1471,13 @@ class _CakeDetailsState extends State<CakeDetails> {
       myVendorProfile = prefs.getString('myVendorProfile')??'Un Name';
       myVendorDesc = prefs.getString('myVendorDesc')??'Un Name';
       vendorPhone = prefs.getString('myVendorPhone')??'0000000000';
+      vendorAddress = prefs.getString('singleVendorAddress')??'null';
       iamYourVendor = prefs.getBool('iamYourVendor')??false;
 
       //Lists
       cakeImages = prefs.getStringList('cakeImages') ?? [];
-      flavour = prefs.getStringList('cakeFalvours') ?? [];
-      shapes = prefs.getStringList('cakeShapes') ?? [];
+      // flavour = prefs.getStringList('cakeFalvours') ?? [];
+      // shapes = prefs.getStringList('cakeShapes') ?? [];
       topings = prefs.getStringList('cakeToppings') ?? [];
       weight = prefs.getStringList('cakeWeights') ?? [];
 
@@ -1508,6 +1561,19 @@ class _CakeDetailsState extends State<CakeDetails> {
       });
     }
 
+    if(iamYourVendor == true){
+
+      setState(() {
+        vendorID = '$myVendorId';
+        vendorName = '$myVendorName';
+        vendorMobileNum = '$vendorPhone';
+        vendorAddress = '$vendorAddress';
+
+        print(vendorAddress);
+      });
+
+    }
+
       //Common keyword ***' order '****
 
       //Cake...
@@ -1518,7 +1584,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       prefs.setString('orderCakeImages', cakeImages[0].toString());
       prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
       prefs.setString('orderCakePrice',cakePrice);
-      prefs.setString('orderCakeFlavour',fixflavour);
+      prefs.setString('orderCakeFlavour',fixflavour.split("-").first.toString());
       prefs.setString('orderCakeShape',fixshape);
       prefs.setString('orderCakeWeight',fixweight);
 
@@ -2095,20 +2161,21 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             ? Text(
                                           flavour.isEmpty
                                               ? 'None'
-                                              : '${flavour[0]}',
+                                              : '${flavour[0].toString().split("-").first.toString()}',
                                           style: TextStyle(
                                               fontFamily: "Poppins",
                                               color: darkBlue,
-                                              fontSize: 15,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w600),
                                         )
                                             : Text(
-                                          '$fixedFlavour',
+                                          '${fixedFlavour.toString().split('-').first.toString()}',
                                           style: TextStyle(
                                               color: darkBlue,
-                                              fontSize: 15,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              fontFamily: "Poppins"),
+                                              fontFamily: "Poppins"
+                                          ),
                                         )
                                       ],
                                     ),
@@ -2139,7 +2206,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               : '${shapes[0]}',
                                           style: TextStyle(
                                               color: darkBlue,
-                                              fontSize: 14,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w600,
                                               fontFamily: "Poppins"),
                                         )
@@ -2147,14 +2214,14 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           '$fixedShape',
                                           style: TextStyle(
                                               color: darkBlue,
-                                              fontSize: 14,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              fontFamily: "Poppins"),
+                                              fontFamily: "Poppins"
+                                          ),
                                         )
                                       ],
                                     ),
                                     Expanded(child: Container()),
-                                    SizedBox(width: 2,),
                                   ],
                                 ),
                           ),
@@ -2442,7 +2509,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: Text(
                                   ' Articles',
                                   style: TextStyle(
-                                      fontFamily: poppins, color: darkBlue),
+                                      fontFamily: "Poppins",
+                                      color: darkBlue
+                                  ),
                                 ),
                               ),
 
@@ -2456,6 +2525,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         onTap:(){
                                           setState(() {
                                             articGroupVal = index;
+                                            fixedArticle = articals[index].toString();
+                                            articleExtraCharge = int.parse(articalsPrice[index]);
                                           });
                                         },
                                         child: Row(
@@ -2465,17 +2536,19 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 groupValue: articGroupVal,
                                                 onChanged: (int? val){
                                                   setState(() {
+                                                    fixedArticle = articals[index].toString();
+                                                    articleExtraCharge = int.parse(articalsPrice[index]);
                                                     articGroupVal = val!;
                                                   });
                                                 }
                                             ),
 
                                             Text('${articals[index]} - ',style: TextStyle(
-                                                fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                                fontFamily: "Poppins", color:Colors.black54 , fontSize: 13
                                             ),),
 
-                                            Text('${articalsPrice[index]}',style: TextStyle(
-                                                fontFamily: poppins, color:darkBlue , fontSize: 13
+                                            Text('Rs.${articalsPrice[index]}',style: TextStyle(
+                                                fontFamily: "Poppins", color:darkBlue , fontSize: 13
                                             ),),
                                           ]
                                         ),
@@ -2489,7 +2562,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: Text(
                                   ' Special request to bakers',
                                   style: TextStyle(
-                                      fontFamily: poppins, color: darkBlue),
+                                      fontFamily: "Poppins", color: darkBlue),
                                 ),
                               ),
                               Container(
@@ -2526,7 +2599,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     'Delivery Session',
                                     style: TextStyle(
                                         color:darkBlue,
-                                        fontFamily: "Poppins"),
+                                        fontFamily: "Poppins"
+                                    ),
                                   )
                                 ],
                               ),
@@ -2736,6 +2810,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   setState(() {
                                     for (int i = 0; i < picOrDel.length; i++) {
                                       if (i == index) {
+                                        fixedDelliverMethod = picOrDeliver[i];
                                         picOrDel[i] = true;
                                       } else {
                                         picOrDel[i] = false;
@@ -2753,11 +2828,13 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             setState(() {
                                               for (int i = 0; i < picOrDel.length; i++) {
                                                 if (i == index) {
+                                                  fixedDelliverMethod = picOrDeliver[i];
                                                   picOrDel[i] = true;
                                                 } else {
                                                   picOrDel[i] = false;
                                                 }
                                               }
+
                                             });
                                           }
                                       ),
@@ -2876,22 +2953,14 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                                             String adrss = '1/4 vellandipalayam , Avinashi';
 
-                                            if(adrss.toLowerCase().contains('1/5')){
-                                              print('yes surya');
-                                            }else{
-                                              print('Nope surya');
-                                            }
-
-                                            for(int i=0;i<nearestVendors.length;i++){
-                                              if(i==index){
                                                 setState((){
+                                                  selVendorIndex = index;
                                                   adrss =
                                                   nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
                                                   nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
                                                   nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
                                                   nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
 
-                                                  selVendorIndex = index;
 
                                                   vendorID = nearestVendors[selVendorIndex]['_id'].toString();
                                                   vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
@@ -2903,12 +2972,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 print('$vendorID \n $vendorName \n '
                                                     '$vendorMobileNum \n $vendorAddress');
 
-                                              }else{
-                                                setState((){
-                                                  selVendorIndex = 0;
-                                                });
-                                              }
-                                            }
+                                            print('index :$index / venIndex : $selVendorIndex');
 
                                           },
                                           child: Container(
@@ -3153,29 +3217,50 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                                     if(newRegUser==true){
                                       showDpUpdtaeDialog();
-                                    }else{
-
-                                      if(fixedWeight.isEmpty&&deliverDate=="00-00-0000"){
+                                    }
+                                    else{
+                                      if(fixedWeight.isEmpty&&deliverDate=="00-00-0000"&&fixedDelliverMethod.isEmpty){
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select cake weight and delivery date!'),)
+                                            SnackBar(
+                                              content: Text('Please select cake weight ,delivery date ,Pickup or delivery!'),
+                                              behavior: SnackBarBehavior.floating,
+                                            )
                                         );
                                       }else if(fixedWeight.isEmpty){
                                         print('Please select fixedWeight.');
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Please select cake weight!'),)
+                                          SnackBar(content: Text('Please select cake weight!'),
+                                            behavior: SnackBarBehavior.floating,)
                                         );
                                       }else if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
                                         print('Please select deliverDate.');
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select delivery date'),)
+                                            SnackBar(content: Text('Please select delivery date'),
+                                              behavior: SnackBarBehavior.floating,)
+                                        );
+                                      }else if(fixedDelliverMethod.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please select deliver type'),
+                                              behavior: SnackBarBehavior.floating,
+                                            )
                                         );
                                       }
 
                                       //If ok go to Confirm sheet
-                                      if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"&&deliverSession.isNotEmpty){
+                                      if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"
+                                          &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty){
                                         showOrderConfirmSheet();
                                       }
                                     }
+
+                                    // Navigator.push(context, MaterialPageRoute(
+                                    //   builder: (context)=>CheckOut()
+                                    // ));
+
+
+                                    print(fixedFlavour.replaceAll(new RegExp(r'[^0-9]'),''));
+                                    // print(fixedArticle);
+
 
                                   },
                                   color: lightPink,
