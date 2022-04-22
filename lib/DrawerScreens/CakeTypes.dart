@@ -552,7 +552,10 @@ class _CakeTypesState extends State<CakeTypes> {
                               Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
                                   fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                               GestureDetector(
-                                onTap: ()=>Navigator.pop(context),
+                                onTap: () =>
+                                  setState(() {
+                                   clearTheSearch();
+                                  }),
                                 child: Container(
                                     width: 35,
                                     height: 35,
@@ -598,6 +601,15 @@ class _CakeTypesState extends State<CakeTypes> {
                           Container(
                             height: 45,
                             child: TextField(
+                              onChanged: (String text){
+                                // searchCakeCate = cakeCategoryCtrl.text;
+                                // searchCakeSubType = cakeSubCategoryCtrl.text;
+                                // searchCakeVendor = cakeVendorCtrl.text;
+                                // searchCakeLocation = cakeLocationCtrl.text;
+                                setState((){
+                                  searchCakeSubType = text;
+                                });
+                              },
                               controller: cakeSubCategoryCtrl,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(5),
@@ -614,6 +626,15 @@ class _CakeTypesState extends State<CakeTypes> {
                           Container(
                             height: 45,
                             child: TextField(
+                              onChanged: (String text){
+                                // searchCakeCate = cakeCategoryCtrl.text;
+                                // searchCakeSubType = cakeSubCategoryCtrl.text;
+                                // searchCakeVendor = cakeVendorCtrl.text;
+                                // searchCakeLocation = cakeLocationCtrl.text;
+                                setState((){
+                                  searchCakeVendor = text;
+                                });
+                              },
                               controller: cakeVendorCtrl,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(5),
@@ -635,6 +656,15 @@ class _CakeTypesState extends State<CakeTypes> {
                           Container(
                             height: 45,
                             child: TextField(
+                              onChanged: (String text){
+                                // searchCakeCate = cakeCategoryCtrl.text;
+                                // searchCakeSubType = cakeSubCategoryCtrl.text;
+                                // searchCakeVendor = cakeVendorCtrl.text;
+                                // searchCakeLocation = cakeLocationCtrl.text;
+                                setState((){
+                                  searchCakeLocation = text;
+                                });
+                              },
                               controller: cakeLocationCtrl,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(5),
@@ -810,7 +840,10 @@ class _CakeTypesState extends State<CakeTypes> {
                         Text('SHAPES',style: TextStyle(color: darkBlue,fontSize: 18,
                             fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                         GestureDetector(
-                          onTap: ()=>Navigator.pop(context),
+                          onTap: (){
+                            Navigator.pop(context);
+
+                          },
                           child: Container(
                               width: 35,
                               height: 35,
@@ -1647,16 +1680,58 @@ class _CakeTypesState extends State<CakeTypes> {
   void applySearchFiltersSettings(String categ , String subCate , String venName , String location){
 
     print(categ);
+    print(subCate);
+    print(venName);
+    print(location);
+
+    List mainList = [];
+
+    List a = [], b = [], c= [], d = [];
 
     Navigator.pop(context);
+    if(categ.isEmpty&&subCate.isEmpty&&venName.isEmpty&&location.isEmpty){
+      setState(() {
+        searchModeis = false;
+      });
+    }else{
 
-    setState(() {
+      setState(() {
 
-      searchModeis = true;
+        searchModeis = true;
 
-      filteredListByUser = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-          .contains(categ.toLowerCase())).toList();
-    });
+        mainList = eggOrEgglesList.toList();
+
+        if(categ.isNotEmpty){
+          a = mainList.where((element) => element['TypeOfCake'].toString().toLowerCase().contains(
+              categ.toLowerCase()
+          )).toList();
+        }
+
+        if(subCate.isNotEmpty){
+          b = mainList.where((element) => element['Title'].toString().toLowerCase().contains(
+              subCate.toLowerCase()
+          )).toList();
+        }
+
+        if(venName.isNotEmpty){
+          c = mainList.where((element) => element['VendorName'].toString().toLowerCase().contains(
+              venName.toLowerCase()
+          )).toList();
+        }
+
+
+        print(a.length);
+        print(b.length);
+        print(c.length);
+
+        filteredListByUser = a + b + c + d;
+        filteredListByUser = filteredListByUser.toSet().toList();
+        filteredListByUser = filteredListByUser.reversed.toList();
+
+
+      });
+
+    }
 
   }
 
@@ -1675,6 +1750,17 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
+  //clear the search
+  void clearTheSearch(){
+    setState(() {
+      searchModeis = false;
+      searchCakeCate = '';
+      searchCakeSubType = '';
+      searchCakeVendor = '';
+      searchCakeLocation = '';
+      Navigator.pop(context);
+    });
+  }
 
   //endregion
 

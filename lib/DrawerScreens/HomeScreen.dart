@@ -723,6 +723,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           isNetworkError = false;
           recentOrders = jsonDecode(response.body);
+          recentOrders = recentOrders.reversed.toList();
         });
       }
       else{
@@ -1170,7 +1171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 width: 150,
                                                                 child: Text('${recentOrders[index]['Title']}',style: TextStyle(color: darkBlue
                                                                     ,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                                ),),
+                                                                ),maxLines: 1,overflow: TextOverflow.ellipsis,),
                                                               )
                                                           ),
                                                           Row(

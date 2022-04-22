@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -101,6 +101,75 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
+  void showOrderCompleteSheet(){
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(20),
+          topLeft: Radius.circular(20),
+        )
+      ),
+        context: context,
+        builder: (context){
+          return Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 15,),
+                Container(
+                  height: 150,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/chefdoll.jpg'),
+                      fit: BoxFit.cover
+                    )
+                  ),
+                ),
+                SizedBox(height: 15,),
+                Text('THANK YOU' , style:TextStyle(
+                  color: Colors.deepPurple , fontFamily: "Poppins",
+                  fontSize: 23 , fontWeight: FontWeight.bold
+                )),Text('for your order' , style:TextStyle(
+                    color: Colors.deepPurple , fontFamily: "Poppins",
+                    fontSize: 13 , fontWeight: FontWeight.bold
+                )),
+                SizedBox(height: 15,),
+                Center(
+                  child: Text('Your order is now being processed.'
+                      '\nWe will let you know once the order is picked \nfrom the outlet.' , style:TextStyle(
+                      color: Colors.grey , fontFamily: "Poppins",
+                      fontSize: 13 , fontWeight: FontWeight.bold
+                  ) , textAlign: TextAlign.center,),
+                ),
+                SizedBox(height: 20,),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DrawerHome()
+                        ),
+                        ModalRoute.withName('/DrawerHome')
+                    );
+                  },
+                  child: Center(
+                    child: Text('BACK TO HOME' , style:TextStyle(
+                    color: lightPink , fontFamily: "Poppins",
+                    fontSize: 13 , fontWeight: FontWeight.bold , decoration:TextDecoration.underline
+                    ), textAlign: TextAlign.center,)
+                  ),
+                ),
+                
+              ],
+            ),
+          );
+        }
+    );
+  }
+
   
   //confirm order
   Future<void> confirmOrder() async{
@@ -159,6 +228,7 @@ class _CheckOutState extends State<CheckOut> {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       Navigator.pop(context);
+      showOrderCompleteSheet();
     }
     else {
       print(response.reasonPhrase);

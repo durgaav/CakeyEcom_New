@@ -816,15 +816,13 @@ class _CakeDetailsState extends State<CakeDetails> {
       setState(() {
         if(flavour.isNotEmpty){
           setState(() {
-            fixflavour = flavour[0].toString();
-            fixflavour = fixedFlavour;
+            fixflavour = fixedFlavour.split("-").first.toString();
             flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
             additionals = flavExtraCharge;
           });
         }else{
-          fixflavour = 'None';
           setState(() {
-            fixflavour = fixedFlavour;
+            fixflavour = fixedFlavour.split("-").first.toString();
             flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
             additionals = flavExtraCharge;
           });
@@ -1000,7 +998,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       Text('Flavour',style: TextStyle(
                                         color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
                                       ),),
-                                      Text('${fixflavour.split("-").first.toString()}',style: TextStyle(
+                                      Text('${fixflavour}',style: TextStyle(
                                         color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
                                       ),),
                                       SizedBox(height: 5,),
@@ -1572,6 +1570,22 @@ class _CakeDetailsState extends State<CakeDetails> {
         print(vendorAddress);
       });
 
+    }else{
+      setState(() {
+
+        var adrss =
+            nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
+                nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
+                nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
+                nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
+
+
+        vendorID = nearestVendors[selVendorIndex]['_id'].toString();
+        vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
+        vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
+        vendorAddress = adrss;
+
+      });
     }
 
       //Common keyword ***' order '****
