@@ -634,7 +634,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var prefs = await SharedPreferences.getInstance();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     print(placemarks);
-    Placemark place = placemarks[1];
+    Placemark place = placemarks[0];
     // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
 
     setState(()  {

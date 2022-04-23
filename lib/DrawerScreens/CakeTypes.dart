@@ -1728,7 +1728,6 @@ class _CakeTypesState extends State<CakeTypes> {
         filteredListByUser = filteredListByUser.toSet().toList();
         filteredListByUser = filteredListByUser.reversed.toList();
 
-
       });
 
     }
