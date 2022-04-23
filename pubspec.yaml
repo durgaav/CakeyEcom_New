@@ -47,6 +47,7 @@ dependencies:
   expandable_text: 2.2.0
   file_picker: ^3.0.0
   mime:
+  location: ^4.2.0
   geolocator: ^8.2.0
   geocoding: ^2.0.4
   shimmer: ^2.0.0

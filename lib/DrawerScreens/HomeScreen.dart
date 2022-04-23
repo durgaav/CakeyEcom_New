@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
@@ -528,10 +529,6 @@ class _HomeScreenState extends State<HomeScreen> {
       newRegUser = prefs.getBool("newRegUser")??false;
     });
     timerTrigger();
-    Position position = await _getGeoLocationPosition();
-    location ='Lat: ${position.latitude} , Long: ${position.longitude}';
-    GetAddressFromLatLong(position);
-
   }
 
   //update profile timer dialog for new users
@@ -625,7 +622,17 @@ class _HomeScreenState extends State<HomeScreen> {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+  }
+
+  //Calculate the distance
+  double calculateDistance(lat1, lon1, lat2, lon2){
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 +
+        c(lat1 * p) * c(lat2 * p) *
+            (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a));
   }
 
   //getting users accurate location address...
@@ -633,16 +640,23 @@ class _HomeScreenState extends State<HomeScreen> {
     
     var prefs = await SharedPreferences.getInstance();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    print(placemarks);
+
+    List<Location> latLong = await locationFromAddress("gandhipuram , coimbatore");
+
+    print('Location Address : \n $latLong');
+
+    //print(placemarks);
     Placemark place = placemarks[0];
     // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
-
     setState(()  {
       userLocalityAdr = '${place.subLocality}';
       userMainLocation = '${place.locality}';
       prefs.setString("userCurrentLocation",place.subLocality.toString());
       prefs.setString("userMainLocation",place.locality.toString());
     });
+
+    print("Distance : "+calculateDistance(11.0175845, 76.9674075, position.latitude, position.longitude).toString());
+
   }
 
   //Fetching cake list API...
@@ -779,9 +793,16 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero ,() async{
+
+      Position position = await _getGeoLocationPosition();
+      location ='Lat: ${position.latitude} , Long: ${position.longitude}';
+      GetAddressFromLatLong(position);
+
       loadPrefs();
       fetchProfileByPhn();
       getVendorsList();
+
+
     });
   }
 
