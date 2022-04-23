@@ -12,6 +12,7 @@ import '../screens/Profile.dart';
 import 'package:http/http.dart' as http;
 
 import 'CakeTypes.dart';
+import 'Notifications.dart';
 
 class VendorsList extends StatefulWidget {
   const VendorsList({Key? key}) : super(key: key);
@@ -147,6 +148,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
     pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
     pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
+    pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
     pref.setString('myVendorAddress',address??'null');
     pref.setBool('iamYourVendor', true);
 
@@ -236,6 +238,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorPhone', locationBySearch[index]['PhoneNumber']??'0000000000');
     pref.setString('singleVendorDpImage', locationBySearch[index]['ProfileImage']??'null');
     pref.setString('singleVendorDelivery', locationBySearch[index]['DeliveryCharge']??'null');
+    pref.setString('singleVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
     pref.setString('singleVendorAddress', address??'null');
 
     Navigator.of(context).push(
@@ -293,6 +296,8 @@ class _VendorsListState extends State<VendorsList> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
+
     return Scaffold(
       appBar: AppBar(
         leading:Container(
@@ -325,7 +330,28 @@ class _VendorsListState extends State<VendorsList> {
             alignment: Alignment.center,
             children: [
               InkWell(
-                onTap: () => print("hii"),
+                onTap: (){
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
                 child: Container(
                   padding: EdgeInsets.all(3),
                   decoration: BoxDecoration(
@@ -617,13 +643,22 @@ class _VendorsListState extends State<VendorsList> {
                                                   Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text('Includes eggless',style: TextStyle(
+                                                      nearestVendors[index]['EggOrEggless'].toString()=='Both'?
+                                                      Text('Egg and Eggless',style: TextStyle(
+                                                          color: darkBlue,
+                                                          fontSize: 10,
+                                                          fontFamily: "Poppins"
+                                                      ),):
+                                                      Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
                                                           color: darkBlue,
                                                           fontSize: 10,
                                                           fontFamily: "Poppins"
                                                       ),),
                                                       SizedBox(height: 8,),
-                                                      Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
+                                                      Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
+                                                          nearestVendors[index]['DeliveryCharge'].toString()=='0'||
+                                                          nearestVendors[index]['DeliveryCharge'].toString()==null
+                                                          ?
                                                       'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
                                                           color: Colors.orange,
                                                           fontSize: 10 ,

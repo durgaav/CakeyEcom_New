@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
 import 'package:http/http.dart' as http;
+import '../DrawerScreens/Notifications.dart';
 import 'Profile.dart';
 
 class SingleVendor extends StatefulWidget {
@@ -36,6 +37,7 @@ class _SingleVendorState extends State<SingleVendor> {
   String vendorLocalAddres = '';
   String deliverCharge = '';
   String profileImage = '';
+  String vendorEggOrEggless = '';
 
 
   bool ordersNull = false;
@@ -102,6 +104,7 @@ class _SingleVendorState extends State<SingleVendor> {
       deliverCharge = pref.getString('singleVendorDelivery')??'';
       profileImage = pref.getString('singleVendorDpImage')??'';
       vendorLocalAddres = pref.getString('singleVendorAddress')??'';
+      vendorEggOrEggless = pref.getString('singleVendorEggs')??'';
 
       getOrdersByVendorId();
     });
@@ -152,6 +155,7 @@ class _SingleVendorState extends State<SingleVendor> {
     pref.setString('myVendorProfile', profileImage);
     pref.setString('myVendorDeliverChrg', deliverCharge);
     pref.setString('myVendorAddress', deliverCharge);
+    pref.setString('myVendorEggs', vendorEggOrEggless);
     pref.setBool('iamYourVendor', true);
 
     Navigator.of(context).push(
@@ -225,7 +229,28 @@ class _SingleVendorState extends State<SingleVendor> {
             alignment: Alignment.center,
             children: [
               InkWell(
-                onTap: () => print("hii"),
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
                 child: Container(
                   padding: EdgeInsets.all(3),
                   decoration: BoxDecoration(

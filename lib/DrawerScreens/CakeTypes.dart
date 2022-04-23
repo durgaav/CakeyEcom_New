@@ -14,6 +14,7 @@ import '../ContextData.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 import '../screens/Profile.dart';
+import 'Notifications.dart';
 
 class CakeTypes extends StatefulWidget {
   const CakeTypes({Key? key}) : super(key: key);
@@ -1893,7 +1894,28 @@ class _CakeTypesState extends State<CakeTypes> {
             alignment: Alignment.center,
             children: [
               InkWell(
-                onTap: (){},
+                onTap: (){
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
                 child: Container(
                   padding: EdgeInsets.all(3),
                   decoration: BoxDecoration(

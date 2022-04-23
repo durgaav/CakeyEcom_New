@@ -29,6 +29,11 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion flutter.compileSdkVersion
 
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false //<- add this line
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

@@ -12,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
+import '../DrawerScreens/Notifications.dart';
 import 'Profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:expandable_text/expandable_text.dart';
@@ -42,6 +43,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   String myVendorDelCharge = '';
   String vendorPhone = "";
   String myVendorDesc = '';
+  String myVendorEgg = '';
   bool iamYourVendor = false;
 
   //Lists...
@@ -1470,6 +1472,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       myVendorDesc = prefs.getString('myVendorDesc')??'Un Name';
       vendorPhone = prefs.getString('myVendorPhone')??'0000000000';
       vendorAddress = prefs.getString('singleVendorAddress')??'null';
+      myVendorEgg = prefs.getString('myVendorEggs')??'null';
       iamYourVendor = prefs.getBool('iamYourVendor')??false;
 
       //Lists
@@ -1866,6 +1869,28 @@ class _CakeDetailsState extends State<CakeDetails> {
                         InkWell(
                           onTap: () {
                             print("Scrolled $innerBoxIsScrolled");
+
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.ease;
+
+                                  final tween = Tween(begin: begin, end: end);
+                                  final curvedAnimation = CurvedAnimation(
+                                    parent: animation,
+                                    curve: curve,
+                                  );
+                                  return SlideTransition(
+                                    position: tween.animate(curvedAnimation),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+
                           },
                           child: Container(
                             padding: EdgeInsets.all(3),
@@ -3088,15 +3113,26 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                     Column(
                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
-                                                        Text('Includes eggless',style: TextStyle(
+                                                        nearestVendors[index]['EggOrEggless'].toString()=='Both'?
+                                                        Text('Egg and Eggless',style: TextStyle(
                                                             color: darkBlue,
-                                                            fontSize: 13
+                                                            fontSize: 10,
+                                                            fontFamily: "Poppins"
+                                                        ),):
+                                                        Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
+                                                            color: darkBlue,
+                                                            fontSize: 10,
+                                                            fontFamily: "Poppins"
                                                         ),),
                                                         SizedBox(height: 8,),
-                                                        Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'?
+                                                        Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
+                                                            nearestVendors[index]['DeliveryCharge'].toString()=='0'||
+                                                            nearestVendors[index]['DeliveryCharge'].toString()==null
+                                                            ?
                                                         'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
                                                             color: Colors.orange,
-                                                            fontSize: 12
+                                                            fontSize: 10 ,
+                                                            fontFamily: "Poppins"
                                                         ),),
                                                       ],
                                                     ),
@@ -3187,11 +3223,17 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children:[
-                                                    Text('Includes eggless',
+                                                    myVendorEgg=='Both'?
+                                                    Text('Egg and Eggless',
                                                       style: TextStyle(
                                                         color:darkBlue,
                                                         fontFamily: "Poppins",fontSize: 12
-                                                    ),),
+                                                    ),):
+                                                    Text('$myVendorEgg',
+                                                      style: TextStyle(
+                                                          color:darkBlue,
+                                                          fontFamily: "Poppins",fontSize: 12
+                                                      ),),
                                                     myVendorDelCharge=='null'?
                                                     Text('DELIVERY FREE',
                                                           style: TextStyle(
@@ -3267,14 +3309,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       }
                                     }
 
-                                    // Navigator.push(context, MaterialPageRoute(
-                                    //   builder: (context)=>CheckOut()
-                                    // ));
-
-
+                                    
                                     print(fixedFlavour.replaceAll(new RegExp(r'[^0-9]'),''));
                                     // print(fixedArticle);
-
 
                                   },
                                   color: lightPink,

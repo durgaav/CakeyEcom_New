@@ -78,7 +78,7 @@ class _CodeVerifyState extends State<CodeVerify> {
       verificationId = verificationID;
     });
 
-    initSmsListener();
+    // initSmsListener();
 
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -113,21 +113,21 @@ class _CodeVerifyState extends State<CodeVerify> {
  //endregion
 
 
-  Future<void> initSmsListener() async {
-    String? commingSms;
-    try {
-      commingSms = await AltSmsAutofill().listenForSms;
-    } on PlatformException {
-      commingSms = 'Failed to get Sms.';
-    }
-    if (!mounted) return;
-
-    setState(() {
-      otpControl = TextEditingController(text: commingSms);
-      print(commingSms);
-    });
-
-  }
+  // Future<void> initSmsListener() async {
+  //   String? commingSms;
+  //   try {
+  //     commingSms = await AltSmsAutofill().listenForSms;
+  //   } on PlatformException {
+  //     commingSms = 'Failed to get Sms.';
+  //   }
+  //   if (!mounted) return;
+  //
+  //   setState(() {
+  //     otpControl = TextEditingController(text: commingSms);
+  //     print(commingSms);
+  //   });
+  //
+  // }
 
   @override
   void dispose() {
@@ -318,7 +318,6 @@ class _CodeVerifyState extends State<CodeVerify> {
   @override
   void initState() {
     // TODO: implement initState
-    initSmsListener();
     super.initState();
     Future.delayed(Duration.zero,() async{
       verifyPhoneCode();

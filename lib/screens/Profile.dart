@@ -13,6 +13,7 @@ import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 
+import '../DrawerScreens/Notifications.dart';
 import 'WelcomeScreen.dart';
 
 class Profile extends StatefulWidget {
@@ -888,7 +889,28 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             alignment: Alignment.center,
             children: [
               InkWell(
-                onTap: () => print("hii"),
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
                 child: Container(
                   alignment: Alignment.center,
                   height: 35,

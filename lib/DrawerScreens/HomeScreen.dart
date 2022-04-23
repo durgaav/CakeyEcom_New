@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int i = 0;
   //booleans
-  bool egglesSwitch = true;
+  bool egglesSwitch = false;
   //prefs val..
   bool newRegUser = true;
   bool profileRemainder = false;
@@ -81,6 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
   var cakeSubCategoryCtrl = new TextEditingController();
   var cakeVendorCtrl = new TextEditingController();
   var cakeLocationCtrl = new TextEditingController();
+
+  //latt and long
+  double lat = 0.0;
+  double long = 0.0;
 
 
   //endregion
@@ -484,10 +488,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Functions
 
-
   //send nearest vendor details.
   Future<void> sendNearVendorDataToScreen(int index) async{
     var pref = await SharedPreferences.getInstance();
+
+    String address = "${nearestVendors[index]['Address']['Street']} , "
+        "${nearestVendors[index]['Address']['City']} , "
+        "${nearestVendors[index]['Address']['District']} , "
+        "${nearestVendors[index]['Address']['Pincode']} , ";
 
     //common keyword single****
     pref.setString('singleVendorID', nearestVendors[index]['_id']);
@@ -496,6 +504,8 @@ class _HomeScreenState extends State<HomeScreen> {
     pref.setString('singleVendorPhone', nearestVendors[index]['PhoneNumber']??'0000000000');
     pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
     pref.setString('singleVendorDelivery', nearestVendors[index]['DeliveryCharge']??'null');
+    pref.setString('singleVendorAddress', address??'null');
+
 
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -527,8 +537,9 @@ class _HomeScreenState extends State<HomeScreen> {
       profileRemainder = prefs.getBool("profileUpdated")??false;
       phoneNumber = prefs.getString("phoneNumber")??"";
       newRegUser = prefs.getBool("newRegUser")??false;
+      timerTrigger();
+      fetchProfileByPhn();
     });
-    timerTrigger();
   }
 
   //update profile timer dialog for new users
@@ -544,15 +555,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }else{
       print("New reg user $newRegUser");
     }
-
   }
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
     showAlertDialog();
     var prefs = await SharedPreferences.getInstance();
-    // showAlertDialog();
-    //needs to imple..
     http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
         "${int.parse(phoneNumber)}"));
     if(response.statusCode==200){
@@ -574,6 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         getCakeList();
         getOrderList();
+        getVendorsList();
         Navigator.pop(context);
       });
     }else{
@@ -637,25 +646,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting users accurate location address...
   Future<void> GetAddressFromLatLong(Position position)async {
-    
+
     var prefs = await SharedPreferences.getInstance();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
-    List<Location> latLong = await locationFromAddress("gandhipuram , coimbatore");
+    List<Location> latLong = await locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
 
     print('Location Address : \n $latLong');
 
-    //print(placemarks);
+
     Placemark place = placemarks[0];
-    // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
     setState(()  {
-      userLocalityAdr = '${place.subLocality}';
+      lat = position.latitude;
+      long = position.longitude;
+
+      if(place.subLocality!=null||place.subLocality!=''){
+        userLocalityAdr = '${place.subLocality}';
+      }else{
+        userLocalityAdr = '${place.locality}';
+      }
+
       userMainLocation = '${place.locality}';
       prefs.setString("userCurrentLocation",place.subLocality.toString());
       prefs.setString("userMainLocation",place.locality.toString());
     });
 
-    print("Distance : "+calculateDistance(11.0175845, 76.9674075, position.latitude, position.longitude).toString());
+    print("Distance : "+calculateDistance(11.024932, 76.8994178, position.latitude, position.longitude).toString());
 
   }
 
@@ -754,35 +771,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Get vendors list
   Future<void> getVendorsList() async{
-    showAlertDialog();
-    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
-    if(res.statusCode==200){
+    try{
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
-      setState(() {
-        vendorsList = jsonDecode(res.body);
+      if(res.statusCode==200){
+        setState((){
+          vendorsList = jsonDecode(res.body);
 
-        nearestVendors = vendorsList.where((element){
 
-          if(element['Address']!=null){
-            return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
-          }
-          else{
-            return false;
-          }
+          nearestVendors = vendorsList.where((element){
+            if(element['Address']!=null&&element['Address']['City']!=null){
+              return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
+            }
+            else{
+              return false;
+            }
+          }).toList();
 
-        }).toList();
-        
+          nearestVendors = vendorsList.toSet().toList();
+          nearestVendors = nearestVendors.reversed.toList();
 
-        nearestVendors = nearestVendors.toSet().toList();
-        nearestVendors = nearestVendors.reversed.toList();
+        });
 
-        Navigator.pop(context);
-      });
+        //
+        //
+        // for(int i =0;i<nearestVendors.length;i++){
+        //   if(nearestVendors[i]['Address']['FullAddress'].toString().isNotEmpty){
+        //     print(await locationFromAddress(nearestVendors[i]['Address']['FullAddress']));
+        //   }
+        // }
 
-    }else{
-      Navigator.pop(context);
+      }
+      else{
+        print(res.statusCode);
+      }
+    }catch(e){
+
     }
+
   }
 
   //endregion
@@ -799,9 +826,6 @@ class _HomeScreenState extends State<HomeScreen> {
       GetAddressFromLatLong(position);
 
       loadPrefs();
-      fetchProfileByPhn();
-      getVendorsList();
-
 
     });
   }
@@ -810,6 +834,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
+    //set egg or eggless
+
+    if(egglesSwitch == false){
+      setState(() {
+         nearestVendors = vendorsList.where((element) => element['EggOrEggless']=='Egg'||
+             element['EggOrEggless']=='Both').toList();
+      });
+    }else{
+      setState(() {
+        nearestVendors = vendorsList.where((element) => element['EggOrEggless']=='Eggless').toList();
+      });
+    }
 
     return Scaffold(
       key: _scaffoldKey,
@@ -894,8 +931,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       location ='Lat: ${position.latitude} , Long: ${position.longitude}';
                       GetAddressFromLatLong(position);
                       loadPrefs();
-                      fetchProfileByPhn();
-                      getVendorsList();
                     });
                   },
                   child: SingleChildScrollView(
@@ -1461,27 +1496,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         ),
                                                         Container(
                                                           width: width*0.63,
-                                                          child: Wrap(
-                                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            runSpacing: 5.0,
-                                                            spacing: 5.0,
-                                                            runAlignment: WrapAlignment.spaceBetween,
+                                                          child:
+                                                          nearestVendors[index]['DeliveryCharge']==null||
+                                                              nearestVendors[index]['DeliveryCharge']=='0'?
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            // runSpacing: 5.0,
+                                                            // spacing: 5.0,
+                                                            // runAlignment: WrapAlignment.spaceBetween,
                                                             children: [
-                                                              nearestVendors[index]['DeliveryCharge']==null?
                                                               Text('DELIVERY FREE',style: TextStyle(
                                                                   color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                              ),):
-                                                              Text('10 km Delivery Fee Rs.${nearestVendors[index]['DeliveryCharge']}',style: TextStyle(
-                                                                  color: darkBlue,fontSize: 10,fontFamily: poppins,fontWeight: FontWeight.bold
                                                               ),),
                                                               SizedBox(
                                                                 width: 20,
                                                               ),
-                                                              Text('Includes eggless cake',style: TextStyle(
+                                                              nearestVendors[index]['EggOrEggless']=='Both'?
+                                                              Text('Egg and Eggless',style: TextStyle(
                                                                   color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                              ),overflow: TextOverflow.ellipsis,),
+                                                              ),overflow: TextOverflow.ellipsis,
+                                                              ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
+                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                              ),overflow: TextOverflow.ellipsis,)
                                                             ],
-                                                          ),
+                                                          ):
+                                                          Wrap(
+                                                            alignment: WrapAlignment.start,
+                                                            children: [
+                                                              Text('10 Km Delivery Charge Rs.${nearestVendors[index]['DeliveryCharge']}'
+                                                                ,style: TextStyle(
+                                                                  color: darkBlue,fontSize: 10,fontFamily: poppins
+                                                              ),),
+                                                              SizedBox(
+                                                                width: 40,
+                                                              ),
+                                                              nearestVendors[index]['EggOrEggless']=='Both'?
+                                                              Text('Egg and Eggless',style: TextStyle(
+                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                              ),overflow: TextOverflow.ellipsis,
+                                                              ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
+                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                              ),overflow: TextOverflow.ellipsis,)
+                                                            ],
+                                                          )
                                                         )
                                                       ],
                                                     ),
