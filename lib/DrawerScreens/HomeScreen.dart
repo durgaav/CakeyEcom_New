@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/TestScreen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +20,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../screens/Profile.dart';
 import '../screens/SingleVendor.dart';
 import 'CustomiseCake.dart';
@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String poppins = "Poppins";
   String phoneNumber = '';
   String networkMsg = "";
+  String searchText = '';
 
   //latlong
   String location ='Null, Press Button';
@@ -70,9 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
   //Lists
   List cakesList = [];
   List<String> cakeTypeImages = [];
+  List searchCakeType = [];
   List cakesTypes = [];
   List recentOrders = [];
   List vendorsList = [];
+  List searchVendors = [];
+  List filteredByEggList = [];
   List nearestVendors = [];
 
 
@@ -81,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var cakeSubCategoryCtrl = new TextEditingController();
   var cakeVendorCtrl = new TextEditingController();
   var cakeLocationCtrl = new TextEditingController();
+  var mainSearchCtrl = new TextEditingController();
 
   //latt and long
   double lat = 0.0;
@@ -689,13 +694,13 @@ class _HomeScreenState extends State<HomeScreen> {
           cakesList = cakesList.reversed.toList();
           for(int i =0 ;i<cakesList.length;i++){
             if(i==0){
-              cakesTypes.add('Customize your cake');
+              searchCakeType.add('Customize your cake');
             }else{
-              cakesTypes.add(cakesList[i]['TypeOfCake']);
+              searchCakeType.add(cakesList[i]['TypeOfCake']);
             }
           }
 
-          cakesTypes = cakesTypes.toSet().toList();
+          searchCakeType = searchCakeType.toSet().toList();
         });
       }else{
           print('Server error! try again latter');
@@ -779,28 +784,15 @@ class _HomeScreenState extends State<HomeScreen> {
         setState((){
           vendorsList = jsonDecode(res.body);
 
+          filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
+          contains(userMainLocation.toLowerCase())).toList();
 
-          nearestVendors = vendorsList.where((element){
-            if(element['Address']!=null&&element['Address']['City']!=null){
-              return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
-            }
-            else{
-              return false;
-            }
-          }).toList();
-
-          nearestVendors = vendorsList.toSet().toList();
-          nearestVendors = nearestVendors.reversed.toList();
+          filteredByEggList = filteredByEggList.toSet().toList();
+          filteredByEggList = filteredByEggList.reversed.toList();
 
         });
 
-        //
-        //
-        // for(int i =0;i<nearestVendors.length;i++){
-        //   if(nearestVendors[i]['Address']['FullAddress'].toString().isNotEmpty){
-        //     print(await locationFromAddress(nearestVendors[i]['Address']['FullAddress']));
-        //   }
-        // }
+
 
       }
       else{
@@ -835,16 +827,31 @@ class _HomeScreenState extends State<HomeScreen> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    //set egg or eggless
+    //perform search
+    if(searchText.isNotEmpty){
+      setState(() {
+        cakesTypes = searchCakeType.where((element) => element.toString().toLowerCase()
+            .contains(searchText.toLowerCase())).toList();
 
+      });
+    }else{
+      setState(() {
+        cakesTypes = searchCakeType;
+        nearestVendors = searchVendors;
+      });
+    }
+
+    //set egg or eggless
     if(egglesSwitch == false){
       setState(() {
-         nearestVendors = vendorsList.where((element) => element['EggOrEggless']=='Egg'||
+         nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Egg'||
              element['EggOrEggless']=='Both').toList();
       });
     }else{
       setState(() {
-        nearestVendors = vendorsList.where((element) => element['EggOrEggless']=='Eggless').toList();
+        nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Eggless'||
+            element['EggOrEggless']=='Both'
+        ).toList();
       });
     }
 
@@ -885,10 +892,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: width*0.79,
                             height: 50,
                             child: TextField(
+                              // onTap:()=>Navigator.push(context ,
+                              // MaterialPageRoute(builder:(context)=>TestScreen())),
+                              controller: mainSearchCtrl,
+                              onChanged: (String text){
+                                setState(() {
+                                  searchText = text;
+                                });
+                              },
                               decoration: InputDecoration(
                                 hintText: "Search cake, vendor, etc...",
                                 hintStyle: TextStyle(fontFamily: poppins,fontSize: 13),
                                 prefixIcon: Icon(Icons.search),
+                                suffixIcon: IconButton(
+                                  onPressed:(){
+                                    FocusScope.of(context).unfocus();
+                                    setState(() {
+                                      mainSearchCtrl.text = "";
+                                      searchText = "";
+                                    });
+                                  },
+                                  icon: Icon(Icons.clear_sharp),
+                                ),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8)
                                 ),
@@ -1015,6 +1040,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Column(
                                 children: [
                                   Container(
+                                    alignment: Alignment.centerLeft,
                                     padding: EdgeInsets.all(15),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1054,13 +1080,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   Container(
+                                    alignment: Alignment.centerLeft,
                                     height:175,
-                                    child: ListView.builder(
+                                    child: cakesTypes.isEmpty?
+                                      Center(
+                                        child: Text('No Results Found!',
+                                        style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          color: lightPink,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16
+                                        ),
+                                        ),
+                                      ):
+                                      ListView.builder(
                                         shrinkWrap: true,
                                         scrollDirection: Axis.horizontal,
                                         itemCount:cakesTypes.length,
                                         itemBuilder: (context , index){
-                                          return index==0?
+                                          return cakesTypes[index].contains('Customize your cake')?
                                            Container(
                                             width: 150,
                                             child: InkWell(
@@ -1290,7 +1328,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         ],
                                     )
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -1348,7 +1386,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-
                                       Row(
                                         children: [
                                           Transform.scale(
@@ -1512,7 +1549,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 width: 20,
                                                               ),
                                                               nearestVendors[index]['EggOrEggless']=='Both'?
-                                                              Text('Egg and Eggless',style: TextStyle(
+                                                              Text(egglesSwitch?'Includes egg':
+                                                                'Includes eggless',style: TextStyle(
                                                                   color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
                                                               ),overflow: TextOverflow.ellipsis,
                                                               ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
@@ -1567,3 +1605,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

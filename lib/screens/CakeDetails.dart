@@ -45,6 +45,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   String myVendorDesc = '';
   String myVendorEgg = '';
   bool iamYourVendor = false;
+  bool msgError = false;
 
   //Lists...
   List<String> cakeImages = [];
@@ -76,10 +77,10 @@ class _CakeDetailsState extends State<CakeDetails> {
   List<Widget> dots = [];
 
   //Articles
-  var articals = ["Happy Birth Day" , "Butterflies" , "Hello World"];
-  var articalsPrice = ['100' , '125','50'];
+  var articals = ["None","Happy Birth Day" , "Butterflies" , "Hello World"];
+  var articalsPrice = ['0','100' , '125','50'];
   int articGroupVal = 0;
-  String fixedArticle = '';
+  String fixedArticle = 'none';
   int articleExtraCharge = 0;
 
   //Pick Or Deliver
@@ -830,7 +831,8 @@ class _CakeDetailsState extends State<CakeDetails> {
           });
         }
       });
-    }else{
+    }
+    else{
       setState(() {
         fixflavour = fixedFlavour;
         flavExtraCharge = int.parse(fixflavour.replaceAll(new RegExp(r'[^0-9]'),''),onError: (e)=> 0) + articleExtraCharge;
@@ -846,7 +848,8 @@ class _CakeDetailsState extends State<CakeDetails> {
           fixshape = 'None';
         }
       });
-    }else{
+    }
+    else{
       setState(() {
         fixshape = fixedShape;
       });
@@ -860,7 +863,8 @@ class _CakeDetailsState extends State<CakeDetails> {
           fixweight = 'None';
         }
       });
-    }else{
+    }
+    else{
       setState(() {
         fixweight = fixedWeight;
       });
@@ -870,7 +874,8 @@ class _CakeDetailsState extends State<CakeDetails> {
       setState(() {
         fixtopings = 'None';
       });
-    }else{
+    }
+    else{
       setState(() {
         fixtopings = "${fixedToppings.length}+ Toppings";
       });
@@ -899,8 +904,11 @@ class _CakeDetailsState extends State<CakeDetails> {
 
     setState(() {
       cakesPrice = itemPrice-afterdiscount.toInt();
+      totalAmt = additionals +  cakesPrice + deliverCharge;
+      tax = (totalAmt * taxes/100).toInt();
       totalAmt = additionals +  cakesPrice + deliverCharge + tax;
-      print('Bill total : $totalAmt');
+      print('Bill total : $cakesPrice');
+      print('Tax total : $tax');
     });
 
 
@@ -1000,7 +1008,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       Text('Flavour',style: TextStyle(
                                         color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
                                       ),),
-                                      Text('${fixflavour}',style: TextStyle(
+                                      Text(fixedFlavour.isNotEmpty?
+                                      '${fixedFlavour.split('-').first.toString()}':
+                                       'Default',style: TextStyle(
                                         color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
                                       ),),
                                       SizedBox(height: 5,),
@@ -1015,21 +1025,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
                                       ),),
                                       Text('$fixshape',style: TextStyle(
-                                        color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
-                                      ),),
-                                      SizedBox(height: 5,),
-                                      Container(
-                                        color: Colors.grey,
-                                        height: 0.5,
-                                        width: double.infinity,
-                                      ),
-
-                                      SizedBox(height: 10,),
-
-                                      Text('Toppings',style: TextStyle(
-                                        color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
-                                      ),),
-                                      Text('$fixtopings',style: TextStyle(
                                         color: darkBlue , fontFamily :"Poppins" , fontSize: 15,
                                       ),),
                                       SizedBox(height: 5,),
@@ -1105,6 +1100,22 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
                                       ),),
                                     ),
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Icon(Icons.directions_bike_outlined , color: lightPink,),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('$fixedDelliverMethod',style: TextStyle(
+                                      color: Colors.grey , fontFamily :"Poppins" , fontSize: 13,
+                                    ),),
                                   ],
                                 ),
                                 SizedBox(height: 10,),
@@ -1192,7 +1203,22 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             fontFamily: "Poppins",
                                             color: Colors.black54,
                                           ),),
-                                          Text('₹${count*int.parse(cakePrice)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                          RichText(
+                                              text: TextSpan(
+                                                text: '',
+                                                children: [
+                                                  TextSpan(text : '₹ $cakePrice',style:
+                                                  TextStyle(
+                                                      color:Colors.grey,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontWeight: FontWeight.normal,
+                                                      decoration: TextDecoration.lineThrough
+                                                  ),),
+                                                  TextSpan(text : '  ₹ $cakesPrice',style:
+                                                    TextStyle(fontWeight: FontWeight.bold,color: darkBlue),),
+                                                ]
+                                              )
+                                          )
                                         ],
                                       ),
                                     ),
@@ -1202,7 +1228,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          const Text('Additionals',style: const TextStyle(
+                                          const Text('Additional',style: const TextStyle(
                                             fontFamily: "Poppins",
                                             color: Colors.black54,
                                           ),),
@@ -1249,7 +1275,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             fontFamily: "Poppins",
                                             color: Colors.black54,
                                           ),),
-                                          Text('₹${tax}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                          Text('${taxes} %',style: const TextStyle(fontWeight: FontWeight.bold),),
                                         ],
                                       ),
                                     ),
@@ -1304,9 +1330,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   itemCount = count*int.parse(cakePrice);
                                   deliveryCharge = deliverCharge;
                                   discounts = discount;
-                                  taxes = tax;
+                                  taxes = taxes;
                                   counts = count;
-
                                 });
                                 loadOrderPreference();
                               },
@@ -1492,6 +1517,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       cakeType = prefs.getString('cakeType') ?? 'None';
       cakeDeliverCharge = prefs.getString('DeliveryCharge')??'';
       cakeDiscounts = prefs.getString('cakeDiscount')??'';
+      taxes = prefs.getInt('cakeTaxRate')??0;
 
       //user
       userPhone = prefs.getString("phoneNumber")??"";
@@ -1633,6 +1659,10 @@ class _CakeDetailsState extends State<CakeDetails> {
       prefs.setString('orderCakeDeliverAddress',userAddress);
       prefs.setString('orderCakeDeliverDate',deliverDate);
       prefs.setString('orderCakeDeliverSession',deliverSession);
+
+      prefs.setString('orderCakeDeliveryInformation',fixedDelliverMethod);
+      prefs.setString('orderCakeArticle',fixedArticle)??'none';
+
 
       //for delivery...
       prefs.setInt('orderCakeItemCount',itemCount);
@@ -2533,7 +2563,12 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: TextField(
                                   controller: messageCtrl,
                                   decoration: InputDecoration(
-                                      hintText: 'Type here..',
+                                      hintText: 'Type here.. eg: HBD Surya',
+                                      hintStyle: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 13
+                                      ),
+                                      errorText: msgError?'Please fill message':null,
                                       prefixIcon: Icon(
                                         Icons.message_outlined,
                                         color: lightPink,
@@ -2596,12 +2631,35 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   )
                               ),
 
+                              // fixedArticle.isNotEmpty?
+                              // TextButton(
+                              //   onPressed:(){
+                              //     setState(() {
+                              //       if(fixedArticle.isNotEmpty){
+                              //         fixedArticle = "";
+                              //         articGroupVal = 0;
+                              //       }
+                              //     });
+                              //   },
+                              //   child: Row(
+                              //       mainAxisSize: MainAxisSize.min,
+                              //       children: [
+                              //         Icon(Icons.close,size: 18,),
+                              //         Text(' remove article' , style: TextStyle(
+                              //             fontFamily: "Poppins"
+                              //         ),)
+                              //       ],
+                              //   ),
+                              // ):
+                              // Container(),
+
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
                                   ' Special request to bakers',
                                   style: TextStyle(
-                                      fontFamily: "Poppins", color: darkBlue),
+                                      fontFamily: "Poppins", color: darkBlue
+                                  ),
                                 ),
                               ),
                               Container(
@@ -3300,17 +3358,32 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               behavior: SnackBarBehavior.floating,
                                             )
                                         );
+                                      }else if(messageCtrl.text.isEmpty){
+                                        setState(() {
+                                          msgError = true;
+                                        });
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please type cake message'),
+                                              behavior: SnackBarBehavior.floating,
+                                            )
+                                        );
                                       }
 
                                       //If ok go to Confirm sheet
                                       if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"
-                                          &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty){
+                                          &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty&&
+                                          messageCtrl.text.isNotEmpty
+                                      ){
+                                        setState(() {
+                                          FocusScope.of(context).unfocus();
+                                          msgError = false;
+                                        });
                                         showOrderConfirmSheet();
                                       }
                                     }
 
                                     
-                                    print(fixedFlavour.replaceAll(new RegExp(r'[^0-9]'),''));
+                                    print(fixedArticle);
                                     // print(fixedArticle);
 
                                   },

@@ -42,6 +42,8 @@ class _CheckOutState extends State<CheckOut> {
   String deliverSession = '';
   String cakeMessage = '';
   String cakeSplReq = '';
+  String cakeArticle = '';
+  String deliverType = '';
 
   List<String> toppings = [];
 
@@ -219,7 +221,10 @@ class _CheckOutState extends State<CheckOut> {
       "Total": "$bilTotal",
       "DeliveryCharge": "$deliveryCharge",
       "PaymentType": "$paymentType",
-      "PaymentStatus": "$payStatus"
+      "PaymentStatus": "$payStatus",
+      "DeliveryInformation": "$deliverType",
+      "Articles": "$cakeArticle",
+      "Tax": "$taxes",
     });
     request.headers.addAll(headers);
 
@@ -264,6 +269,8 @@ class _CheckOutState extends State<CheckOut> {
       
       cakeMessage = prefs.getString('orderCakeMessage')!;
       cakeSplReq = prefs.getString('orderCakeRequest')!;
+      deliverType = prefs.getString('orderCakeDeliveryInformation')!;
+      cakeArticle = prefs.getString('orderCakeArticle')!;
 
       counts = prefs.getInt('orderCakeCounts')!;
 
@@ -599,7 +606,7 @@ class _CheckOutState extends State<CheckOut> {
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
-                            Text('₹${discount}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text('${discount} %',style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -613,7 +620,7 @@ class _CheckOutState extends State<CheckOut> {
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
-                             Text('₹${taxes}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                             Text('${taxes} %',style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),

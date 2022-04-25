@@ -609,7 +609,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       ),
                                       const SizedBox(height: 3,),
                                       Container(
-                                        width: 200,
+                                        width: MediaQuery.of(context).size.width*0.58,
                                         child: Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -877,6 +877,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     print(context.watch<ContextData>().getProfileUrl());
+    print(MediaQuery.of(context).size.width*0.58);
     checkInternet();
     return Scaffold(
       resizeToAvoidBottomInset: true,

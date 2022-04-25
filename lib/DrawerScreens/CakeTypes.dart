@@ -240,7 +240,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ExpansionTile(
                                     title: Text('Flavours',style: TextStyle(fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold),),
-                                    subtitle: Text('Available Flavours',style: TextStyle(fontFamily: "Poppins",),),
+                                    subtitle: Text(fixedFilterFlav.isNotEmpty?'${fixedFilterFlav[0]}':'Default',style: TextStyle(fontFamily: "Poppins",),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[100],
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
                                     children: [
                                       ListView.builder(
                                           physics: NeverScrollableScrollPhysics(),
@@ -321,7 +331,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ExpansionTile(
                                     title: Text('Shapes',style: TextStyle(fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold),),
-                                    subtitle: Text('Available Shapes',style: TextStyle(fontFamily: "Poppins",),),
+                                    subtitle: Text(fixedFilterShapes.isNotEmpty?'${fixedFilterShapes[0]}':'Default',style: TextStyle(fontFamily: "Poppins",),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[100],
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
                                     children: [
                                       ListView.builder(
                                           physics: NeverScrollableScrollPhysics(),
@@ -396,7 +416,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ExpansionTile(
                                     title: Text('Cake Toppings',style: TextStyle(fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold),),
-                                    subtitle: Text('Available Toppings',style: TextStyle(fontFamily: "Poppins",),),
+                                    subtitle: Text(fixedFilterFlav.isNotEmpty?'${fixedFilterFlav[0]}':'Default',style: TextStyle(fontFamily: "Poppins",),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[100],
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
                                     children: [
                                       ListView.builder(
                                           physics: NeverScrollableScrollPhysics(),
@@ -938,6 +968,16 @@ class _CakeTypesState extends State<CakeTypes> {
                                 title: Text('OTHERS',style: TextStyle(
                                     color: darkBlue , fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.bold
                                 ),),
+                                trailing: Container(
+                                  alignment: Alignment.center,
+                                  height: 25,
+                                  width: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red[100],
+                                    shape: BoxShape.circle ,
+                                  ),
+                                  child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                ),
                                 children: [
                                   ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
@@ -1293,6 +1333,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeDescription', cakeSearchList[index]['Description'].toString());
     prefs.setString('cakeType', cakeSearchList[index]['TypeOfCake'].toString());
     prefs.setString('cakeDelCharge', cakeSearchList[index]['DeliveryCharge'].toString());
+    prefs.setInt('cakeTaxRate', cakeSearchList[index]['Tax'].toInt());
 
 
 
@@ -1425,10 +1466,14 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakePrice', filterCakesSearchList[index]['Price'].toString());
     prefs.setString('cakeDescription', filterCakesSearchList[index]['Description'].toString());
     prefs.setString('cakeType', filterCakesSearchList[index]['TypeOfCake'].toString());
+    prefs.setString('cakeDelCharge', filterCakesSearchList[index]['DeliveryCharge'].toString());
+    prefs.setString('cakeTaxRate', filterCakesSearchList[index]['Tax'].toString());
+
+
+
     prefs.setString('vendorID', filterCakesSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', filterCakesSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
-    // prefs.setString('vendorAddress', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
 
 
 
@@ -2473,8 +2518,8 @@ class _CakeTypesState extends State<CakeTypes> {
                             },
                             child: Container(
                               padding: EdgeInsets.only(
-                                  left: 20, right: 20, top: 6, bottom: 6),
-                              margin: EdgeInsets.all(10),
+                                  left: 15, right: 15, top: 6, bottom: 6),
+                              margin: EdgeInsets.only(top:10 , bottom :10 , left:5,right:5),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
