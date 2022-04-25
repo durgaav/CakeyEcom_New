@@ -41,6 +41,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
    List<bool> isExpands = [];
    List recentOrders = [];
    bool notifiOnOrOf = true;
+   bool isLoading = true;
 
    //Phone number
    String phoneNumber = "";
@@ -251,6 +252,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   //getting order list...
   Future<void> getOrderList() async{
+
+    setState(() {
+      isLoading = true;
+    });
+
     try{
       http.Response response = await http.get(
           Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
@@ -260,17 +266,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         setState(() {
           recentOrders = jsonDecode(response.body);
           recentOrders = recentOrders.reversed.toList();
+          isLoading = false;
         });
       }
       else{
         print(response.statusCode);
         setState(() {
-
+          isLoading = false;
         });
       }
     }catch(error){
       setState(() {
-
+        isLoading = false;
       });
     }
   }
@@ -521,8 +528,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget OrdersView(){
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ListView.builder(
+        isLoading?
+        Center(child: CircularProgressIndicator(),):
+        recentOrders.length>0?ListView.builder(
               itemCount: recentOrders.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -641,7 +651,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           child: AnimatedContainer(
                             duration: const Duration(seconds: 3),
                             curve: Curves.elasticInOut,
-                            color: Colors.black12,
+                            decoration: BoxDecoration(
+                              color: Colors.black12,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)
+                              )
+                            ),
                             child: Column(
                               children: [
                                 ListTile(
@@ -782,7 +798,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      Text('₹${recentOrders[index]['Discount']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('${recentOrders[index]['Discount']} %',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -796,7 +812,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontFamily: "Poppins",
                                         color: Colors.black54,
                                       ),),
-                                      Text('₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('0 %',style: const TextStyle(fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -842,7 +858,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   );
               }
+          )
+        :Center(
+          child: Column(
+            children: [
+              Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
+              Text('No orders found!' , style: TextStyle(
+                color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
+              ),),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -987,18 +1013,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     SingleChildScrollView(
                         child: ProfileView()
                     ),
-                    SingleChildScrollView(
-                        child: recentOrders.length==0?
-                        Center(
-                          child: Padding(
-                            padding:EdgeInsets.all(8.0),
-                            child: Text('No Orders Found!' , style: TextStyle(
-                                color: darkBlue , fontFamily: "Poppins" ,
-                                fontSize: 17 , fontWeight: FontWeight.bold
-                            ),),
-                          ),
-                        ):
-                        OrdersView()
+                    Center(
+                      child: SingleChildScrollView(
+                          child: OrdersView()
+                      ),
                     ),
                   ]
               ),
