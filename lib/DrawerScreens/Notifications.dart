@@ -21,7 +21,7 @@ class _NotificationsState extends State<Notifications> {
 
   DateTime currentTime = DateTime.now();
   var result2 = '';
-  var dateTime = ["04-04-2022","03-03-2022","02-03-2022"];
+  var dateTime = ["Mar 4th 2022","Mar 2nd 2022","Mar 1st 2022"];
   int i =0 ;
 
   @override
@@ -133,7 +133,7 @@ class _NotificationsState extends State<Notifications> {
                 }
             ):
           ListView.builder(
-              itemCount: 10,
+              itemCount: 3,
               shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context , index) {
@@ -170,7 +170,7 @@ class _NotificationsState extends State<Notifications> {
                               width: 270,
                               child:
                                 // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                Text('Today',
+                                Text('${dateTime[index]}',
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -194,20 +194,21 @@ class _NotificationsState extends State<Notifications> {
 
 String simplyFormat({required DateTime time, bool dateOnly = false}) {
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
+  List months = [
+    {"month":'Jan',"number":1},
+    {"month":'Feb',"number":2},
+    {"month":'Mar',"number":3},
+    {"month":'Apr',"number":4},
+    {"month":'May',"number":5},
+    {"month":'Jun',"number":6},
+    {"month":'Jul',"number":7},
+    {"month":'Aug',"number":8},
+    {"month":'Sep',"number":9},
+    {"month":'Oct',"number":10},
+    {"month":'Nav',"number":11},
+    {"month":'Dec',"number":12},
   ];
+
 
   String year = time.year.toString();
 
@@ -231,8 +232,12 @@ String simplyFormat({required DateTime time, bool dateOnly = false}) {
     return "$day-$month-$year $hour:$minute:$second";
   }
 
+  List mon = months.where((element) => element['number']==int.parse(month)).toList();
+
+  print(mon);
+
   // If you only want year, month, and date
-  return "$day-$month-$year";
+  return "${mon[0]['month']} ${day}nd $year";
 }
 
 

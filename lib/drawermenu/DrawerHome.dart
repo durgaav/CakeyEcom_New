@@ -41,12 +41,16 @@ class _DrawerHomeState extends State<DrawerHome> {
 
   var DrawerScreens = [
     HomeScreen(),
+    CakeTypes(),
     CustomiseCake(),
+    VendorsList(),
   ];
 
   var titleText = [
     "HOME",
+    "CAKE TYPES",
     "FULLY CUSTOMIZATION",
+    "VENDORS"
   ];
 
   //region Alerts
@@ -241,6 +245,7 @@ class _DrawerHomeState extends State<DrawerHome> {
                 setState(() {
                   selectedIndex=0;
                 });
+                context.read<ContextData>().setCurrentIndex(selectedIndex);
                 Navigator.pop(context);
               },
               leading: CircleAvatar(
@@ -257,26 +262,11 @@ class _DrawerHomeState extends State<DrawerHome> {
             ),
             ListTile(
               onTap: (){
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.ease;
-
-                      final tween = Tween(begin: begin, end: end);
-                      final curvedAnimation = CurvedAnimation(
-                        parent: animation,
-                        curve: curve,
-                      );
-                      return SlideTransition(
-                        position: tween.animate(curvedAnimation),
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+                setState(() {
+                  selectedIndex=1;
+                });
+                context.read<ContextData>().setCurrentIndex(selectedIndex);
+                Navigator.pop(context);
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.pink[100],
@@ -292,26 +282,11 @@ class _DrawerHomeState extends State<DrawerHome> {
             ),
             ListTile(
               onTap: (){
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => CustomiseCake(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.ease;
-
-                      final tween = Tween(begin: begin, end: end);
-                      final curvedAnimation = CurvedAnimation(
-                        parent: animation,
-                        curve: curve,
-                      );
-                      return SlideTransition(
-                        position: tween.animate(curvedAnimation),
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+                setState(() {
+                  selectedIndex=2;
+                });
+                context.read<ContextData>().setCurrentIndex(selectedIndex);
+                Navigator.pop(context);
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.pink[100],
@@ -326,27 +301,11 @@ class _DrawerHomeState extends State<DrawerHome> {
             ),
             ListTile(
               onTap: (){
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.ease;
-
-                      final tween = Tween(begin: begin, end: end);
-                      final curvedAnimation = CurvedAnimation(
-                        parent: animation,
-                        curve: curve,
-                      );
-
-                      return SlideTransition(
-                        position: tween.animate(curvedAnimation),
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+                setState(() {
+                  selectedIndex=3;
+                });
+                context.read<ContextData>().setCurrentIndex(selectedIndex);
+                Navigator.pop(context);
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.pink[100],
@@ -465,13 +424,13 @@ class _DrawerHomeState extends State<DrawerHome> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     userName = context.watch<ContextData>().getUserName();
+    selectedIndex = context.watch<ContextData>().getCurrentIndex();
     return WillPopScope(
       onWillPop: () async{
         showExitDialog();

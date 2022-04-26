@@ -87,9 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
   var cakeLocationCtrl = new TextEditingController();
   var mainSearchCtrl = new TextEditingController();
 
-  //latt and long
+  //latt and long and maps
   double lat = 0.0;
   double long = 0.0;
+  List<Placemark> placemarks = [];
 
 
   //endregion
@@ -774,6 +775,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+  Future<void> getNearbyLoc() async{
+
+    List add = [];
+    List<List<Location>> location = [];
+    Map map = new Map();
+    for (var i =0 ; i<vendorsList.length;i++){
+      try{
+        if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['FullAddress']!=null){
+          location.add(await locationFromAddress(vendorsList[i]['Address']['FullAddress']));
+        }
+      }catch(e){
+        print(e);
+      }
+    }
+
+    print(location[0][0].latitude);
+    print(location[0][0].longitude);
+
+
+    print(location.length);
+
+  }
+
   //Get vendors list
   Future<void> getVendorsList() async{
 
@@ -783,6 +808,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if(res.statusCode==200){
         setState((){
           vendorsList = jsonDecode(res.body);
+
+          getNearbyLoc();
 
           filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
           contains(userMainLocation.toLowerCase())).toList();
@@ -1045,26 +1072,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:17,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
                                           onTap: (){
-                                            Navigator.of(context).push(
-                                              PageRouteBuilder(
-                                                pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
-                                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                  const begin = Offset(1.0, 0.0);
-                                                  const end = Offset.zero;
-                                                  const curve = Curves.ease;
-
-                                                  final tween = Tween(begin: begin, end: end);
-                                                  final curvedAnimation = CurvedAnimation(
-                                                    parent: animation,
-                                                    curve: curve,
-                                                  );
-                                                  return SlideTransition(
-                                                    position: tween.animate(curvedAnimation),
-                                                    child: child,
-                                                  );
-                                                },
-                                              ),
-                                            );
+                                            context.read<ContextData>().setCurrentIndex(1);
                                           },
                                           child: Row(
                                             children: [
@@ -1345,27 +1353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   InkWell(
                                     onTap: (){
-                                      Navigator.of(context).push(
-                                        PageRouteBuilder(
-                                          pageBuilder: (context, animation, secondaryAnimation) => VendorsList(),
-                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                            const begin = Offset(1.0, 0.0);
-                                            const end = Offset.zero;
-                                            const curve = Curves.ease;
-
-                                            final tween = Tween(begin: begin, end: end);
-                                            final curvedAnimation = CurvedAnimation(
-                                              parent: animation,
-                                              curve: curve,
-                                            );
-
-                                            return SlideTransition(
-                                              position: tween.animate(curvedAnimation),
-                                              child: child,
-                                            );
-                                          },
-                                        ),
-                                      );
+                                      context.read<ContextData>().setCurrentIndex(3);
                                     },
                                     child: Row(
                                       children: [
