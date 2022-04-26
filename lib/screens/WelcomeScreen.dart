@@ -69,12 +69,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         child:Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children:[
-                              Text('${title[index]}',style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
+                              Text('${title[index]}',style: TextStyle(fontFamily:"Poppins",fontSize: 20,fontWeight: FontWeight.bold),),
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child:
-                                Text('${desc[index]}',style: TextStyle(fontSize: 15,letterSpacing: 1,),
-                                    textAlign:TextAlign.center),
+                                Text('${desc[index]}',style: TextStyle(fontSize: 12.7,letterSpacing: 1,fontFamily: "Poppins"),
+                                    textAlign:TextAlign.center ),
                               ),
                             ]
                         ),
@@ -111,53 +111,56 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 20),
-                                    width: MediaQuery.of(context).size.width*0.6,
-                                    child: index !=2 ?Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        TextButton(onPressed: (){
-                                          Navigator.pop(context);
-                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
-                                        }, child: Text('SKIP',style: TextStyle(fontSize: 21),)),
-                                        Container(
-                                            decoration:BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: lightPink
-                                            ),
-                                            child: IconButton(onPressed: (){
-                                              setState(() {
-                                                if(index==0){
-                                                  controll.animateToPage(1, curve: Curves.ease ,duration: Duration(milliseconds: 700));
-                                                }else{
-                                                  controll.animateToPage(2, curve: Curves.ease ,duration: Duration(milliseconds: 700));
-                                                }
-                                              });
-                                            }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
-                                        ),
-                                      ],
-                                    )
-                                        :Container(
-                                      width: MediaQuery.of(context).size.width*0.2,
-                                      height: MediaQuery.of(context).size.height*0.07,
-                                      child: RaisedButton(
-                                        color:lightPink,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(35)),
-                                        onPressed: (){
-                                          Navigator.pop(context);
-                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
-                                        },
-                                        child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
-                                      ),
-                                    )
-                                ),
-                              ],
+
+                            index!=2?Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 20),
+                                      width: MediaQuery.of(context).size.width*0.6,
+                                      child:
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          TextButton(onPressed: (){
+                                            Navigator.pop(context);
+                                            Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                                          }, child: Text('SKIP',style: TextStyle(fontSize: 18, color: darkBlue,fontFamily: "Poppins"),)),
+                                          Container(
+                                              decoration:BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: lightPink
+                                              ),
+                                              child: IconButton(onPressed: (){
+                                                setState(() {
+                                                  if(index==0){
+                                                    controll.animateToPage(1, curve: Curves.ease ,duration: Duration(milliseconds: 700));
+                                                  }else{
+                                                    controll.animateToPage(2, curve: Curves.ease ,duration: Duration(milliseconds: 700));
+                                                  }
+                                                });
+                                              }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
+                                          ),
+                                        ],
+                                      )
+
+                                  ),
+                            ):
+                            Container(
+                              width: MediaQuery.of(context).size.width*0.5,
+                              height: MediaQuery.of(context).size.height*0.07,
+                              child: RaisedButton(
+                                color:lightPink,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(35)),
+                                onPressed: (){
+                                  Navigator.pop(context);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                                },
+                                child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
+                              ),
                             )
+
                           ],
                         ),
                       )

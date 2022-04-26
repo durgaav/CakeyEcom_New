@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -86,8 +89,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   List<bool> selCategory = [];
   List categories = ["Birthday" , "Wedding" , "Others" , "Anniversary" , "Farewell"];
 
-  //endregion
+  //file
+  File file = new File('');
 
+  //endregion
 
   //region Dialogs
 
@@ -353,6 +358,21 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     Navigator.pop(context);
 
+  }
+
+
+  //File piker for upload image
+  Future<void> filePicker() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null) {
+      setState(() {
+        String path = result.files.single.path.toString();
+        file = File(path);
+        print("file $file");
+      });
+    } else {
+      // User canceled the picker
+    }
   }
 
   //endregion
@@ -1200,17 +1220,25 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 color: Colors.grey,//color of dotted/dash line
                                 strokeWidth: 1, //thickness of dash/dots
                                 dashPattern: [3,2],
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 160,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.image_rounded , color: Colors.blueAccent,size: 40,),
-                                      Text('Pick Your Image',
-                                        style: TextStyle(color: darkBlue,fontSize: 16,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
+                                child: InkWell(
+                                  splashColor: Colors.red[100],
+                                  onTap:()=>filePicker(),
+                                  child: file!=null||file.path.isEmpty?Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 160,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.image_rounded , color: Colors.blueAccent,size: 40,),
+                                        Text('Pick Your Image',
+                                          style: TextStyle(color: darkBlue,fontSize: 16,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ):Container(
+                                    height: 50,
+                                    width: 50,
+                                    child: Image.file(file),
                                   ),
                                 ),
                               ),

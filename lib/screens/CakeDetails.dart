@@ -1214,7 +1214,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                       fontWeight: FontWeight.normal,
                                                       decoration: TextDecoration.lineThrough
                                                   ),),
-                                                  TextSpan(text : '  ₹ $cakesPrice',style:
+                                                  TextSpan(text : '  ₹ ${count * cakesPrice}',style:
                                                     TextStyle(fontWeight: FontWeight.bold,color: darkBlue),),
                                                 ]
                                               )
@@ -1325,9 +1325,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 // int deliveryCharge = 0;
                                 // int discounts = 0;
                                 // int taxes = 0;
-                                setState((){
+                                setState(() {
                                   totalAmount = count*totalAmt;
-                                  itemCount = count*int.parse(cakePrice);
+                                  itemCount = count*cakesPrice;
                                   deliveryCharge = deliverCharge;
                                   discounts = discount;
                                   taxes = taxes;
@@ -2631,28 +2631,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   )
                               ),
 
-                              // fixedArticle.isNotEmpty?
-                              // TextButton(
-                              //   onPressed:(){
-                              //     setState(() {
-                              //       if(fixedArticle.isNotEmpty){
-                              //         fixedArticle = "";
-                              //         articGroupVal = 0;
-                              //       }
-                              //     });
-                              //   },
-                              //   child: Row(
-                              //       mainAxisSize: MainAxisSize.min,
-                              //       children: [
-                              //         Icon(Icons.close,size: 18,),
-                              //         Text(' remove article' , style: TextStyle(
-                              //             fontFamily: "Poppins"
-                              //         ),)
-                              //       ],
-                              //   ),
-                              // ):
-                              // Container(),
-
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
@@ -2687,7 +2665,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     'Delivery Date',
                                     style: TextStyle(
                                         color: darkBlue,
-                                        fontFamily: "Poppins"),
+                                        fontFamily: "Poppins"
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 65,

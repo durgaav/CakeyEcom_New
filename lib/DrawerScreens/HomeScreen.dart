@@ -673,7 +673,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       userMainLocation = '${place.locality}';
-      prefs.setString("userCurrentLocation",place.subLocality.toString());
+      prefs.setString("userCurrentLocation",userLocalityAdr);
       prefs.setString("userMainLocation",place.locality.toString());
     });
 
@@ -849,9 +849,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }else{
       setState(() {
-        nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Eggless'||
-            element['EggOrEggless']=='Both'
-        ).toList();
+        nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Eggless').toList();
       });
     }
 
@@ -878,7 +876,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('$userLocalityAdr',style:TextStyle(fontFamily: poppins,fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('$userLocalityAdr',style:TextStyle(fontFamily: poppins,fontSize: 16,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 15),
@@ -935,7 +933,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   FocusScope.of(context).unfocus();
                                   showFilterBottom();
                                   // showDpUpdtaeDialog();
-                                  _getGeoLocationPosition();
                                 },
                                 icon: Icon(Icons.tune,color:Colors.white,)
                             ),
@@ -1045,7 +1042,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:18,color: darkBlue,fontWeight: FontWeight.bold),),
+                                        Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:17,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
                                           onTap: (){
                                             Navigator.of(context).push(
@@ -1080,6 +1077,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   Container(
+                                    padding: EdgeInsets.all(5),
                                     alignment: Alignment.centerLeft,
                                     height:175,
                                     child: cakesTypes.isEmpty?
@@ -1141,9 +1139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                   Text(
                                                     cakesTypes[index]==null?
-                                                    'No name':"${cakesTypes[index]}"
+                                                    'No name':" ${cakesTypes[index]}"
                                                     ,style:TextStyle(color: darkBlue,
-                                                      fontWeight: FontWeight.bold,fontFamily: poppins),
+                                                      fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 13),
                                                     textAlign: TextAlign.center,
                                                   )
                                                 ],
@@ -1198,7 +1196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     'No name':"${cakesTypes[index][0].toString().toUpperCase()+
                                                         cakesTypes[index].toString().substring(1).toLowerCase()}"
                                                     ,style:TextStyle(color: darkBlue,
-                                                      fontWeight: FontWeight.bold,fontFamily: poppins),
+                                                      fontWeight: FontWeight.bold,fontFamily: poppins ,fontSize: 13),
                                                     textAlign: TextAlign.center,
                                                   )
                                                 ],
@@ -1219,7 +1217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: double.infinity,
                                       alignment: Alignment.centerLeft,
                                       child: Text('Recent Ordered',style: TextStyle(
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontSize: 18,fontFamily: poppins
+                                          color: darkBlue,fontWeight: FontWeight.bold,fontSize: 17,fontFamily: poppins
                                       ),)
                                   ),
                                   Container(
@@ -1340,7 +1338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text('Vendors list',style: TextStyle(fontSize:18,
+                                      Text('Vendors list',style: TextStyle(fontSize:17,
                                           color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
                                       Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
                                     ],
@@ -1549,8 +1547,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 width: 20,
                                                               ),
                                                               nearestVendors[index]['EggOrEggless']=='Both'?
-                                                              Text(egglesSwitch?'Includes egg':
-                                                                'Includes eggless',style: TextStyle(
+                                                              Text('Includes eggless',style: TextStyle(
                                                                   color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
                                                               ),overflow: TextOverflow.ellipsis,
                                                               ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
@@ -1569,7 +1566,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 width: 40,
                                                               ),
                                                               nearestVendors[index]['EggOrEggless']=='Both'?
-                                                              Text('Egg and Eggless',style: TextStyle(
+                                                              Text('Includes eggless',style: TextStyle(
                                                                   color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
                                                               ),overflow: TextOverflow.ellipsis,
                                                               ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(

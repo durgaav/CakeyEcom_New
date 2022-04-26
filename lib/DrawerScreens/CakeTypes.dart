@@ -112,7 +112,8 @@ class _CakeTypesState extends State<CakeTypes> {
   List<bool> filterShapesCheck = [];
   List filterShapes = [];
   List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagon"];
-  List shapesOthersForFilter = ["Star" , "House"];
+  List shapesOthersForFilter = ["Star Shape" , "House Shape" , "Car Shape"];
+  List<bool> otherShapeCheck = [];
   List myShapesFilter = [];
 
   //endregion
@@ -984,22 +985,21 @@ class _CakeTypesState extends State<CakeTypes> {
                                       shrinkWrap: true,
                                       itemCount: shapesOthersForFilter.length,
                                       itemBuilder: (context , index){
-                                        filterShapesCheck.add(false);
                                         return InkWell(
                                           splashColor: Colors.red[200],
                                           onTap:(){
                                             setState((){
-                                              if(filterShapesCheck[index]==false){
-                                                filterShapesCheck[index]=true;
+                                              if(otherShapeCheck[index]==false){
+                                                otherShapeCheck[index]=true;
 
-                                                if(filterShapes.contains(shapesForFilter[index])){
+                                                if(filterShapes.contains(shapesOthersForFilter[index])){
 
                                                 }else{
-                                                  filterShapes.add(shapesForFilter[index]);
+                                                  filterShapes.add(shapesOthersForFilter[index]);
                                                 }
                                               }else{
-                                                filterShapes.remove(shapesForFilter[index]);
-                                                filterShapesCheck[index]=false;
+                                                filterShapes.remove(shapesOthersForFilter[index]);
+                                                otherShapeCheck[index]=false;
                                               }
                                             });
                                           },
@@ -1015,20 +1015,20 @@ class _CakeTypesState extends State<CakeTypes> {
                                                     shape: CircleBorder(),
                                                     activeColor: Colors.white,
                                                     fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
-                                                    value: filterShapesCheck[index],
+                                                    value: otherShapeCheck[index],
                                                     onChanged: (bool? check){
                                                       setState((){
-                                                        if(filterShapesCheck[index]==false){
-                                                          filterShapesCheck[index]=true;
+                                                        if(otherShapeCheck[index]==false){
+                                                          otherShapeCheck[index]=true;
 
-                                                          if(filterShapes.contains(shapesForFilter[index])){
+                                                          if(filterShapes.contains(shapesOthersForFilter[index])){
 
                                                           }else{
-                                                            filterShapes.add(shapesForFilter[index]);
+                                                            filterShapes.add(shapesOthersForFilter[index]);
                                                           }
                                                         }else{
-                                                          filterShapes.remove(shapesForFilter[index]);
-                                                          filterShapesCheck[index]=false;
+                                                          filterShapes.remove(shapesOthersForFilter[index]);
+                                                          otherShapeCheck[index]=false;
                                                         }
                                                       });
                                                     },
@@ -1334,8 +1334,6 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeType', cakeSearchList[index]['TypeOfCake'].toString());
     prefs.setString('cakeDelCharge', cakeSearchList[index]['DeliveryCharge'].toString());
     prefs.setInt('cakeTaxRate', cakeSearchList[index]['Tax'].toInt());
-
-
 
     prefs.setString('vendorID', cakeSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', cakeSearchList[index]['VendorName'].toString());
@@ -1654,7 +1652,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //applying shape only filter
   void applyFilterByShape(List shapes){
-
       setState(() {
         if(shapes.isEmpty){
           Navigator.pop(context);
@@ -1814,6 +1811,11 @@ class _CakeTypesState extends State<CakeTypes> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       loadPrefs();
+    });
+    setState(() {
+      for(int i = 0; i<shapesOthersForFilter.length;i++){
+        otherShapeCheck.add(false);
+      }
     });
     super.initState();
   }
