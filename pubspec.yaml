@@ -38,7 +38,7 @@ dependencies:
   flutter_svg_provider: ^1.0.3
   flutter_rating_bar: ^4.0.0
   firebase_core: ^1.10.0
-  firebase_auth: ^3.3.5
+  firebase_auth: ^3.3.11
   flutter_staggered_grid_view:
   http: #http requests
   shared_preferences:

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,8 +28,9 @@ class _CodeVerifyState extends State<CodeVerify> {
   TextEditingController otpControl = new TextEditingController();
   String length = "";
   String verificationId = "";
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   Color lightPink = Color(0xffFE8416D);
+  int token = 0 ;
 
   //region Sending code to number......
   Future<void> verifyPhoneCode() async{
@@ -40,21 +43,75 @@ class _CodeVerifyState extends State<CodeVerify> {
         codeAutoRetrievalTimeout: _onCodeTimeout,
     );
   }
+
   _onVerificationCompleted(PhoneAuthCredential authCredential) async {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Loggin Succeed!"),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        )
-    );
-    await _auth.signInWithCredential(authCredential);
+
+    if(Platform.isAndroid){
+
+      print('Auth code : ${authCredential.smsCode}');
+      
+      setState(() {
+        otpControl.text = authCredential.smsCode!;
+      });
+
+      if(authCredential.smsCode != null){
+        await _auth.signInWithCredential(authCredential).then((value){
+
+          setState(() {
+            addUsertoDb();
+          });
+
+        }).catchError((error){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              elevation: 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: EdgeInsets.all(15),
+              content: Text('${error}',textAlign: TextAlign.center,style: TextStyle(
+                  color: Colors.white,fontWeight: FontWeight.bold
+              ),),
+              backgroundColor: lightPink,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+        });
+      }
+    }
+
+    // if (authCredential.smsCode != null) {
+    //   try{
+    //     UserCredential credential =
+    //     await user!.linkWithCredential(authCredential);
+    //   }on FirebaseAuthException catch(e){
+    //     if(e.code == 'provider-already-linked'){
+    //       await _auth.signInWithCredential(authCredential);
+    //     }
+    //   }
+    //   setState(() {
+    //
+    //   });
+    // }
+
+    // authCredential = PhoneAuthProvider.credential(
+    //     verificationId: verificationId, smsCode: otpControl.text
+    // );
+    //
+    // _auth.signInWithCredential(authCredential);
+    //
+    // if(_auth!=null){
+    //   print('User logged in!');
+    // }else{
+    //   print('Waste of time');
+    // }
+
   }
 
-  _onVerificationFailed(FirebaseAuthException exception) {
-    print(exception);
-    Navigator.pop(context);
+  _onVerificationFailed(FirebaseAuthException exception) async{
+    print(" Firebase error : $exception");
+    // Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Something went wrong!"),
@@ -74,13 +131,15 @@ class _CodeVerifyState extends State<CodeVerify> {
   }
 
   _onCodeSent(String verificationID, int? forceResendingToken) async {
+    
     setState(() {
       verificationId = verificationID;
+      token = forceResendingToken!;
     });
 
-    // initSmsListener();
-
     Navigator.pop(context);
+
+    // initSmsListener();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           content: Text("Code sent to $phonenumber"),
@@ -91,7 +150,12 @@ class _CodeVerifyState extends State<CodeVerify> {
     print("code sent");
   }
 
-  _onCodeTimeout(String timeout) {
+  _onCodeTimeout(String timeout) async{
+
+    setState(() {
+      verificationId = timeout;
+    });
+
     // Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -100,80 +164,44 @@ class _CodeVerifyState extends State<CodeVerify> {
           borderRadius: BorderRadius.circular(8),
         ),
         margin: EdgeInsets.all(15),
-        content: Text('Verification time out! try to resend code',textAlign: TextAlign.center,style: TextStyle(
+        content: Text('Verification time out! '
+            'try to resend code',textAlign: TextAlign.center,style: TextStyle(
             color: Colors.white,fontWeight: FontWeight.bold
         ),),
         backgroundColor: lightPink,
         behavior: SnackBarBehavior.floating,
       ),
     );
-    print(timeout);
+    print("time out : $timeout");
     return null;
   }
+
  //endregion
 
 
-  // Future<void> initSmsListener() async {
-  //   String? commingSms;
-  //   try {
-  //     commingSms = await AltSmsAutofill().listenForSms;
-  //   } on PlatformException {
-  //     commingSms = 'Failed to get Sms.';
-  //   }
-  //   if (!mounted) return;
-  //
-  //   setState(() {
-  //     otpControl = TextEditingController(text: commingSms);
-  //     print(commingSms);
-  //   });
-  //
-  // }
-
   @override
   void dispose() {
-    AltSmsAutofill().unregisterListener();
     super.dispose();
   }
 
   //Code verify.........
-  Future<void> verify() async{
-    showAlertDialog();
-    try{
-      PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: otpControl.text.toString()
-      );
-      final signIn = await _auth.signInWithCredential(phoneAuthCredential);
-      if(signIn.user!=null){
-        setState(() {
-          addUsertoDb();
-        });
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Code Verified!"),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            elevation: 20,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            margin: EdgeInsets.all(15),
-            content: Text('Code is incorrect! try to resend',textAlign: TextAlign.center,style: TextStyle(
-                color: Colors.white,fontWeight: FontWeight.bold
-            ),),
-            backgroundColor: lightPink,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        Navigator.pop(context);
-        print('auth failed...');
-      }
-    }on FirebaseAuthException catch(e){
+  Future<void> verify(String verId , String otpCode) async{
+    print(otpControl.text);
+
+    PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+        verificationId: verId,
+        smsCode: otpCode,
+    );
+
+
+    await _auth.signInWithCredential(phoneAuthCredential).then((value){
+
+      setState(() {
+        addUsertoDb();
+      });
+
+    }).catchError((error){
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           elevation: 20,
@@ -181,16 +209,16 @@ class _CodeVerifyState extends State<CodeVerify> {
             borderRadius: BorderRadius.circular(8),
           ),
           margin: EdgeInsets.all(15),
-          content: Text('Code is incorrect!',textAlign: TextAlign.center,style: TextStyle(
+          content: Text('${error}',textAlign: TextAlign.center,style: TextStyle(
               color: Colors.white,fontWeight: FontWeight.bold
           ),),
           backgroundColor: lightPink,
           behavior: SnackBarBehavior.floating,
         ),
       );
-      Navigator.pop(context);
-      print(e);
-    }
+
+    });
+
   }
 
   //Alert Dialog....
@@ -228,7 +256,6 @@ class _CodeVerifyState extends State<CodeVerify> {
     print('add phone.....');
     var prefs = await SharedPreferences.getInstance();
     print(phonenumber);
-
     //posting the value.....
     try{
       http.Response response = await http.post(
@@ -248,10 +275,7 @@ class _CodeVerifyState extends State<CodeVerify> {
           prefs.setString("phoneNumber", phonenumber);
           prefs.setBool("newRegUser", true);
 
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+         Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -265,10 +289,7 @@ class _CodeVerifyState extends State<CodeVerify> {
           prefs.setBool("newRegUser", false);
           prefs.setString("phoneNumber", phonenumber);
 
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -346,12 +367,12 @@ class _CodeVerifyState extends State<CodeVerify> {
                     child: PinCodeTextField(
                         enablePinAutofill: true,
                         useExternalAutoFillGroup: true,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         keyboardType: TextInputType.phone,
                         appContext: context,
                         length: 6,
                         controller: otpControl,
                         onChanged:(String? changed){
+
                         },
                         pinTheme: PinTheme(
                           inactiveColor: Colors.black54,
@@ -400,7 +421,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                           ),
                         );
                       }else{
-                        verify();
+                        verify(verificationId , otpControl.text);
                       }
                     },
                       child:Text("DONE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),

@@ -113,7 +113,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                      builder: (context) => WelcomeScreen()
+                          builder: (context) => WelcomeScreen()
                       ),
                       ModalRoute.withName('/WelcomeScreen')
                   );

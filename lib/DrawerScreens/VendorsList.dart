@@ -458,7 +458,7 @@ class _VendorsListState extends State<VendorsList> {
                   Container(
                     padding: EdgeInsets.only(left: 8),
                     alignment: Alignment.centerLeft,
-                    child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                    child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 16,color: darkBlue,fontWeight: FontWeight.bold),),
                   ),
                 ],
               ),

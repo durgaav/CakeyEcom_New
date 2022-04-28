@@ -721,8 +721,14 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                           setState(()  {
                             streetNameCtrl = new TextEditingController(text: place.street);
-                            cityNameCtrl = new TextEditingController(text: place.subLocality);
-                            districtNameCtrl = new TextEditingController(text: place.locality);
+
+                            if(place.subLocality.toString().isEmpty){
+                              cityNameCtrl = new TextEditingController(text: place.locality);
+                            }else{
+                              cityNameCtrl = new TextEditingController(text: place.subLocality);
+                            }
+
+                            districtNameCtrl = new TextEditingController(text: place.subAdministrativeArea);
                             pinCodeCtrl = new TextEditingController(text: place.postalCode);
                           });
 

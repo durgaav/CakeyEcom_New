@@ -1,5 +1,6 @@
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/TestScreen.dart';
+import 'package:location/location.dart';
 import 'package:cakey/screens/SplashScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,6 +33,38 @@ class _MyAppState extends State<MyApp> {
 
   User? authUser = FirebaseAuth.instance.currentUser;
   bool signedIn = false;
+
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+  LocationData? _userLocation;
+  Location myLocation = Location();
+
+  Future<void> addPrem() async{
+    // Check if location service is enable
+    _serviceEnabled = await myLocation.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await myLocation.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    // Check if permission is granted
+    _permissionGranted = await myLocation.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await myLocation.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    addPrem();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

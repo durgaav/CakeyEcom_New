@@ -16,13 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as geocode;
+import 'package:geolocator/geolocator.dart' as geolocate;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../screens/Profile.dart';
 import '../screens/SingleVendor.dart';
 import 'CustomiseCake.dart';
+import 'package:location/location.dart';
 //This is home screen.........
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -90,8 +91,12 @@ class _HomeScreenState extends State<HomeScreen> {
   //latt and long and maps
   double lat = 0.0;
   double long = 0.0;
-  List<Placemark> placemarks = [];
+  List<geocode.Placemark> placemarks = [];
 
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+  LocationData? _userLocation;
+  Location myLocation = Location();
 
   //endregion
 
@@ -596,81 +601,74 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  //Fetching user's current location...Lat Long
-  Future<Position> _getGeoLocationPosition() async {
+  // //Fetching user's current location...Lat Long
+  // Future<Position> _getGeoLocationPosition() async {
+  //
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //
+  //   // Test if location services are enabled.
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     // Location services are not enabled don't continue
+  //     // accessing the position and request users of the
+  //     // App to enable the location services.
+  //     await Geolocator.openLocationSettings();
+  //     print('Location services are disabled.');
+  //     return Future.error('Location services are disabled.');
+  //   }
+  //
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       // Permissions are denied, next time you could try
+  //       // requesting permissions again (this is also where
+  //       // Android's shouldShowRequestPermissionRationale
+  //       // returned true. According to Android guidelines
+  //       // your App should show an explanatory UI now.
+  //       print('Location permissions are denied');
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
+  //
+  //   if (permission == LocationPermission.deniedForever) {
+  //     // Permissions are denied forever, handle appropriately.
+  //     print('Location permissions are permanently denied, we cannot request permissions.');
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
+  //
+  //   // When we reach here, permissions are granted and we can
+  //   // continue accessing the position of the device.
+  //
+  //   return await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high
+  //   );
+  // }
+  //
 
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      await Geolocator.openLocationSettings();
-      print('Location services are disabled.');
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        print('Location permissions are denied');
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      print('Location permissions are permanently denied, we cannot request permissions.');
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-  }
-
-  //Calculate the distance
-  double calculateDistance(lat1, lon1, lat2, lon2){
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
-    return 12742 * asin(sqrt(a));
-  }
 
   //getting users accurate location address...
-  Future<void> GetAddressFromLatLong(Position position)async {
+
+  Future<void> GetAddressFromLatLong(double? lat , double? long)async {
 
     var prefs = await SharedPreferences.getInstance();
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
-    List<Location> latLong = await locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
+    placemarks = await geocode.placemarkFromCoordinates(lat! , long!);
 
-    print('Location Address : \n $latLong');
+    List<geocode.Location> latLong = await geocode.locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
 
+    geocode.Placemark place = placemarks[0];
 
-    Placemark place = placemarks[0];
+    // print(placemarks);
 
     setState(()  {
-      lat = position.latitude;
-      long = position.longitude;
 
-      if(place.subLocality!=null||place.subLocality!=''){
-        userLocalityAdr = '${place.subLocality}';
-      }else{
+      if(place.subLocality.toString().isEmpty){
         userLocalityAdr = '${place.locality}';
+      }else{
+        userLocalityAdr = '${place.subLocality}';
       }
 
       userMainLocation = '${place.locality}';
@@ -678,8 +676,20 @@ class _HomeScreenState extends State<HomeScreen> {
       prefs.setString("userMainLocation",place.locality.toString());
     });
 
-    print("Distance : "+calculateDistance(11.024932, 76.8994178, position.latitude, position.longitude).toString());
+    // print("Distance : "+calculateDistance(11.024932, 76.8994178, position.latitude, position.longitude).toString());
 
+  }
+
+  //Calculate the distance
+
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2){
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 +
+        c(lat1 * p) * c(lat2 * p) *
+            (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a));
   }
 
   //Fetching cake list API...
@@ -700,7 +710,6 @@ class _HomeScreenState extends State<HomeScreen> {
               searchCakeType.add(cakesList[i]['TypeOfCake']);
             }
           }
-
           searchCakeType = searchCakeType.toSet().toList();
         });
       }else{
@@ -775,27 +784,74 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  //fetchlocation lat long
+  Future<void> _getUserLocation() async {
+
+    myLocation.changeSettings(accuracy: LocationAccuracy.balanced);
+
+    // Check if location service is enable
+    _serviceEnabled = await myLocation.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await myLocation.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    // Check if permission is granted
+    _permissionGranted = await myLocation.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await myLocation.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    final _locationData = await myLocation.getLocation();
+    setState(() {
+      _userLocation = _locationData;
+      print(_userLocation!.latitude.toString() + "  ${_userLocation!.longitude}");
+    });
+
+    GetAddressFromLatLong(_userLocation!.latitude, _userLocation!.longitude);
+
+  }
 
   Future<void> getNearbyLoc() async{
 
-    List add = [];
-    List<List<Location>> location = [];
-    Map map = new Map();
+    List<List<geocode.Location>> location = [];
+    List myList = [];
+
     for (var i =0 ; i<vendorsList.length;i++){
       try{
         if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['FullAddress']!=null){
-          location.add(await locationFromAddress(vendorsList[i]['Address']['FullAddress']));
+          location.add(await geocode.locationFromAddress(vendorsList[i]['Address']['FullAddress']));
         }
       }catch(e){
         print(e);
       }
     }
 
-    print(location[0][0].latitude);
-    print(location[0][0].longitude);
-
-
+    // print(location);
     print(location.length);
+    for(int i = 0;i<location.length;i++){
+
+      for(int j = 0 ; j<location[i].length;j++){
+
+        print("$i of lat : ${location[i][j].latitude} & Long :  ${location[i][j].longitude}");
+
+
+        print('Distance of nearest vendors : ${calculateDistance
+          (location[i][j].latitude, location[i][j].longitude, _userLocation!.latitude, _userLocation!.longitude).toInt()+2}');
+
+      }
+    }
+
+    filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
+    contains(userMainLocation.toLowerCase())).toList();
+
+    filteredByEggList = filteredByEggList.toSet().toList();
+    filteredByEggList = filteredByEggList.reversed.toList();
 
   }
 
@@ -809,7 +865,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState((){
           vendorsList = jsonDecode(res.body);
 
-          getNearbyLoc();
+          // getNearbyLoc();
 
           filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
           contains(userMainLocation.toLowerCase())).toList();
@@ -818,8 +874,6 @@ class _HomeScreenState extends State<HomeScreen> {
           filteredByEggList = filteredByEggList.reversed.toList();
 
         });
-
-
 
       }
       else{
@@ -840,12 +894,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     Future.delayed(Duration.zero ,() async{
 
-      Position position = await _getGeoLocationPosition();
-      location ='Lat: ${position.latitude} , Long: ${position.longitude}';
-      GetAddressFromLatLong(position);
+      // Position position = await _getGeoLocationPosition();
+      // location ='Lat: ${position.latitude} , Long: ${position.longitude}';
+      // GetAddressFromLatLong(position);
 
+      _getUserLocation();
       loadPrefs();
-
     });
   }
 
@@ -853,6 +907,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
+
+    // Changing locations
+    // myLocation.onLocationChanged.listen((LocationData currentLocation) {
+    //   // Use current location
+    //   setState(() {
+    //     GetAddressFromLatLong(currentLocation.latitude, currentLocation.longitude);
+    //   });
+    //
+    // });
 
     //perform search
     if(searchText.isNotEmpty){
@@ -975,11 +1039,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: height*0.71,
                 child: RefreshIndicator(
                   onRefresh: () async{
-                    Position position = await _getGeoLocationPosition();
+                    // Position position = await _getGeoLocationPosition();
+                    // setState(() {
+                    //   location ='Lat: ${position.latitude} , Long: ${position.longitude}';
+                    //   GetAddressFromLatLong(position);
+                    //
+                    // });
                     setState(() {
-                      location ='Lat: ${position.latitude} , Long: ${position.longitude}';
-                      GetAddressFromLatLong(position);
                       loadPrefs();
+                      _getUserLocation();
                     });
                   },
                   child: SingleChildScrollView(
@@ -1110,26 +1178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: InkWell(
                                               onTap: (){
                                                 FocusScope.of(context).unfocus();
-                                                Navigator.of(context).push(
-                                                  PageRouteBuilder(
-                                                    pageBuilder: (context, animation, secondaryAnimation) => CustomiseCake(),
-                                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                      const begin = Offset(1.0, 0.0);
-                                                      const end = Offset.zero;
-                                                      const curve = Curves.ease;
-
-                                                      final tween = Tween(begin: begin, end: end);
-                                                      final curvedAnimation = CurvedAnimation(
-                                                        parent: animation,
-                                                        curve: curve,
-                                                      );
-                                                      return SlideTransition(
-                                                        position: tween.animate(curvedAnimation),
-                                                        child: child,
-                                                      );
-                                                    },
-                                                  ),
-                                                );
+                                                context.read<ContextData>().setCurrentIndex(1);
                                               },
                                               child: Column(
                                                 children: [
@@ -1161,26 +1210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: InkWell(
                                               onTap: (){
                                                 FocusScope.of(context).unfocus();
-                                                Navigator.of(context).push(
-                                                  PageRouteBuilder(
-                                                    pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
-                                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                      const begin = Offset(1.0, 0.0);
-                                                      const end = Offset.zero;
-                                                      const curve = Curves.ease;
-
-                                                      final tween = Tween(begin: begin, end: end);
-                                                      final curvedAnimation = CurvedAnimation(
-                                                        parent: animation,
-                                                        curve: curve,
-                                                      );
-                                                      return SlideTransition(
-                                                        position: tween.animate(curvedAnimation),
-                                                        child: child,
-                                                      );
-                                                    },
-                                                  ),
-                                                );
+                                                context.read<ContextData>().setCurrentIndex(1);
                                               },
                                               child: Column(
                                                 children: [

@@ -43,12 +43,12 @@ class _DrawerHomeState extends State<DrawerHome> {
     HomeScreen(),
     CakeTypes(),
     CustomiseCake(),
-    VendorsList(),
+    VendorsList(), 
   ];
 
   var titleText = [
     "HOME",
-    "CAKE TYPES",
+    "TYPES OF CAKES",
     "FULLY CUSTOMIZATION",
     "VENDORS"
   ];
