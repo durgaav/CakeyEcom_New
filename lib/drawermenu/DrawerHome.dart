@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import '../DrawerScreens/HomeScreen.dart';
 import '../DrawerScreens/Notifications.dart';
+import '../screens/SingleVendor.dart';
 import '../screens/WelcomeScreen.dart';
 import 'package:provider/provider.dart';
 
@@ -43,14 +44,16 @@ class _DrawerHomeState extends State<DrawerHome> {
     HomeScreen(),
     CakeTypes(),
     CustomiseCake(),
-    VendorsList(), 
+    VendorsList(),
+    SingleVendor(),
   ];
 
   var titleText = [
     "HOME",
     "TYPES OF CAKES",
     "FULLY CUSTOMIZATION",
-    "VENDORS"
+    "VENDORS",
+    "VENDORS",
   ];
 
   //region Alerts
@@ -518,7 +521,7 @@ class _DrawerHomeState extends State<DrawerHome> {
                   child: Container(
                     padding: EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                        color: Colors.black26,
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(8)),
                     child: Icon(
                       Icons.notifications_none,

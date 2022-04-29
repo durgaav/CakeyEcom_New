@@ -31,9 +31,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   _ProfileState({required this.defindex});
 
   //Colors...
-  Color lightGrey = const Color(0xffF5F5F5);
-  Color darkBlue = const Color(0xffF213959);
-  Color lightPink = const Color(0xffFE8416D);
+  Color lightGrey =  Color(0xffF5F5F5);
+  Color darkBlue =  Color(0xffF213959);
+  Color lightPink = Color(0xffFE8416D);
 
    //for tabs...
    late TabController tabControl ;
@@ -393,8 +393,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: Colors.white10,
-                        child: Icon(Icons.camera_alt,color: lightPink,),
+                        backgroundColor:Color(0xff03c04a),
+                        child: Icon(Icons.camera_alt,color:Colors.white,),
                       ),
                     ),
                   )
@@ -402,46 +402,87 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        TextField(
-          controller: userNameCtrl,
-          maxLines: 1,
-          keyboardType: TextInputType.text,
-          decoration: const InputDecoration(
-            hintText: "Type Name",
-            border: const OutlineInputBorder(),
-            label: Text('Name')
-          ),
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Name',
+              style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey
+              ),
+            ),
+            SizedBox(height: 10,),
+            TextField(
+              controller: userNameCtrl,
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              style: TextStyle(
+                  fontFamily: "Poppins" ,
+              ),
+              decoration: const InputDecoration(
+                hintText: "Type Name",
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 15,),
+            Text(
+              'Phone',
+              style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey
+              ),
+            ),
+            SizedBox(height: 10,),
+            TextField(
+              style: TextStyle(
+                  fontFamily: "Poppins" ,
+              ),
+              enabled: false,
+              controller: TextEditingController(text: phoneNumber),
+              maxLines: 1,
+              maxLengthEnforced: true,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: "Type Phone Number",
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 15,),
+            Text(
+              'Address',
+              style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey
+              ),
+            ),
+            SizedBox(height: 10,),
+            TextField(
+              style: TextStyle(
+                  fontFamily: "Poppins" ,
+              ),
+              controller: userAddrCtrl,
+              maxLines: 4,
+              keyboardType: TextInputType.multiline,
+              decoration: InputDecoration(
+                  hintText: "Type Address",
+                  border: OutlineInputBorder(),
+
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 15,),
-        TextField(
-          enabled: false,
-          controller: TextEditingController(text: phoneNumber),
-          maxLines: 1,
-          maxLengthEnforced: true,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-              hintText: "Type Phone Number",
-              border: const OutlineInputBorder(),
-              label: const Text('Phone')
-          ),
-        ),
-        const SizedBox(height: 15,),
-        TextField(
-          controller: userAddrCtrl,
-          maxLines: 4,
-          keyboardType: TextInputType.multiline,
-          decoration: InputDecoration(
-              hintText: "Type Address",
-              border: OutlineInputBorder(),
-              label: Text('Address')
-          ),
-        ),
+
         Container(
           alignment: Alignment.centerLeft,
           child: TextButton(
               onPressed: (){},
-              child: const Text('add new address',style: const TextStyle(
-                color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
+              child: Text('add new address',style: TextStyle(
+                color:Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
               ),)
           ),
         ),
@@ -461,6 +502,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),),
           ),
         ),
+
+        SizedBox(height: 50,),
+
         Container(
           margin: const EdgeInsets.only(top: 10),
           decoration: BoxDecoration(
@@ -474,7 +518,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               height: 45,
               width: 45,
               decoration: BoxDecoration(
-                color: Colors.black26,
+                color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(5)
               ),
               child: Icon(
@@ -486,12 +530,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               scale: 0.7,
               child: CupertinoSwitch(
                 value: notifiOnOrOf,
+                thumbColor: notifiOnOrOf?Color(0xff03c04a):Colors.red,
                 onChanged: (bool val){
                   setState(() {
                     notifiOnOrOf = val;
                   });
                 },
-                activeColor: Colors.green,
+                activeColor: Colors.grey[200],
               ),
             ),
           ),
@@ -512,14 +557,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               height: 45,
               width: 45,
               decoration: BoxDecoration(
-                color: Colors.black26,
+                color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(5)
               ),
               child: Icon(
                 Icons.logout_outlined,color: lightPink,
               ),
             ),
-            title: const Text('Logout',style: TextStyle(fontFamily: "Poppins")),
+            title: Text('Logout',style: TextStyle(fontFamily: "Poppins" , color: lightPink)),
           ),
         ),
       ],
@@ -891,7 +936,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             },
             child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.black26,
+                    color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(10)),
                 alignment: Alignment.center,
                 height: 20,
@@ -943,7 +988,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   height: 35,
                   width: 35,
                   decoration: BoxDecoration(
-                      color: Colors.black26,
+                      color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(8)),
                   child: Icon(
                     Icons.notifications_none,

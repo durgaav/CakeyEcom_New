@@ -152,27 +152,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('myVendorAddress',address??'null');
     pref.setBool('iamYourVendor', true);
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => CakeTypes(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-      ),
-    );
-
+    context.read<ContextData>().setCurrentIndex(1);
 
   }
 
@@ -198,26 +178,28 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorAddress', address??'null');
 
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
+    // Navigator.of(context).push(
+    //   PageRouteBuilder(
+    //     pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //       const begin = Offset(1.0, 0.0);
+    //       const end = Offset.zero;
+    //       const curve = Curves.ease;
+    //
+    //       final tween = Tween(begin: begin, end: end);
+    //       final curvedAnimation = CurvedAnimation(
+    //         parent: animation,
+    //         curve: curve,
+    //       );
+    //       return SlideTransition(
+    //         position: tween.animate(curvedAnimation),
+    //         child: child,
+    //       );
+    //     },
+    //   ),
+    // );
 
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-      ),
-    );
+    context.read<ContextData>().setCurrentIndex(4);
 
   }
 
@@ -241,26 +223,28 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
     pref.setString('singleVendorAddress', address??'null');
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
+    // Navigator.of(context).push(
+    //   PageRouteBuilder(
+    //     pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //       const begin = Offset(1.0, 0.0);
+    //       const end = Offset.zero;
+    //       const curve = Curves.ease;
+    //
+    //       final tween = Tween(begin: begin, end: end);
+    //       final curvedAnimation = CurvedAnimation(
+    //         parent: animation,
+    //         curve: curve,
+    //       );
+    //       return SlideTransition(
+    //         position: tween.animate(curvedAnimation),
+    //         child: child,
+    //       );
+    //     },
+    //   ),
+    // );
 
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-      ),
-    );
+    context.read<ContextData>().setCurrentIndex(4);
 
   }
 
@@ -296,7 +280,6 @@ class _VendorsListState extends State<VendorsList> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
 
     return Scaffold(
       // appBar: AppBar(

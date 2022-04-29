@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cakey/screens/PhoneVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -46,127 +48,143 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         body: SafeArea(
           child: Container(
               child:
-              PageView.builder(
-                controller: controll,
-                itemCount:3,
-                itemBuilder: (context, index){
-                  precacheImage(AssetImage(pics[index]), context);
-                  currentindex=index;
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        //color: Colors.red,
-                        height: MediaQuery.of(context).size.height*0.2,
-                        child:Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children:[
-                              Text('${title[index]}',style: TextStyle(fontFamily:"Poppins",fontSize: 20,fontWeight: FontWeight.bold),),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child:
-                                Text('${desc[index]}',style: TextStyle(fontSize: 12.7,letterSpacing: 1,fontFamily: "Poppins"),
-                                    textAlign:TextAlign.center ),
-                              ),
-                            ]
-                        ),
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height*0.4,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image:AssetImage(pics[index]),
+              Stack(
+                children: [
+                  PageView.builder(
+                    controller: controll,
+                    physics: BouncingScrollPhysics(),
+                    itemCount:3,
+                    onPageChanged: (int i){
+                      setState(() {
+                        currentindex = i;
+                      });
+                      print('ci : $currentindex');
+                    },
+                    itemBuilder: (context, index){
+                      precacheImage(AssetImage(pics[index]), context);
+                      currentindex=index;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height*0.06,
                           ),
-                        ),
-                      ),
-                      Container(
-                        height:MediaQuery.of(context).size.height*0.2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 4,
-                                  backgroundColor: index==0?Colors.blueGrey:Colors.black12,
-                                ),
-                                SizedBox(width: 23,),
-                                CircleAvatar(
-                                  radius: 4,
-                                  backgroundColor: index==1?Colors.blueGrey:Colors.black12,
-                                ),
-                                SizedBox(width: 23,),
-                                CircleAvatar(
-                                  radius: 4,
-                                  backgroundColor: index==2?Colors.blueGrey:Colors.black12,
-                                ),
-                              ],
-                            ),
-
-                            index!=2?Align(
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20),
-                                      width: MediaQuery.of(context).size.width*0.6,
-                                      child:
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          TextButton(onPressed: (){
-                                            Navigator.pop(context);
-                                            Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
-                                          }, child: Text('SKIP',style: TextStyle(fontSize: 18, color: darkBlue,fontFamily: "Poppins"),)),
-                                          Container(
-                                              decoration:BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: lightPink
-                                              ),
-                                              child: IconButton(onPressed: (){
-                                                setState(() {
-                                                  if(index==0){
-                                                    controll.animateToPage(1, curve: Curves.ease ,duration: Duration(milliseconds: 700));
-                                                  }else{
-                                                    controll.animateToPage(2, curve: Curves.ease ,duration: Duration(milliseconds: 700));
-                                                  }
-                                                });
-                                              }, icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
-                                          ),
-                                        ],
-                                      )
-
+                          Container(
+                            //color: Colors.red,
+                            height: MediaQuery.of(context).size.height*0.2,
+                            child:Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children:[
+                                  Text('${title[index]}',style: TextStyle(fontFamily:"Poppins",fontSize: 20,fontWeight: FontWeight.bold),),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    child:
+                                    Text('${desc[index]}',style: TextStyle(fontSize: 12.7,letterSpacing: 1,fontFamily: "Poppins"),
+                                        textAlign:TextAlign.center ),
                                   ),
-                            ):
-                            Container(
-                              width: MediaQuery.of(context).size.width*0.5,
-                              height: MediaQuery.of(context).size.height*0.07,
-                              child: RaisedButton(
-                                color:lightPink,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(35)),
-                                onPressed: (){
-                                  Navigator.pop(context);
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
-                                },
-                                child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
+                                ]
+                            ),
+                          ),
+                          Container(
+                            height: MediaQuery.of(context).size.height*0.4,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image:AssetImage(pics[index]),
                               ),
-                            )
+                            ),
+                          ),
+                        ],
+                      );
+                    },),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 40),
+                      height:MediaQuery.of(context).size.height*0.2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 4,
+                                backgroundColor: currentindex==0?Colors.blueGrey:Colors.black12,
+                              ),
+                              SizedBox(width: 23,),
+                              CircleAvatar(
+                                radius: 4,
+                                backgroundColor: currentindex==1?Colors.blueGrey:Colors.black12,
+                              ),
+                              SizedBox(width: 23,),
+                              CircleAvatar(
+                                radius: 4,
+                                backgroundColor: currentindex==2?Colors.blueGrey:Colors.black12,
+                              ),
+                            ],
+                          ),
+                          currentindex!=2?Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                width: MediaQuery.of(context).size.width*0.6,
+                                child:
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    TextButton(onPressed: (){
+                                      // Navigator.pop(context);
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                                    }, child: Text('SKIP',style: TextStyle(fontSize: 18, color: darkBlue,fontFamily: "Poppins"),)),
+                                    Container(
+                                        decoration:BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: lightPink
+                                        ),
+                                        child: IconButton(onPressed: (){
+                                         if(controll.page==0){
+                                           controll.animateToPage(1,curve: Curves.ease ,duration: Duration(milliseconds: 500));
+                                         }else if(controll.page==1){
+                                           controll.animateToPage(2,curve: Curves.ease ,duration: Duration(milliseconds: 500));
+                                         }
+                                        },
+                                          icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
+                                    ),
+                                  ],
+                                )
 
-                          ],
-                        ),
-                      )
-                    ],
-                  );
-                },)
+                            ),
+                          ):
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            width: MediaQuery.of(context).size.width*0.6,
+                            height: MediaQuery.of(context).size.height*0.07,
+                            child: RaisedButton(
+                              color:lightPink,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(35)),
+                              onPressed: (){
+                                Navigator.pop(context);
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                              },
+                              child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              )
           ),
         )
     );

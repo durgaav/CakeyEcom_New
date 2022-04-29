@@ -399,6 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Align(
             alignment: Alignment.topCenter,
             child: Container(
+              width: double.infinity,
               height: 90,
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -409,19 +410,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               padding: EdgeInsets.all(5),
              child: Row(
-               crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      width: 50,
-                      height: 50,
+                      width: 45,
+                      height: 45,
                       decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(10)
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(10)
                       ),
                       alignment: Alignment.center,
                       child: Icon(Icons.volume_up_rounded,color: darkBlue,size: 30,)
                   ),
+                  SizedBox(width : 7,),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -474,19 +476,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: ()=>Navigator.pop(context),
-                    child: Container(
-                        width: 35,
-                        height: 35,
-                        decoration: BoxDecoration(
-                            color: Colors.black12,
-                            borderRadius: BorderRadius.circular(10)
+                  Expanded(
+                      child: Align(
+                        alignment:Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: ()=>Navigator.pop(context),
+                          child: Container(
+                              width: 35,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(10)
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(Icons.close_outlined,color: darkBlue,)
+                          ),
                         ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.close_outlined,color: darkBlue,)
-                    ),
-                  ),
+                      ),
+                  )
                 ],
               ),
             ),
@@ -518,26 +525,7 @@ class _HomeScreenState extends State<HomeScreen> {
     pref.setString('singleVendorAddress', address??'null');
 
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-      ),
-    );
+    context.read<ContextData>().setCurrentIndex(4);
 
   }
 
@@ -787,6 +775,15 @@ class _HomeScreenState extends State<HomeScreen> {
   //fetchlocation lat long
   Future<void> _getUserLocation() async {
 
+    // Check if permission is granted
+    _permissionGranted = await myLocation.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await myLocation.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        _permissionGranted = await myLocation.requestPermission();;
+      }
+    }
+
     myLocation.changeSettings(accuracy: LocationAccuracy.balanced);
 
     // Check if location service is enable
@@ -794,15 +791,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!_serviceEnabled) {
       _serviceEnabled = await myLocation.requestService();
       if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    // Check if permission is granted
-    _permissionGranted = await myLocation.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await myLocation.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
@@ -820,38 +808,47 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getNearbyLoc() async{
 
     List<List<geocode.Location>> location = [];
-    List myList = [];
+    List myList = vendorsList;
+    List newlist = [];
 
-    for (var i =0 ; i<vendorsList.length;i++){
+    for (var i =0 ; i<myList.length;i++){
+
       try{
-        if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['FullAddress']!=null){
-          location.add(await geocode.locationFromAddress(vendorsList[i]['Address']['FullAddress']));
+        if(myList[i]['Address']!=null&&myList[i]['Address']['FullAddress']!=null) {
+          print('My index : $i');
+          location.add(await geocode.locationFromAddress(
+              myList[i]['Address']['FullAddress']
+          ));
+
+          newlist.add(myList[i].toString() + {'lat': 00, "long": 000}.toString());
+
         }
       }catch(e){
         print(e);
       }
+
     }
+
+    // +{'lat': 00, "long": 000}
+
+    print(newlist);
+
 
     // print(location);
-    print(location.length);
-    for(int i = 0;i<location.length;i++){
 
-      for(int j = 0 ; j<location[i].length;j++){
-
-        print("$i of lat : ${location[i][j].latitude} & Long :  ${location[i][j].longitude}");
-
-
-        print('Distance of nearest vendors : ${calculateDistance
-          (location[i][j].latitude, location[i][j].longitude, _userLocation!.latitude, _userLocation!.longitude).toInt()+2}');
-
-      }
-    }
-
-    filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
-    contains(userMainLocation.toLowerCase())).toList();
-
-    filteredByEggList = filteredByEggList.toSet().toList();
-    filteredByEggList = filteredByEggList.reversed.toList();
+    // print(location.length);
+    // for(int i = 0;i<location.length;i++){
+    //
+    //   for(int j = 0 ; j<location[i].length;j++){
+    //
+    //     print("$i of lat : ${location[i][j].latitude} & Long :  ${location[i][j].longitude}");
+    //
+    //
+    //     print('Distance of nearest vendors : ${calculateDistance
+    //       (location[i][j].latitude, location[i][j].longitude, _userLocation!.latitude, _userLocation!.longitude).toInt()}');
+    //
+    //   }
+    // }
 
   }
 
@@ -892,13 +889,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getUserLocation();
     Future.delayed(Duration.zero ,() async{
-
       // Position position = await _getGeoLocationPosition();
       // location ='Lat: ${position.latitude} , Long: ${position.longitude}';
       // GetAddressFromLatLong(position);
-
-      _getUserLocation();
       loadPrefs();
     });
   }
@@ -919,6 +914,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // });
 
     //perform search
+
     if(searchText.isNotEmpty){
       setState(() {
         cakesTypes = searchCakeType.where((element) => element.toString().toLowerCase()
@@ -1022,8 +1018,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 splashColor: Colors.black26,
                                 onPressed:(){
                                   FocusScope.of(context).unfocus();
-                                  showFilterBottom();
-                                  // showDpUpdtaeDialog();
+                                  // showFilterBottom();
+                                  showDpUpdtaeDialog();
                                 },
                                 icon: Icon(Icons.tune,color:Colors.white,)
                             ),
@@ -1140,7 +1136,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:17,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
                                           onTap: (){
-                                            context.read<ContextData>().setCurrentIndex(1);
+                                            // context.read<ContextData>().setCurrentIndex(1);
+                                            getNearbyLoc();
                                           },
                                           child: Row(
                                             children: [
@@ -1178,7 +1175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: InkWell(
                                               onTap: (){
                                                 FocusScope.of(context).unfocus();
-                                                context.read<ContextData>().setCurrentIndex(1);
+                                                context.read<ContextData>().setCurrentIndex(2);
                                               },
                                               child: Column(
                                                 children: [

@@ -1882,7 +1882,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       },
                       child: Container(
                           decoration: BoxDecoration(
-                              color: Colors.grey,
+                              color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(10)),
                           alignment: Alignment.center,
                           height: 20,
@@ -1931,7 +1931,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                           child: Container(
                             padding: EdgeInsets.all(3),
                             decoration: BoxDecoration(
-                                color: Colors.grey,
+                                color: Colors.grey[300],
                                 borderRadius: BorderRadius.circular(8)),
                             child: Icon(
                               Icons.notifications_none,

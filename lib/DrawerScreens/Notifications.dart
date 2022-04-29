@@ -58,7 +58,7 @@ class _NotificationsState extends State<Notifications> {
             },
             child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.black26,
+                    color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(10)),
                 alignment: Alignment.center,
                 height: 20,

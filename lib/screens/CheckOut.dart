@@ -7,6 +7,8 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../DrawerScreens/Notifications.dart';
+
 class CheckOut extends StatefulWidget {
   const CheckOut({Key? key}) : super(key: key);
   @override
@@ -351,7 +353,7 @@ class _CheckOutState extends State<CheckOut> {
               },
               child: Container(
                   decoration: BoxDecoration(
-                      color: Colors.black26,
+                      color:Colors.grey[300],
                       borderRadius: BorderRadius.circular(10)),
                   alignment: Alignment.center,
                   height: 20,
@@ -373,11 +375,32 @@ class _CheckOutState extends State<CheckOut> {
               alignment: Alignment.center,
               children: [
                 InkWell(
-                  onTap: () => print("hii"),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          final tween = Tween(begin: begin, end: end);
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: curve,
+                          );
+                          return SlideTransition(
+                            position: tween.animate(curvedAnimation),
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
                   child: Container(
                     padding: EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                        color: Colors.black26,
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(8)),
                     child: Icon(
                       Icons.notifications_none,

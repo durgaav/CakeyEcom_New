@@ -620,6 +620,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             onTap:(){
                                               setState((){
                                                 currentIndex = index;
+                                                fixedCategory = categories[currentIndex];
                                               });
                                             },
                                             child: Container(
@@ -1223,7 +1224,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 child: InkWell(
                                   splashColor: Colors.red[100],
                                   onTap:()=>filePicker(),
-                                  child: file!=null||file.path.isEmpty?Container(
+                                  child: file.path.isEmpty?Container(
                                     width: MediaQuery.of(context).size.width,
                                     height: 160,
                                     child: Column(
@@ -1236,9 +1237,31 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       ],
                                     ),
                                   ):Container(
-                                    height: 50,
-                                    width: 50,
-                                    child: Image.file(file),
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.all(10),
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 160,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height: 150,
+                                          width: 200,
+                                          child: Image.file(file),
+                                        ),
+                                       TextButton(
+                                              onPressed: (){
+                                                setState(() {
+                                                  file = new File('');
+                                                });
+                                              },
+                                              child: Text('Remove' , style: TextStyle(
+                                                fontFamily: "Poppins"
+                                              ),),
+                                       )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1412,7 +1435,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(25)
                                       ),
-                                      onPressed: (){},
+                                      onPressed: (){
+
+                                        print(!egglesSwitch?'Egg':'Eggless');
+                                        if(fixedCategory.isEmpty){
+                                          setState(() {
+                                            fixedCategory = categories[0];
+                                          });
+                                        }
+
+
+
+                                        print("Fixed Category : $fixedCategory");
+
+                                      },
                                       color: lightPink,
                                       child: Text("$btnMsg",style: TextStyle(
                                           color: Colors.white,fontWeight: FontWeight.bold
