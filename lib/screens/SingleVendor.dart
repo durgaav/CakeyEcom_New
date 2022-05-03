@@ -32,7 +32,7 @@ class _SingleVendorState extends State<SingleVendor> {
 
   String description = "";
   String vendorID = '';
-  String vendorName = '';
+  String vendorName = 'Un name';
   String vendorPhone = '';
   String vendorLocalAddres = '';
   String deliverCharge = '';
@@ -332,8 +332,9 @@ class _SingleVendorState extends State<SingleVendor> {
                       child: Row(
                         children: [
                           Icon(Icons.location_on,color: Colors.red,),
-                          SizedBox(width: 8,),
+                          SizedBox(width: 5,),
                           Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,
+                              fontSize: 13,
                               fontFamily: "Poppins"),)
                         ],
                       ),
@@ -341,7 +342,7 @@ class _SingleVendorState extends State<SingleVendor> {
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 18,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                   ],
                 ),
@@ -360,9 +361,11 @@ class _SingleVendorState extends State<SingleVendor> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('$vendorName',style: TextStyle(
+                            Text('${vendorName[0].toUpperCase()
+                                +vendorName.substring(1).toLowerCase()
+                            }',style: TextStyle(
                               color: darkBlue,fontFamily:"Poppins",
-                              fontSize: 16,fontWeight: FontWeight.bold
+                              fontSize: 15,fontWeight: FontWeight.bold
                             ),),
                             Row(
                               children: [

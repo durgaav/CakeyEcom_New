@@ -51,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool newRegUser = true;
   bool profileRemainder = false;
   bool isNetworkError = false;
+  bool ordersLoading = true;
+  bool isAllLoading = true;
+  bool vendorsLoading = true;
 
   //Strings
   String poppins = "Poppins";
@@ -560,33 +563,57 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchProfileByPhn() async{
     showAlertDialog();
     var prefs = await SharedPreferences.getInstance();
-    http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
-        "${int.parse(phoneNumber)}"));
-    if(response.statusCode==200){
-      // Navigator.pop(context);
-      setState(() {
-        List body = jsonDecode(response.body);
 
-        userID = body[0]['_id'].toString();
-        userAddress = body[0]['Address'].toString();
-        userProfileUrl = body[0]['ProfileImage'].toString();
-        context.read<ContextData>().setProfileUrl(userProfileUrl);
-        userName = body[0]['UserName'].toString();
+    try{
 
-        prefs.setString('userID', userID);
-        prefs.setString('userAddress', userAddress);
-        prefs.setString('userName', userName);
+      http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+          "${int.parse(phoneNumber)}"));
+      if(response.statusCode==200){
+        // Navigator.pop(context);
+        setState(() {
+          List body = jsonDecode(response.body);
 
-        context.read<ContextData>().setUserName(userName);
+          userID = body[0]['_id'].toString();
+          userAddress = body[0]['Address'].toString();
+          userProfileUrl = body[0]['ProfileImage'].toString();
+          context.read<ContextData>().setProfileUrl(userProfileUrl);
+          userName = body[0]['UserName'].toString();
 
-        getCakeList();
-        getOrderList();
-        getVendorsList();
+          prefs.setString('userID', userID);
+          prefs.setString('userAddress', userAddress);
+          prefs.setString('userName', userName);
+
+          context.read<ContextData>().setUserName(userName);
+
+          getCakeList();
+          getOrderList();
+          getVendorsList();
+          Navigator.pop(context);
+        });
+      }else{
         Navigator.pop(context);
+      }
+
+    }on Exception catch(e){
+      setState(() {
+        isNetworkError = true;
       });
-    }else{
-      // Navigator.pop(context);
+      print(e);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Check Your Connection! try again'),
+        backgroundColor: Colors.amber,
+        action: SnackBarAction(
+          label: "Retry",
+          onPressed:()=>setState(() {
+            loadPrefs();
+          }),
+        ),
+        )
+      );
+
     }
+
   }
 
   // //Fetching user's current location...Lat Long
@@ -682,6 +709,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Fetching cake list API...
   Future<void> getCakeList() async{
+
+    setState(() {
+      isAllLoading = true;
+    });
+
     try{
       http.Response response = await http.get(
           Uri.parse("https://cakey-database.vercel.app/api/cake/list")
@@ -699,17 +731,20 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           }
           searchCakeType = searchCakeType.toSet().toList();
+          isAllLoading = false;
         });
       }else{
           print('Server error! try again latter');
           setState(() {
             isNetworkError = true;
             networkMsg = "Server error! try again latter";
+            isAllLoading = false;
           });
       }
     }catch(error){
       setState(() {
         isNetworkError = true;
+        isAllLoading = false;
       });
     }
   }
@@ -749,6 +784,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting recent orders list by UserId
   Future<void> getOrderList() async{
+    setState(() {
+      ordersLoading = true;
+    });
     try{
       http.Response response = await http.get(
           Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
@@ -756,6 +794,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if(response.statusCode==200){
         setState(() {
           isNetworkError = false;
+          ordersLoading = false;
           recentOrders = jsonDecode(response.body);
           recentOrders = recentOrders.reversed.toList();
         });
@@ -763,11 +802,13 @@ class _HomeScreenState extends State<HomeScreen> {
       else{
         setState(() {
           isNetworkError = true;
+          ordersLoading = false;
         });
       }
     }catch(error){
       setState(() {
         isNetworkError = true;
+        ordersLoading = false;
       });
     }
   }
@@ -891,10 +932,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _getUserLocation();
     Future.delayed(Duration.zero ,() async{
-      // Position position = await _getGeoLocationPosition();
-      // location ='Lat: ${position.latitude} , Long: ${position.longitude}';
-      // GetAddressFromLatLong(position);
+
       loadPrefs();
+
     });
   }
 
@@ -902,7 +942,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
 
     // Changing locations
     // myLocation.onLocationChanged.listen((LocationData currentLocation) {
@@ -955,15 +994,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         children: [
                           Icon(Icons.location_on,color: Colors.red,),
-                          SizedBox(width: 8,),
-                          Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,fontFamily: poppins),)
+                          SizedBox(width: 5,),
+                          Text('Delivery to',style: TextStyle(color: Colors.black54,
+                              fontWeight: FontWeight.bold,fontFamily: poppins , fontSize: 13),)
                         ],
                       ),
                     ),
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text('$userLocalityAdr',style:TextStyle(fontFamily: poppins,fontSize: 16,color: darkBlue,fontWeight: FontWeight.bold),),
+                      child: Text('$userLocalityAdr',style:TextStyle(fontFamily: poppins,fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 15),
@@ -977,8 +1017,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: width*0.79,
                             height: 50,
                             child: TextField(
-                              // onTap:()=>Navigator.push(context ,
-                              // MaterialPageRoute(builder:(context)=>TestScreen())),
+                              style: TextStyle(color: Colors.black,
+                                  fontFamily: poppins ,fontSize: 13 ,
+                                  fontWeight: FontWeight.bold
+                              ),
                               controller: mainSearchCtrl,
                               onChanged: (String text){
                                 setState(() {
@@ -1018,8 +1060,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 splashColor: Colors.black26,
                                 onPressed:(){
                                   FocusScope.of(context).unfocus();
-                                  // showFilterBottom();
-                                  showDpUpdtaeDialog();
+                                  showFilterBottom();
                                 },
                                 icon: Icon(Icons.tune,color:Colors.white,)
                             ),
@@ -1030,17 +1071,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+
+              SizedBox(height: 10,),
+
+              //Tap here to retry....
+              GestureDetector(
+                onTap: (){
+                  setState(() {
+                    loadPrefs();
+                  });
+                },
+                child: AnimatedContainer(
+                  height: isNetworkError?45:0,
+                  curve: Curves.ease,
+                  alignment: Alignment.center,
+                  color: Colors.red,
+                  duration: Duration(seconds: 2),
+                  child: Text('Tap Here To Retry!',style: TextStyle(
+                      fontFamily: "Poppins",color: Colors.white,fontSize: 13
+                  ),),
+                ),
+              ),
+
+
               Container(
                 color: lightGrey,
                 height: height*0.71,
                 child: RefreshIndicator(
                   onRefresh: () async{
-                    // Position position = await _getGeoLocationPosition();
-                    // setState(() {
-                    //   location ='Lat: ${position.latitude} , Long: ${position.longitude}';
-                    //   GetAddressFromLatLong(position);
-                    //
-                    // });
                     setState(() {
                       loadPrefs();
                       _getUserLocation();
@@ -1049,69 +1107,145 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Visibility(
-                          visible: isNetworkError,
-                          child: InkWell(
-                            splashColor: Colors.black26,
-                            onTap: (){
-                              setState(() {
-                                loadPrefs();
-                              });
-                            },
-                            child: Text('$networkMsg',style: TextStyle(
-                                fontFamily: "Poppins",color: Colors.red,fontSize: 16
-                            ),),
-                          ),
-                        ),
-
-                        cakesList.length==0?
-                        StaggeredGridView.countBuilder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.all(12.0),
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 12,
-                            itemCount: 20,
-                            staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
-                            itemBuilder: (BuildContext context, int index){
-                              return Shimmer.fromColors(
-                                direction: ShimmerDirection.ttb,
-                                baseColor: Colors.grey,
-                                highlightColor: Colors.white,
-                                child: Container(
-                                  padding: EdgeInsets.all(10),
-                                  height: 250,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.black,width: 1)
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: Colors.black,
-                                        radius: 45,
+                        isAllLoading?
+                        //Shimmer loading.....
+                        Column(
+                          children: [
+                            Container(
+                              height: 175,
+                              child: ListView.builder(
+                                itemCount: 10,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context , position){
+                                  return Shimmer.fromColors(
+                                    baseColor: Colors.white,
+                                    highlightColor: Colors.grey[300]!,
+                                    child: Container(
+                                      width: 150,
+                                      padding : EdgeInsets.all(5),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            height: 125,
+                                            width: 130,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20) ,
+                                              color:Colors.grey[400]
+                                            ),
+                                          ),
+                                          SizedBox(height: 10,),
+                                          Container(
+                                            height: 10,
+                                            width: 110,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20) ,
+                                                color:Colors.grey[400]
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      Container(
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Colors.black,
-                                        ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 0.5,
+                              width: double.infinity,
+                              margin: EdgeInsets.all(10),
+                              color: Colors.black26,
+                            ),
+                            Container(
+                              height: 175,
+                              child: ListView.builder(
+                                itemCount: 10,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context , position){
+                                  return Shimmer.fromColors(
+                                    baseColor: Colors.white,
+                                    highlightColor: Colors.grey[300]!,
+                                    child: Container(
+                                      width: 150,
+                                      padding : EdgeInsets.all(5),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            height: 125,
+                                            width: 130,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20) ,
+                                              color:Colors.grey[400]
+                                            ),
+                                          ),
+                                          SizedBox(height: 10,),
+                                          Container(
+                                            height: 10,
+                                            width: 110,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20) ,
+                                                color:Colors.grey[400]
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      Container(
-                                        height: 25,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Colors.black,
-                                        ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 0.5,
+                              width: double.infinity,
+                              margin: EdgeInsets.all(10),
+                              color: Colors.black26,
+                            ),
+                            ListView.builder(
+                                itemCount: 10,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context , index){
+                                  return Shimmer.fromColors(
+                                    baseColor: Colors.white,
+                                    highlightColor: Colors.grey[300]!,
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 125,
+                                      margin: EdgeInsets.all(8),
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20) ,
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: 120,
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20) ,
+                                              color:Colors.grey[400]
+                                            ),
+                                          ),
+                                          SizedBox(width: 5,),
+                                          Expanded(
+                                              child: Container(
+                                                height: 120,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20) ,
+                                                    color:Colors.grey[400]
+                                                ),
+                                              ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                            )
+                          ],
                         ):
                         //List views and orders...
                         Column(
@@ -1133,11 +1267,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:17,color: darkBlue,fontWeight: FontWeight.bold),),
+                                        Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:15,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
-                                          onTap: (){
-                                            // context.read<ContextData>().setCurrentIndex(1);
-                                            getNearbyLoc();
+                                          onTap: () async{
+                                            context.read<ContextData>().setCurrentIndex(1);
+                                            // getNearbyLoc();
                                           },
                                           child: Row(
                                             children: [
@@ -1173,7 +1307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                            Container(
                                             width: 150,
                                             child: InkWell(
-                                              onTap: (){
+                                              onTap: () async{
                                                 FocusScope.of(context).unfocus();
                                                 context.read<ContextData>().setCurrentIndex(2);
                                               },
@@ -1191,9 +1325,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         )
                                                     ),
                                                   ),
+                                                  SizedBox(height: 2,),
                                                   Text(
                                                     cakesTypes[index]==null?
-                                                    'No name':" ${cakesTypes[index]}"
+                                                    'No name':"Customise Your \nCake"
                                                     ,style:TextStyle(color: darkBlue,
                                                       fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 13),
                                                     textAlign: TextAlign.center,
@@ -1205,8 +1340,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                           :Container(
                                             width: 150,
                                             child: InkWell(
-                                              onTap: (){
+                                              onTap: () async{
                                                 FocusScope.of(context).unfocus();
+                                                var prefs = await SharedPreferences.getInstance();
+                                                prefs.setString('homeCakeType',cakesTypes[index]);
+                                                prefs.setInt('homeCTindex' , index);
+                                                prefs.setBool('isHomeCake',true);
                                                 context.read<ContextData>().setCurrentIndex(1);
                                               },
                                               child: Column(
@@ -1226,13 +1365,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         )
                                                     ),
                                                   ),
+                                                  SizedBox(height: 2,),
                                                   Text(
                                                     cakesTypes[index]==null?
                                                     'No name':"${cakesTypes[index][0].toString().toUpperCase()+
                                                         cakesTypes[index].toString().substring(1).toLowerCase()}"
                                                     ,style:TextStyle(color: darkBlue,
                                                       fontWeight: FontWeight.bold,fontFamily: poppins ,fontSize: 13),
-                                                    textAlign: TextAlign.center,
+                                                    textAlign: TextAlign.center,maxLines: 2,
                                                   )
                                                 ],
                                               ),
@@ -1252,92 +1392,125 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: double.infinity,
                                       alignment: Alignment.centerLeft,
                                       child: Text('Recent Ordered',style: TextStyle(
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontSize: 17,fontFamily: poppins
+                                          color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15,fontFamily: poppins
                                       ),)
                                   ),
                                   Container(
                                     height: 220,
-                                    child: recentOrders.length>0?
+                                    child:
+                                    ordersLoading?
+                                    Center(
+                                        child: Transform.scale(
+                                            scale: 0.8,
+                                            child: CircularProgressIndicator()
+                                        )
+                                    ):
+                                    recentOrders.length>0?
                                     ListView.builder(
                                         itemCount: 3,
                                         scrollDirection: Axis.horizontal,
                                         itemBuilder: (context,index){
-                                          return Container(
-                                            margin: EdgeInsets.only(left: 10,right: 10),
-                                            child: Stack(
-                                              alignment: Alignment.topCenter,
-                                              children: [
-                                                Container(
-                                                  height:140,
-                                                  width: 200,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(15),
-                                                      image: DecorationImage(
-                                                          fit: BoxFit.cover,
-                                                          image: NetworkImage('${recentOrders[index]['Images']}')
-                                                      )
-                                                  ),
+                                          return GestureDetector(
+                                            onTap: (){
+                                              Navigator.of(context).push(
+                                                PageRouteBuilder(
+                                                  pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 1,),
+                                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                    const begin = Offset(1.0, 0.0);
+                                                    const end = Offset.zero;
+                                                    const curve = Curves.ease;
+
+                                                    final tween = Tween(begin: begin, end: end);
+                                                    final curvedAnimation = CurvedAnimation(
+                                                      parent: animation,
+                                                      curve: curve,
+                                                    );
+
+                                                    return SlideTransition(
+                                                      position: tween.animate(curvedAnimation),
+                                                      child: child,
+                                                    );
+                                                  },
                                                 ),
-                                                Positioned(
-                                                  top: 100,
-                                                  child: Card(
-                                                    shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.circular(10)
+                                              );
+                                            },
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 10,right: 10),
+                                              child: Stack(
+                                                alignment: Alignment.topCenter,
+                                                children: [
+                                                  Container(
+                                                    height:140,
+                                                    width: 200,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(15),
+                                                        image: DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: NetworkImage('${recentOrders[index]['Images']}')
+                                                        )
                                                     ),
-                                                    elevation: 7,
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      width: 190,
-                                                      height: 100,
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                              alignment: Alignment.centerLeft,
-                                                              child: Container(
-                                                                width: 150,
-                                                                child: Text('${recentOrders[index]['Title']}',style: TextStyle(color: darkBlue
-                                                                    ,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                                ),maxLines: 1,overflow: TextOverflow.ellipsis,),
-                                                              )
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              CircleAvatar(
-                                                                radius:14,
-                                                                child: Icon(Icons.account_circle,),
-                                                              ),
-                                                              Container(
-                                                                  width: 105,
-                                                                  child: Text(' ${recentOrders[index]['VendorName']}',
-                                                                    overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                        color: Colors.black54,fontFamily: poppins),maxLines: 1,))
-                                                            ],
-                                                          ),
-                                                          Container(
-                                                            height: 0.5,
-                                                            color: Colors.black54,
-                                                            margin: EdgeInsets.only(left: 5,right: 5),
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            children: [
-                                                              Text("₹ ${recentOrders[index]['Total']}",style: TextStyle(color: lightPink,
-                                                                  fontWeight: FontWeight.bold,fontFamily: poppins),maxLines: 1,),
-                                                              recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
-                                                              Text("${recentOrders[index]['Status'].toString()}",style: TextStyle(color: Colors.green,
-                                                              fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
-                                                                  :
-                                                              Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
-                                                                  fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
-                                                            ],
-                                                          )
-                                                        ],
+                                                  ),
+                                                  Positioned(
+                                                    top: 100,
+                                                    child: Card(
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(10)
+                                                      ),
+                                                      elevation: 7,
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(8),
+                                                        width: 190,
+                                                        height: 100,
+                                                        child: Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                                alignment: Alignment.centerLeft,
+                                                                child: Container(
+                                                                  width: 150,
+                                                                  child: Text('${recentOrders[index]['Title']}',style: TextStyle(color: darkBlue
+                                                                      ,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                                  ),maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                                                )
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                CircleAvatar(
+                                                                  radius:14,
+                                                                  child: Icon(Icons.account_circle,),
+                                                                ),
+                                                                Container(
+                                                                    width: 105,
+                                                                    child: Text(' ${recentOrders[index]['VendorName']}',
+                                                                      overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                          color: Colors.black54,fontFamily: poppins),maxLines: 1,))
+                                                              ],
+                                                            ),
+                                                            Container(
+                                                              height: 0.5,
+                                                              color: Colors.black54,
+                                                              margin: EdgeInsets.only(left: 5,right: 5),
+                                                            ),
+                                                            Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Text("₹ ${recentOrders[index]['Total']}",style: TextStyle(color: lightPink,
+                                                                    fontWeight: FontWeight.bold,fontFamily: poppins),maxLines: 1,),
+                                                                recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                                                                Text("${recentOrders[index]['Status'].toString()}",style: TextStyle(color: Colors.green,
+                                                                fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                                                    :
+                                                                Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
+                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           );
                                         }
@@ -1373,7 +1546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text('Vendors list',style: TextStyle(fontSize:17,
+                                      Text('Vendors list',style: TextStyle(fontSize:15,
                                           color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
                                       Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
                                     ],
@@ -1606,6 +1779,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+
+
                       ],
                     ),
                   ),

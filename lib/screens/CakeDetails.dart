@@ -2497,7 +2497,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                         ),
                       ),
                       Container(
-                          height: MediaQuery.of(context).size.height * 0.07,
+                          height: MediaQuery.of(context).size.height * 0.06,
                           width: MediaQuery.of(context).size.width,
                           margin: EdgeInsets.symmetric(horizontal: 10),
                           //  color: Colors.grey,
@@ -2523,7 +2523,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     width: 60,
                                     height: 45,
                                     alignment: Alignment.center,
-                                    padding: EdgeInsets.all(10),
                                     margin: EdgeInsets.all(5),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
@@ -2565,20 +2564,38 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     fontFamily: poppins, color: darkBlue),
                               ),
                               Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                child: TextField(
-                                  controller: messageCtrl,
-                                  decoration: InputDecoration(
-                                      hintText: 'Type here.. eg: HBD Surya',
-                                      hintStyle: TextStyle(
-                                        fontFamily: "Poppins",
-                                        fontSize: 13
-                                      ),
-                                      errorText: msgError?'Please fill message':null,
-                                      prefixIcon: Icon(
-                                        Icons.message_outlined,
-                                        color: lightPink,
-                                      )),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(width: 8,),
+                                        Icon(Icons.message_outlined,color: lightPink,),
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                            child: TextField(
+                                              controller: messageCtrl,
+                                              style:TextStyle(fontFamily: 'Poppins' ,
+                                                  fontSize: 13
+                                              ),
+                                              decoration: InputDecoration(
+                                                  hintText: 'Type here..',
+                                                  hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                                      fontSize: 13
+                                                  ),
+                                                  border: InputBorder.none
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10,right: 8),
+                                      height: 0.5,
+                                      color:Colors.black54,
+                                    ),
+                                  ],
                                 ),
                               ),
 
@@ -2649,11 +2666,17 @@ class _CakeDetailsState extends State<CakeDetails> {
                               Container(
                                 margin: EdgeInsets.all(10),
                                 child: TextField(
+                                  style: TextStyle(fontFamily: 'Poppins' ,
+                                      fontSize: 13
+                                  ),
                                   controller: specialReqCtrl,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
                                     hintText: 'Type here..',
+                                    hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                        fontSize: 13
+                                    ),
                                     border: OutlineInputBorder(
                                         borderSide: BorderSide.none,
                                         borderRadius: BorderRadius.circular(8)),

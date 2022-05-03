@@ -22,7 +22,7 @@ class _NotificationsState extends State<Notifications> {
   DateTime currentTime = DateTime.now();
   var result2 = '';
   var dateTime = ["Mar 4th 2022","Mar 2nd 2022","Mar 1st 2022"];
-  int i =0 ;
+  int i = 0 ;
 
   @override
   void initState() {
@@ -89,15 +89,15 @@ class _NotificationsState extends State<Notifications> {
                 itemBuilder: (count,index){
                   return Shimmer.fromColors(
                     baseColor:Colors.grey,
-                    highlightColor: Colors.black26,
+                    highlightColor: Colors.grey[300]!,
                     child: Container(
                       padding: EdgeInsets.all(10),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 55,
-                            width: 55,
+                            height: 70,
+                            width: 70,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.grey,
@@ -108,8 +108,8 @@ class _NotificationsState extends State<Notifications> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                width: 275,
-                                height: 50,
+                                width: 260,
+                                height: 70,
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
                                     color: Colors.grey
@@ -117,7 +117,7 @@ class _NotificationsState extends State<Notifications> {
                               ),
                               SizedBox(height: 10,),
                               Container(
-                                width: 100,
+                                width: 120,
                                 height: 20,
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),

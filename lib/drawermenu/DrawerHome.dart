@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../DrawerScreens/HomeScreen.dart';
 import '../DrawerScreens/Notifications.dart';
 import '../screens/SingleVendor.dart';
@@ -138,6 +139,26 @@ class _DrawerHomeState extends State<DrawerHome> {
 
   //region Functions...
 
+  //remove sel vendor prefs
+  Future<void> removeMyVendorPref() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    pref.remove('myVendorId');
+    pref.remove('myVendorName');
+    pref.remove('myVendorPhone');
+    pref.remove('myVendorDesc');
+    pref.remove('myVendorProfile');
+    pref.remove('myVendorDeliverChrg');
+    pref.remove('iamYourVendor');
+
+    //remove homescreen caketypes
+    pref.remove('homeCakeType');
+    pref.remove('homeCTindex');
+    pref.remove('isHomeCake');
+
+  }
+
   //endregion
 
   //region Navigation drawer.......
@@ -196,7 +217,7 @@ class _DrawerHomeState extends State<DrawerHome> {
                         style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 15),
                       ),
                     ),
-                    SizedBox(height: 5,),
+                    SizedBox(height: 7,),
                     Container(
                       height: 30,
                       width: 90,
@@ -427,6 +448,15 @@ class _DrawerHomeState extends State<DrawerHome> {
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    Future.delayed(Duration.zero , () async{
+      removeMyVendorPref();
+    });
+    super.dispose();
   }
 
   @override

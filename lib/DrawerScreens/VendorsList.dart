@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
 import '../screens/Profile.dart';
 import 'package:http/http.dart' as http;
-
 import 'CakeTypes.dart';
 import 'Notifications.dart';
 
@@ -45,6 +43,8 @@ class _VendorsListState extends State<VendorsList> {
   List locationBySearch = [];
   List nearestVendors = [];
   List vendorsList = [];
+
+  var iamFromCustom = false;
 
   TextEditingController searchCtrl = new TextEditingController();
 
@@ -89,37 +89,56 @@ class _VendorsListState extends State<VendorsList> {
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
-      getVendorsList();
+      iamFromCustom = pref.getBool('iamFromCustomise')??false;
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
+      getVendorsList();
     });
   }
 
   Future<void> getVendorsList() async{
     showAlertDialog();
-    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
-    if(res.statusCode==200){
+    try{
 
-      setState(() {
-        vendorsList = jsonDecode(res.body);
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
-        nearestVendors = vendorsList.where((element){
+      if(res.statusCode==200){
 
-          if(element['Address']!=null){
-            return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
-          }else{
-            return false;
-          }
+        setState(() {
+          vendorsList = jsonDecode(res.body);
 
-        }).toList();
+          nearestVendors = vendorsList.where((element){
 
+            if(element['Address']!=null){
+              return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
+            }else{
+              return false;
+            }
+
+          }).toList();
+
+          Navigator.pop(context);
+        });
+
+      }else{
         Navigator.pop(context);
-      });
-
-    }else{
+      }
+    }catch(e){
       Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Check Your Connection! try again'),
+            backgroundColor: Colors.amber,
+            action: SnackBarAction(
+              label: "Retry",
+              onPressed:()=>setState(() {
+                loadPrefs();
+              }),
+            ),
+          )
+      );
     }
+
   }
 
   //load select Vendor data to CakeTypeScreen
@@ -274,577 +293,612 @@ class _VendorsListState extends State<VendorsList> {
         isSearching = true;
         locationBySearch = vendorsList.toList();
       });
-
     }
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   leading:Container(
-      //     margin: const EdgeInsets.all(10),
-      //     child: InkWell(
-      //       onTap: () {
-      //         Navigator.pop(context);
-      //       },
-      //       child: Container(
-      //           decoration: BoxDecoration(
-      //               color: Colors.black26,
-      //               borderRadius: BorderRadius.circular(10)),
-      //           alignment: Alignment.center,
-      //           height: 20,
-      //           width: 20,
-      //           child: Icon(
-      //             Icons.chevron_left,
-      //             color: lightPink,
-      //             size: 35,
-      //           )),
-      //     ),
-      //   ),
-      //   title: Text('VENDORS',
-      //       style: TextStyle(
-      //           color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
-      //   elevation: 0.0,
-      //   backgroundColor: lightGrey,
-      //   actions: [
-      //     Stack(
-      //       alignment: Alignment.center,
-      //       children: [
-      //         InkWell(
-      //           onTap: (){
-      //             Navigator.of(context).push(
-      //               PageRouteBuilder(
-      //                 pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-      //                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      //                   const begin = Offset(1.0, 0.0);
-      //                   const end = Offset.zero;
-      //                   const curve = Curves.ease;
-      //
-      //                   final tween = Tween(begin: begin, end: end);
-      //                   final curvedAnimation = CurvedAnimation(
-      //                     parent: animation,
-      //                     curve: curve,
-      //                   );
-      //                   return SlideTransition(
-      //                     position: tween.animate(curvedAnimation),
-      //                     child: child,
-      //                   );
-      //                 },
-      //               ),
-      //             );
-      //           },
-      //           child: Container(
-      //             padding: EdgeInsets.all(3),
-      //             decoration: BoxDecoration(
-      //                 color: Colors.black26,
-      //                 borderRadius: BorderRadius.circular(8)),
-      //             child: Icon(
-      //               Icons.notifications_none,
-      //               color: darkBlue,
-      //             ),
-      //           ),
-      //         ),
-      //         Positioned(
-      //           left: 15,
-      //           top: 18,
-      //           child: CircleAvatar(
-      //             radius: 4.5,
-      //             backgroundColor: Colors.white,
-      //             child: CircleAvatar(
-      //               radius: 3.5,
-      //               backgroundColor: Colors.red,
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //     Container(
-      //       decoration: BoxDecoration(
-      //         color: Colors.white,
-      //         shape: BoxShape.circle,
-      //         boxShadow: [
-      //           BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
-      //         ],
-      //       ),
-      //       child: InkWell(
-      //         onTap: () {
-      //           print('hello surya....');
-      //           Navigator.of(context).push(
-      //             PageRouteBuilder(
-      //               pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-      //               transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      //                 const begin = Offset(1.0, 0.0);
-      //                 const end = Offset.zero;
-      //                 const curve = Curves.ease;
-      //
-      //                 final tween = Tween(begin: begin, end: end);
-      //                 final curvedAnimation = CurvedAnimation(
-      //                   parent: animation,
-      //                   curve: curve,
-      //                 );
-      //
-      //                 return SlideTransition(
-      //                   position: tween.animate(curvedAnimation),
-      //                   child: child,
-      //                 );
-      //               },
-      //             ),
-      //           );
-      //         },
-      //         child: profileUrl!="null"?CircleAvatar(
-      //           radius: 17.5,
-      //           backgroundColor: Colors.white,
-      //           child: CircleAvatar(
-      //               radius: 16,
-      //               backgroundImage:NetworkImage("$profileUrl")
-      //           ),
-      //         ):CircleAvatar(
-      //           radius: 17.5,
-      //           backgroundColor: Colors.white,
-      //           child: CircleAvatar(
-      //               radius: 16,
-      //               backgroundImage:AssetImage("assets/images/user.png")
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //   ],
-      // ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //Location name...
-            Container(
-              padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
-              color: lightGrey,
-              child: Column(
-                children: [
-                  Container(
-                    child: Row(
-                      children: [
-                        Icon(Icons.location_on,color: Colors.red,),
-                        SizedBox(width: 8,),
-                        Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),)
-                      ],
+    return WillPopScope(
+      onWillPop: () async{
+
+        // if(iamFromCustom==true){
+        //   print('on will poppp...');
+        //   setState(() {
+        //     context.read<ContextData>().setCurrentIndex(2);
+        //   });
+        // }
+
+        return true;
+      },
+      child: Scaffold(
+        appBar: iamFromCustom?AppBar(
+          leading:Container(
+            margin: const EdgeInsets.all(10),
+            child: InkWell(
+              onTap: () async{
+                var pref = await SharedPreferences.getInstance();
+                pref.remove('iamFromCustomise');
+                Navigator.pop(context);
+              },
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10)),
+                  alignment: Alignment.center,
+                  height: 20,
+                  width: 20,
+                  child: Icon(
+                    Icons.chevron_left,
+                    color: lightPink,
+                    size: 35,
+                  )),
+            ),
+          ),
+          title: Text('SELECT VENDORS',
+              style: TextStyle(
+                  color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
+          elevation: 0.0,
+          backgroundColor: lightGrey,
+          actions: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                InkWell(
+                  onTap: (){
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          final tween = Tween(begin: begin, end: end);
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: curve,
+                          );
+                          return SlideTransition(
+                            position: tween.animate(curvedAnimation),
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Icon(
+                      Icons.notifications_none,
+                      color: darkBlue,
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.only(left: 8),
-                    alignment: Alignment.centerLeft,
-                    child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 16,color: darkBlue,fontWeight: FontWeight.bold),),
+                ),
+                Positioned(
+                  left: 15,
+                  top: 18,
+                  child: CircleAvatar(
+                    radius: 4.5,
+                    backgroundColor: Colors.white,
+                    child: CircleAvatar(
+                      radius: 3.5,
+                      backgroundColor: Colors.red,
+                    ),
                   ),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
                 ],
               ),
-            ),
-            //Search bar...
-            Container(
-              margin: EdgeInsets.all(10),
-              height: 50,
-              child: TextField(
-                controller: searchCtrl,
-                onChanged: (String? text){
-                  setState(() {
-                    searchLocation = text!;
-                  });
+              child: InkWell(
+                onTap: () {
+                  print('hello surya....');
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.ease;
+
+                        final tween = Tween(begin: begin, end: end);
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: curve,
+                        );
+
+                        return SlideTransition(
+                          position: tween.animate(curvedAnimation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
-                decoration: InputDecoration(
-                  hintText: "Search location",
-                  hintStyle: TextStyle(fontFamily: "Poppins"),
-                  prefixIcon: Icon(Icons.location_on),
-                  suffixIcon:IconButton(
-                    onPressed: (){
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        searchLocation = "";
-                        searchCtrl = new TextEditingController(text: "");
-                      });
-                    },
-                    icon: Icon(Icons.close,size: 20,),
+                child: profileUrl!="null"?CircleAvatar(
+                  radius: 17.5,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                      radius: 16,
+                      backgroundImage:NetworkImage("$profileUrl")
                   ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5)
+                ):CircleAvatar(
+                  radius: 17.5,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                      radius: 16,
+                      backgroundImage:AssetImage("assets/images/user.png")
                   ),
-                  contentPadding: EdgeInsets.all(5),
                 ),
               ),
             ),
+            SizedBox(
+              width: 10,
+            ),
+          ],
+        ): AppBar(toolbarHeight: 0.0,),
 
-            Container(
-              height: height*0.7,
-              child: SingleChildScrollView(
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //Location name...
+              Container(
+                padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
+                color: lightGrey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //All nearest vendors
-                    Visibility(
-                      visible: isSearching,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    Container(
+                      child: Row(
                         children: [
-                          //Vendor list text
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Text("Nearest Vendors",
-                              style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          //Vendors list..
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            child: Container(
-                              height: 190,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  itemCount: nearestVendors.length,
-                                  itemBuilder: (context , index){
-                                    return GestureDetector(
-                                      onTap: ()=>sendNearVendorDataToScreen(index),
-                                      child: Card(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)
-                                        ),
-                                        child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          width: 260,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  nearestVendors[index]['ProfileImage']!=null?
-                                                  CircleAvatar(
-                                                    radius:32,
-                                                    backgroundColor: Colors.white,
-                                                    child: CircleAvatar(
-                                                      radius:30,
-                                                      backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
-                                                    ),
-                                                  ):
-                                                  CircleAvatar(
-                                                    radius:32,
-                                                    backgroundColor: Colors.white,
-                                                    child: CircleAvatar(
-                                                      radius:30,
-                                                      backgroundImage:Svg('assets/images/pictwo.svg'),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 6,),
-                                                  Container(
-                                                    width:170,
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Container(
-                                                              width:120,
-                                                              child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
-                                                              'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                  nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
-                                                              }',style: TextStyle(
-                                                                  color: darkBlue,fontWeight: FontWeight.bold,
-                                                                  fontFamily: "Poppins"
-                                                              ),overflow: TextOverflow.ellipsis,),
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                RatingBar.builder(
-                                                                  initialRating: 4.1,
-                                                                  minRating: 1,
-                                                                  direction: Axis.horizontal,
-                                                                  allowHalfRating: true,
-                                                                  itemCount: 5,
-                                                                  itemSize: 14,
-                                                                  itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                  itemBuilder: (context, _) => Icon(
-                                                                    Icons.star,
-                                                                    color: Colors.amber,
-                                                                  ),
-                                                                  onRatingUpdate: (rating) {
-                                                                    print(rating);
-                                                                  },
-                                                                ),
-                                                                Text(' 4.5',style: TextStyle(
-                                                                    color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                ),)
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        InkWell(
-                                                          onTap: ()=>sendNearVendorDataToScreen(index),
-                                                          child: Container(
-                                                            decoration: BoxDecoration(
-                                                                color: lightGrey,
-                                                                shape: BoxShape.circle
-                                                            ),
-                                                            padding: EdgeInsets.all(4),
-                                                            height: 35,
-                                                            width: 35,
-                                                            child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 10,),
-                                              Container(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(nearestVendors[index]['Description']!=null?
-                                                   " "+nearestVendors[index]['Description']:'',
-                                                  style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
-                                                  overflow: TextOverflow.ellipsis,
-                                                  maxLines: 2,
-                                                  textAlign: TextAlign.start,
-                                                ),
-                                              ),
-                                              Container(
-                                                margin:EdgeInsets.only(top: 10),
-                                                height: 0.5,
-                                                color: Colors.black26,
-                                              ),
-                                              SizedBox(height: 15,),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      nearestVendors[index]['EggOrEggless'].toString()=='Both'?
-                                                      Text('Egg and Eggless',style: TextStyle(
-                                                          color: darkBlue,
-                                                          fontSize: 10,
-                                                          fontFamily: "Poppins"
-                                                      ),):
-                                                      Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
-                                                          color: darkBlue,
-                                                          fontSize: 10,
-                                                          fontFamily: "Poppins"
-                                                      ),),
-                                                      SizedBox(height: 8,),
-                                                      Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
-                                                          nearestVendors[index]['DeliveryCharge'].toString()=='0'||
-                                                          nearestVendors[index]['DeliveryCharge'].toString()==null
-                                                          ?
-                                                      'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
-                                                          color: Colors.orange,
-                                                          fontSize: 10 ,
-                                                          fontFamily: "Poppins"
-                                                      ),),
-                                                    ],
-                                                  ),
-                                                  // Icon(Icons.check_circle,color: Colors.green,)
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                              ),
-                            ),
-                          ),
+                          Icon(Icons.location_on,color: Colors.red,),
+                          SizedBox(width: 5,),
+                          Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              fontFamily: "Poppins"),)
                         ],
                       ),
                     ),
-
-                    //Other vendor title...
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: searchLocation.isEmpty?Text("Other Vendors",
-                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                      ):Text("Search Results : ${locationBySearch.length} Found",
-                        style: TextStyle(color: Colors.grey,fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                      )
-                    ),
-
-                    //Other vendors list....
                     Container(
-                      child: ListView.builder(
-                          itemCount: locationBySearch.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context,index){
-                            return GestureDetector(
-                              onTap: ()=>sendDataToScreen(index),
-                              child: Card(
-                                margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)
-                                ),
-                                child: Container(
-                                  // margin: EdgeInsets.all(5),
-                                  padding: EdgeInsets.all(6),
-                                  height: 130,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15)
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      locationBySearch[index]['ProfileImage']!=null?
-                                      Container(
-                                        height: 120,
-                                        width: 90,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
-                                            image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: NetworkImage('${locationBySearch[index]['ProfileImage']}')
-                                            )
-                                        ),
-                                      ):
-                                      Container(
-                                        height: 120,
-                                        width: 90,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
-                                            image: DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: Svg('assets/images/pictwo.svg')
-                                            )
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          children: [
-                                            Container(
-                                              width:width*0.63,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Container(
-                                                        width:width*0.5,
-                                                        child: Text(locationBySearch[index]['VendorName'].toString().isEmpty?
-                                                            'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
-                                                            locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
-                                                          }'
-                                                          ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                            color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
-                                                        ),),
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          RatingBar.builder(
-                                                            initialRating: 4.1,
-                                                            minRating: 1,
-                                                            direction: Axis.horizontal,
-                                                            allowHalfRating: true,
-                                                            itemCount: 5,
-                                                            itemSize: 14,
-                                                            itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                            itemBuilder: (context, _) => Icon(
-                                                              Icons.star,
-                                                              color: Colors.amber,
-                                                            ),
-                                                            onRatingUpdate: (rating) {
-                                                              print(rating);
-                                                            },
-                                                          ),
-                                                          Text(' 4.5',style: TextStyle(
-                                                              color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                          ),)
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  InkWell(
-                                                    onTap: ()=>sendDataToScreen(index),
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                          color: lightGrey,
-                                                          shape: BoxShape.circle
-                                                      ),
-                                                      padding: EdgeInsets.all(4),
-                                                      height: 35,
-                                                      width: 35,
-                                                      child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Container(
-                                              width: width*0.63,
-                                              child: Text(locationBySearch[index]['Description'].toString()=='null'?
-                                              'No description':'${locationBySearch[index]['Description']}'
-                                                ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                  color: Colors.black54,fontFamily: poppins,fontSize: 13
-                                              ),maxLines: 1,),
-                                            ),
-                                            Container(
-                                              height: 1,
-                                              width: width*0.63,
-                                              color: Colors.black26,
-                                            ),
-                                            Container(
-                                              width: width*0.63,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  locationBySearch[index]['DeliveryCharge'].toString()=='null'?
-                                                  Text('DELIVERY FREE',style: TextStyle(
-                                                      color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                  ),):Text('Delivery Charge ₹${locationBySearch[index]['DeliveryCharge'].toString()}'
-                                                    ,style: TextStyle(
-                                                      color: darkBlue,fontSize: 10,fontFamily: poppins
-                                                  ),),
-                                                  // currentIndex==index?
-                                                  TextButton(
-                                                    onPressed: ()=>loadSelVendorDataToCTscreen(index),
-                                                    child:Text('Select',style: TextStyle(
-                                                        color: Colors.black,fontSize: 10,fontWeight:
-                                                    FontWeight.bold,fontFamily: poppins,
-                                                        decoration: TextDecoration.underline
-                                                    ),),
-                                                  )
-                                                 // :Icon(Icons.check_circle,color: Colors.green,)
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                      ),
+                      padding: EdgeInsets.only(left: 8),
+                      alignment: Alignment.centerLeft,
+                      child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
                     ),
-
-
-
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      )
+              //Search bar...
+              Container(
+                margin: EdgeInsets.all(10),
+                height: 50,
+                child: TextField(
+                  style:TextStyle(fontFamily: "Poppins" , fontSize: 13),
+                  controller: searchCtrl,
+                  onChanged: (String? text){
+                    setState(() {
+                      searchLocation = text!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Search location",
+                    hintStyle: TextStyle(fontFamily: "Poppins" , fontSize: 13 ),
+                    prefixIcon: Icon(Icons.location_on),
+                    suffixIcon:IconButton(
+                      onPressed: (){
+                        FocusScope.of(context).unfocus();
+                        setState(() {
+                          searchLocation = "";
+                          searchCtrl = new TextEditingController(text: "");
+                        });
+                      },
+                      icon: Icon(Icons.close,size: 20,),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5)
+                    ),
+                    contentPadding: EdgeInsets.all(5),
+                  ),
+                ),
+              ),
+
+              Container(
+                height: height*0.7,
+                child: RefreshIndicator(
+                  onRefresh: () async{
+                    setState(() {
+                      loadPrefs();
+                    });
+                  },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //All nearest vendors
+                        Visibility(
+                          visible: isSearching,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //Vendor list text
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Text("Nearest Vendors",
+                                  style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              //Vendors list..
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                child: Container(
+                                  height: 190,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      shrinkWrap: true,
+                                      itemCount: nearestVendors.length,
+                                      itemBuilder: (context , index){
+                                        return GestureDetector(
+                                          onTap: ()=>sendNearVendorDataToScreen(index),
+                                          child: Card(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)
+                                            ),
+                                            child: Container(
+                                              padding: EdgeInsets.all(10),
+                                              width: 260,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      nearestVendors[index]['ProfileImage']!=null?
+                                                      CircleAvatar(
+                                                        radius:32,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          radius:30,
+                                                          backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                        ),
+                                                      ):
+                                                      CircleAvatar(
+                                                        radius:32,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          radius:30,
+                                                          backgroundImage:Svg('assets/images/pictwo.svg'),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 6,),
+                                                      Container(
+                                                        width:170,
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Container(
+                                                                  width:120,
+                                                                  child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                                  'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                      nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                                  }',style: TextStyle(
+                                                                      color: darkBlue,fontWeight: FontWeight.bold,
+                                                                      fontFamily: "Poppins"
+                                                                  ),overflow: TextOverflow.ellipsis,),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    RatingBar.builder(
+                                                                      initialRating: 4.1,
+                                                                      minRating: 1,
+                                                                      direction: Axis.horizontal,
+                                                                      allowHalfRating: true,
+                                                                      itemCount: 5,
+                                                                      itemSize: 14,
+                                                                      itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                      itemBuilder: (context, _) => Icon(
+                                                                        Icons.star,
+                                                                        color: Colors.amber,
+                                                                      ),
+                                                                      onRatingUpdate: (rating) {
+                                                                        print(rating);
+                                                                      },
+                                                                    ),
+                                                                    Text(' 4.5',style: TextStyle(
+                                                                        color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                                    ),)
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            InkWell(
+                                                              onTap: ()=>sendNearVendorDataToScreen(index),
+                                                              child: Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: lightGrey,
+                                                                    shape: BoxShape.circle
+                                                                ),
+                                                                padding: EdgeInsets.all(4),
+                                                                height: 35,
+                                                                width: 35,
+                                                                child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Container(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text(nearestVendors[index]['Description']!=null?
+                                                       " "+nearestVendors[index]['Description']:'',
+                                                      style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 2,
+                                                      textAlign: TextAlign.start,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    margin:EdgeInsets.only(top: 10),
+                                                    height: 0.5,
+                                                    color: Colors.black26,
+                                                  ),
+                                                  SizedBox(height: 15,),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          nearestVendors[index]['EggOrEggless'].toString()=='Both'?
+                                                          Text('Egg and Eggless',style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontSize: 10,
+                                                              fontFamily: "Poppins"
+                                                          ),):
+                                                          Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontSize: 10,
+                                                              fontFamily: "Poppins"
+                                                          ),),
+                                                          SizedBox(height: 8,),
+                                                          Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
+                                                              nearestVendors[index]['DeliveryCharge'].toString()=='0'||
+                                                              nearestVendors[index]['DeliveryCharge'].toString()==null
+                                                              ?
+                                                          'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
+                                                              color: Colors.orange,
+                                                              fontSize: 10 ,
+                                                              fontFamily: "Poppins"
+                                                          ),),
+                                                        ],
+                                                      ),
+                                                      // Icon(Icons.check_circle,color: Colors.green,)
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        //Other vendor title...
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: searchLocation.isEmpty?Text("Other Vendors",
+                            style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                          ):Text("Search Result : ${searchLocation}",
+                            style: TextStyle(color: Colors.grey,fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                          )
+                        ),
+
+                        //Other vendors list....
+                        Container(
+                          child: ListView.builder(
+                              itemCount: locationBySearch.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context,index){
+                                return GestureDetector(
+                                  onTap: ()=>sendDataToScreen(index),
+                                  child: Card(
+                                    margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15)
+                                    ),
+                                    child: Container(
+                                      // margin: EdgeInsets.all(5),
+                                      padding: EdgeInsets.all(6),
+                                      height: 130,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(15)
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          locationBySearch[index]['ProfileImage']!=null?
+                                          Container(
+                                            height: 120,
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(15),
+                                                image: DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: NetworkImage('${locationBySearch[index]['ProfileImage']}')
+                                                )
+                                            ),
+                                          ):
+                                          Container(
+                                            height: 120,
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(15),
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: Svg('assets/images/pictwo.svg')
+                                                )
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.only(left: 10),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Container(
+                                                  width:width*0.63,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            width:width*0.5,
+                                                            child: Text(locationBySearch[index]['VendorName'].toString().isEmpty?
+                                                                'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
+                                                                locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                              }'
+                                                              ,overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
+                                                            ),),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              RatingBar.builder(
+                                                                initialRating: 4.1,
+                                                                minRating: 1,
+                                                                direction: Axis.horizontal,
+                                                                allowHalfRating: true,
+                                                                itemCount: 5,
+                                                                itemSize: 14,
+                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                itemBuilder: (context, _) => Icon(
+                                                                  Icons.star,
+                                                                  color: Colors.amber,
+                                                                ),
+                                                                onRatingUpdate: (rating) {
+                                                                  print(rating);
+                                                                },
+                                                              ),
+                                                              Text(' 4.5',style: TextStyle(
+                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                              ),)
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      InkWell(
+                                                        onTap: ()=>sendDataToScreen(index),
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: lightGrey,
+                                                              shape: BoxShape.circle
+                                                          ),
+                                                          padding: EdgeInsets.all(4),
+                                                          height: 35,
+                                                          width: 35,
+                                                          child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: width*0.63,
+                                                  child: Text(locationBySearch[index]['Description'].toString()=='null'?
+                                                  'No description':'${locationBySearch[index]['Description']}'
+                                                    ,overflow: TextOverflow.ellipsis,style: TextStyle(
+                                                      color: Colors.black54,fontFamily: poppins,fontSize: 13
+                                                  ),maxLines: 1,),
+                                                ),
+                                                Container(
+                                                  height: 1,
+                                                  width: width*0.63,
+                                                  color: Colors.black26,
+                                                ),
+                                                Container(
+                                                  width: width*0.63,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      locationBySearch[index]['DeliveryCharge'].toString()=='null'||
+                                                      locationBySearch[index]['DeliveryCharge'].toString()=='0'?
+                                                      Text('DELIVERY FREE',style: TextStyle(
+                                                          color: Colors.orange,fontSize: 10,fontFamily: poppins
+                                                      ),):Text('Delivery Charge ₹${locationBySearch[index]['DeliveryCharge'].toString()}'
+                                                        ,style: TextStyle(
+                                                          color: darkBlue,fontSize: 10,fontFamily: poppins
+                                                      ),),
+                                                      // currentIndex==index?
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          if(iamFromCustom==true){
+
+                                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                              SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
+                                                              ['VendorName']}'))
+                                                            );
+
+                                                          }else{
+                                                            loadSelVendorDataToCTscreen(index);
+                                                          }
+
+                                                        },
+                                                        child:Text('Select',style: TextStyle(
+                                                            color: Colors.black,fontSize: 10,fontWeight:
+                                                        FontWeight.bold,fontFamily: poppins,
+                                                            decoration: TextDecoration.underline
+                                                        ),),
+                                                      )
+                                                     // :Icon(Icons.check_circle,color: Colors.green,)
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
+      ),
     );
   }
 }

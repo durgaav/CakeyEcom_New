@@ -1,4 +1,6 @@
+import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 
 class TestScreen extends StatefulWidget {
@@ -22,43 +24,115 @@ class _TestScreenState extends State<TestScreen> {
     {'topic': 'StatelessWidget', 'group': 'Type of Widget'},
   ];
 
+  var height = 50.0;
+  var width = 0.0;
+  var closed = false;
+  var droped = false;
+
   @override
   Widget build(BuildContext context) {
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(
-            title: Text('Grouped ListView')
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(Icons.add),
+      //   onPressed: (){
+      //     setState(() {
+      //       if(closed==false){
+      //         closed = true;
+      //         height = 0.0;
+      //       }else{
+      //         closed = false;
+      //         height = 50.0;
+      //       }
+      //     });
+      //   },
+      // ),
+      appBar: AppBar(
+        title: Text(
+          'Test Screen'
         ),
-        body: GroupedListView<dynamic, String>(
-            groupBy: (element) => element['group'],
-            elements: _elements,
-            order: GroupedListOrder.DESC,
-            groupSeparatorBuilder: (String value) => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                    child: Text(
-                        value,
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
-                    ))
-            ),
-            itemBuilder: (c, element) {
-              return Card(
-                  elevation: 1.0,
-                  margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                  child: Container(
-                      child: ListTile(
-                          contentPadding:
-                          EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                          leading: Icon(Icons.account_circle),
-                          title: Text(element['topic']), //element['group'] group name get
-                          trailing: Icon(Icons.arrow_forward)
-                      )
+      ),
+      body: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+
+
+
+            // AnimatedContainer(
+            //     height: height,
+            //     margin: EdgeInsets.all(10),
+            //     duration: Duration(seconds: 1),
+            //     color:Colors.yellow,
+            //     curve: Curves.easeInOutCubicEmphasized,
+            //     child: Text('Hi broo how are you')
+            // ),
+
+            Container(
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.indigo,
+                borderRadius: BorderRadius.circular(20)
+              ),
+              child: Row(
+                children: [
+                  Draggable(
+                      data: "Ok",
+                      axis: Axis.horizontal,
+                      child: Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,),
+                      feedback: Icon(Icons.arrow_forward_ios_rounded,color: Colors.white70,)
+                  ),
+
+                  SizedBox(width: 10,) ,
+
+                  Shimmer.fromColors(
+                    highlightColor: Colors.grey[400]!,
+                    baseColor: Colors.white,
+                    child: Text('Swipe To Navigate' , style: TextStyle(
+                      color: Colors.white ,fontFamily: "Poppins" , fontSize: 20 ,
+                      fontWeight: FontWeight.bold
+                    ),),
+                  ),
+
+                  SizedBox(width: 10,) ,
+
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+
+                        child: DragTarget(
+                            builder: (BuildContext context , List<dynamic> start , List<dynamic> end){
+                              return Icon(Icons.lock_open,color:Colors.white);
+                            } ,
+                          onAccept: (data){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+                              print(data);
+                              setState(() {
+                                droped = true;
+                              });
+                          },
+                          onWillAccept: (data){
+                              return data == "Ok";
+                          },
+                        ),
+                      ),
+                    ),
                   )
-              );
-            }
-        )
+
+                ],
+              ),
+            )
+
+          ],
+        ),
+      ),
     );
   }
 }
+
 
 
 class GroupedListView<T, E> extends ListView {

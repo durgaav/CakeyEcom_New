@@ -269,7 +269,6 @@ class _CodeVerifyState extends State<CodeVerify> {
       if(response.statusCode==200){
         Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
         print(jsonDecode(response.body));
-
         //Checking msg....(reg / login)
         if(map['message']=="registered Successfully"){
           prefs.setString("phoneNumber", phonenumber);

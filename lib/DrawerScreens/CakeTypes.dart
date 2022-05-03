@@ -31,13 +31,18 @@ class _CakeTypesState extends State<CakeTypes> {
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
+  String homeCakeType = '';
 
   //Strings
   String profileUrl = "";
   String userCurLocation = 'Searching...';
   String poppins = "Poppins";
   String networkMsg = "";
+
+  //get caketype from home....
   String searchCakesText = '';
+  int homeCTindex = 0;
+  bool isHomeCakeType = false;
 
   //search filter string
   String searchCakeCate = '';
@@ -50,7 +55,6 @@ class _CakeTypesState extends State<CakeTypes> {
   String vendorName = '';
   String vendorPhone = "";
   bool iamYourVendor = false;
-
 
   //booleans
   bool egglesSwitch = false;
@@ -1104,6 +1108,9 @@ class _CakeTypesState extends State<CakeTypes> {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       myVendorId = pref.getString('myVendorId')??'Not Found';
       vendorName = pref.getString('myVendorName')??'Un Name';
+      homeCakeType = pref.getString('homeCakeType')??'null';
+      homeCTindex = pref.getInt('homeCTindex')??0;
+      isHomeCakeType = pref.getBool('isHomeCake')??false;
       vendorPhone = pref.getString('myVendorPhone')??'0000000000';
       iamYourVendor = pref.getBool('iamYourVendor')??false;
       getCakeList();
@@ -1190,10 +1197,17 @@ class _CakeTypesState extends State<CakeTypes> {
         Navigator.pop(context);
       }
     }catch(error){
-      setState(() {
-        isNetworkError = true;
-        networkMsg = "No data found!";
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Check Your Connection! try again'),
+            backgroundColor: Colors.amber,
+            action: SnackBarAction(
+              label: "Retry",
+              onPressed:()=>setState(() {
+                loadPrefs();
+              }),
+            ),
+          )
+      );
       Navigator.pop(context);
     }
   }
@@ -1777,21 +1791,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
-  //remove sel vendor prefs
-  Future<void> removeMyVendorPref() async{
-
-    var pref = await SharedPreferences.getInstance();
-
-    pref.remove('myVendorId');
-    pref.remove('myVendorName');
-    pref.remove('myVendorPhone');
-    pref.remove('myVendorDesc');
-    pref.remove('myVendorProfile');
-    pref.remove('myVendorDeliverChrg');
-    pref.remove('iamYourVendor');
-
-  }
-
   //clear the search
   void clearTheSearch(){
     setState(() {
@@ -1810,6 +1809,7 @@ class _CakeTypesState extends State<CakeTypes> {
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
+
       loadPrefs();
     });
     setState(() {
@@ -1820,14 +1820,7 @@ class _CakeTypesState extends State<CakeTypes> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    Future.delayed(Duration.zero , () async{
-      removeMyVendorPref();
-    });
-    super.dispose();
-  }
+
 
 
   @override
@@ -1908,6 +1901,7 @@ class _CakeTypesState extends State<CakeTypes> {
         });
       }
     }
+
 
     return WillPopScope(
       onWillPop: () async{
@@ -1995,14 +1989,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                 color: Colors.red,
                               ),
                               SizedBox(
-                                width: 8,
+                                width: 5,
                               ),
                               Text(
                                 'Delivery to',
                                 style: TextStyle(
                                     color: Colors.black54,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: poppins),
+                                    fontFamily: poppins , fontSize: 13),
                               )
                             ],
                           ),
@@ -2142,6 +2136,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           width: width * 0.79,
                           height: 45,
                           child: TextField(
+                            style: TextStyle(fontFamily: poppins,fontSize: 13 , fontWeight: FontWeight.bold),
                             controller: searchControl,
                             onChanged: (String? text){
                               setState(() {
@@ -2180,19 +2175,23 @@ class _CakeTypesState extends State<CakeTypes> {
                               color: lightPink,
                               borderRadius: BorderRadius.circular(8)
                           ),
-                          child: IconButton(
-                              splashColor: Colors.black26,
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                                setState(() {
-                                  _show = true;
-                                });
-                                showSearchFilterBottom();
-                              },
-                              icon: Icon(
-                                Icons.tune,
-                                color: Colors.white,
-                              )),
+                          child: Semantics(
+                            label: "Hi how are you",
+                            hint: 'Hi bro iam sorry',
+                            child: IconButton(
+                                splashColor: Colors.black26,
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  setState(() {
+                                    _show = true;
+                                  });
+                                  showSearchFilterBottom();
+                                },
+                                icon: Icon(
+                                  Icons.tune,
+                                  color: Colors.white,
+                                )),
+                          ),
                         ),
                       ],
                     ),
@@ -2207,14 +2206,14 @@ class _CakeTypesState extends State<CakeTypes> {
                             Transform.scale(
                               scale: 0.7,
                               child: CupertinoSwitch(
-                                thumbColor: Colors.white,
+                                thumbColor: Color(0xffffffff),
                                 value: egglesSwitch,
                                 onChanged: (bool? val) {
                                   setState(() {
                                     egglesSwitch = val!;
                                   });
                                 },
-                                trackColor: Colors.green,
+                                activeColor: Colors.green,
                               ),
                             ),
                             Text(
@@ -2222,7 +2221,8 @@ class _CakeTypesState extends State<CakeTypes> {
                               style: TextStyle(
                                   color: darkBlue,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: poppins),
+                                  fontFamily: poppins
+                              ),
                             ),
                           ],
                         ),
@@ -2312,7 +2312,8 @@ class _CakeTypesState extends State<CakeTypes> {
                     ),
                   ),
 
-                  //Cake cate types
+
+              //Cake cate types
                   cakesTypes.length==0?
                   Container(
                       height: height * 0.08,
@@ -2411,7 +2412,9 @@ class _CakeTypesState extends State<CakeTypes> {
                                       color: lightPink,
                                     ),
                                     Text(
-                                      " ${cakesTypes[index][0].toString().toUpperCase()+cakesTypes[index].toString().substring(1).toLowerCase()}",
+                                      " ${cakesTypes[index][0].toString().
+                                      toUpperCase()+cakesTypes[index].toString().substring(1).toLowerCase()
+                                      }",
                                       style: TextStyle(
                                           color: darkBlue,
                                           fontFamily: poppins),
@@ -2477,19 +2480,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                       child:Column(
                                         children: [
                                           CircleAvatar(
-                                            radius: 45,
+                                            radius: 50,
                                             backgroundImage:
                                             filterCakesSearchList[index]['Images'].isEmpty?
                                             NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                             NetworkImage(filterCakesSearchList[index]['Images'][0].toString()),
                                           ),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8,),
                                           Text("${filterCakesSearchList[index]['Title'][0].toString().toUpperCase()+
                                               filterCakesSearchList[index]['Title'].toString().substring(1).toLowerCase()
                                           }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                               color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                           )),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
@@ -2534,18 +2537,18 @@ class _CakeTypesState extends State<CakeTypes> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             CircleAvatar(
-                                              radius: 45,
+                                              radius: 50,
                                               backgroundImage:
                                               filterCakesSearchList[index]['Images'].isEmpty?
                                               NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                               NetworkImage(filterCakesSearchList[index]['Images'][0].toString()),
                                             ),
-                                            SizedBox(height: 5,),
+                                            SizedBox(height: 8,),
                                             Text("${filterCakesSearchList[index]['Title'][0].toString().toUpperCase()+
                                                 filterCakesSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                                 color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15
                                             )),
-                                            SizedBox(height: 5,),
+                                            SizedBox(height: 8,),
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
@@ -2626,19 +2629,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                       child:Column(
                                         children: [
                                           CircleAvatar(
-                                            radius: 45,
+                                            radius: 50,
                                             backgroundImage:
                                             cakeSearchList[index]['Images'].isEmpty?
                                             NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                             NetworkImage(cakeSearchList[index]['Images'][0].toString()),
                                           ),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8,),
                                           Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
                                               cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()
                                               }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                               color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                           )),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
@@ -2685,18 +2688,18 @@ class _CakeTypesState extends State<CakeTypes> {
                                       child:Column(
                                         children: [
                                           CircleAvatar(
-                                            radius: 45,
+                                            radius: 50,
                                             backgroundImage:
                                             cakeSearchList[index]['Images'].isEmpty?
                                             NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                             NetworkImage(cakeSearchList[index]['Images'][0].toString()),
                                           ),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8),
                                           Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
                                               cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
                                               color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
                                           )),
-                                          SizedBox(height: 5,),
+                                          SizedBox(height: 8,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
@@ -2740,7 +2743,18 @@ class _CakeTypesState extends State<CakeTypes> {
                         ),
                       ],
                     ),
-                  )
+                  ) ,
+
+                  // Transform.scale(
+                  //   scale: 0.5,
+                  //   child: Container(
+                  //     padding: EdgeInsets.all(8.0),
+                  //     color:  Color(0xFFE8581C),
+                  //     child:  Text('Bad Idea Bears'),
+                  //   ),
+                  // )
+
+
                 ],
               ),
             ),

@@ -287,30 +287,47 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Future<void> fetchProfileByPhn() async{
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
-    //needs to imple..
-    http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
-        "${int.parse(phoneNumber)}"));
-    if(response.statusCode==200){
-      // print(jsonDecode(response.body));
-      setState(() {
-        List body = jsonDecode(response.body);
-        print("body $body");
-        userID = body[0]['_id'].toString();
-        userAddress = body[0]['Address'].toString();
-        userProfileUrl = body[0]['ProfileImage'].toString();
-        context.read<ContextData>().setProfileUrl(userProfileUrl);
-        userName = body[0]['UserName'].toString();
-        prefs.setString('userID', userID);
-        prefs.setString('userAddress', userAddress);
-        prefs.setString('userName', userName);
-        context.read<ContextData>().setUserName(userName);
-        print(userID + userAddress + userProfileUrl);
-        getOrderList();
+
+    try{
+      http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+          "${int.parse(phoneNumber)}"));
+      if(response.statusCode==200){
+        // print(jsonDecode(response.body));
+        setState(() {
+          List body = jsonDecode(response.body);
+          print("body $body");
+          userID = body[0]['_id'].toString();
+          userAddress = body[0]['Address'].toString();
+          userProfileUrl = body[0]['ProfileImage'].toString();
+          context.read<ContextData>().setProfileUrl(userProfileUrl);
+          userName = body[0]['UserName'].toString();
+          prefs.setString('userID', userID);
+          prefs.setString('userAddress', userAddress);
+          prefs.setString('userName', userName);
+          context.read<ContextData>().setUserName(userName);
+          print(userID + userAddress + userProfileUrl);
+          getOrderList();
+          Navigator.pop(context);
+        });
+      }else{
+        print("Status code : ${response.statusCode}");
         Navigator.pop(context);
-      });
-    }else{
+      }
+    }catch(e){
       Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Check Your Connection! try again'),
+            backgroundColor: Colors.amber,
+            action: SnackBarAction(
+              label: "Retry",
+              onPressed:()=>setState(() {
+                fetchProfileByPhn();
+              }),
+            ),
+          )
+      );
     }
+
   }
 
   //File piker for getting Profile picture
@@ -957,6 +974,15 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           ),
         ),
         actions: [
+          IconButton(
+          onPressed: (){
+            setState(() {
+              fetchProfileByPhn();
+            });
+          },
+          icon: Icon(Icons.refresh),
+          color: darkBlue,
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -1054,18 +1080,19 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             ),
             Expanded(
               child: TabBarView(
-                 controller: tabControl,
-                  children: [
-                    SingleChildScrollView(
-                        child: ProfileView()
-                    ),
-                    Center(
-                      child: SingleChildScrollView(
-                          child: OrdersView()
+                   controller: tabControl,
+                    children: [
+                      SingleChildScrollView(
+                          child: ProfileView()
                       ),
-                    ),
-                  ]
-              ),
+                      Center(
+                        child: SingleChildScrollView(
+                            child: OrdersView()
+                        ),
+                      ),
+                    ]
+                ),
+
             )
           ],
         ),
