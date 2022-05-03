@@ -97,6 +97,8 @@ class _VendorsListState extends State<VendorsList> {
   }
 
   Future<void> getVendorsList() async{
+
+    nearestVendors.clear();
     showAlertDialog();
 
     try{
@@ -108,15 +110,15 @@ class _VendorsListState extends State<VendorsList> {
         setState(() {
           vendorsList = jsonDecode(res.body);
 
-          nearestVendors = vendorsList.where((element){
-
-            if(element['Address']!=null){
-              return element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase());
-            }else{
-              return false;
+          for(int i = 0; i<vendorsList.length;i++){
+            if(vendorsList[i]['Address']!=null&&
+                vendorsList[i]['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())){
+              print('found .... $i');
+              setState(() {
+                nearestVendors.add(vendorsList[i]);
+              });
             }
-
-          }).toList();
+          }
 
           Navigator.pop(context);
         });
@@ -268,6 +270,17 @@ class _VendorsListState extends State<VendorsList> {
   }
 
   //endregion
+
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    Future.delayed(Duration.zero,() async{
+      var prefs = await SharedPreferences.getInstance();
+      prefs.remove('iamFromCustomise');
+    });
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -593,7 +606,8 @@ class _VendorsListState extends State<VendorsList> {
                                                               children: [
                                                                 Container(
                                                                   width:120,
-                                                                  child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                                  child: Text(nearestVendors[index]['VendorName'].toString().isEmpty||
+                                                                      nearestVendors[index]['VendorName']==null?
                                                                   'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
                                                                       nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
                                                                   }',style: TextStyle(
@@ -651,7 +665,7 @@ class _VendorsListState extends State<VendorsList> {
                                                        " "+nearestVendors[index]['Description']:'',
                                                       style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
                                                       overflow: TextOverflow.ellipsis,
-                                                      maxLines: 2,
+                                                      maxLines: 1,
                                                       textAlign: TextAlign.start,
                                                     ),
                                                   ),
@@ -778,7 +792,9 @@ class _VendorsListState extends State<VendorsList> {
                                                         children: [
                                                           Container(
                                                             width:width*0.5,
-                                                            child: Text(locationBySearch[index]['VendorName'].toString().isEmpty?
+                                                            child: Text(locationBySearch[index]['VendorName'].toString().isEmpty||
+                                                                locationBySearch[index]['VendorName']==null
+                                                                ?
                                                                 'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
                                                                 locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
                                                               }'
@@ -855,13 +871,34 @@ class _VendorsListState extends State<VendorsList> {
                                                       ),),
                                                       // currentIndex==index?
                                                       TextButton(
-                                                        onPressed: () {
+                                                        onPressed: () async{
+                                                          var pref = await SharedPreferences.getInstance();
                                                           if(iamFromCustom==true){
+
+                                                            // pref.remove('myVendorId');
+                                                            // pref.remove('myVendorName');
+                                                            // pref.remove('myVendorPhone');
+                                                            // pref.remove('myVendorDesc');
+                                                            // pref.remove('myVendorProfile');
+                                                            // pref.remove('myVendorDeliverChrg');
+                                                            // pref.remove('iamYourVendor');
+
+                                                            pref.setString('myVendorId', locationBySearch[index]['_id']??'null');
+                                                            pref.setString('myVendorName', locationBySearch[index]['VendorName']??'null');
+                                                            pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'null');
+                                                            pref.setString('myVendorDesc', locationBySearch[index]['Description']??'null');
+                                                            pref.setString('myVendorProfile', locationBySearch[index]['ProfileImage']??'null');
+                                                            pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
+                                                            pref.setBool('iamYourVendor', true);
 
                                                             ScaffoldMessenger.of(context).showSnackBar(
                                                               SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
                                                               ['VendorName']}'))
                                                             );
+
+                                                            context.read<ContextData>().setSelectVendor(true);
+
+                                                            Navigator.pop(context);
 
                                                           }else{
                                                             loadSelVendorDataToCTscreen(index);

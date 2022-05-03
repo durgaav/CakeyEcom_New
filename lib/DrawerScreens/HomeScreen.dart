@@ -539,8 +539,9 @@ class _HomeScreenState extends State<HomeScreen> {
       profileRemainder = prefs.getBool("profileUpdated")??false;
       phoneNumber = prefs.getString("phoneNumber")??"";
       newRegUser = prefs.getBool("newRegUser")??false;
-      timerTrigger();
       fetchProfileByPhn();
+      timerTrigger();
+
     });
   }
 
@@ -709,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Fetching cake list API...
   Future<void> getCakeList() async{
-
+    cakesList.clear();
     setState(() {
       isAllLoading = true;
     });
@@ -784,6 +785,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting recent orders list by UserId
   Future<void> getOrderList() async{
+    recentOrders.clear();
     setState(() {
       ordersLoading = true;
     });
@@ -896,17 +898,33 @@ class _HomeScreenState extends State<HomeScreen> {
   //Get vendors list
   Future<void> getVendorsList() async{
 
+    filteredByEggList.clear();
+
+    print(userMainLocation);
+
     try{
       var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
       if(res.statusCode==200){
         setState((){
+
           vendorsList = jsonDecode(res.body);
 
           // getNearbyLoc();
 
-          filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
-          contains(userMainLocation.toLowerCase())).toList();
+          for(int i = 0; i<vendorsList.length;i++){
+            if(vendorsList[i]['Address']!=null&&
+                vendorsList[i]['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())){
+              print('found .... $i');
+              setState(() {
+                filteredByEggList.add(vendorsList[i]);
+              });
+            }
+          }
+
+
+          // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
+          // contains(userMainLocation.toLowerCase())).toList();
 
           filteredByEggList = filteredByEggList.toSet().toList();
           filteredByEggList = filteredByEggList.reversed.toList();
@@ -918,7 +936,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print(res.statusCode);
       }
     }catch(e){
-
+      print("vendor error: $e");
     }
 
   }

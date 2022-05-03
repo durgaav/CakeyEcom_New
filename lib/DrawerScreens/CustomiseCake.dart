@@ -96,6 +96,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   List nearestVendors = [];
 
+  var selFromVenList = false;
+
+  //my venor details
+  String myVendorName = '';
+  String myVendorId = '';
+  String myVendorProfile ='';
+  String myVendorDelCharge = '';
+  String myVendorPhone = '';
+  String myVendorDesc = '';
+  bool iamYourVendor = false;
+
   //file
   File file = new File('');
 
@@ -318,6 +329,21 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //region Functions
 
+  //load my vendor Details
+  Future<void> loadSelVendorDetails() async{
+    var pref = await SharedPreferences.getInstance();
+    setState(() {
+      myVendorName = pref.getString('myVendorName')??'null';
+      myVendorId= pref.getString('myVendorId')??'null';
+      myVendorProfile= pref.getString('myVendorProfile')??'null';
+      myVendorDelCharge= pref.getString('myVendorDeliverChrg')??'null';
+      myVendorPhone= pref.getString('myVendorPhone')??'null';
+      myVendorDesc= pref.getString('myVendorDesc')??'null';
+      iamYourVendor= pref.getBool('iamYourVendor')??false;
+    });
+  }
+
+
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
@@ -409,9 +435,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         setState(() {
           List vendorsList = jsonDecode(res.body);
 
-          nearestVendors = vendorsList.where((element) =>
-              element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
-          ).toList();
+          for(int i = 0; i<vendorsList.length;i++){
+            if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
+                vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){
+              print('found .... $i');
+              setState(() {
+                nearestVendors.add(vendorsList[i]);
+              });
+            }
+          }
 
           Navigator.pop(context);
         });
@@ -467,9 +499,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    selFromVenList = context.watch<ContextData>().getSelVendor();
 
     return Scaffold(
       // appBar: AppBar(
@@ -1428,8 +1468,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   SizedBox(height: 20,),
                                   btnMsg.toLowerCase()!='connect - help desk'?
                                   Container(
-                                    height: 200,
-                                    child: ListView.builder(
+                                    height: iamYourVendor?160:200,
+                                    child: !iamYourVendor?ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         shrinkWrap: true,
                                         itemCount: nearestVendors.length,
@@ -1531,9 +1571,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       alignment: Alignment.centerLeft,
                                                       child: Text(nearestVendors[index]['Description']!=null?
                                                       " "+nearestVendors[index]['Description']:'',
-                                                        style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                                        style: TextStyle(color: Colors.black54,fontFamily: "Poppins" , fontSize: 13),
                                                         overflow: TextOverflow.ellipsis,
-                                                        maxLines: 2,
+                                                        maxLines: 1,
                                                         textAlign: TextAlign.start,
                                                       ),
                                                     ),
@@ -1583,7 +1623,172 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             ),
                                           );
                                         }
-                                    ),
+                                    ):Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: EdgeInsets.all(5),
+                                      margin: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          color:Colors.white , 
+                                          borderRadius:BorderRadius.circular(10)
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          myVendorProfile!='null'?
+                                          Container(
+                                            width:90,
+                                            decoration: BoxDecoration(
+                                                color:Colors.red ,
+                                                borderRadius:BorderRadius.circular(10) ,
+                                                image:DecorationImage(
+                                                  image:NetworkImage(myVendorProfile),
+                                                  fit: BoxFit.cover
+                                                )
+                                            ),
+                                          ):
+                                          Container(
+                                            width:90,
+                                            decoration: BoxDecoration(
+                                                color:Colors.red ,
+                                                borderRadius:BorderRadius.circular(10) ,
+                                                image:DecorationImage(
+                                                    image:Svg("assets/images/pictwo.svg"),
+                                                    fit: BoxFit.cover
+                                                )
+                                            ),
+                                          ),
+                                          SizedBox(width: 8,),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width:155,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            child: Text('$myVendorName' , style: TextStyle(
+                                                              color: Colors.black,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontFamily: "Poppins",
+                                                            ),overflow: TextOverflow.ellipsis,),
+                                                          ),
+                                                          SizedBox(height: 6,) ,
+                                                          Row(
+                                                            children: [
+                                                              RatingBar.builder(
+                                                                initialRating: 4.1,
+                                                                minRating: 1,
+                                                                direction: Axis.horizontal,
+                                                                allowHalfRating: true,
+                                                                itemCount: 5,
+                                                                itemSize: 14,
+                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                itemBuilder: (context, _) => Icon(
+                                                                  Icons.star,
+                                                                  color: Colors.amber,
+                                                                ),
+                                                                onRatingUpdate: (rating) {
+                                                                  print(rating);
+                                                                },
+                                                              ),
+                                                              Text(' 4.5',style: TextStyle(
+                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                              ),)
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Icon(Icons.check_circle,color:Colors.green)
+                                                  ],
+                                                ),
+                                                Text(myVendorDesc + "",
+                                                  style:TextStyle(
+                                                  fontSize:13,
+                                                  fontFamily: "Poppins" ,
+                                                  color:Colors.grey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),maxLines: 2,),
+                                                Container(
+                                                  height:1,
+                                                  color:Colors.grey,
+                                                  // margin: EdgeInsets.only(left:6,right:6),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text("Includes Eggless",
+                                                          style:TextStyle(
+                                                            fontSize:11,
+                                                            fontFamily: "Poppins" ,
+                                                            color:darkBlue,
+                                                          ),maxLines: 1,),
+                                                        SizedBox(height:3),
+                                                        Text("DELIVERY FREE",
+                                                          style:TextStyle(
+                                                            fontSize:11,
+                                                            fontFamily: "Poppins" ,
+                                                            color:Colors.orange,
+                                                          ),maxLines: 1,),
+                                                      ],
+                                                    ),
+                                                    Container(
+                                                      width: 100,
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                        children: [
+                                                          InkWell(
+                                                            onTap: (){
+                                                              print('phone..');
+                                                            },
+                                                            child: Container(
+                                                              alignment: Alignment.center,
+                                                              height: 35,
+                                                              width: 35,
+                                                              decoration: BoxDecoration(
+                                                                shape: BoxShape.circle,
+                                                                color: Colors.grey[200],
+                                                              ),
+                                                              child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 10,),
+                                                          InkWell(
+                                                            onTap: (){
+                                                              print('whatsapp : ');
+                                                            },
+                                                            child: Container(
+                                                              alignment: Alignment.center,
+                                                              height: 35,
+                                                              width: 35,
+                                                              decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color:Colors.grey[200]
+                                                              ),
+                                                              child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
                                   ):
                                   Container(),
                                   SizedBox(height: 15,),
