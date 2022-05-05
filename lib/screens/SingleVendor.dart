@@ -144,8 +144,6 @@ class _SingleVendorState extends State<SingleVendor> {
   //load select Vendor data to CakeTypeScreen
   Future<void> loadSelVendorDataToCTscreen() async{
 
-
-
     var pref = await SharedPreferences.getInstance();
 
     pref.setString('myVendorId', vendorID);
@@ -157,6 +155,22 @@ class _SingleVendorState extends State<SingleVendor> {
     pref.setString('myVendorAddress', deliverCharge);
     pref.setString('myVendorEggs', vendorEggOrEggless);
     pref.setBool('iamYourVendor', true);
+
+
+    context.read<ContextData>().addMyVendor(true);
+    context.read<ContextData>().setMyVendors(
+        [
+          {
+            "VendorId":vendorID,
+            "VendorName":vendorName,
+            "VendorDesc":description,
+            "VendorProfile":profileImage,
+            "VendorPhone":vendorPhone,
+            "VendorDelCharge":deliverCharge,
+            "VendorEgg":vendorEggOrEggless,
+          }
+        ]
+    );
 
     context.read<ContextData>().setCurrentIndex(1);
 

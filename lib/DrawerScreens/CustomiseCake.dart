@@ -95,6 +95,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   List categories = ["Birthday" , "Wedding" , "Others" , "Anniversary" , "Farewell"];
 
   List nearestVendors = [];
+  List mySelectdVendors = [];
 
   var selFromVenList = false;
 
@@ -329,6 +330,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //region Functions
 
+  Future<void> removeMyVendorPref() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    pref.remove('myVendorId');
+    pref.remove('myVendorName');
+    pref.remove('myVendorPhone');
+    pref.remove('myVendorDesc');
+    pref.remove('myVendorProfile');
+    pref.remove('myVendorDeliverChrg');
+    pref.remove('iamYourVendor');
+    pref.remove('iamFromCustomise');
+
+    //remove homescreen caketypes
+    pref.remove('homeCakeType');
+    pref.remove('homeCTindex');
+    pref.remove('isHomeCake');
+
+  }
+
   //load my vendor Details
   Future<void> loadSelVendorDetails() async{
     var pref = await SharedPreferences.getInstance();
@@ -501,15 +522,27 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   @override
   void dispose() {
     // TODO: implement dispose
-
+    Future.delayed(Duration.zero , () async{
+      removeMyVendorPref();
+    });
     super.dispose();
   }
+
+  // void vendorLoad(){
+  //   selFromVenList = ;
+  //   if(selFromVenList==1){
+  //     loadSelVendorDetails();
+  //   }else{
+  //     return null;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
-    selFromVenList = context.watch<ContextData>().getSelVendor();
+    selFromVenList = context.watch<ContextData>().getAddedMyVendor();
+    mySelectdVendors = context.watch<ContextData>().getMyVendorsList();
 
     return Scaffold(
       // appBar: AppBar(
@@ -1439,12 +1472,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text('Select Vendors',style: TextStyle(fontSize:15,
+                                          Text(!selFromVenList?'Select Vendors':'Your Vendor',style: TextStyle(fontSize:15,
                                               color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                          Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
+                                          Text(!selFromVenList?'  (10km radius)':'',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
                                         ],
                                       ),
-                                      InkWell(
+                                      !selFromVenList?InkWell(
                                         onTap: () async{
                                           print('see more..');
                                           var pref = await SharedPreferences.getInstance();
@@ -1462,14 +1495,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             Icon(Icons.keyboard_arrow_right,color: lightPink,)
                                           ],
                                         ),
-                                      ),
+                                      ):Container(),
                                     ],
                                   ):Container(),
-                                  SizedBox(height: 20,),
+                                  SizedBox(height: 15,),
                                   btnMsg.toLowerCase()!='connect - help desk'?
                                   Container(
-                                    height: iamYourVendor?160:200,
-                                    child: !iamYourVendor?ListView.builder(
+                                    height: selFromVenList?160:200,
+                                    child: !selFromVenList?
+                                    ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         shrinkWrap: true,
                                         itemCount: nearestVendors.length,
@@ -1623,7 +1657,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             ),
                                           );
                                         }
-                                    ):Container(
+                                    ):
+                                    Container(
                                       width: MediaQuery.of(context).size.width,
                                       padding: EdgeInsets.all(5),
                                       margin: EdgeInsets.all(5),
@@ -1633,14 +1668,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       ),
                                       child: Row(
                                         children: [
-                                          myVendorProfile!='null'?
+                                          mySelectdVendors[0]['VendorProfile']!=null?
                                           Container(
                                             width:90,
                                             decoration: BoxDecoration(
                                                 color:Colors.red ,
                                                 borderRadius:BorderRadius.circular(10) ,
                                                 image:DecorationImage(
-                                                  image:NetworkImage(myVendorProfile),
+                                                  image:NetworkImage(mySelectdVendors[0]['VendorProfile']),
                                                   fit: BoxFit.cover
                                                 )
                                             ),
@@ -1673,7 +1708,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
                                                           Container(
-                                                            child: Text('$myVendorName' , style: TextStyle(
+                                                            child: Text('${mySelectdVendors[0]['VendorName']}' , style: TextStyle(
                                                               color: Colors.black,
                                                               fontWeight: FontWeight.bold,
                                                               fontFamily: "Poppins",
@@ -1709,9 +1744,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                     Icon(Icons.check_circle,color:Colors.green)
                                                   ],
                                                 ),
-                                                Text(myVendorDesc + "",
+                                                Text(mySelectdVendors[0]['VendorDesc']!=null||
+                                                    mySelectdVendors[0]['VendorDesc']!='null'?
+                                                "${mySelectdVendors[0]['VendorDesc']}":"No Description",
                                                   style:TextStyle(
-                                                  fontSize:13,
+                                                  fontSize:12,
                                                   fontFamily: "Poppins" ,
                                                   color:Colors.grey,
                                                   fontWeight: FontWeight.bold,
@@ -1727,16 +1764,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                     Column(
                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
-                                                        Text("Includes Eggless",
+                                                        Text(mySelectdVendors[0]['VendorEgg']=='Both'?
+                                                        'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
                                                           style:TextStyle(
                                                             fontSize:11,
                                                             fontFamily: "Poppins" ,
                                                             color:darkBlue,
                                                           ),maxLines: 1,),
                                                         SizedBox(height:3),
-                                                        Text("DELIVERY FREE",
+                                                        Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
+                                                            mySelectdVendors[0]['VendorDelCharge']==null?
+                                                        "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
                                                           style:TextStyle(
-                                                            fontSize:11,
+                                                            fontSize:10,
                                                             fontFamily: "Poppins" ,
                                                             color:Colors.orange,
                                                           ),maxLines: 1,),
@@ -1803,6 +1843,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           borderRadius: BorderRadius.circular(25)
                                       ),
                                       onPressed: (){
+
+                                        print('Show my vendors : $mySelectdVendors');
 
                                         print(!egglesSwitch?'Egg':'Eggless');
                                         if(fixedCategory.isEmpty){

@@ -1,4 +1,6 @@
 import 'package:cakey/drawermenu/DrawerHome.dart';
+import 'package:cakey/screens/CheckOut.dart';
+import 'package:cakey/screens/Profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -56,9 +58,16 @@ class _TestScreenState extends State<TestScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
 
-
+            IndexedStack(
+              index: 1,
+              children: [
+                CheckOut(),
+                Profile(defindex: 0),
+              ],
+            ),
 
             // AnimatedContainer(
             //     height: height,
@@ -69,62 +78,62 @@ class _TestScreenState extends State<TestScreen> {
             //     child: Text('Hi broo how are you')
             // ),
 
-            Container(
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.indigo,
-                borderRadius: BorderRadius.circular(20)
-              ),
-              child: Row(
-                children: [
-                  Draggable(
-                      data: "Ok",
-                      axis: Axis.horizontal,
-                      child: Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,),
-                      feedback: Icon(Icons.arrow_forward_ios_rounded,color: Colors.white70,)
-                  ),
-
-                  SizedBox(width: 10,) ,
-
-                  Shimmer.fromColors(
-                    highlightColor: Colors.grey[400]!,
-                    baseColor: Colors.white,
-                    child: Text('Swipe To Navigate' , style: TextStyle(
-                      color: Colors.white ,fontFamily: "Poppins" , fontSize: 20 ,
-                      fontWeight: FontWeight.bold
-                    ),),
-                  ),
-
-                  SizedBox(width: 10,) ,
-
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-
-                        child: DragTarget(
-                            builder: (BuildContext context , List<dynamic> start , List<dynamic> end){
-                              return Icon(Icons.lock_open,color:Colors.white);
-                            } ,
-                          onAccept: (data){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
-                              print(data);
-                              setState(() {
-                                droped = true;
-                              });
-                          },
-                          onWillAccept: (data){
-                              return data == "Ok";
-                          },
-                        ),
-                      ),
-                    ),
-                  )
-
-                ],
-              ),
-            )
+            // Container(
+            //   margin: EdgeInsets.all(10),
+            //   padding: EdgeInsets.all(10),
+            //   decoration: BoxDecoration(
+            //     color: Colors.indigo,
+            //     borderRadius: BorderRadius.circular(20)
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Draggable(
+            //           data: "Ok",
+            //           axis: Axis.horizontal,
+            //           child: Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,),
+            //           feedback: Icon(Icons.arrow_forward_ios_rounded,color: Colors.white70,)
+            //       ),
+            //
+            //       SizedBox(width: 10,) ,
+            //
+            //       Shimmer.fromColors(
+            //         highlightColor: Colors.grey[400]!,
+            //         baseColor: Colors.white,
+            //         child: Text('Swipe To Navigate' , style: TextStyle(
+            //           color: Colors.white ,fontFamily: "Poppins" , fontSize: 20 ,
+            //           fontWeight: FontWeight.bold
+            //         ),),
+            //       ),
+            //
+            //       SizedBox(width: 10,) ,
+            //
+            //       Expanded(
+            //         child: Align(
+            //           alignment: Alignment.centerRight,
+            //           child: Container(
+            //
+            //             child: DragTarget(
+            //                 builder: (BuildContext context , List<dynamic> start , List<dynamic> end){
+            //                   return Icon(Icons.lock_open,color:Colors.white);
+            //                 } ,
+            //               onAccept: (data){
+            //                   Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+            //                   print(data);
+            //                   setState(() {
+            //                     droped = true;
+            //                   });
+            //               },
+            //               onWillAccept: (data){
+            //                   return data == "Ok";
+            //               },
+            //             ),
+            //           ),
+            //         ),
+            //       )
+            //
+            //     ],
+            //   ),
+            // )
 
           ],
         ),

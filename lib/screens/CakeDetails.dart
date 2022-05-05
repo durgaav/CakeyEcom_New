@@ -47,6 +47,10 @@ class _CakeDetailsState extends State<CakeDetails> {
   bool iamYourVendor = false;
   bool msgError = false;
 
+  //load context vendor...
+  bool isMySelVen = false;
+  List mySelVendors = [];
+
   //Lists...
   List<String> cakeImages = [];
 
@@ -1785,9 +1789,15 @@ class _CakeDetailsState extends State<CakeDetails> {
       setState(() {
         List vendorsList = jsonDecode(res.body);
 
-        nearestVendors = vendorsList.where((element) =>
-            element['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())
-        ).toList();
+        for(int i = 0; i<vendorsList.length;i++){
+          if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
+              vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){
+            print('found .... $i');
+            setState(() {
+              nearestVendors.add(vendorsList[i]);
+            });
+          }
+        }
 
         Navigator.pop(context);
       });
@@ -1858,8 +1868,12 @@ class _CakeDetailsState extends State<CakeDetails> {
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    iamYourVendor = context.watch<ContextData>().getAddedMyVendor();
+    mySelVendors = context.watch<ContextData>().getMyVendorsList();
+
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SafeArea(
         child: NestedScrollView(
@@ -2868,7 +2882,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                           style: TextStyle(
                               fontFamily: poppins,
                               color: Colors.grey,
-                              fontSize: 13),
+                              fontSize: 13
+                          ),
                         ),
                         trailing:
                             Icon(Icons.verified_rounded, color: Colors.green),
@@ -2971,7 +2986,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           fontSize: 18,
                                           color: darkBlue,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: poppins),
+                                          fontFamily: poppins
+                                      ),
                                     ),
                                     Text(
                                       '  (10km radius)',
@@ -2982,35 +2998,17 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   ],
                                 ),
                                 InkWell(
-                                  onTap: () {
-                                    print('see more..');
-                                    Navigator.of(context).push(
-                                      PageRouteBuilder(
-                                        pageBuilder: (context, animation,
-                                                secondaryAnimation) =>
-                                            VendorsList(),
-                                        transitionsBuilder: (context, animation,
-                                            secondaryAnimation, child) {
-                                          const begin = Offset(1.0, 0.0);
-                                          const end = Offset.zero;
-                                          const curve = Curves.ease;
+                                  onTap: () async{
 
-                                          final tween =
-                                              Tween(begin: begin, end: end);
-                                          final curvedAnimation =
-                                              CurvedAnimation(
-                                            parent: animation,
-                                            curve: curve,
-                                          );
+                                    var pref = await SharedPreferences.getInstance();
+                                    pref.setBool('iamFromCustomise', true);
+                                    setState(() {
+                                      // context.read<ContextData>().setCurrentIndex(3);
+                                      Navigator.push(context, MaterialPageRoute(
+                                          builder: (context)=>VendorsList()
+                                      ));
+                                    });
 
-                                          return SlideTransition(
-                                            position:
-                                                tween.animate(curvedAnimation),
-                                            child: child,
-                                          );
-                                        },
-                                      ),
-                                    );
                                   },
                                   child: Row(
                                     children: [
@@ -3163,7 +3161,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                   " "+nearestVendors[index]['Description']:'',
                                                     style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
                                                     overflow: TextOverflow.ellipsis,
-                                                    maxLines: 2,
+                                                    maxLines: 1,
                                                     textAlign: TextAlign.start,
                                                   ),
                                                 ),
@@ -3226,13 +3224,26 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
+                                    mySelVendors[0]['VendorProfile']==null||
+                                    mySelVendors[0]['VendorProfile']=='null'?
                                     Container(
                                       width: 90,
                                       decoration: BoxDecoration(
                                         color: Colors.red,
                                         image: DecorationImage(
-                                          image: NetworkImage(myVendorProfile),
+                                            image: Svg('assets/images/pictwo.svg'),
                                           fit: BoxFit.cover
+                                        ),
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ):
+                                    Container(
+                                      width: 90,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        image: DecorationImage(
+                                            image: NetworkImage(mySelVendors[0]['VendorProfile']),
+                                            fit: BoxFit.cover
                                         ),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
@@ -3243,7 +3254,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('$myVendorName', style: TextStyle(
+                                          Text(mySelVendors[0]['VendorName'], style: TextStyle(
                                             color:Colors.black , fontWeight: FontWeight.bold,
                                             fontFamily: "Poppins",fontSize: 16
                                           ),) ,
@@ -3271,7 +3282,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           ),
                                           Container(
                                             width: width*0.62,
-                                            child: Text('$myVendorDesc', style: TextStyle(
+                                            child: Text(mySelVendors[0]['VendorDesc']!=null||
+                                                mySelVendors[0]['VendorDesc']!='null'?
+                                            "${mySelVendors[0]['VendorDesc']}":"No Description", style: TextStyle(
                                                 color:Colors.grey , fontWeight: FontWeight.bold,
                                                 fontFamily: "Poppins",fontSize: 12
                                             ),overflow: TextOverflow.ellipsis,maxLines: 1,),
@@ -3288,29 +3301,24 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               children: [
                                                 Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children:[
-                                                    myVendorEgg=='Both'?
-                                                    Text('Egg and Eggless',
-                                                      style: TextStyle(
+                                                  children: [
+                                                    Text(mySelVendors[0]['VendorEgg']=='Both'?
+                                                    'Includes eggless':'${mySelVendors[0]['VendorEgg']}',
+                                                      style:TextStyle(
+                                                        fontSize:11,
+                                                        fontFamily: "Poppins" ,
                                                         color:darkBlue,
-                                                        fontFamily: "Poppins",fontSize: 12
-                                                    ),):
-                                                    Text('$myVendorEgg',
-                                                      style: TextStyle(
-                                                          color:darkBlue,
-                                                          fontFamily: "Poppins",fontSize: 12
-                                                      ),),
-                                                    myVendorDelCharge=='null'?
-                                                    Text('DELIVERY FREE',
-                                                          style: TextStyle(
-                                                              color:Colors.orange,
-                                                              fontFamily: "Poppins",fontSize: 12
-                                                     ),):Text('Delivery fee Rs.${myVendorDelCharge}',
-                                                      style: TextStyle(
-                                                          color:Colors.orange,
-                                                          fontFamily: "Poppins",fontSize: 12
-                                                      ),),
-                                                  ]
+                                                      ),maxLines: 1,),
+                                                    SizedBox(height:3),
+                                                    Text(mySelVendors[0]['VendorDelCharge']=='0'||
+                                                        mySelVendors[0]['VendorDelCharge']==null?
+                                                    "DELIVERY FREE":'Delivery Fee Rs.${mySelVendors[0]['VendorDelCharge']}',
+                                                      style:TextStyle(
+                                                        fontSize:10,
+                                                        fontFamily: "Poppins" ,
+                                                        color:Colors.orange,
+                                                      ),maxLines: 1,),
+                                                  ],
                                                 ),
                                                 Icon(Icons.check_circle,color: Colors.green,)
                                               ],

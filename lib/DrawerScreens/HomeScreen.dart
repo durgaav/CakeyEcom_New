@@ -33,6 +33,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  //TODO : API AUTH
+  // final response = await http.get(url, headers: {
+  // 'Content-Type': 'application/json',
+  // 'Accept': 'application/json',
+  // 'Authorization': 'Bearer $token',
+  // });
+
   //region Vari..
   //Scaff Key..
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -1613,7 +1620,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 Container(
-                                  child: ListView.builder(
+                                  child:
+                                  nearestVendors.isEmpty?
+                                  Column(
+                                    children: [
+                                      SizedBox(height:20),
+                                      Text('No Results Found!',style:TextStyle(
+                                        fontFamily:'Poppins',color:darkBlue
+                                      )),
+                                      SizedBox(height:20),
+                                    ],
+                                  ):
+                                  ListView.builder(
                                       itemCount: nearestVendors.length,
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
@@ -1797,8 +1815,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-
-
                       ],
                     ),
                   ),

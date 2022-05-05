@@ -7,7 +7,8 @@ class ContextData extends ChangeNotifier {
   String profileUrl = "";
   String userName = "";
   int currentIndex = 0;
-  bool vendrorIsSelected = false;
+  List myVendorList = [];
+  bool isMyVendorAdded = false;
 
   void setProfileUrl(String url){
     profileUrl = url;
@@ -30,11 +31,18 @@ class ContextData extends ChangeNotifier {
 
   int getCurrentIndex()=>currentIndex;
 
-  void setSelectVendor(bool trOrfal){
-    vendrorIsSelected = trOrfal;
+  void addMyVendor(bool added){
+    isMyVendorAdded = added;
     notifyListeners();
   }
 
-  bool getSelVendor()=>vendrorIsSelected;
+  bool getAddedMyVendor()=>isMyVendorAdded;
+
+  void setMyVendors(List myList){
+    myVendorList = myList;
+    notifyListeners();
+  }
+
+  List getMyVendorsList()=>myVendorList;
 
 }

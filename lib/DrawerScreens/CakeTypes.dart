@@ -120,6 +120,8 @@ class _CakeTypesState extends State<CakeTypes> {
   List<bool> otherShapeCheck = [];
   List myShapesFilter = [];
 
+  List mySelVendors =[];
+
   //endregion
 
   //region Dialogs
@@ -1821,13 +1823,22 @@ class _CakeTypesState extends State<CakeTypes> {
   }
 
 
-
+  @override
+  void dispose() {
+    Future.delayed(Duration.zero , () async{
+      var pr = await SharedPreferences.getInstance();
+      pr.remove('iamYourVendor');
+    });
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
+    mySelVendors = context.watch<ContextData>().getMyVendorsList();
 
     //search & filters controlls
       if(egglesSwitch == true){
@@ -1906,7 +1917,7 @@ class _CakeTypesState extends State<CakeTypes> {
     return WillPopScope(
       onWillPop: () async{
         iamYourVendor?
-        context.read<ContextData>().setCurrentIndex(4):
+        context.read<ContextData>().setCurrentIndex(3):
         context.read<ContextData>().setCurrentIndex(0);
         return false;
       },
@@ -2063,7 +2074,7 @@ class _CakeTypesState extends State<CakeTypes> {
                             Row(
                                   children: [
                                     Container(
-                                      child: Text('$vendorName ',style: TextStyle(
+                                      child: Text(mySelVendors[0]['VendorName'],style: TextStyle(
                                           color: darkBlue,fontFamily:"Poppins",
                                           fontSize: 18,fontWeight: FontWeight.bold
                                       ),),

@@ -455,6 +455,8 @@ class _DrawerHomeState extends State<DrawerHome> {
     // TODO: implement dispose
     Future.delayed(Duration.zero , () async{
       removeMyVendorPref();
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
     });
     super.dispose();
   }

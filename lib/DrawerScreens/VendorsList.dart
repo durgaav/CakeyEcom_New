@@ -45,6 +45,8 @@ class _VendorsListState extends State<VendorsList> {
   List vendorsList = [];
 
   var iamFromCustom = false;
+  var selectedVendor = false;
+  List selvendorList = [];
 
   TextEditingController searchCtrl = new TextEditingController();
 
@@ -164,14 +166,29 @@ class _VendorsListState extends State<VendorsList> {
     var pref = await SharedPreferences.getInstance();
 
     pref.setString('myVendorId', locationBySearch[index]['_id']);
-    pref.setString('myVendorName', locationBySearch[index]['VendorName']);
-    pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'No Description');
-    pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
-    pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
-    pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
-    pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
-    pref.setString('myVendorAddress',address??'null');
     pref.setBool('iamYourVendor', true);
+    // pref.setString('myVendorName', locationBySearch[index]['VendorName']);
+    // pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'No Description');
+    // pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
+    // pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
+    // pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
+    // pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
+    // pref.setString('myVendorAddress',address??'null');
+
+    context.read<ContextData>().addMyVendor(true);
+    context.read<ContextData>().setMyVendors(
+        [
+          {
+            "VendorId":locationBySearch[index]['_id'],
+            "VendorName":locationBySearch[index]['VendorName'],
+            "VendorDesc":locationBySearch[index]['Description'],
+            "VendorProfile":locationBySearch[index]['ProfileImage'],
+            "VendorPhone":locationBySearch[index]['PhoneNumber'],
+            "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
+            "VendorEgg":locationBySearch[index]['EggOrEggless'],
+          }
+        ]
+    );
 
     context.read<ContextData>().setCurrentIndex(1);
 
@@ -309,6 +326,8 @@ class _VendorsListState extends State<VendorsList> {
     }
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    selectedVendor = context.watch<ContextData>().getAddedMyVendor();
+    selvendorList = context.watch<ContextData>().getMyVendorsList();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -546,8 +565,41 @@ class _VendorsListState extends State<VendorsList> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               //Vendor list text
+                              selectedVendor?Align(
+                                alignment:Alignment.centerRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right:10),
+                                  child:TextButton(
+                                    onPressed:() async{
+                                      var pref = await SharedPreferences.getInstance();
+                                      pref.remove('myVendorId');
+                                      pref.remove('myVendorName');
+                                      pref.remove('myVendorPhone');
+                                      pref.remove('myVendorDesc');
+                                      pref.remove('myVendorProfile');
+                                      pref.remove('myVendorDeliverChrg');
+                                      pref.remove('iamYourVendor');
+                                      //remove homescreen caketypes
+                                      pref.remove('homeCakeType');
+                                      pref.remove('homeCTindex');
+                                      pref.remove('isHomeCake');
+                                      context.read<ContextData>().setMyVendors([]);
+                                      context.read<ContextData>().addMyVendor(false);
+                                      
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Your Vendor '${selvendorList[0]['VendorName']}' Removed!"))
+                                      );
+                                      
+                                    },
+                                    child: Text("Remove My Vendor!",
+                                      style: TextStyle(color: Colors.red,fontSize: 11,
+                                          fontFamily: "Poppins"),
+                                    ),
+                                  )
+                                ),
+                              ):Container(),
                               Padding(
-                                padding: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.only(left:10),
                                 child: Text("Nearest Vendors",
                                   style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
                                 ),
@@ -872,31 +924,28 @@ class _VendorsListState extends State<VendorsList> {
                                                       // currentIndex==index?
                                                       TextButton(
                                                         onPressed: () async{
-                                                          var pref = await SharedPreferences.getInstance();
+
                                                           if(iamFromCustom==true){
 
-                                                            // pref.remove('myVendorId');
-                                                            // pref.remove('myVendorName');
-                                                            // pref.remove('myVendorPhone');
-                                                            // pref.remove('myVendorDesc');
-                                                            // pref.remove('myVendorProfile');
-                                                            // pref.remove('myVendorDeliverChrg');
-                                                            // pref.remove('iamYourVendor');
-
-                                                            pref.setString('myVendorId', locationBySearch[index]['_id']??'null');
-                                                            pref.setString('myVendorName', locationBySearch[index]['VendorName']??'null');
-                                                            pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'null');
-                                                            pref.setString('myVendorDesc', locationBySearch[index]['Description']??'null');
-                                                            pref.setString('myVendorProfile', locationBySearch[index]['ProfileImage']??'null');
-                                                            pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
-                                                            pref.setBool('iamYourVendor', true);
+                                                            context.read<ContextData>().addMyVendor(true);
+                                                            context.read<ContextData>().setMyVendors(
+                                                              [
+                                                                {
+                                                                  "VendorId":locationBySearch[index]['_id'],
+                                                                  "VendorName":locationBySearch[index]['VendorName'],
+                                                                  "VendorDesc":locationBySearch[index]['Description'],
+                                                                  "VendorProfile":locationBySearch[index]['ProfileImage'],
+                                                                  "VendorPhone":locationBySearch[index]['PhoneNumber'],
+                                                                  "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
+                                                                  "VendorEgg":locationBySearch[index]['EggOrEggless'],
+                                                                }
+                                                              ]
+                                                            );
 
                                                             ScaffoldMessenger.of(context).showSnackBar(
                                                               SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
                                                               ['VendorName']}'))
                                                             );
-
-                                                            context.read<ContextData>().setSelectVendor(true);
 
                                                             Navigator.pop(context);
 
