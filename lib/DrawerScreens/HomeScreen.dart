@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
+import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:cakey/TestScreen.dart';
@@ -249,50 +251,50 @@ class _HomeScreenState extends State<HomeScreen> {
                        SizedBox(
                          height: 15,
                        ),
-                       Container(
-                         height: 45,
-                         child: TextField(
-                           controller: cakeLocationCtrl,
-                           decoration: InputDecoration(
-                               contentPadding: EdgeInsets.all(5),
-                               hintText: "Location",
-                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                               prefixIcon: Icon(Icons.location_on),
-                               suffixIcon: IconButton(
-                                 onPressed: (){},
-                                 icon: Icon(Icons.my_location),
-                               ),
-                               border: OutlineInputBorder()
-                           ),
-                         ),
-                       ),
-                       SizedBox(
-                         height: 5,
-                       ),
-                       //kilo meter radius buttons.........
-                       Wrap(
-                         runSpacing: 5.0,
-                         spacing: 5.0,
-                         children: [
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                         ],
-
-                       ),
+                       // Container(
+                       //   height: 45,
+                       //   child: TextField(
+                       //     controller: cakeLocationCtrl,
+                       //     decoration: InputDecoration(
+                       //         contentPadding: EdgeInsets.all(5),
+                       //         hintText: "Location",
+                       //         hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                       //         prefixIcon: Icon(Icons.location_on),
+                       //         suffixIcon: IconButton(
+                       //           onPressed: (){},
+                       //           icon: Icon(Icons.my_location),
+                       //         ),
+                       //         border: OutlineInputBorder()
+                       //     ),
+                       //   ),
+                       // ),
+                       // SizedBox(
+                       //   height: 5,
+                       // ),
+                       // //kilo meter radius buttons.........
+                       // Wrap(
+                       //   runSpacing: 5.0,
+                       //   spacing: 5.0,
+                       //   children: [
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //   ],
+                       //
+                       // ),
                        SizedBox(
                          height: 10,
                        ),
@@ -305,41 +307,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
                        SizedBox(height: 5,),
 
-
-                       Align(
-                         alignment: Alignment.centerLeft,
-                         child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
-                             fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                       ),
-                       SizedBox(height: 5,),
-                       //stars rattings...
-                       Wrap(
-                         runSpacing: 5.0,
-                         spacing: 5.0,
-                         children: [
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                         ],
-                       ),
-
-                       SizedBox(height: 5,),
-                       //Divider
-                       Container(
-                         height: 1.0,
-                         color: Colors.black26,
-                       ),
-                       //cake types....
-                       SizedBox(height: 5,),
+                       // Align(
+                       //   alignment: Alignment.centerLeft,
+                       //   child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
+                       //       fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                       // ),
+                       // SizedBox(height: 5,),
+                       // //stars rattings...
+                       // Wrap(
+                       //   runSpacing: 5.0,
+                       //   spacing: 5.0,
+                       //   children: [
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //     OutlinedButton(
+                       //       onPressed: (){},
+                       //       child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                       //     ),
+                       //   ],
+                       // ),
+                       //
+                       // SizedBox(height: 5,),
+                       // //Divider
+                       // Container(
+                       //   height: 1.0,
+                       //   color: Colors.black26,
+                       // ),
+                       // //cake types....
+                       // SizedBox(height: 5,),
 
                        Align(
                          alignment: Alignment.centerLeft,
@@ -349,20 +350,24 @@ class _HomeScreenState extends State<HomeScreen> {
                        SizedBox(height: 5,),
                        //types of cakes btn...
                        Wrap(
-                         runSpacing: 5.0,
-                         spacing: 5.0,
+                         runSpacing: 2.0,
+                         spacing: 3.0,
                          children: [
                            OutlinedButton(
                              onPressed: (){},
-                             child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                             child: Text('Normal Cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
                            ),
                            OutlinedButton(
                              onPressed: (){},
-                             child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                             child: Text('Basic Customize Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
                            ),
                            OutlinedButton(
                              onPressed: (){},
-                             child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                             child: Text('Fully Customize Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                           ),
+                           OutlinedButton(
+                             onPressed: (){},
+                             child: Text('Theme Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
                            ),
                          ],
                        ),
@@ -548,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
       newRegUser = prefs.getBool("newRegUser")??false;
       fetchProfileByPhn();
       timerTrigger();
-
     });
   }
 
@@ -1107,7 +1111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
                 child: AnimatedContainer(
-                  height: isNetworkError?45:0,
+                  height: isNetworkError?30:0,
                   curve: Curves.ease,
                   alignment: Alignment.center,
                   color: Colors.red,
@@ -1121,7 +1125,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               Container(
                 color: lightGrey,
-                height: height*0.71,
+                height: height*0.70,
                 child: RefreshIndicator(
                   onRefresh: () async{
                     setState(() {
@@ -1276,7 +1280,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           children: [
                             Container(
-                              height: 510,
+                              color:Colors.white,
+                              height:140,
+                              child:ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 3,
+                                  itemBuilder: (c , i){
+                                    return Container(
+                                      alignment: Alignment.bottomLeft,
+                                      margin: EdgeInsets.all(8),
+                                      width:230,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            style: BorderStyle.solid,
+                                            width:1.5
+                                          ),
+                                          color:Colors.white ,
+                                          borderRadius: BorderRadius.circular(22),
+                                          image: DecorationImage(
+                                            image:NetworkImage('https://png.pngtree.com/thumb_back/fh260/back_our/20190620/ourmid/pngtree-pink-romantic-wind-wedding-cake-promotion-banner-image_169057.jpg'),
+                                            fit: BoxFit.cover
+                                          )
+                                      ),
+                                      child:Padding(
+                                        padding: const EdgeInsets.only(left:8 , bottom:8),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children:[
+                                            Text('HAPPY' ,style: TextStyle(
+                                              color:Colors.white , fontWeight:FontWeight.bold ,
+                                              fontSize:25 , fontFamily:'Poppins'
+                                            ),),
+                                            Text(i==0?'CHRISTMAS':'BIRTHDAY',style: TextStyle(
+                                                color:Colors.deepOrange , fontWeight:FontWeight.bold ,
+                                                fontSize:25 , fontFamily:'Poppins'
+                                            ),),
+                                          ]
+                                        ),
+                                      ),
+                                    );
+                                  }
+                              )
+                            ),
+
+                            Container(
+                              height: 500,
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
                                     image:Svg('assets/images/splash.svg'),
@@ -1413,15 +1463,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.black26,
                                   ),
                                   Container(
-                                      padding: EdgeInsets.all(10),
+                                      padding: EdgeInsets.all(15),
                                       width: double.infinity,
                                       alignment: Alignment.centerLeft,
-                                      child: Text('Recent Ordered',style: TextStyle(
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontSize: 15,fontFamily: poppins
-                                      ),)
+                                      child:Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Recent Ordered',style: TextStyle(fontFamily: poppins,fontSize:15,color: darkBlue,fontWeight: FontWeight.bold),),
+                                          InkWell(
+                                            onTap: () async{
+                                              Navigator.of(context).push(
+                                                PageRouteBuilder(
+                                                  pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 1,),
+                                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                    const begin = Offset(1.0, 0.0);
+                                                    const end = Offset.zero;
+                                                    const curve = Curves.ease;
+
+                                                    final tween = Tween(begin: begin, end: end);
+                                                    final curvedAnimation = CurvedAnimation(
+                                                      parent: animation,
+                                                      curve: curve,
+                                                    );
+
+                                                    return SlideTransition(
+                                                      position: tween.animate(curvedAnimation),
+                                                      child: child,
+                                                    );
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Text('See All',style: TextStyle(color: lightPink,fontFamily: poppins,fontWeight: FontWeight.bold),),
+                                                Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                   ),
                                   Container(
-                                    height: 220,
+                                    height: 200,
                                     child:
                                     ordersLoading?
                                     Center(
@@ -1460,13 +1544,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                               );
                                             },
                                             child: Container(
-                                              margin: EdgeInsets.only(left: 10,right: 10),
+                                              margin: EdgeInsets.only(left: 12),
                                               child: Stack(
                                                 alignment: Alignment.topCenter,
                                                 children: [
                                                   Container(
-                                                    height:140,
-                                                    width: 200,
+                                                    width: width/2.2,
+                                                    height: 135,
                                                     decoration: BoxDecoration(
                                                         borderRadius: BorderRadius.circular(15),
                                                         image: DecorationImage(
@@ -1475,8 +1559,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         )
                                                     ),
                                                   ),
+
                                                   Positioned(
-                                                    top: 100,
+                                                    top:85,
                                                     child: Card(
                                                       shape: RoundedRectangleBorder(
                                                           borderRadius: BorderRadius.circular(10)
@@ -1484,49 +1569,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       elevation: 7,
                                                       child: Container(
                                                         padding: EdgeInsets.all(8),
-                                                        width: 190,
-                                                        height: 100,
+                                                        width: 155,
                                                         child: Column(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          mainAxisSize: MainAxisSize.min,
                                                           children: [
                                                             Container(
                                                                 alignment: Alignment.centerLeft,
                                                                 child: Container(
-                                                                  width: 150,
+                                                                  width: 120,
                                                                   child: Text('${recentOrders[index]['Title']}',style: TextStyle(color: darkBlue
-                                                                      ,fontWeight: FontWeight.bold,fontFamily: poppins
+                                                                      ,fontWeight: FontWeight.bold,fontFamily: poppins, fontSize: 12
                                                                   ),maxLines: 1,overflow: TextOverflow.ellipsis,),
                                                                 )
                                                             ),
+                                                            SizedBox(height: 4,),
                                                             Row(
                                                               children: [
-                                                                CircleAvatar(
-                                                                  radius:14,
-                                                                  child: Icon(Icons.account_circle,),
-                                                                ),
+                                                                Icon(Icons.account_circle,),
                                                                 Container(
                                                                     width: 105,
                                                                     child: Text(' ${recentOrders[index]['VendorName']}',
                                                                       overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                          color: Colors.black54,fontFamily: poppins),maxLines: 1,))
+                                                                          color: Colors.black54,fontWeight:FontWeight.bold,fontFamily: poppins , fontSize: 11),maxLines: 1,))
                                                               ],
                                                             ),
+                                                            SizedBox(height: 4,),
                                                             Container(
                                                               height: 0.5,
                                                               color: Colors.black54,
                                                               margin: EdgeInsets.only(left: 5,right: 5),
                                                             ),
+                                                            SizedBox(height: 4,),
                                                             Row(
                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                               children: [
                                                                 Text("₹ ${recentOrders[index]['Total']}",style: TextStyle(color: lightPink,
-                                                                    fontWeight: FontWeight.bold,fontFamily: poppins),maxLines: 1,),
+                                                                    fontWeight: FontWeight.bold,fontFamily: poppins, fontSize:12),maxLines: 1,),
                                                                 recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                                                                 Text("${recentOrders[index]['Status'].toString()}",style: TextStyle(color: Colors.green,
-                                                                fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 11),)
                                                                     :
                                                                 Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
-                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 12),)
+                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 11),)
                                                               ],
                                                             )
                                                           ],
@@ -1534,6 +1619,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                     ),
                                                   ),
+
                                                 ],
                                               ),
                                             ),
@@ -1826,4 +1912,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
 
