@@ -115,8 +115,8 @@ class _CakeDetailsState extends State<CakeDetails> {
   String userAddress = '';
 
   //For orders
-  String deliverDate = '00-00-0000';
-  String deliverSession = 'Morning';
+  String deliverDate = 'Not yet select';
+  String deliverSession = 'Not yet select';
   String fixedFlavour = '';
   String fixedShape = '';
   String fixedWeight = '';
@@ -124,6 +124,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   String specialReq = '';
   String fixedAddress = '';
   String fixedDelliverMethod = "";
+  String selectedDropWeight = 'Kg';
 
   //ints
   int flavGrpValue = 0;
@@ -1858,10 +1859,10 @@ class _CakeDetailsState extends State<CakeDetails> {
   void initState() {
     // TODO: implement initState
     recieveDetailsFromScreen();
-    session();
-    setState((){
-      deliverSession = session();
-    });
+    // session();
+    // setState((){
+    //   deliverSession = session();
+    // });
     super.initState();
   }
 
@@ -1943,7 +1944,9 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                           },
                           child: Container(
-                            padding: EdgeInsets.all(3),
+                            alignment:Alignment.center,
+                            height: 35,
+                            width: 35,
                             decoration: BoxDecoration(
                                 color: Colors.grey[300],
                                 borderRadius: BorderRadius.circular(8)),
@@ -1954,7 +1957,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                           ),
                         ),
                         Positioned(
-                          left: 15,
+                          left: 20,
                           top: 18,
                           child: CircleAvatar(
                             radius: 4.5,
@@ -2111,7 +2114,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        margin: EdgeInsets.only(left: 20 , right:20,top:10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -2171,41 +2174,123 @@ class _CakeDetailsState extends State<CakeDetails> {
                       Container(
                           margin: EdgeInsets.symmetric(horizontal: 15),
                           child: Divider(
-                            color: Colors.grey,
+                            color: Colors.pink[100],
                           )),
                       Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              child: Text(
-                                '$cakeName',
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 18,
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.w600
-                                ),
-                              ),
-                            ),
-                            Container(
-                              child: Text(
-                                '₹ $cakePrice',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: lightPink,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                        padding:EdgeInsets.only(left:10 , right:10),
+                        child: Text(
+                          '${cakeName}',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 18,
+                              color: darkBlue,
+                              fontWeight: FontWeight.w600
+                          ),
                         ),
                       ),
+
+                      Container(
+                        padding: EdgeInsets.only(left:10 , right:10),
+                        alignment:Alignment.bottomLeft,
+                        child:Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children : [
+                            Container(
+                              alignment:Alignment.bottomLeft,
+                              child: Row(
+                                children : [
+                                  Text('₹' ,style: TextStyle(
+                                      color:Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize:16,
+                                  ),),
+                                  Text(
+                                    '${counts*int.parse(cakePrice)}',
+                                        style: TextStyle(
+                                          color: lightPink,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize:23,),
+                                  ),
+                                ]
+                              ),
+                            ),
+                            //increase decrease
+                            Row(
+                              children:[
+                                //decrease
+                                InkWell(
+                                  splashColor: Colors.red[200]!,
+                                  onTap:(){
+                                    if(counts>1){
+                                      setState(() {
+                                        counts = counts-1;
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    height:30,
+                                    width:30,
+                                    decoration: BoxDecoration(
+                                      color:Colors.white,
+                                        shape:BoxShape.circle,
+                                        border:Border.all(
+                                            color:Colors.pink[400]!,
+                                            width:0.5,
+                                        )
+                                    ),
+                                      child:Icon(Icons.remove_sharp, color:darkBlue)
+                                  ),
+                                ),
+                                SizedBox(width:8),
+                                Column(
+                                  children: [
+                                    Text(
+                                      '${counts}',
+                                      style: TextStyle(
+                                        color: lightPink,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Poppins",
+                                        fontSize:20,
+                                      ),
+                                    ),
+                                    Text('UNIT' ,style: TextStyle(
+                                      color:Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins",
+                                      fontSize:10,
+                                    ),),
+                                  ],
+                                ),
+                                SizedBox(width:8),
+                                InkWell(
+                                  splashColor: Colors.red[200]!,
+                                  onTap:(){
+                                    setState((){
+                                      counts++;
+                                    });
+                                  },
+                                  child: Container(
+                                      height:30,
+                                      width:30,
+                                      alignment:Alignment.center,
+                                      decoration: BoxDecoration(
+                                          color:Colors.white,
+                                          shape:BoxShape.circle,
+                                          border:Border.all(
+                                            color:Colors.pink[400]!,
+                                            width:0.5,
+                                          )
+                                      ),
+                                      child:Icon(Icons.add, color:darkBlue)
+                                  ),
+                                ),
+                              ]
+                            )
+                          ]
+                        )
+                      ),
+
                       Container(
                           margin: EdgeInsets.all(10),
                           child: ExpandableText(
@@ -2320,183 +2405,196 @@ class _CakeDetailsState extends State<CakeDetails> {
                       Container(
                         margin:
                             EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        padding: EdgeInsets.all(12),
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                             color: Colors.pink[100],
                             borderRadius: BorderRadius.circular(10)),
                         child: Column(
                           children: [
-                            ListTile(
-                              leading: Text(
-                                'Theme',
-                                style: TextStyle(fontFamily: "Poppins"),
-                              ),
-                              trailing: GestureDetector(
-                                onTap: () {
-                                  showThemeBottomSheet();
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 3,
-                                          color: Colors.black26,
-                                          spreadRadius: 1)
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.add,
-                                    color: darkBlue,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Theme',
+                                  style: TextStyle(fontFamily: "Poppins"),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    showThemeBottomSheet();
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 3,
+                                            color: Colors.black26,
+                                            spreadRadius: 1)
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: darkBlue,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                            ListTile(
-                              leading: Text(
-                                'Flavours',
-                                style: TextStyle(fontFamily: "Poppins"),
-                              ),
-                              title: fixedFlavour.isNotEmpty
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          fixedFlavour = "";
-                                        });
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        margin: EdgeInsets.only(right: 90),
-                                        padding: EdgeInsets.only(
-                                            top: 6, bottom: 6, left: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: lightPink,
+                            SizedBox(height:6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Flavours',
+                                  style: TextStyle(fontFamily: "Poppins"),
+                                ),
+                                fixedFlavour.isNotEmpty
+                                    ? GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      fixedFlavour = "";
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 80,
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(right: 90),
+                                    padding: EdgeInsets.only(
+                                        top: 6, bottom: 6, left: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(15),
+                                      color: lightPink,
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        Text(
+                                          '${fixedFlavour}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 10,
+                                              color: Colors.white),
                                         ),
-                                        child: Wrap(
-                                          children: [
-                                            Text(
-                                              '${fixedFlavour}',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 10,
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                              trailing: fixedFlavour.isEmpty
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        showCakeFlavSheet();
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  blurRadius: 3,
-                                                  color: Colors.black26,
-                                                  spreadRadius: 1)
-                                            ],
-                                            color: Colors.white),
-                                        child: Icon(
-                                          Icons.add,
-                                          color: darkBlue,
-                                        ),
-                                      ),
-                                    )
-                                  : CircleAvatar(
-                                      radius: 15,
-                                      backgroundColor: Colors.white,
-                                      child: Icon(
-                                        Icons.check_circle,
-                                        color: Colors.green,
-                                        size: 30,
-                                      )),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                    : Container(),
+                                fixedFlavour.isEmpty
+                                    ? GestureDetector(
+                                  onTap: () {
+                                    showCakeFlavSheet();
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 3,
+                                              color: Colors.black26,
+                                              spreadRadius: 1)
+                                        ],
+                                        color: Colors.white),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: darkBlue,
+                                    ),
+                                  ),
+                                )
+                                    : CircleAvatar(
+                                    radius: 15,
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 30,
+                                    )),
+                              ],
                             ),
-                            ListTile(
-                              leading: Text(
-                                'Shapes',
-                                style: TextStyle(fontFamily: "Poppins"),
-                              ),
-                              title: fixedShape.isNotEmpty
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          fixedShape = "";
-                                        });
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        margin: EdgeInsets.only(right: 90),
-                                        padding: EdgeInsets.only(
-                                            top: 6, bottom: 6, left: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: lightPink,
+                            SizedBox(height:6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Shapes',
+                                  style: TextStyle(fontFamily: "Poppins"),
+                                ),
+                                fixedShape.isNotEmpty
+                                    ? GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      fixedShape = "";
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 80,
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(right: 90),
+                                    padding: EdgeInsets.only(
+                                        top: 6, bottom: 6, left: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(15),
+                                      color: lightPink,
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        Text(
+                                          '${fixedShape}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 10,
+                                              color: Colors.white),
                                         ),
-                                        child: Wrap(
-                                          children: [
-                                            Text(
-                                              '${fixedShape}',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 10,
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                              trailing: fixedShape.isEmpty
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        showCakeShapesSheet();
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  blurRadius: 3,
-                                                  color: Colors.black26,
-                                                  spreadRadius: 1)
-                                            ],
-                                            color: Colors.white),
-                                        child: Icon(
-                                          Icons.add,
-                                          color: darkBlue,
-                                        ),
-                                      ),
-                                    )
-                                  : CircleAvatar(
-                                      radius: 15,
-                                      backgroundColor: Colors.white,
-                                      child: Icon(
-                                        Icons.check_circle,
-                                        color: Colors.green,
-                                        size: 30,
-                                      )),
+                                      ],
+                                    ),
+                                  ),
+                                ) : Container(),
+                                fixedShape.isEmpty
+                                    ? GestureDetector(
+                                  onTap: () {
+                                    showCakeShapesSheet();
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 3,
+                                              color: Colors.black26,
+                                              spreadRadius: 1)
+                                        ],
+                                        color: Colors.white),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: darkBlue,
+                                    ),
+                                  ),
+                                )
+                                    : CircleAvatar(
+                                    radius: 15,
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 30,
+                                ))
+                              ],
                             ),
                           ],
                         ),
@@ -2560,6 +2658,88 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   ),
                                 );
                               })),
+                      Padding(
+                        padding: const EdgeInsets.only(left :15.0 , top:15),
+                        child: Text(
+                          'Enter Weight',
+                          style: TextStyle(
+                              fontFamily: poppins, color: darkBlue),
+                        ),
+                      ),
+                      Container(
+                        child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 15,),
+                                Icon(Icons.scale_outlined,color: lightPink,),
+                                Expanded(
+                                  child: Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 10),
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      controller: messageCtrl,
+                                      style:TextStyle(fontFamily: 'Poppins' ,
+                                          fontSize: 13
+                                      ),
+                                      decoration: InputDecoration(
+                                          // contentPadding:EdgeInsets.only(bottom:-5),
+                                          constraints: BoxConstraints(minHeight: 5),
+                                          hintText: 'Type here..',
+                                          hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                              fontSize: 13
+                                          ),
+                                          // border: InputBorder.none
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  child: Container(
+                                    padding:EdgeInsets.all(4),
+                                    margin:EdgeInsets.only(right:10),
+                                    decoration: BoxDecoration(
+                                      color:Colors.grey[300]!,
+                                      borderRadius:BorderRadius.circular(5)
+                                    ),
+                                    child:PopupMenuButton(
+                                      child: Row(
+                                        children: [
+                                          Text('$selectedDropWeight' , style:TextStyle(
+                                              color:darkBlue , fontFamily:'Poppins'
+                                          )),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Icon(Icons.keyboard_arrow_down,
+                                              color: darkBlue)
+                                        ],
+                                      ),
+                                      itemBuilder: (context)=>[
+                                        PopupMenuItem(
+                                            onTap:(){
+                                              setState((){
+                                                selectedDropWeight = "Kg";
+                                              });
+                                            },
+                                            child:Text('Kilo Gram')
+                                        ),
+                                        PopupMenuItem(onTap:(){
+                                          setState((){
+                                            selectedDropWeight = "Ib";
+                                          });
+                                        },child:Text('Pounds')),
+                                        PopupMenuItem(onTap:(){
+                                          setState((){
+                                            selectedDropWeight = "G";
+                                          });
+                                        },child:Text('Gram')),
+                                      ]
+                                    )
+                                  ),
+                                )
+                              ],
+                            ),
+                      ),
                       Container(
                           margin: EdgeInsets.symmetric(horizontal: 15),
                           child: Divider(
@@ -2581,6 +2761,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 child: Column(
                                   children: [
                                     Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         SizedBox(width: 8,),
                                         Icon(Icons.message_outlined,color: lightPink,),
@@ -2597,18 +2778,18 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                   hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                       fontSize: 13
                                                   ),
-                                                  border: InputBorder.none
+                                                  // border: InputBorder.none
                                               ),
                                             ),
                                           ),
                                         )
                                       ],
                                     ),
-                                    Container(
-                                      margin: EdgeInsets.only(left: 10,right: 8),
-                                      height: 0.5,
-                                      color:Colors.black54,
-                                    ),
+                                    // Container(
+                                    //   margin: EdgeInsets.only(left: 40,right: 8),
+                                    //   height: 0.5,
+                                    //   color:Colors.black54,
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -2699,172 +2880,287 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   minLines: 5,
                                 ),
                               ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    'Delivery Date',
-                                    style: TextStyle(
-                                        color: darkBlue,
-                                        fontFamily: "Poppins"
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 65,
-                                  ),
-                                  Text(
-                                    'Delivery Session',
-                                    style: TextStyle(
-                                        color:darkBlue,
-                                        fontFamily: "Poppins"
-                                    ),
-                                  )
-                                ],
+
+                              Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 15),
+                                  child: Divider(
+                                    color: Colors.pink[100],
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.only(top: 10 , left: 10),
+                                child: Text(
+                                  'Delivery Information',
+                                  style: TextStyle(
+                                      fontFamily: poppins, color: darkBlue , fontSize: 15),
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: () async {
-                                      DateTime? SelDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        lastDate: DateTime(2050),
-                                        firstDate: DateTime.now()
-                                            .subtract(Duration(days: 0)),
-                                      );
-
-                                      setState(() {
-                                        deliverDate = simplyFormat(
-                                            time: SelDate, dateOnly: true);
-                                      });
-
-                                      // print(SelDate.toString());
-                                      // print(DateTime.now().subtract(Duration(days: 0)));
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          '$deliverDate',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey,
-                                              fontSize: 13),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Icon(Icons.date_range_outlined,
-                                            color: darkBlue)
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20)),
-                                              title: Text(
-                                                  "Select delivery session",
-                                                  style: TextStyle(
-                                                    color: lightPink,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 16,
-                                                  )),
-                                              content: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  ListTile(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      setState(() {
-                                                        deliverSession =
-                                                            "Morning";
-                                                      });
-                                                    },
-                                                    title: Text('Morning',
-                                                        style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontFamily:
-                                                                "Poppins")),
-                                                  ),
-                                                  ListTile(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      setState(() {
-                                                        deliverSession =
-                                                            "Afternoon";
-                                                      });
-                                                    },
-                                                    title: Text('Afternoon',
-                                                        style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontFamily:
-                                                                "Poppins")),
-                                                  ),
-                                                  ListTile(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      setState(() {
-                                                        deliverSession =
-                                                            "Evening";
-                                                      });
-                                                    },
-                                                    title: Text('Evening',
-                                                        style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontFamily:
-                                                                "Poppins")),
-                                                  ),
-                                                  ListTile(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      setState(() {
-                                                        deliverSession =
-                                                            "Night";
-                                                      });
-                                                    },
-                                                    title: Text('Night',
-                                                        style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontFamily:
-                                                                "Poppins")),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
+                              Container(
+                                  child:ListView.builder(
+                                    shrinkWrap : true,
+                                    physics : NeverScrollableScrollPhysics(),
+                                    itemCount:picOrDeliver.length,
+                                    itemBuilder: (context , index){
+                                      return InkWell(
+                                        onTap:(){
+                                          setState(() {
+                                            for (int i = 0; i < picOrDel.length; i++) {
+                                              if (i == index) {
+                                                fixedDelliverMethod = picOrDeliver[i];
+                                                picOrDel[i] = true;
+                                              } else {
+                                                picOrDel[i] = false;
+                                              }
+                                            }
                                           });
+                                        },
+                                        child: Row(
+                                            children:[
+                                              Checkbox(
+                                                  shape: CircleBorder(),
+                                                  activeColor: Colors.green,
+                                                  value: picOrDel[index],
+                                                  onChanged: (bool? val){
+                                                    setState(() {
+                                                      for (int i = 0; i < picOrDel.length; i++) {
+                                                        if (i == index) {
+                                                          fixedDelliverMethod = picOrDeliver[i];
+                                                          picOrDel[i] = true;
+                                                        } else {
+                                                          picOrDel[i] = false;
+                                                        }
+                                                      }
+                                                    });
+                                                  }
+                                              ),
+                                              Text('${picOrDeliver[index]}',style: TextStyle(
+                                                  fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                              ),),
+                                            ]
+                                        ),
+                                      );
                                     },
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          '$deliverSession',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey,
-                                              fontSize: 13),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Icon(Icons.keyboard_arrow_down,
-                                            color: darkBlue)
-                                      ],
-                                    ),
+                                  )
+                              ),
+
+                              Padding(
+                                padding: EdgeInsets.only(top: 10 , left: 10, bottom:5),
+                                child: Text(
+                                  'Delivery Details',
+                                  style: TextStyle(
+                                      fontFamily: poppins, color: darkBlue , fontSize: 15),
+                                ),
+                              ),
+                              
+                              GestureDetector(
+                                onTap : () async {
+                                  DateTime? SelDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    lastDate: DateTime(2050),
+                                    firstDate: DateTime.now()
+                                        .subtract(Duration(days: 0)),
+                                  );
+
+                                  setState(() {
+                                    deliverDate = simplyFormat(
+                                        time: SelDate, dateOnly: true);
+                                  });
+
+                                  // print(SelDate.toString());
+                                  // print(DateTime.now().subtract(Duration(days: 0)));
+                                },
+                                child: Container(
+                                  margin:EdgeInsets.all(5),
+                                  padding:EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color:Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.grey[400]!,
+                                          width:0.5
+                                      )
                                   ),
-                                ],
+                                  child:Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children:[
+                                      Text(
+                                        '$deliverDate',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                            fontSize: 13),
+                                      ),
+
+                                      Icon(Icons.date_range_outlined,
+                                          color: darkBlue)
+                                    ]
+                                  )
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap :  () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                  20)),
+                                          title: Text(
+                                              "Select delivery session",
+                                              style: TextStyle(
+                                                color: lightPink,
+                                                fontFamily: "Poppins",
+                                                fontSize: 16,
+                                              )),
+                                          content: Container(
+                                            height:250,
+                                            child: Scrollbar(
+                                              isAlwaysShown: true,
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    PopupMenuItem(
+                                                        child: Text('Morning 8 - 9'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Morning 8 - 9';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Morning 9 - 10'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Morning 9 - 10';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Morning 10 - 11'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Morning 10 - 11';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Morning 11 - 12'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Morning 11 - 12';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Afternoon 12 - 1'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Afternoon 12 - 1';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Afternoon 1 - 2'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Afternoon 1 - 9';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Afternoon 2 - 3'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Afternoon 8 - 9';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Afternoon 3 - 4'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Afternoon 3 - 4';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Afternoon 4 - 5'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Afternoon 4 - 5';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Evening 5 - 6'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Evening 5 - 6';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Evening 6 - 7'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Evening 6 - 7';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Evening 7 - 8'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Evening 7 - 8';
+                                                          });
+                                                        }
+                                                    ),
+                                                    PopupMenuItem(
+                                                        child: Text('Evening 8 - 9'),
+                                                        onTap:(){
+                                                          setState((){
+                                                            deliverSession = 'Evening 8 - 9';
+                                                          });
+                                                        }
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                },
+                                child: Container(
+                                    margin:EdgeInsets.all(5),
+                                    padding:EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        color:Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: Colors.grey[400]!,
+                                            width:0.5
+                                        )
+                                    ),
+                                    child:Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children:[
+                                          Text(
+                                            '$deliverSession',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey,
+                                                fontSize: 13
+                                            ),
+                                          ),
+                                          Icon(Icons.keyboard_arrow_down,
+                                              color: darkBlue)
+                                        ]
+                                    )
+                                ),
                               ),
                             ],
                           )),
@@ -2886,7 +3182,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                           ),
                         ),
                         trailing:
-                            Icon(Icons.verified_rounded, color: Colors.green),
+                            Icon(Icons.check_circle, color: Colors.green),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 10),
@@ -2904,69 +3200,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                             )),
                       ),
 
-                      Container(
-                          margin: EdgeInsets.symmetric(horizontal: 15),
-                          child: Divider(
-                            color: Colors.pink[100],
-                       )),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10 , left: 10),
-                        child: Text(
-                          'Delivery Information',
-                          style: TextStyle(
-                              fontFamily: poppins, color: darkBlue , fontSize: 15),
-                        ),
-                      ),
-
-                      Container(
-                          child:ListView.builder(
-                            shrinkWrap : true,
-                            physics : NeverScrollableScrollPhysics(),
-                            itemCount:picOrDeliver.length,
-                            itemBuilder: (context , index){
-                              return InkWell(
-                                onTap:(){
-                                  setState(() {
-                                    for (int i = 0; i < picOrDel.length; i++) {
-                                      if (i == index) {
-                                        fixedDelliverMethod = picOrDeliver[i];
-                                        picOrDel[i] = true;
-                                      } else {
-                                        picOrDel[i] = false;
-                                      }
-                                    }
-                                  });
-                                },
-                                child: Row(
-                                    children:[
-                                      Checkbox(
-                                          shape: CircleBorder(),
-                                          activeColor: Colors.green,
-                                          value: picOrDel[index],
-                                          onChanged: (bool? val){
-                                            setState(() {
-                                              for (int i = 0; i < picOrDel.length; i++) {
-                                                if (i == index) {
-                                                  fixedDelliverMethod = picOrDeliver[i];
-                                                  picOrDel[i] = true;
-                                                } else {
-                                                  picOrDel[i] = false;
-                                                }
-                                              }
-
-                                            });
-                                          }
-                                      ),
-                                      Text('${picOrDeliver[index]}',style: TextStyle(
-                                          fontFamily: poppins, color:Colors.black54 , fontSize: 13
-                                      ),),
-                                    ]
-                                ),
-                              );
-                            },
-                          )
-                      ),
                       SizedBox(height: 15,),
                       Container(
                         padding: EdgeInsets.all(10.0),

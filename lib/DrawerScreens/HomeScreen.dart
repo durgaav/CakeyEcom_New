@@ -1544,7 +1544,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               );
                                             },
                                             child: Container(
-                                              margin: EdgeInsets.only(left: 12),
+                                              margin: EdgeInsets.only(left: 10 , right : 10),
                                               child: Stack(
                                                 alignment: Alignment.topCenter,
                                                 children: [

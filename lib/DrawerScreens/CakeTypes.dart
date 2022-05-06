@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
@@ -121,6 +122,7 @@ class _CakeTypesState extends State<CakeTypes> {
   List myShapesFilter = [];
 
   List mySelVendors =[];
+  bool activeSearch = false;
 
   //endregion
 
@@ -1893,11 +1895,13 @@ class _CakeTypesState extends State<CakeTypes> {
     else{
       if(searchCakesText.isNotEmpty){
         setState(() {
+          activeSearch = true;
           cakeSearchList = eggOrEgglesList.where((element) => element['Title'].toString().toLowerCase().contains(searchCakesText.toLowerCase())).toList();
         });
       }
       else{
         setState(() {
+          activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         });
       }
@@ -2361,6 +2365,7 @@ class _CakeTypesState extends State<CakeTypes> {
                               ),
                             );
                           })):
+                  !activeSearch?
                   Container(
                       height: height * 0.08,
                       width: width,
@@ -2435,7 +2440,8 @@ class _CakeTypesState extends State<CakeTypes> {
                               ),
                             );
                           })
-                  ),
+                  ):
+                  Container(),
 
                   //Tap here reload...
                   Visibility(
@@ -2463,7 +2469,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           physics: NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.all(12.0),
                           crossAxisCount: 2,
-                          mainAxisSpacing: 10,
+                          mainAxisSpacing: 5,
                           crossAxisSpacing: 12,
                           itemCount: filterCakesSearchList.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -2476,8 +2482,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 10,),
-                                    Text('Found\n${filterCakesSearchList.length} Items',style: TextStyle(
-                                        color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: "Poppins"
+                                    Text('Found',style: TextStyle(
+                                        color: darkBlue,fontSize: 16,fontFamily: "Poppins"
+                                    )),
+                                    Text(filterCakesSearchList.length.toString()+" item",style: TextStyle(
+                                        color: darkBlue,fontWeight: FontWeight.bold,
+                                        fontSize: 20,fontFamily: "Poppins"
                                     )),
                                     SizedBox(height: 5,),
                                     Container(
@@ -2603,6 +2613,7 @@ class _CakeTypesState extends State<CakeTypes> {
                     ),
                   ),
                   //All cakes...
+                  !activeSearch?
                   Visibility(
                     visible: isFiltered?false:true,
                     child: Column(
@@ -2610,9 +2621,9 @@ class _CakeTypesState extends State<CakeTypes> {
                         StaggeredGridView.countBuilder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(12.0),
+                          padding: EdgeInsets.all(0.0),
                           crossAxisCount: 2,
-                          mainAxisSpacing: 10,
+                          mainAxisSpacing: 5,
                           crossAxisSpacing: 12,
                           itemCount: cakeSearchList.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -2625,8 +2636,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 10,),
-                                    Text('Found\n${cakeSearchList.length} Items',style: TextStyle(
-                                        color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: "Poppins"
+                                    Text('Found',style: TextStyle(
+                                        color: darkBlue,fontSize: 16,fontFamily: "Poppins"
+                                    )),
+                                    Text(cakeSearchList.length.toString()+" items",style: TextStyle(
+                                        color: darkBlue,fontWeight: FontWeight.bold,
+                                        fontSize: 20,fontFamily: "Poppins"
                                     )),
                                     SizedBox(height: 5,),
                                     Container(
@@ -2754,17 +2769,183 @@ class _CakeTypesState extends State<CakeTypes> {
                         ),
                       ],
                     ),
-                  ) ,
-
-                  // Transform.scale(
-                  //   scale: 0.5,
-                  //   child: Container(
-                  //     padding: EdgeInsets.all(8.0),
-                  //     color:  Color(0xFFE8581C),
-                  //     child:  Text('Bad Idea Bears'),
-                  //   ),
-                  // )
-
+                  ):
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount:cakeSearchList.length,
+                      itemBuilder: (c , i){
+                        return Container(
+                          margin: EdgeInsets.only(left: 15 , right: 15 , top: 5 , bottom: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white,
+                            border: Border.all(
+                              color: Colors.grey[400]!,
+                              width:0.5
+                            )
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //header text (name , stars)
+                              Container(
+                                padding:EdgeInsets.only(top: 4, bottom: 4 , left :10 ,right:10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        topRight: Radius.circular(15),
+                                      ),
+                                      color: Colors.grey[300]
+                                  ),
+                                child:Row(
+                                  children:[
+                                    Container(
+                                      width:cakeSearchList[i]['VendorName'].toString().length>25?
+                                      130:60,
+                                      child: Text('${cakeSearchList[i]['VendorName']}', style:TextStyle(
+                                        color:Colors.black ,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily:'Poppins',
+                                        fontSize:13
+                                      ) , maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                    ) ,
+                                    Row(
+                                      children: [
+                                        RatingBar.builder(
+                                          initialRating: 4.1,
+                                          minRating: 1,
+                                          direction: Axis.horizontal,
+                                          allowHalfRating: true,
+                                          itemCount: 5,
+                                          itemSize: 14,
+                                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                          itemBuilder: (context, _) => Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
+                                          onRatingUpdate: (rating) {
+                                            print(rating);
+                                          },
+                                        ),
+                                        Text(' 4.5',style: TextStyle(
+                                            color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 12,fontFamily: poppins
+                                        ),)
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child:Container(
+                                        alignment: Alignment.centerRight,
+                                        child:InkWell(
+                                          onTap:(){
+                                            sendDetailsToScreen(i);
+                                          },
+                                          child: Container(
+                                              alignment: Alignment.center,
+                                              height:25,
+                                              width:25,
+                                              decoration: BoxDecoration(
+                                                  shape:BoxShape.circle,
+                                                  color: Colors.white
+                                              ),
+                                              child: Icon(Icons.arrow_forward_ios_sharp , color:lightPink,size: 15,)
+                                          ),
+                                        )
+                                      )
+                                    )
+                                  ]
+                                )
+                              ),
+                              //body (image , cake name)
+                              InkWell(
+                                splashColor: Colors.red[100],
+                                onTap:(){
+                                  sendDetailsToScreen(i);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(8),
+                                  child:Row(
+                                    children:[
+                                      cakeSearchList[i]['Images'].isEmpty||cakeSearchList[i]['Images'][0]==''?
+                                      Container(
+                                        height:85,
+                                        width:85,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(15),
+                                            color: Colors.pink[100],
+                                        ),
+                                        child: Icon(Icons.cake_outlined , size: 50 , color:lightPink,),
+                                      ):
+                                      Container(
+                                        height:85,
+                                        width:85,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(15),
+                                          color: Colors.blue,
+                                          image:DecorationImage(
+                                            image: NetworkImage(cakeSearchList[i]['Images'][0]),
+                                            fit:BoxFit.cover
+                                          )
+                                        ),
+                                      ),
+                                      SizedBox(width:8),
+                                      Expanded(
+                                        child:Container(
+                                          child:Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children:[
+                                              Container(
+                                                // width:120,
+                                                child: Text('${cakeSearchList[i]['Title']}', style:TextStyle(
+                                                    color:darkBlue,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily:'Poppins',
+                                                    fontSize:12
+                                                ) , maxLines: 2,overflow: TextOverflow.ellipsis,),
+                                              ) ,
+                                              SizedBox(height:5),
+                                              Container(
+                                              // width:120,
+                                              child: Text('Price Rs.${cakeSearchList[i]['Price']}/Kg Min Quantity 1 Kg Customization Available', style:TextStyle(
+                                                  color:Colors.grey,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily:'Poppins',
+                                                  fontSize:10
+                                              ) , maxLines:2,overflow: TextOverflow.ellipsis,
+                                              ),
+                                             ) ,
+                                              SizedBox(height:5),
+                                              Container(
+                                                height:0.5,
+                                                color:Color(0xffdddddd)
+                                              ),
+                                              SizedBox(height:5),
+                                             Container(
+                                              // width:120,
+                                              child: Text(cakeSearchList[i]['DeliveryCharge']=="0"?
+                                              'DELIVERY FREE':'Delivery Charge Rs.${cakeSearchList[i]['DeliveryCharge']}', style:TextStyle(
+                                                  color:Colors.orange,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily:'Poppins',
+                                                  fontSize:10
+                                              ) , maxLines:1,overflow: TextOverflow.ellipsis,),
+                                            ) ,
+                                            ]
+                                          )
+                                        )
+                                      )
+                                    ]
+                                  )
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                  )
 
                 ],
               ),

@@ -186,7 +186,7 @@ class _DrawerHomeState extends State<DrawerHome> {
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 1)],
+                    boxShadow: [BoxShadow(blurRadius: 12, color: Color(0xffcccccc), spreadRadius: 1)],
                   ),
                   child: profileUrl!="null"?CircleAvatar(
                     radius: 37,
@@ -273,14 +273,14 @@ class _DrawerHomeState extends State<DrawerHome> {
                 Navigator.pop(context);
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.home_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
                 child: Text('Home',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -293,14 +293,14 @@ class _DrawerHomeState extends State<DrawerHome> {
                 Navigator.pop(context);
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.cake_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
                 child: Text('Types Of Cakes',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -313,13 +313,13 @@ class _DrawerHomeState extends State<DrawerHome> {
                 Navigator.pop(context);
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.edit_outlined,color:lightPink,),
               ),
               title: Container(
                 child: Text('Fully Customise Cake',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -332,14 +332,14 @@ class _DrawerHomeState extends State<DrawerHome> {
                 Navigator.pop(context);
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.account_circle_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
                 child: Text('Vendors List',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -368,14 +368,14 @@ class _DrawerHomeState extends State<DrawerHome> {
                 );
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.shopping_bag_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
                 child: Text('Order History',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -403,14 +403,14 @@ class _DrawerHomeState extends State<DrawerHome> {
                 );
               },
               leading: CircleAvatar(
-                backgroundColor: Colors.pink[100],
+                backgroundColor: Colors.red[50],
                 child: Icon(Icons.notifications_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
                 child: Text('Notifications',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),
               ),
             ),
@@ -431,7 +431,7 @@ class _DrawerHomeState extends State<DrawerHome> {
                       width: 180,
                       child: Text('Logout',
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 16),
+                        style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                       ),
                     ),
                   ),
