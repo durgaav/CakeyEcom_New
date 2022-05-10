@@ -603,12 +603,28 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pop(context);
         });
       }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
+              backgroundColor: Colors.amber,
+              action: SnackBarAction(
+                label: "Retry",
+                onPressed:()=>setState(() {
+                  loadPrefs();
+                }),
+              ),
+            )
+        );
+        setState(() {
+          isNetworkError = true;
+          networkMsg = "Error Code : ${response.statusCode} ${response.reasonPhrase}";
+        });
         Navigator.pop(context);
       }
 
     }on Exception catch(e){
       setState(() {
         isNetworkError = true;
+        networkMsg = "Check Your Connection!";
       });
       print(e);
       Navigator.pop(context);
@@ -734,6 +750,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
+          print("My res : ${jsonDecode(response.body)}");
           cakesList = cakesList.reversed.toList();
           for(int i =0 ;i<cakesList.length;i++){
             if(i==0){
@@ -746,7 +763,7 @@ class _HomeScreenState extends State<HomeScreen> {
           isAllLoading = false;
         });
       }else{
-          print('Server error! try again latter');
+          print(response.statusCode);
           setState(() {
             isNetworkError = true;
             networkMsg = "Server error! try again latter";
@@ -1101,8 +1118,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              SizedBox(height: 10,),
-
               //Tap here to retry....
               GestureDetector(
                 onTap: (){
@@ -1111,14 +1126,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
                 child: AnimatedContainer(
-                  height: isNetworkError?30:0,
+                  height: isNetworkError?35:0,
                   curve: Curves.ease,
                   alignment: Alignment.center,
                   color: Colors.red,
                   duration: Duration(seconds: 2),
-                  child: Text('Tap Here To Retry!',style: TextStyle(
+                  child: Text('$networkMsg (-Tap Here-)',style: TextStyle(
                       fontFamily: "Poppins",color: Colors.white,fontSize: 13
-                  ),),
+                  ),textAlign: TextAlign.center,),
                 ),
               ),
 

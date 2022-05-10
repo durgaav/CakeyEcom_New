@@ -68,6 +68,10 @@ class _CakeDetailsState extends State<CakeDetails> {
     "Strawberry - additional Rs.100/kg",
     "ButterScotch - additional Rs.85/kg",
   ];
+  var multiFlav = [];
+  List<bool> multiFlavChecs = [];
+
+
   List topings = [];
   var weight = [];
   List nearestVendors = [];
@@ -117,7 +121,10 @@ class _CakeDetailsState extends State<CakeDetails> {
   //For orders
   String deliverDate = 'Not yet select';
   String deliverSession = 'Not yet select';
+  //Doubt flav
   String fixedFlavour = '';
+  var fixedFlavList = [];
+  //
   String fixedShape = '';
   String fixedWeight = '';
   String cakeMsg = '';
@@ -434,29 +441,59 @@ class _CakeDetailsState extends State<CakeDetails> {
                       ),
                     ],
                   ),
-
                   Container(
-                    height: 290,
+                    height: 1.0,
+                    color: Colors.black26,
+                  ),
+                  Container(
+                    height: 250,
                     child: Scrollbar(
+                      isAlwaysShown: true,
                       child: ListView.builder(
                           itemCount: flavour.length,
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
-                            return RadioListTile(
-                                activeColor: Colors.green,
-                                title: Text(
-                                  "${flavour[index]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins", color: darkBlue),
+                            // return RadioListTile(
+                            //     activeColor: Colors.green,
+                            //     title: Text(
+                            //       "${flavour[index]}",
+                            //       style: TextStyle(
+                            //           fontFamily: "Poppins", color: darkBlue),
+                            //     ),
+                            //     value: index,
+                            //     groupValue: flavGrpValue,
+                            //     onChanged: (int? value) {
+                            //       print(value);
+                            //       setState(() {
+                            //         flavGrpValue = value!;
+                            //       });
+                            //     });
+
+                            multiFlavChecs.add(false);
+                            return Container(
+                              child:Row(
+                                children:[
+                                  Checkbox(
+                                      value: multiFlavChecs[index],
+                                      shape: CircleBorder(),
+                                      activeColor: Colors.green,
+                                      onChanged: (bool? val){
+                                        setState((){
+                                          if(multiFlavChecs[index]==false){
+                                            multiFlavChecs[index] = true;
+                                          }else{
+                                            multiFlavChecs[index] = false;
+                                          }
+                                        });
+                                      }
+                                  ),
+                                 Text("${flavour[index]}",
+                                        style: TextStyle(
+                                        fontFamily: "Poppins", color: darkBlue),
                                 ),
-                                value: index,
-                                groupValue: flavGrpValue,
-                                onChanged: (int? value) {
-                                  print(value);
-                                  setState(() {
-                                    flavGrpValue = value!;
-                                  });
-                                });
+                                ]
+                              )
+                            );
                           }),
                     ),
                   ),
@@ -539,6 +576,13 @@ class _CakeDetailsState extends State<CakeDetails> {
                             )),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    height: 1.0,
+                    color: Colors.black26,
                   ),
 
                   Container(
@@ -1513,7 +1557,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
       //Lists
       cakeImages = prefs.getStringList('cakeImages') ?? [];
-      // flavour = prefs.getStringList('cakeFalvours') ?? [];
+      flavour = prefs.getStringList('cakeFalvours') ?? [];
       // shapes = prefs.getStringList('cakeShapes') ?? [];
       topings = prefs.getStringList('cakeToppings') ?? [];
       weight = prefs.getStringList('cakeWeights') ?? [];
@@ -2302,6 +2346,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                             style: TextStyle(
                                 color: Colors.grey, fontFamily: "Poppins"),
                           )),
+
                       Container(
                           margin: EdgeInsets.symmetric(horizontal: 15),
                           child: Divider(
@@ -2368,7 +2413,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey,
-                                              fontFamily: "Poppins"),
+                                              fontFamily: "Poppins"
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 2,
@@ -2585,8 +2631,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       color: darkBlue,
                                     ),
                                   ),
-                                )
-                                    : CircleAvatar(
+                                ):CircleAvatar(
                                     radius: 15,
                                     backgroundColor: Colors.white,
                                     child: Icon(
@@ -3199,7 +3244,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   decoration: TextDecoration.underline),
                             )),
                       ),
-
                       SizedBox(height: 15,),
                       Container(
                         padding: EdgeInsets.all(10.0),
