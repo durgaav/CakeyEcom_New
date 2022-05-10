@@ -453,6 +453,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                           itemCount: flavour.length,
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
+                            multiFlavChecs.add(false);
                             // return RadioListTile(
                             //     activeColor: Colors.green,
                             //     title: Text(
@@ -469,30 +470,24 @@ class _CakeDetailsState extends State<CakeDetails> {
                             //       });
                             //     });
 
-                            multiFlavChecs.add(false);
-                            return Container(
-                              child:Row(
-                                children:[
-                                  Checkbox(
-                                      value: multiFlavChecs[index],
-                                      shape: CircleBorder(),
-                                      activeColor: Colors.green,
-                                      onChanged: (bool? val){
-                                        setState((){
-                                          if(multiFlavChecs[index]==false){
-                                            multiFlavChecs[index] = true;
-                                          }else{
-                                            multiFlavChecs[index] = false;
-                                          }
-                                        });
-                                      }
-                                  ),
-                                 Text("${flavour[index]}",
-                                        style: TextStyle(
-                                        fontFamily: "Poppins", color: darkBlue),
-                                ),
-                                ]
-                              )
+                            // setState((){
+                            //   if(multiFlavChecs[index]==false){
+                            //     multiFlavChecs[index] = true;
+                            //     if(fixedFlavList.contains(flavour[index])){
+                            //     }else{
+                            //       fixedFlavList.add(flavour[index]);
+                            //     }
+                            //   }else{
+                            //     multiFlavChecs[index] = false;
+                            //     fixedFlavList.removeWhere((element) => element==flavour[index]);
+                            //   }
+                            // });
+
+                            return Row(
+                              children:[
+                                Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey),
+                                SizedBox(width:8),
+                              ]
                             );
                           }),
                     ),
