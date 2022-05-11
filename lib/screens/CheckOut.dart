@@ -6,7 +6,6 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../DrawerScreens/Notifications.dart';
 
 class CheckOut extends StatefulWidget {
@@ -241,7 +240,6 @@ class _CheckOutState extends State<CheckOut> {
       print(response.reasonPhrase);
       Navigator.pop(context);
     }
-
   }
   
   

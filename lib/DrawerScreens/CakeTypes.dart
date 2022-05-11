@@ -115,7 +115,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //Shapes showing...
   List<bool> filterShapesCheck = [];
   List filterShapes = [];
-  List shapesForFilter = ["Square","Rectangle","Heart" ,"Round" , "Octagon"];
+  List shapesForFilter = [];
   List shapesOthersForFilter = ["Star Shape" , "House Shape" , "Car Shape"];
   List<bool> otherShapeCheck = [];
   List myShapesFilter = [];
@@ -308,10 +308,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   SizedBox(height: 5,),
-                                                  Wrap(
-                                                    crossAxisAlignment: WrapCrossAlignment.center,
-                                                    runSpacing: 5,
-                                                    spacing: 5,
+                                                  Row(
                                                     children: [
                                                       Checkbox(
                                                           shape: CircleBorder(),
@@ -340,12 +337,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                                       ),),
                                                     ],
                                                   ),
-                                                  SizedBox(height: 5,),
-                                                  Container(
-                                                    height: 0.5,
-                                                    width:double.infinity,
-                                                    color: lightPink,
-                                                  )
                                                 ],
                                               ),
                                             );
@@ -426,7 +417,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                                           });
                                                         },
                                                       ),
-                                                      Text(shapesForFilter[index].toString(),style: TextStyle(
+                                                      Text(shapesForFilter[index].toString()[0].toUpperCase()+
+                                                          shapesForFilter[index].toString().substring(1).toLowerCase(),style: TextStyle(
                                                           color: darkBlue , fontFamily: "Poppins",fontSize: 15
                                                       ),),
                                                     ],
@@ -982,7 +974,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   });
                                                 },
                                               ),
-                                              Text(shapesForFilter[index].toString(),style: TextStyle(
+                                              Text(shapesForFilter[index].toString()[0].toUpperCase()+
+                                                  shapesForFilter[index].toString().substring(1).toLowerCase(),style: TextStyle(
                                                   color: darkBlue , fontFamily: "Poppins",fontSize: 15
                                               ),),
                                             ],
@@ -1155,78 +1148,36 @@ class _CakeTypesState extends State<CakeTypes> {
       );
       if(response.statusCode==200){
 
-        //region lists
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
           cakesList = cakesList.reversed.toList();
 
-          //Cakes flavours
-          for(int i=0;i<cakesList.length;i++){
-            // if(cakesList[i]['FlavourList'].toList().isNotEmpty){
-            //   for(int j = 0 ; j<cakesList[i]['FlavourList'].length;j++){
-            //     filterCakesFlavList.add(cakesList[i]['FlavourList'][j].toString());
-            //   }
-            // }else{
-            //
-            // }
-
-            rangeValuesList.add(int.parse(cakesList[i]['Price'].toString()));
-
-
-            filterCakesFlavList = filterCakesFlavList.toSet().toList();
-
-            //Cakes shapes
             for(int i=0;i<cakesList.length;i++){
-              if(cakesList[i]['ShapeList'].toList().isNotEmpty){
-                for(int j = 0 ; j<cakesList[i]['ShapeList'].length;j++){
-                  filterCakesShapList.add(cakesList[i]['ShapeList'][j].toString());
-                }
+              // rangeValuesList.add(int.parse(cakesList[i]['Price']));
+              if(i==0){
+                cakesTypes.add('All cakes');
               }else{
-
+                cakesTypes.add(cakesList[i]['TypeOfCake']);
               }
-
-              filterCakesShapList = filterCakesShapList.toSet().toList();
-
-              //Cakes topings
-              for(int i=0;i<cakesList.length;i++){
-                if(cakesList[i]['CakeToppings'].toList().isNotEmpty){
-                  for(int j = 0 ; j<cakesList[i]['CakeToppings'].length;j++){
-                    filterCakesTopingList.add(cakesList[i]['CakeToppings'][j].toString());
-                  }
-                }else{
-
-                }
-
-                filterCakesTopingList = filterCakesTopingList.toSet().toList();
-
-            if(i==0){
-              cakesTypes.add('All cakes');
-            }else{
-              cakesTypes.add(cakesList[i]['TypeOfCake'].toString());
             }
-          }
 
           cakesTypes = cakesTypes.toSet().toList();
 
-        }
-     }
           Navigator.pop(context);
-   });
-    //endregion
+     });
+
 
         fetchFlavours();
+        fetchShapes();
 
-        rangeValuesList = rangeValuesList.toSet().toList();
-        rangeValuesList = rangeValuesList.reversed.toList();
-        print('Cake Price : $rangeValuesList');
+        // rangeValuesList = rangeValuesList.toSet().toList();
+        // rangeValuesList = rangeValuesList.reversed.toList();
+        // print('Cake Price : $rangeValuesList');
+        //
+        // print("Start : "+rangeValuesList.reduce(max).toString());
+        // print("End : "+rangeValuesList.reduce(min).toString());
 
-        print(rangeValuesList.reduce(max));
-        print(rangeValuesList.reduce(min));
-
-        setState(() {
-          // rangeValues = new RangeValues(rangeValuesList.reduce(min), rangeValuesList.reduce(max));
-        });
       }
       else{
         setState(() {
@@ -1248,6 +1199,7 @@ class _CakeTypesState extends State<CakeTypes> {
         Navigator.pop(context);
       }
     }catch(error){
+      print('error : $error');
       setState(() {
         isNetworkError = true;
         networkMsg = "Check Your Connection!";
@@ -1292,6 +1244,30 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
+  Future<void> fetchShapes() async{
+
+    var res = await http.get(
+        Uri.parse('https://cakey-database.vercel.app/api/shape/list'));
+
+    if(res.statusCode==200){
+
+      print(jsonDecode(res.body));
+      List fl = jsonDecode(res.body);
+
+      for(int i =0 ; i<fl.length;i++){
+        setState(() {
+          shapesForFilter.add(fl[i]['Name'].toString().toLowerCase());
+        });
+      }
+
+      shapesForFilter = shapesForFilter.toSet().toList();
+
+    }else{
+
+    }
+
+  }
+
   //Check the internet
   Future<void> checkNetwork() async{
     try {
@@ -1327,6 +1303,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Send prefs to next screen....
   Future<void> sendDetailsToScreen(int index) async{
+
     //Local Vars
     List<String> cakeImgs = [];
     List<String> cakeFlavs = [];
@@ -1380,18 +1357,18 @@ class _CakeTypesState extends State<CakeTypes> {
     }
 
     //getting cake toppings list
-    if(cakeSearchList[index]['CakeToppings'].isNotEmpty){
-      setState(() {
-        for(int i=0;i<cakeSearchList[index]['CakeToppings'].length;i++){
-          cakeTopings.add(cakeSearchList[index]['CakeToppings'][i].toString());
-        }
-      });
-    }
-    else{
-      setState(() {
-        cakeTopings = [];
-      });
-    }
+    // if(cakeSearchList[index]['CakeToppings'].isNotEmpty){
+    //   setState(() {
+    //     for(int i=0;i<cakeSearchList[index]['CakeToppings'].length;i++){
+    //       cakeTopings.add(cakeSearchList[index]['CakeToppings'][i].toString());
+    //     }
+    //   });
+    // }
+    // else{
+    //   setState(() {
+    //     cakeTopings = [];
+    //   });
+    // }
 
     //getting cake weights
     if(cakeSearchList[index]['WeightList'].isNotEmpty){
@@ -1433,8 +1410,6 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('vendorName', cakeSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
 
-
-    print('Cake List : ${cakeSearchList[index]}\n');
        Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(),
@@ -1925,8 +1900,8 @@ class _CakeTypesState extends State<CakeTypes> {
           eggOrEgglesList = cakesList.where((element) =>
               element['EggOrEggless'].toString().toLowerCase().contains("Eggless".toLowerCase())).toList();
 
-          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+          // cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+          //     == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
         });
       }
@@ -1937,8 +1912,8 @@ class _CakeTypesState extends State<CakeTypes> {
               element['EggOrEggless'].toString().toLowerCase()=="eggadded"
           ).toList();
 
-          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+          // cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+          //     == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
         });
       }
@@ -2058,11 +2033,7 @@ class _CakeTypesState extends State<CakeTypes> {
               )),
           child: RefreshIndicator(
             onRefresh : () async{
-              setState((){
-                // getCakeList();
-                // clearShapesFilter();
-                // clearAllFilters();
-              });
+                loadPrefs();
             },
             child: SingleChildScrollView(
               child:Column(
@@ -3005,7 +2976,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                               SizedBox(height:5),
                                              Container(
                                               // width:120,
-                                              child: Text(cakeSearchList[i]['DeliveryCharge']=="0"?
+                                              child: Text(cakeSearchList[i]['DeliveryCharge']=="0"||
+                                                  cakeSearchList[i]['DeliveryCharge']=="null"||cakeSearchList[i]['DeliveryCharge']==null?
                                               'DELIVERY FREE':'Delivery Charge Rs.${cakeSearchList[i]['DeliveryCharge']}', style:TextStyle(
                                                   color:Colors.orange,
                                                   fontWeight: FontWeight.bold,

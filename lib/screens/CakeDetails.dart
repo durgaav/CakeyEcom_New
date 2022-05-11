@@ -1689,6 +1689,12 @@ class _CakeDetailsState extends State<CakeDetails> {
     }else{
       setState(() {
 
+        if(selVendorIndex==-1){
+          selVendorIndex = 0;
+        }else{
+          selVendorIndex = selVendorIndex;
+        }
+
         var adrss =
             nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
                 nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
@@ -2282,11 +2288,12 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       fontSize:16,
                                   ),),
                                   Text(
-                                    '${counts*int.parse(cakePrice)}',
+                                        ""+"${int.parse(cakePrice ,onError: (e)=>0) * counts}",
                                         style: TextStyle(
                                           color: lightPink,
                                           fontWeight: FontWeight.bold,
-                                          fontSize:23,),
+                                          fontSize:23,
+                                        ),
                                   ),
                                 ]
                               ),

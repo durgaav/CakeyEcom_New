@@ -1726,19 +1726,199 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               padding: EdgeInsets.all(10.0),
                               color: Colors.black12,
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  btnMsg.toLowerCase()!='connect - help desk'?
+                                  selFromVenList?Text('Selected Vendor',style: TextStyle(fontSize:15,
+                                      color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),):Container(),
+
+                                  selFromVenList?
+                                  Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                        color:Colors.white ,
+                                        borderRadius:BorderRadius.circular(10)
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        mySelectdVendors[0]['VendorProfile']!=null?
+                                        Container(
+                                          width:90,
+                                          height:110,
+                                          decoration: BoxDecoration(
+                                              color:Colors.red ,
+                                              borderRadius:BorderRadius.circular(10) ,
+                                              image:DecorationImage(
+                                                  image:NetworkImage(mySelectdVendors[0]['VendorProfile']),
+                                                  fit: BoxFit.cover
+                                              )
+                                          ),
+                                        ):
+                                        Container(
+                                          width:90,
+                                          height:110,
+                                          decoration: BoxDecoration(
+                                              color:Colors.red ,
+                                              borderRadius:BorderRadius.circular(10) ,
+                                              image:DecorationImage(
+                                                  image:Svg("assets/images/pictwo.svg"),
+                                                  fit: BoxFit.cover
+                                              )
+                                          ),
+                                        ),
+                                        SizedBox(width: 8,),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:155,
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Container(
+                                                          child: Text('${mySelectdVendors[0]['VendorName']}' , style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontWeight: FontWeight.bold,
+                                                            fontFamily: "Poppins",
+                                                          ),overflow: TextOverflow.ellipsis,),
+                                                        ),
+                                                        SizedBox(height: 6,) ,
+                                                        Row(
+                                                          children: [
+                                                            RatingBar.builder(
+                                                              initialRating: 4.1,
+                                                              minRating: 1,
+                                                              direction: Axis.horizontal,
+                                                              allowHalfRating: true,
+                                                              itemCount: 5,
+                                                              itemSize: 14,
+                                                              itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                              itemBuilder: (context, _) => Icon(
+                                                                Icons.star,
+                                                                color: Colors.amber,
+                                                              ),
+                                                              onRatingUpdate: (rating) {
+                                                                print(rating);
+                                                              },
+                                                            ),
+                                                            Text(' 4.5',style: TextStyle(
+                                                                color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                            ),)
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Icon(Icons.check_circle,color:Colors.green)
+                                                ],
+                                              ),
+                                              Text(mySelectdVendors[0]['VendorDesc']!=null||
+                                                  mySelectdVendors[0]['VendorDesc']!='null'?
+                                              "${mySelectdVendors[0]['VendorDesc']}":"No Description",
+                                                style:TextStyle(
+                                                  fontSize:12,
+                                                  fontFamily: "Poppins" ,
+                                                  color:Colors.grey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),maxLines: 2,),
+                                              Container(
+                                                height:1,
+                                                color:Colors.grey,
+                                                // margin: EdgeInsets.only(left:6,right:6),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(mySelectdVendors[0]['VendorEgg']=='Both'?
+                                                      'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
+                                                        style:TextStyle(
+                                                          fontSize:11,
+                                                          fontFamily: "Poppins" ,
+                                                          color:darkBlue,
+                                                        ),maxLines: 1,),
+                                                      SizedBox(height:3),
+                                                      Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
+                                                          mySelectdVendors[0]['VendorDelCharge']==null?
+                                                      "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
+                                                        style:TextStyle(
+                                                          fontSize:10,
+                                                          fontFamily: "Poppins" ,
+                                                          color:Colors.orange,
+                                                        ),maxLines: 1,),
+                                                    ],
+                                                  ),
+                                                  Container(
+                                                    width: 100,
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: (){
+                                                            print('phone..');
+                                                          },
+                                                          child: Container(
+                                                            alignment: Alignment.center,
+                                                            height: 35,
+                                                            width: 35,
+                                                            decoration: BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              color: Colors.grey[200],
+                                                            ),
+                                                            child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        InkWell(
+                                                          onTap: (){
+                                                            print('whatsapp : ');
+                                                          },
+                                                          child: Container(
+                                                            alignment: Alignment.center,
+                                                            height: 35,
+                                                            width: 35,
+                                                            decoration: BoxDecoration(
+                                                                shape: BoxShape.circle,
+                                                                color:Colors.grey[200]
+                                                            ),
+                                                            child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ):
+                                  Container(),
+                                  SizedBox(height: 15,),
+
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
-                                          Text(!selFromVenList?'Select Vendors':'Your Vendor',style: TextStyle(fontSize:15,
+                                          Text('Select Vendors',style: TextStyle(fontSize:15,
                                               color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                          Text(!selFromVenList?'  (10km radius)':'',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
+                                          Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
                                         ],
                                       ),
-                                      !selFromVenList?InkWell(
+                                      InkWell(
                                         onTap: () async{
                                           print('see more..');
                                           var pref = await SharedPreferences.getInstance();
@@ -1756,14 +1936,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             Icon(Icons.keyboard_arrow_right,color: lightPink,)
                                           ],
                                         ),
-                                      ):Container(),
+                                      )
                                     ],
-                                  ):Container(),
+                                  ),
+
                                   SizedBox(height: 15,),
-                                  btnMsg.toLowerCase()!='connect - help desk'?
+
                                   Container(
-                                    height: selFromVenList?160:200,
-                                    child: !selFromVenList?
+                                    height: 200,
+                                    child:
                                     ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         shrinkWrap: true,
@@ -1918,180 +2099,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             ),
                                           );
                                         }
-                                    ):
-                                    Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      padding: EdgeInsets.all(5),
-                                      margin: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                          color:Colors.white , 
-                                          borderRadius:BorderRadius.circular(10)
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          mySelectdVendors[0]['VendorProfile']!=null?
-                                          Container(
-                                            width:90,
-                                            decoration: BoxDecoration(
-                                                color:Colors.red ,
-                                                borderRadius:BorderRadius.circular(10) ,
-                                                image:DecorationImage(
-                                                  image:NetworkImage(mySelectdVendors[0]['VendorProfile']),
-                                                  fit: BoxFit.cover
-                                                )
-                                            ),
-                                          ):
-                                          Container(
-                                            width:90,
-                                            decoration: BoxDecoration(
-                                                color:Colors.red ,
-                                                borderRadius:BorderRadius.circular(10) ,
-                                                image:DecorationImage(
-                                                    image:Svg("assets/images/pictwo.svg"),
-                                                    fit: BoxFit.cover
-                                                )
-                                            ),
-                                          ),
-                                          SizedBox(width: 8,),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      width:155,
-                                                      child: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Container(
-                                                            child: Text('${mySelectdVendors[0]['VendorName']}' , style: TextStyle(
-                                                              color: Colors.black,
-                                                              fontWeight: FontWeight.bold,
-                                                              fontFamily: "Poppins",
-                                                            ),overflow: TextOverflow.ellipsis,),
-                                                          ),
-                                                          SizedBox(height: 6,) ,
-                                                          Row(
-                                                            children: [
-                                                              RatingBar.builder(
-                                                                initialRating: 4.1,
-                                                                minRating: 1,
-                                                                direction: Axis.horizontal,
-                                                                allowHalfRating: true,
-                                                                itemCount: 5,
-                                                                itemSize: 14,
-                                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                itemBuilder: (context, _) => Icon(
-                                                                  Icons.star,
-                                                                  color: Colors.amber,
-                                                                ),
-                                                                onRatingUpdate: (rating) {
-                                                                  print(rating);
-                                                                },
-                                                              ),
-                                                              Text(' 4.5',style: TextStyle(
-                                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                              ),)
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Icon(Icons.check_circle,color:Colors.green)
-                                                  ],
-                                                ),
-                                                Text(mySelectdVendors[0]['VendorDesc']!=null||
-                                                    mySelectdVendors[0]['VendorDesc']!='null'?
-                                                "${mySelectdVendors[0]['VendorDesc']}":"No Description",
-                                                  style:TextStyle(
-                                                  fontSize:12,
-                                                  fontFamily: "Poppins" ,
-                                                  color:Colors.grey,
-                                                  fontWeight: FontWeight.bold,
-                                                ),maxLines: 2,),
-                                                Container(
-                                                  height:1,
-                                                  color:Colors.grey,
-                                                  // margin: EdgeInsets.only(left:6,right:6),
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(mySelectdVendors[0]['VendorEgg']=='Both'?
-                                                        'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
-                                                          style:TextStyle(
-                                                            fontSize:11,
-                                                            fontFamily: "Poppins" ,
-                                                            color:darkBlue,
-                                                          ),maxLines: 1,),
-                                                        SizedBox(height:3),
-                                                        Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
-                                                            mySelectdVendors[0]['VendorDelCharge']==null?
-                                                        "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
-                                                          style:TextStyle(
-                                                            fontSize:10,
-                                                            fontFamily: "Poppins" ,
-                                                            color:Colors.orange,
-                                                          ),maxLines: 1,),
-                                                      ],
-                                                    ),
-                                                    Container(
-                                                      width: 100,
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.end,
-                                                        children: [
-                                                          InkWell(
-                                                            onTap: (){
-                                                              print('phone..');
-                                                            },
-                                                            child: Container(
-                                                              alignment: Alignment.center,
-                                                              height: 35,
-                                                              width: 35,
-                                                              decoration: BoxDecoration(
-                                                                shape: BoxShape.circle,
-                                                                color: Colors.grey[200],
-                                                              ),
-                                                              child:const Icon(Icons.phone,color: Colors.blueAccent,),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 10,),
-                                                          InkWell(
-                                                            onTap: (){
-                                                              print('whatsapp : ');
-                                                            },
-                                                            child: Container(
-                                                              alignment: Alignment.center,
-                                                              height: 35,
-                                                              width: 35,
-                                                              decoration: BoxDecoration(
-                                                                  shape: BoxShape.circle,
-                                                                  color:Colors.grey[200]
-                                                              ),
-                                                              child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                     )
-                                  ):
-                                  Container(),
+                                  ),
                                   SizedBox(height: 15,),
                                   Container(
                                     height: 50,
@@ -2123,7 +2132,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                       },
                                       color: lightPink,
-                                      child: Text("$btnMsg",style: TextStyle(
+                                      child: Text("ORDER NOW",style: TextStyle(
                                           color: Colors.white,fontWeight: FontWeight.bold
                                       ),),
                                     ),

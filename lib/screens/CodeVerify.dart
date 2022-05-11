@@ -9,8 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:alt_sms_autofill/alt_sms_autofill.dart';
-
 
 //Code Verify screen.....
 class CodeVerify extends StatefulWidget {
