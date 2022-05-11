@@ -1434,7 +1434,8 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
 
 
-    Navigator.of(context).push(
+    print('Cake List : ${cakeSearchList[index]}\n');
+       Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {

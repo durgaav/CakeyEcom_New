@@ -125,6 +125,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   String fixedFlavour = '';
   var fixedFlavList = [];
   //
+
+  //Shape
+  var myShapeIndex = 0;
   String fixedShape = '';
   String fixedWeight = '';
   String cakeMsg = '';
@@ -144,7 +147,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   int discounts = 0;
   int taxes = 0;
   int counts = 1;
-  int selVendorIndex = 0;
+  int selVendorIndex = -1;
   int flavExtraCharge = 0;
 
   //Text controls
@@ -407,7 +410,8 @@ class _CakeDetailsState extends State<CakeDetails> {
             return Container(
               padding: EdgeInsets.all(10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -423,7 +427,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                             color: darkBlue,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
+                            fontFamily: "Poppins"
+                        ),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
@@ -441,57 +446,59 @@ class _CakeDetailsState extends State<CakeDetails> {
                       ),
                     ],
                   ),
+                  SizedBox(
+                    height: 8,
+                  ),
                   Container(
                     height: 1.0,
                     color: Colors.black26,
                   ),
+
                   Container(
-                    height: 250,
-                    child: Scrollbar(
-                      isAlwaysShown: true,
-                      child: ListView.builder(
-                          itemCount: flavour.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            multiFlavChecs.add(false);
-                            // return RadioListTile(
-                            //     activeColor: Colors.green,
-                            //     title: Text(
-                            //       "${flavour[index]}",
-                            //       style: TextStyle(
-                            //           fontFamily: "Poppins", color: darkBlue),
-                            //     ),
-                            //     value: index,
-                            //     groupValue: flavGrpValue,
-                            //     onChanged: (int? value) {
-                            //       print(value);
-                            //       setState(() {
-                            //         flavGrpValue = value!;
-                            //       });
-                            //     });
-
-                            // setState((){
-                            //   if(multiFlavChecs[index]==false){
-                            //     multiFlavChecs[index] = true;
-                            //     if(fixedFlavList.contains(flavour[index])){
-                            //     }else{
-                            //       fixedFlavList.add(flavour[index]);
-                            //     }
-                            //   }else{
-                            //     multiFlavChecs[index] = false;
-                            //     fixedFlavList.removeWhere((element) => element==flavour[index]);
-                            //   }
-                            // });
-
-                            return Row(
-                              children:[
-                                Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey),
-                                SizedBox(width:8),
-                              ]
-                            );
-                          }),
+                      height: 200,
+                      child: Scrollbar(
+                        isAlwaysShown: true,
+                        child: ListView.builder(
+                            itemCount: flavour.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              multiFlavChecs.add(false);
+                              return InkWell(
+                                splashColor: Colors.red[200],
+                                onTap:(){
+                                  setState((){
+                                    if(multiFlavChecs[index]==false){
+                                      multiFlavChecs[index] = true;
+                                      if(fixedFlavList.contains(flavour[index])){
+                                      }else{
+                                        fixedFlavList.add(flavour[index]);
+                                      }
+                                    }else{
+                                      multiFlavChecs[index] = false;
+                                      fixedFlavList.removeWhere((element) => element==flavour[index]);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(8),
+                                  child:Row(
+                                      children:[
+                                        multiFlavChecs[index] == false?
+                                        Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey , size: 28,):
+                                        Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
+                                        SizedBox(width:8),
+                                        Expanded(child: Container(
+                                          child:Text("${flavour[index]}",
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins", color: Colors.grey,
+                                                  fontWeight: FontWeight.bold)),
+                                        ))
+                                   ])
+                                ),
+                              );
+                            }),
+                      ),
                     ),
-                  ),
 
                   Container(
                     margin:EdgeInsets.all(15),
@@ -538,7 +545,8 @@ class _CakeDetailsState extends State<CakeDetails> {
             return Container(
               padding: EdgeInsets.all(10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -554,7 +562,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                             color: darkBlue,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
+                            fontFamily: "Poppins"
+                        ),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
@@ -563,7 +572,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                             height: 35,
                             decoration: BoxDecoration(
                                 color: Colors.black12,
-                                borderRadius: BorderRadius.circular(10)),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
                             alignment: Alignment.center,
                             child: Icon(
                               Icons.close_outlined,
@@ -573,7 +583,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                     ],
                   ),
                   SizedBox(
-                    height: 5,
+                    height: 8,
                   ),
                   Container(
                     height: 1.0,
@@ -581,30 +591,57 @@ class _CakeDetailsState extends State<CakeDetails> {
                   ),
 
                   Container(
-                    height: 290,
-                    child: Scrollbar(
-                      child: ListView.builder(
-                          itemCount: shapes.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            return RadioListTile(
-                                activeColor: Colors.green,
-                                title: Text(
-                                  "${shapes[index]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins", color: darkBlue),
-                                ),
-                                value: index,
-                                groupValue: shapeGrpValue,
-                                onChanged: (int? value) {
-                                  print(value);
-                                  setState(() {
-                                    shapeGrpValue = value!;
+                      height: 220,
+                      child: Scrollbar(
+                        child: ListView.builder(
+                            itemCount: shapes.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              // return RadioListTile(
+                              //     activeColor: Colors.green,
+                              //     title: Text(
+                              //       "${shapes[index]}",
+                              //       style: TextStyle(
+                              //           fontFamily: "Poppins", color: darkBlue),
+                              //     ),
+                              //     value: index,
+                              //     groupValue: shapeGrpValue,
+                              //     onChanged: (int? value) {
+                              //       print(value);
+                              //       setState(() {
+                              //         shapeGrpValue = value!;
+                              //       });
+                              //     }
+                              //     );
+
+                              return InkWell(
+                                onTap:(){
+                                  setState((){
+                                    myShapeIndex = index;
                                   });
-                                });
-                          }),
+                                },
+                                child: Container(
+                                  padding:EdgeInsets.all(8),
+                                  child:Row(
+                                    children:[
+                                      myShapeIndex!=index?
+                                      Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey , size: 28,):
+                                      Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
+                                      SizedBox(width:8),
+                                      Expanded(child: Container(
+                                        child:Text("${shapes[index]}",
+                                            style: TextStyle(
+                                                fontFamily: "Poppins", color: Colors.grey,
+                                                fontWeight: FontWeight.bold)),
+                                      ))
+                                    ]
+                                  )
+                                ),
+                              );
+
+                            }),
+                      ),
                     ),
-                  ),
 
                   Container(
                     margin:EdgeInsets.all(15),
@@ -1553,7 +1590,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       //Lists
       cakeImages = prefs.getStringList('cakeImages') ?? [];
       flavour = prefs.getStringList('cakeFalvours') ?? [];
-      // shapes = prefs.getStringList('cakeShapes') ?? [];
+      shapes = prefs.getStringList('cakeShapes') ?? [];
       topings = prefs.getStringList('cakeToppings') ?? [];
       weight = prefs.getStringList('cakeWeights') ?? [];
 
@@ -2649,7 +2686,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                         ),
                       ),
                       Container(
-                          height: MediaQuery.of(context).size.height * 0.06,
+                          height: MediaQuery.of(context).size.height * 0.057,
                           width: MediaQuery.of(context).size.width,
                           margin: EdgeInsets.symmetric(horizontal: 10),
                           //  color: Colors.grey,
@@ -2673,7 +2710,6 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   },
                                   child: Container(
                                     width: 60,
-                                    height: 45,
                                     alignment: Alignment.center,
                                     margin: EdgeInsets.all(5),
                                     decoration: BoxDecoration(
@@ -2689,6 +2725,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       weight[index],
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 13,
                                           fontFamily: poppins,
                                           color: selwIndex[index]
                                               ? Colors.white
@@ -2706,6 +2743,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                               fontFamily: poppins, color: darkBlue),
                         ),
                       ),
+                      SizedBox(height: 5,),
                       Container(
                         child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -2722,7 +2760,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           fontSize: 13
                                       ),
                                       decoration: InputDecoration(
-                                          // contentPadding:EdgeInsets.only(bottom:-5),
+                                        contentPadding: EdgeInsets.all(0.0),
+                                        isDense: true,
                                           constraints: BoxConstraints(minHeight: 5),
                                           hintText: 'Type here..',
                                           hintStyle: TextStyle(fontFamily: 'Poppins' ,
@@ -2797,6 +2836,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 style: TextStyle(
                                     fontFamily: poppins, color: darkBlue),
                               ),
+                              SizedBox(height: 5,),
                               Container(
                                 child: Column(
                                   children: [
@@ -2815,6 +2855,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               ),
                                               decoration: InputDecoration(
                                                   hintText: 'Type here..',
+                                                  contentPadding: EdgeInsets.all(0.0),
+                                                  isDense: true,
                                                   hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                       fontSize: 13
                                                   ),
@@ -3246,7 +3288,202 @@ class _CakeDetailsState extends State<CakeDetails> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            iamYourVendor==false?
+                            iamYourVendor==true?
+                            Text(
+                              'Your Vendor',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: darkBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: poppins),
+                            ):Container(),
+                            SizedBox(height: 10,),
+                            iamYourVendor==true?
+                            InkWell(
+                              onTap:(){
+                                   setState((){
+                                     selVendorIndex = -1;
+                                   });
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.all(5),
+                                margin: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    color:Colors.white ,
+                                    borderRadius:BorderRadius.circular(10)
+                                ),
+                                child: Row(
+                                  children: [
+                                    mySelVendors[0]['VendorProfile']!=null?
+                                    Container(
+                                      width:90,
+                                      height:100,
+                                      decoration: BoxDecoration(
+                                          color:Colors.red ,
+                                          borderRadius:BorderRadius.circular(10) ,
+                                          image:DecorationImage(
+                                              image:NetworkImage(mySelVendors[0]['VendorProfile'].toString()),
+                                              fit: BoxFit.cover
+                                          )
+                                      ),
+                                    ):
+                                    Container(
+                                      width:90,
+                                      height:100,
+                                      decoration: BoxDecoration(
+                                          color:Colors.red ,
+                                          borderRadius:BorderRadius.circular(10) ,
+                                          image:DecorationImage(
+                                              image:Svg("assets/images/pictwo.svg"),
+                                              fit: BoxFit.cover
+                                          )
+                                      ),
+                                    ),
+                                    SizedBox(width: 8,),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width:155,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      child: Text('${mySelVendors[0]['VendorName']}' , style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: "Poppins",
+                                                      ),overflow: TextOverflow.ellipsis,),
+                                                    ),
+                                                    SizedBox(height: 6,) ,
+                                                    Row(
+                                                      children: [
+                                                        RatingBar.builder(
+                                                          initialRating: 4.1,
+                                                          minRating: 1,
+                                                          direction: Axis.horizontal,
+                                                          allowHalfRating: true,
+                                                          itemCount: 5,
+                                                          itemSize: 14,
+                                                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                          itemBuilder: (context, _) => Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
+                                                          ),
+                                                          onRatingUpdate: (rating) {
+                                                            print(rating);
+                                                          },
+                                                        ),
+                                                        Text(' 4.5',style: TextStyle(
+                                                            color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                        ),)
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              selVendorIndex==-1?Icon(Icons.check_circle,color:Colors.green):Container(),
+                                            ],
+                                          ),
+
+                                          Text(mySelVendors[0]['VendorDesc']!=null||
+                                              mySelVendors[0]['VendorDesc']!='null'?
+                                          "${mySelVendors[0]['VendorDesc']}":"No Description",
+                                            style:TextStyle(
+                                              fontSize:12,
+                                              fontFamily: "Poppins" ,
+                                              color:Colors.grey,
+                                              fontWeight: FontWeight.bold,
+                                            ),maxLines: 1,),
+                                          SizedBox(height: 6,) ,
+                                          Container(
+                                            height:1,
+                                            color:Colors.grey,
+                                            // margin: EdgeInsets.only(left:6,right:6),
+                                          ),
+                                          SizedBox(height: 6,) ,
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(mySelVendors[0]['VendorEgg']=='Both'?
+                                                  'Includes eggless':'${mySelVendors[0]['VendorEgg']}',
+                                                    style:TextStyle(
+                                                      fontSize:11,
+                                                      fontFamily: "Poppins" ,
+                                                      color:darkBlue,
+                                                    ),maxLines: 1,),
+                                                  SizedBox(height:3),
+                                                  Text(mySelVendors[0]['VendorDelCharge']=='0'||
+                                                      mySelVendors[0]['VendorDelCharge']==null?
+                                                  "DELIVERY FREE":'Delivery Fee Rs.${mySelVendors[0]['VendorDelCharge']}',
+                                                    style:TextStyle(
+                                                      fontSize:10,
+                                                      fontFamily: "Poppins" ,
+                                                      color:Colors.orange,
+                                                    ),maxLines: 1,),
+                                                ],
+                                              ),
+                                              Container(
+                                                width: 100,
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: (){
+                                                        print('phone..');
+                                                      },
+                                                      child: Container(
+                                                        alignment: Alignment.center,
+                                                        height: 35,
+                                                        width: 35,
+                                                        decoration: BoxDecoration(
+                                                          shape: BoxShape.circle,
+                                                          color: Colors.grey[200],
+                                                        ),
+                                                        child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    InkWell(
+                                                      onTap: (){
+                                                        print('whatsapp : ');
+                                                      },
+                                                      child: Container(
+                                                        alignment: Alignment.center,
+                                                        height: 35,
+                                                        width: 35,
+                                                        decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color:Colors.grey[200]
+                                                        ),
+                                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ):
+                            Container(),
+                            SizedBox(height: 10,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -3255,7 +3492,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     Text(
                                       'Select Vendors',
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 15,
                                           color: darkBlue,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: poppins
@@ -3299,17 +3536,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   ),
                                 ),
                               ],
-                            ):
-                            Text(
-                              'Your Vendor',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: darkBlue,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: poppins),
                             ),
                             SizedBox(height: 10,),
-                            iamYourVendor==false?
                             Container(
                               height: 200,
                               child: ListView.builder(
@@ -3318,290 +3546,172 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   itemCount: nearestVendors.length,
                                   itemBuilder: (context , index){
                                     return Card(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)
-                                        ),
-                                        child: InkWell(
-                                          splashColor:Colors.red[200] ,
-                                          onTap: (){
-                                            print(index);
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: InkWell(
+                                        splashColor:Colors.red[200] ,
+                                        onTap: (){
+                                          print(index);
 
-                                            String adrss = '1/4 vellandipalayam , Avinashi';
+                                          String adrss = '1/4 vellandipalayam , Avinashi';
 
-                                                setState((){
-                                                  selVendorIndex = index;
-                                                  adrss =
-                                                  nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
-                                                  nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
-                                                  nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
-                                                  nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
+                                          setState((){
+                                            selVendorIndex = index;
+                                            adrss =
+                                                nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
+                                                    nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
+                                                    nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
+                                                    nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
 
 
-                                                  vendorID = nearestVendors[selVendorIndex]['_id'].toString();
-                                                  vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
-                                                  vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
-                                                  vendorAddress = adrss;
+                                            vendorID = nearestVendors[selVendorIndex]['_id'].toString();
+                                            vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
+                                            vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
+                                            vendorAddress = adrss;
 
-                                                });
+                                          });
 
-                                                print('$vendorID \n $vendorName \n '
-                                                    '$vendorMobileNum \n $vendorAddress');
+                                          print('$vendorID \n $vendorName \n '
+                                              '$vendorMobileNum \n $vendorAddress');
 
-                                            print('index :$index / venIndex : $selVendorIndex');
+                                          print('index :$index / venIndex : $selVendorIndex');
 
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            width: 260,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  children: [
-                                                    nearestVendors[index]['ProfileImage']!=null?
-                                                    CircleAvatar(
-                                                      radius:32,
-                                                      backgroundColor: Colors.white,
-                                                      child: CircleAvatar(
-                                                        radius:30,
-                                                        backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
-                                                      ),
-                                                    ):
-                                                    CircleAvatar(
-                                                      radius:32,
-                                                      backgroundColor: Colors.white,
-                                                      child: CircleAvatar(
-                                                        radius:30,
-                                                        backgroundImage:Svg('assets/images/pictwo.svg'),
-                                                      ),
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          width: 260,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  nearestVendors[index]['ProfileImage']!=null?
+                                                  CircleAvatar(
+                                                    radius:32,
+                                                    backgroundColor: Colors.white,
+                                                    child: CircleAvatar(
+                                                      radius:30,
+                                                      backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
                                                     ),
-                                                    SizedBox(width: 6,),
-                                                    Container(
-                                                      width:170,
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Container(
-                                                                width:120,
-                                                                child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
-                                                                'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                    nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
-                                                                }',style: TextStyle(
-                                                                    color: darkBlue,fontWeight: FontWeight.bold,
-                                                                    fontFamily: "Poppins"
-                                                                ),overflow: TextOverflow.ellipsis,),
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  RatingBar.builder(
-                                                                    initialRating: 4.1,
-                                                                    minRating: 1,
-                                                                    direction: Axis.horizontal,
-                                                                    allowHalfRating: true,
-                                                                    itemCount: 5,
-                                                                    itemSize: 14,
-                                                                    itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                    itemBuilder: (context, _) => Icon(
-                                                                      Icons.star,
-                                                                      color: Colors.amber,
-                                                                    ),
-                                                                    onRatingUpdate: (rating) {
-                                                                      print(rating);
-                                                                    },
-                                                                  ),
-                                                                  Text(' 4.5',style: TextStyle(
-                                                                      color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                  ),)
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
+                                                  ):
+                                                  CircleAvatar(
+                                                    radius:32,
+                                                    backgroundColor: Colors.white,
+                                                    child: CircleAvatar(
+                                                      radius:30,
+                                                      backgroundImage:Svg('assets/images/pictwo.svg'),
                                                     ),
-                                                  ],
-                                                ),
-                                                SizedBox(height: 10,),
-                                                Container(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Text(nearestVendors[index]['Description']!=null?
-                                                  " "+nearestVendors[index]['Description']:'',
-                                                    style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
-                                                    overflow: TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                    textAlign: TextAlign.start,
                                                   ),
-                                                ),
-                                                Container(
-                                                  margin:EdgeInsets.only(top: 10),
-                                                  height: 0.5,
-                                                  color: Colors.black26,
-                                                ),
-                                                SizedBox(height: 15,),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                  SizedBox(width: 6,),
+                                                  Container(
+                                                    width:170,
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        nearestVendors[index]['EggOrEggless'].toString()=='Both'?
-                                                        Text('Egg and Eggless',style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontSize: 10,
-                                                            fontFamily: "Poppins"
-                                                        ),):
-                                                        Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
-                                                            color: darkBlue,
-                                                            fontSize: 10,
-                                                            fontFamily: "Poppins"
-                                                        ),),
-                                                        SizedBox(height: 8,),
-                                                        Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
-                                                            nearestVendors[index]['DeliveryCharge'].toString()=='0'||
-                                                            nearestVendors[index]['DeliveryCharge'].toString()==null
-                                                            ?
-                                                        'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
-                                                            color: Colors.orange,
-                                                            fontSize: 10 ,
-                                                            fontFamily: "Poppins"
-                                                        ),),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Container(
+                                                              width:120,
+                                                              child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                              'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                  nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                              }',style: TextStyle(
+                                                                  color: darkBlue,fontWeight: FontWeight.bold,
+                                                                  fontFamily: "Poppins"
+                                                              ),overflow: TextOverflow.ellipsis,),
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                RatingBar.builder(
+                                                                  initialRating: 4.1,
+                                                                  minRating: 1,
+                                                                  direction: Axis.horizontal,
+                                                                  allowHalfRating: true,
+                                                                  itemCount: 5,
+                                                                  itemSize: 14,
+                                                                  itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                  itemBuilder: (context, _) => Icon(
+                                                                    Icons.star,
+                                                                    color: Colors.amber,
+                                                                  ),
+                                                                  onRatingUpdate: (rating) {
+                                                                    print(rating);
+                                                                  },
+                                                                ),
+                                                                Text(' 4.5',style: TextStyle(
+                                                                    color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                                ),)
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ],
                                                     ),
-                                                   selVendorIndex==index?
-                                                   Icon(Icons.check_circle,color: Colors.green,):
-                                                   Container(),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                  }
-                              ),
-                            ):
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              height:150,
-                              width:double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    mySelVendors[0]['VendorProfile']==null||
-                                    mySelVendors[0]['VendorProfile']=='null'?
-                                    Container(
-                                      width: 90,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        image: DecorationImage(
-                                            image: Svg('assets/images/pictwo.svg'),
-                                          fit: BoxFit.cover
-                                        ),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ):
-                                    Container(
-                                      width: 90,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        image: DecorationImage(
-                                            image: NetworkImage(mySelVendors[0]['VendorProfile']),
-                                            fit: BoxFit.cover
-                                        ),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(5),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(mySelVendors[0]['VendorName'], style: TextStyle(
-                                            color:Colors.black , fontWeight: FontWeight.bold,
-                                            fontFamily: "Poppins",fontSize: 16
-                                          ),) ,
-                                          Row(
-                                            children: [
-                                              RatingBar.builder(
-                                                initialRating: 4.1,
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 14,
-                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                itemBuilder: (context, _) => Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                onRatingUpdate: (rating) {
-                                                },
+                                                  ),
+                                                ],
                                               ),
-                                              Text(' 4.5',style: TextStyle(
-                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                              ),)
+                                              SizedBox(height: 10,),
+                                              Container(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(nearestVendors[index]['Description']!=null?
+                                                " "+nearestVendors[index]['Description']:'',
+                                                  style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Container(
+                                                margin:EdgeInsets.only(top: 10),
+                                                height: 0.5,
+                                                color: Colors.black26,
+                                              ),
+                                              SizedBox(height: 15,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      nearestVendors[index]['EggOrEggless'].toString()=='Both'?
+                                                      Text('Egg and Eggless',style: TextStyle(
+                                                          color: darkBlue,
+                                                          fontSize: 10,
+                                                          fontFamily: "Poppins"
+                                                      ),):
+                                                      Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
+                                                          color: darkBlue,
+                                                          fontSize: 10,
+                                                          fontFamily: "Poppins"
+                                                      ),),
+                                                      SizedBox(height: 8,),
+                                                      Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
+                                                          nearestVendors[index]['DeliveryCharge'].toString()=='0'||
+                                                          nearestVendors[index]['DeliveryCharge'].toString()==null
+                                                          ?
+                                                      'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
+                                                          color: Colors.orange,
+                                                          fontSize: 10 ,
+                                                          fontFamily: "Poppins"
+                                                      ),),
+                                                    ],
+                                                  ),
+                                                  selVendorIndex==index?
+                                                  Icon(Icons.check_circle,color: Colors.green,):
+                                                  Container(),
+                                                ],
+                                              )
                                             ],
                                           ),
-                                          Container(
-                                            width: width*0.62,
-                                            child: Text(mySelVendors[0]['VendorDesc']!=null||
-                                                mySelVendors[0]['VendorDesc']!='null'?
-                                            "${mySelVendors[0]['VendorDesc']}":"No Description", style: TextStyle(
-                                                color:Colors.grey , fontWeight: FontWeight.bold,
-                                                fontFamily: "Poppins",fontSize: 12
-                                            ),overflow: TextOverflow.ellipsis,maxLines: 1,),
-                                          ) ,
-                                          Container(
-                                            height:0.5,
-                                            width: width*0.62,
-                                            color:darkBlue
-                                          ),
-                                          Container(
-                                            width: width*0.62,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(mySelVendors[0]['VendorEgg']=='Both'?
-                                                    'Includes eggless':'${mySelVendors[0]['VendorEgg']}',
-                                                      style:TextStyle(
-                                                        fontSize:11,
-                                                        fontFamily: "Poppins" ,
-                                                        color:darkBlue,
-                                                      ),maxLines: 1,),
-                                                    SizedBox(height:3),
-                                                    Text(mySelVendors[0]['VendorDelCharge']=='0'||
-                                                        mySelVendors[0]['VendorDelCharge']==null?
-                                                    "DELIVERY FREE":'Delivery Fee Rs.${mySelVendors[0]['VendorDelCharge']}',
-                                                      style:TextStyle(
-                                                        fontSize:10,
-                                                        fontFamily: "Poppins" ,
-                                                        color:Colors.orange,
-                                                      ),maxLines: 1,),
-                                                  ],
-                                                ),
-                                                Icon(Icons.check_circle,color: Colors.green,)
-                                              ],
-                                            ),
-                                          ),
-
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    );
+                                  }
+                              ),
                             ),
                             SizedBox(
                               height: 15,

@@ -13,8 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../ContextData.dart';
-import '../screens/Profile.dart';
-import 'Notifications.dart';
 
 class CustomiseCake extends StatefulWidget {
   const CustomiseCake({Key? key}) : super(key: key);
@@ -45,11 +43,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String fixedCakeArticle = 'Default';
 
   //Articles
-  var articals = ["Happy Birth Day" , "Butterflies" , "Hello World"];
-  var articalsPrice = ['Rs.100' , 'Rs.125','Rs.50'];
-  int articGroupVal = 0;
+  var articals = [
+    {"article":'Happy Birthday',"price":'100'},
+    {"article":'Butterflies',"price":'85'},
+    {"article":'Sweet Heart',"price":'150'},
+    {"article":'Welcome Home',"price":'70'},
+  ];
+  int articGroupVal = -1;
 
   int selVendorIndex = 0;
+  var weightCtrl = new TextEditingController();
 
   //String family
   String poppins = "Poppins";
@@ -65,9 +68,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String fixedExtraArticle = '';
   String fixedCakeTower = '';
   String fixedWeight = '';
-  String fixedDate = '00-00-0000';
-  String fixedSession = 'Morning';
+  String fixedDate = 'Not Yet Select';
+  String fixedSession = 'Not Yet Select';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
+  String selectedDropWeight = "Kg";
+  String fixedDelliverMethod = "";
 
   //cake text ctrls
   var msgCtrl = new TextEditingController();
@@ -110,6 +115,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //file
   File file = new File('');
+
+  //Del or Picup
+  var picOrDeliver = ["Pickup","Delivery"];
+  var picOrDel = 0;
 
   //endregion
 
@@ -512,10 +521,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       loadPrefs();
 
     });
-    session();
-    setState((){
-      fixedSession = session();
-    });
+    // session();
+    // setState((){
+    //   fixedSession = session();
+    // });
     super.initState();
   }
 
@@ -820,156 +829,165 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             ),
 
                             //Shapes....flav...toppings
-                            ExpansionTile(
-                              title: Text('Shapes',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
-                              ),),
-                              subtitle:Text('$fixedShape',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                  color: darkBlue
-                              ),),
-                              trailing: Container(
-                                alignment: Alignment.center,
-                                height: 25,
-                                width: 25,
-                                decoration: BoxDecoration(
-                                  color: Colors.red[100],
-                                  shape: BoxShape.circle ,
-                                ),
-                                child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                              ),
-                              children: [
-                                Container(
-                                  child:ListView.builder(
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: shapesList.length,
-                                        shrinkWrap: true,
-                                        itemBuilder: (context, index) {
-                                          return RadioListTile(
-                                              activeColor: Colors.green,
-                                              title: Text(
-                                                "${shapesList[index]}",
-                                                style: TextStyle(
-                                                    fontFamily: "Poppins", color: darkBlue),
-                                              ),
-                                              value: index,
-                                              groupValue: shapeGrpValue,
-                                              onChanged: (int? value) {
-                                                print(value);
-                                                setState(() {
-                                                  shapeGrpValue = value!;
-                                                  fixedShape = shapesList[index];
-                                                });
-                                              });
-                                        }),
-                                ),
-                              ],
-                            ),
                             Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              height: 0.5,
-                              color:Colors.pink[200],
-                            ),
-                            ExpansionTile(
-                              title: Text('Flavours',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
-                              ),),
-                              subtitle:Text('$fixedFlavour',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                  color: darkBlue
-                              ),),
-                              trailing: Container(
-                                alignment: Alignment.center,
-                                height: 25,
-                                width: 25,
-                                decoration: BoxDecoration(
-                                  color: Colors.red[100],
-                                  shape: BoxShape.circle ,
-                                ),
-                                child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                              ),
-                              children: [
-                                Container(
-                                  child:ListView.builder(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: flavourList.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        return RadioListTile(
-                                            activeColor: Colors.green,
-                                            title: Text(
-                                              "${flavourList[index]}",
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins", color: darkBlue),
-                                            ),
-                                            value: index,
-                                            groupValue: flavGrpValue,
-                                            onChanged: (int? value) {
-                                              print(value);
-                                              setState(() {
-                                                flavGrpValue = value!;
-                                                fixedFlavour = flavourList[index];
-                                              });
-                                            });
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              height: 0.5,
-                              color:Colors.pink[200],
-                            ),
-                            ExpansionTile(
-                              title: Text('Cake Articles',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
-                                  color: Colors.grey
-                              ),),
-                              subtitle:Text('$fixedCakeArticle',style: TextStyle(
-                                  fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                  color: darkBlue
-                              ),),
-                              trailing: Container(
-                                alignment: Alignment.center,
-                                height: 25,
-                                width: 25,
-                                decoration: BoxDecoration(
-                                  color: Colors.red[100],
-                                  shape: BoxShape.circle ,
-                                ),
-                                child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                              ),
-                              children: [
-                                Container(
-                                  child:ListView.builder(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: cakeArticles.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        return RadioListTile(
-                                            activeColor: Colors.green,
-                                            title: Text(
-                                              "${cakeArticles[index]}",
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins", color: darkBlue),
-                                            ),
-                                            value: index,
-                                            groupValue: artGrpValue,
-                                            onChanged: (int? value) {
-                                              print(value);
-                                              setState(() {
-                                                artGrpValue = value!;
-                                                fixedCakeArticle = cakeArticles[index];
-                                              });
-                                            });
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              height: 0.5,
-                              color:Colors.pink[200],
+                              margin:const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color:Colors.red[100],
+                                  borderRadius: BorderRadius.circular(12)
+                               ),
+                                child:Column(
+                                children:[
+                                  ExpansionTile(
+                                    title: Text('Shapes',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
+                                    ),),
+                                    subtitle:Text('$fixedShape',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                        color: darkBlue
+                                    ),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
+                                    children: [
+                                      Container(
+                                        color:Colors.white,
+                                        child:ListView.builder(
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemCount: shapesList.length,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              return RadioListTile(
+                                                  activeColor: Colors.green,
+                                                  title: Text(
+                                                    "${shapesList[index]}",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins", color: darkBlue),
+                                                  ),
+                                                  value: index,
+                                                  groupValue: shapeGrpValue,
+                                                  onChanged: (int? value) {
+                                                    print(value);
+                                                    setState(() {
+                                                      shapeGrpValue = value!;
+                                                      fixedShape = shapesList[index];
+                                                    });
+                                                  });
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 8,right: 8),
+                                    height: 0.5,
+                                    color:Colors.white,
+                                  ),
+                                  ExpansionTile(
+                                    title: Text('Flavours',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
+                                    ),),
+                                    subtitle:Text('$fixedFlavour',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                        color: darkBlue
+                                    ),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
+                                    children: [
+                                      Container(
+                                        color:Colors.white,
+                                        child:ListView.builder(
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemCount: flavourList.length,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              return RadioListTile(
+                                                  activeColor: Colors.green,
+                                                  title: Text(
+                                                    "${flavourList[index]}",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins", color: darkBlue),
+                                                  ),
+                                                  value: index,
+                                                  groupValue: flavGrpValue,
+                                                  onChanged: (int? value) {
+                                                    print(value);
+                                                    setState(() {
+                                                      flavGrpValue = value!;
+                                                      fixedFlavour = flavourList[index];
+                                                    });
+                                                  });
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 8,right: 8),
+                                    height: 0.5,
+                                    color:Colors.white,
+                                  ),
+                                  ExpansionTile(
+                                    title: Text('Cake Articles',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
+                                        color: Colors.grey
+                                    ),),
+                                    subtitle:Text('$fixedCakeArticle',style: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                        color: darkBlue
+                                    ),),
+                                    trailing: Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ),
+                                    children: [
+                                      Container(
+                                        color:Colors.white,
+                                        child:ListView.builder(
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemCount: cakeArticles.length,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              return RadioListTile(
+                                                  activeColor: Colors.green,
+                                                  title: Text(
+                                                    "${cakeArticles[index]}",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins", color: darkBlue),
+                                                  ),
+                                                  value: index,
+                                                  groupValue: artGrpValue,
+                                                  onChanged: (int? value) {
+                                                    print(value);
+                                                    setState(() {
+                                                      artGrpValue = value!;
+                                                      fixedCakeArticle = cakeArticles[index];
+                                                    });
+                                                  });
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                ]
+                              )
                             ),
 
                             //Weight...
@@ -1037,77 +1055,165 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       );
                                     })),
 
-                            SizedBox(height:15),
-                             Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              height: 0.5,
-                              color:Colors.pink[200],
-                            ),
+                            SizedBox(height:10),
+                            //  Container(
+                            //   margin: EdgeInsets.only(left: 8,right: 8),
+                            //   height: 0.5,
+                            //   color:Colors.pink[200],
+                            // ),
 
                             //Tower...
+                            // Padding(
+                            //   padding: const EdgeInsets.all(10),
+                            //   child: Text("Cake Tower",
+                            //     style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                            //   ),
+                            // ),
+                            // Container(
+                            //     height: MediaQuery.of(context).size.height * 0.06,
+                            //     width: MediaQuery.of(context).size.width,
+                            //     margin: EdgeInsets.symmetric(horizontal: 10),
+                            //     //  color: Colors.grey,
+                            //     child: ListView.builder(
+                            //         shrinkWrap: true,
+                            //         itemCount: cakeTowers.length,
+                            //         scrollDirection: Axis.horizontal,
+                            //         itemBuilder: (context, index) {
+                            //           selCakeTower.add(false);
+                            //           return InkWell(
+                            //             onTap: () {
+                            //               setState(() {
+                            //                 for (int i = 0; i < selCakeTower.length; i++) {
+                            //                   if (i == index) {
+                            //                     selCakeTower[i] = true;
+                            //                     fixedCakeTower = cakeTowers[index];
+                            //                   } else {
+                            //                     selCakeTower[i] = false;
+                            //                   }
+                            //                 }
+                            //               });
+                            //             },
+                            //             child:Container(
+                            //               width: 60,
+                            //               alignment: Alignment.center,
+                            //               margin: EdgeInsets.all(5),
+                            //               decoration: BoxDecoration(
+                            //                   borderRadius: BorderRadius.circular(18),
+                            //                   border: Border.all(
+                            //                     color: lightPink,
+                            //                     width: 1,
+                            //                   ),
+                            //                   color: selCakeTower[index]
+                            //                       ? Colors.pink
+                            //                       : Colors.white
+                            //               ),
+                            //               child:
+                            //               Text(
+                            //                 cakeTowers[index],
+                            //                 style: TextStyle(
+                            //                     fontWeight: FontWeight.bold,
+                            //                     fontFamily: "Poppins",color: selCakeTower[index]?Colors.white:darkBlue ,
+                            //                     fontSize: 13
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           );
+                            //         })),
+                            // SizedBox(height:15),
+                            // Container(
+                            //   margin: EdgeInsets.only(left: 8,right: 8),
+                            //   height: 0.5,
+                            //   color:Colors.pink[200],
+                            // ),
+
                             Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text("Cake Tower",
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                              padding: const EdgeInsets.only(left :15.0 , top:15),
+                              child: Text(
+                                'Enter Weight',
+                                style: TextStyle(
+                                    fontFamily: poppins, color: darkBlue,fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(height:5),
+                            Container(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(width: 15,),
+                                  Icon(Icons.scale_outlined,color: lightPink,),
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 10),
+                                      child: TextField(
+                                        keyboardType: TextInputType.number,
+                                        controller: weightCtrl,
+                                        style:TextStyle(fontFamily: 'Poppins' ,
+                                            fontSize: 13
+                                        ),
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(0.0),
+                                          isDense: true,
+                                          hintText: 'Type here..',
+                                          hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                              fontSize: 13
+                                          ),
+                                          // border: InputBorder.none
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    child: Container(
+                                        padding:EdgeInsets.all(4),
+                                        margin:EdgeInsets.only(right:10),
+                                        decoration: BoxDecoration(
+                                            color:Colors.grey[300]!,
+                                            borderRadius:BorderRadius.circular(5)
+                                        ),
+                                        child:PopupMenuButton(
+                                            child: Row(
+                                              children: [
+                                                Text('$selectedDropWeight' , style:TextStyle(
+                                                    color:darkBlue , fontFamily:'Poppins'
+                                                )),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Icon(Icons.keyboard_arrow_down,
+                                                    color: darkBlue)
+                                              ],
+                                            ),
+                                            itemBuilder: (context)=>[
+                                              PopupMenuItem(
+                                                  onTap:(){
+                                                    setState((){
+                                                      selectedDropWeight = "Kg";
+                                                    });
+                                                  },
+                                                  child:Text('Kilo Gram')
+                                              ),
+                                              PopupMenuItem(onTap:(){
+                                                setState((){
+                                                  selectedDropWeight = "Ib";
+                                                });
+                                              },child:Text('Pounds')),
+                                              PopupMenuItem(onTap:(){
+                                                setState((){
+                                                  selectedDropWeight = "G";
+                                                });
+                                              },child:Text('Gram')),
+                                            ]
+                                        )
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                             Container(
-                                height: MediaQuery.of(context).size.height * 0.06,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                //  color: Colors.grey,
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: cakeTowers.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) {
-                                      selCakeTower.add(false);
-                                      return InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            for (int i = 0; i < selCakeTower.length; i++) {
-                                              if (i == index) {
-                                                selCakeTower[i] = true;
-                                                fixedCakeTower = cakeTowers[index];
-                                              } else {
-                                                selCakeTower[i] = false;
-                                              }
-                                            }
-                                          });
-                                        },
-                                        child:Container(
-                                          width: 60,
-                                          alignment: Alignment.center,
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(18),
-                                              border: Border.all(
-                                                color: lightPink,
-                                                width: 1,
-                                              ),
-                                              color: selCakeTower[index]
-                                                  ? Colors.pink
-                                                  : Colors.white
-                                          ),
-                                          child:
-                                          Text(
-                                            cakeTowers[index],
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: "Poppins",color: selCakeTower[index]?Colors.white:darkBlue ,
-                                                fontSize: 13
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    })),
-
-                            SizedBox(height:15),
-                            Container(
-                              margin: EdgeInsets.only(left: 8,right: 8),
-                              height: 0.5,
-                              color:Colors.pink[200],
-                            ),
+                                margin: EdgeInsets.symmetric(horizontal: 15),
+                                child: Divider(
+                                  color: Colors.pink[100],
+                                )),
 
                             Container(
                               //margin
@@ -1119,11 +1225,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     Text(' Message on the cake',
                                       style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
                                     ),
-
+                                    SizedBox(height:5),
                                     Container(
                                       child: Column(
                                         children: [
                                           Row(
+                                            crossAxisAlignment:CrossAxisAlignment.center,
                                             children: [
                                               SizedBox(width: 8,),
                                               Icon(Icons.message_outlined,color: lightPink,),
@@ -1136,20 +1243,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       ),
                                                       decoration: InputDecoration(
                                                         hintText: 'Type here..',
+                                                        contentPadding: EdgeInsets.all(0.0),
+                                                        isDense: true,
                                                         hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                         fontSize: 13
                                                         ),
-                                                        border: InputBorder.none
+                                                        // border: InputBorder.none
                                                       ),
                                                     ),
                                                   ),
                                               )
                                             ],
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.only(left:10,right: 8),
-                                            height: 0.5,
-                                            color:Colors.black54,
                                           ),
                                         ],
                                       ),
@@ -1173,29 +1277,43 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             return InkWell(
                                               onTap:(){
                                                 setState(() {
-                                                  articGroupVal = index;
+                                                  if(articGroupVal==index){
+                                                    articGroupVal = -1;
+                                                  }else{
+                                                    articGroupVal = index;
+                                                  }
                                                 });
                                               },
-                                              child: Row(
-                                                  children:[
-                                                    Radio(
-                                                        value: index,
-                                                        groupValue: articGroupVal,
-                                                        onChanged: (int? val){
-                                                          setState(() {
-                                                            articGroupVal = val!;
-                                                          });
-                                                        }
-                                                    ),
-
-                                                    Text('${articals[index]} - ',style: TextStyle(
-                                                        fontFamily: poppins, color:Colors.black54 , fontSize: 13
-                                                    ),),
-
-                                                    Text('${articalsPrice[index]}',style: TextStyle(
-                                                        fontFamily: poppins, color:darkBlue , fontSize: 13
-                                                    ),),
-                                                  ]
+                                              child: Container(
+                                                padding: EdgeInsets.all(5),
+                                                child: Row(
+                                                    children:[
+                                                      articGroupVal!=index?
+                                                      Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
+                                                      Icon(Icons.check_circle_rounded, color:Colors.green),
+                                                      SizedBox(width:5),
+                                                      Expanded(
+                                                        child:Text.rich(
+                                                            TextSpan(
+                                                                text: "",
+                                                                children: <InlineSpan>[
+                                                                  TextSpan(
+                                                                    text:"${articals[index]['article']} ",
+                                                                    style: TextStyle(
+                                                                            fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                                                        ),),
+                                                                  TextSpan(
+                                                                    text:"- Rs.${articals[index]['price']}",
+                                                                    style:TextStyle(
+                                                                        fontFamily: "Poppins", color:Colors.black , fontSize: 13,
+                                                                        fontWeight:FontWeight.bold
+                                                                    ),),
+                                                                ]
+                                                            )
+                                                        ),
+                                                      ),
+                                                    ]
+                                                ),
                                               ),
                                             );
                                           },
@@ -1230,160 +1348,303 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         minLines: 5,
                                       ),
                                     ),
-                                    Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Text('Delivery Date',
-                                          style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(width: 65,),
-                                        Text('Delivery Session',
-                                          style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                                        )
-                                      ],
+                                    Container(
+                                        margin: EdgeInsets.symmetric(horizontal: 10),
+                                        child: Divider(
+                                          color: Colors.pink[100],
+                                        )),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 10 , left: 10),
+                                      child: Text(
+                                        'Delivery Information',
+                                        style: TextStyle(
+                                            fontFamily: poppins, color: darkBlue , fontSize: 14 ,
+                                            fontWeight:FontWeight.bold),
+                                      ),
                                     ),
-                                    Row(
-                                      children: [
-                                        SizedBox(width: 5,),
-                                        OutlinedButton(
-                                          onPressed: () async {
-                                            DateTime? SelDate = await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              lastDate: DateTime(2050),
-                                              firstDate: DateTime.now()
-                                                  .subtract(Duration(days: 0)),
-                                            );
-
-                                            setState(() {
-                                              fixedDate = simplyFormat(
-                                                  time: SelDate, dateOnly: true);
-                                            });
-
-                                            // print(SelDate.toString());
-                                            // print(DateTime.now().subtract(Duration(days: 0)));
-                                          },
-                                          child: Row(
-                                            children: [
-                                              Text('$fixedDate',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,color: Colors.grey,
-                                                  fontSize: 13
-                                              ),
-                                              ),
-                                              SizedBox(width: 10,),
-                                              Icon(Icons.date_range_outlined,color:darkBlue)
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 30,),
-                                        OutlinedButton(
-                                          onPressed: (){
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                        BorderRadius.circular(
-                                                            20)),
-                                                    title: Text(
-                                                        "Select delivery session",
-                                                        style: TextStyle(
-                                                          color: lightPink,
-                                                          fontFamily: "Poppins",
-                                                          fontSize: 16,
-                                                        )),
-                                                    content: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        ListTile(
-                                                          onTap: () {
-                                                            Navigator.pop(context);
-                                                            setState(() {
-                                                              fixedSession =
-                                                              "Morning";
-                                                            });
-                                                          },
-                                                          title: Text('Morning',
-                                                              style: TextStyle(
-                                                                  color: darkBlue,
-                                                                  fontFamily:
-                                                                  "Poppins")),
-                                                        ),
-                                                        ListTile(
-                                                          onTap: () {
-                                                            Navigator.pop(context);
-                                                            setState(() {
-                                                              fixedSession =
-                                                              "Afternoon";
-                                                            });
-                                                          },
-                                                          title: Text('Afternoon',
-                                                              style: TextStyle(
-                                                                  color: darkBlue,
-                                                                  fontFamily:
-                                                                  "Poppins")),
-                                                        ),
-                                                        ListTile(
-                                                          onTap: () {
-                                                            Navigator.pop(context);
-                                                            setState(() {
-                                                              fixedSession =
-                                                              "Evening";
-                                                            });
-                                                          },
-                                                          title: Text('Evening',
-                                                              style: TextStyle(
-                                                                  color: darkBlue,
-                                                                  fontFamily:
-                                                                  "Poppins"
-                                                              )),
-                                                        ),
-                                                        ListTile(
-                                                          onTap: () {
-                                                            Navigator.pop(context);
-                                                            setState(() {
-                                                              fixedSession =
-                                                              "Night";
-                                                            });
-                                                          },
-                                                          title: Text('Night',
-                                                              style: TextStyle(
-                                                                  color: darkBlue,
-                                                                  fontFamily:
-                                                                  "Poppins")),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
+                                    Container(
+                                        child:ListView.builder(
+                                          shrinkWrap : true,
+                                          physics : NeverScrollableScrollPhysics(),
+                                          itemCount:picOrDeliver.length,
+                                          itemBuilder: (context , index){
+                                            return InkWell(
+                                              onTap:(){
+                                                setState(() {
+                                                  picOrDel = index;
                                                 });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.only(left:10 , top:7),
+                                                child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children:[
+                                                      picOrDel!=index?
+                                                      Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
+                                                      Icon(Icons.check_circle_rounded, color:Colors.green),
+                                                      SizedBox(width:6),
+                                                      Text('${picOrDeliver[index]}',style: TextStyle(
+                                                          fontFamily: poppins, color:Colors.black54 , fontSize: 14
+                                                      ),),
+                                                    ]
+                                                ),
+                                              ),
+                                            );
                                           },
-                                          child: Row(
-                                            children: [
-                                              Text('$fixedSession',style: TextStyle(
-                                                  fontWeight: FontWeight.bold,color: Colors.grey,
-                                                  fontSize: 13
-                                              ),),
-                                              SizedBox(width: 50,),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                        )
                                     ),
                                   ],
                                 )),
+
+                            //Delivery Details
+                            Container(
+                              margin:EdgeInsets.only(left:10 , right: 10 , bottom:5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 10 , left: 10, bottom:5),
+                                    child: Text(
+                                      'Delivery Details',
+                                      style: TextStyle(
+                                          fontFamily: poppins, color: darkBlue , fontSize: 14,
+                                          fontWeight:FontWeight.bold),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap : () async {
+                                      DateTime? SelDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        lastDate: DateTime(2050),
+                                        firstDate: DateTime.now()
+                                            .subtract(Duration(days: 0)),
+                                      );
+
+                                      setState(() {
+                                        fixedDate = simplyFormat(
+                                            time: SelDate, dateOnly: true);
+                                      });
+
+                                      // print(SelDate.toString());
+                                      // print(DateTime.now().subtract(Duration(days: 0)));
+                                    },
+                                    child: Container(
+                                        margin:EdgeInsets.all(5),
+                                        padding:EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                            color:Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: Colors.grey[400]!,
+                                                width:0.5
+                                            )
+                                        ),
+                                        child:Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children:[
+                                              Text(
+                                                '$fixedDate',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey,
+                                                    fontSize: 13),
+                                              ),
+
+                                              Icon(Icons.date_range_outlined,
+                                                  color: darkBlue)
+                                            ]
+                                        )
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap :  () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                  BorderRadius.circular(
+                                                      20)),
+                                              title: Text(
+                                                  "Select delivery session",
+                                                  style: TextStyle(
+                                                    color: lightPink,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 16,
+                                                  )),
+                                              content: Container(
+                                                height:250,
+                                                child: Scrollbar(
+                                                  isAlwaysShown: true,
+                                                  child: SingleChildScrollView(
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        PopupMenuItem(
+                                                            child: Text('Morning 8 - 9'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Morning 8 - 9';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Morning 9 - 10'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Morning 9 - 10';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Morning 10 - 11'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Morning 10 - 11';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Morning 11 - 12'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Morning 11 - 12';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Afternoon 12 - 1'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Afternoon 12 - 1';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Afternoon 1 - 2'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Afternoon 1 - 9';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Afternoon 2 - 3'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Afternoon 8 - 9';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Afternoon 3 - 4'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Afternoon 3 - 4';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Afternoon 4 - 5'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Afternoon 4 - 5';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Evening 5 - 6'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Evening 5 - 6';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Evening 6 - 7'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Evening 6 - 7';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Evening 7 - 8'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Evening 7 - 8';
+                                                              });
+                                                            }
+                                                        ),
+                                                        PopupMenuItem(
+                                                            child: Text('Evening 8 - 9'),
+                                                            onTap:(){
+                                                              setState((){
+                                                                fixedSession = 'Evening 8 - 9';
+                                                              });
+                                                            }
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: Container(
+                                        margin:EdgeInsets.all(5),
+                                        padding:EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                            color:Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: Colors.grey[400]!,
+                                                width:0.5
+                                            )
+                                        ),
+                                        child:Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children:[
+                                              Text(
+                                                '$fixedSession',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey,
+                                                    fontSize: 13
+                                                ),
+                                              ),
+                                              Icon(Icons.keyboard_arrow_down,
+                                                  color: darkBlue)
+                                            ]
+                                        )
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
                             Padding(
                               padding: const EdgeInsets.only(left: 10.0),
                               child: Text(' Address',
                                 style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
                               ),
                             ),
-                            ListTile(
-                              title: Text('$deliverAddress',
-                                style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
+                            Container(
+                              padding:EdgeInsets.only(left:15 , right:15,top:3),
+                              child:Row(
+                                crossAxisAlignment:CrossAxisAlignment.center,
+                                children:[
+                                  Expanded(
+                                    child:Text('$deliverAddress',
+                                      style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
+                                    ),
+                                  ),
+                                  Icon(Icons.check_circle,color: Colors.green,size: 25,),
+                                ]
                               ),
-                              trailing: Icon(Icons.check_circle,color: Colors.green,),
                             ),
                             Container(
                               margin: EdgeInsets.only(left: 10),
