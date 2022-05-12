@@ -1343,6 +1343,8 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
+    print(cakeSearchList[index]['FlavourList'][0]['Name']);
+
     //getting cake flavs
     if(cakeSearchList[index]['FlavourList'].isNotEmpty){
       setState(() {
@@ -1404,9 +1406,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
     //API LIST
     prefs.setStringList('cakeImages', cakeImgs);
-    prefs.setStringList('cakeFalvours', cakeFlavs);
+    // prefs.setStringList('cakeFalvours', cakeFlavs);
     prefs.setStringList('cakeWeights', cakeWeights);
-    prefs.setStringList('cakeShapes', cakeShapes);
+    // prefs.setStringList('cakeShapes', cakeShapes);
     prefs.setStringList('cakeToppings', cakeTopings);
 
     //API STRINGS AND INTS
@@ -1427,7 +1429,10 @@ class _CakeTypesState extends State<CakeTypes> {
 
        Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(),
+        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
+            cakeSearchList[index]['ShapeList'].toList(),cakeSearchList[index]['FlavourList'].toList(),
+            cakeSearchList[index]['ArticleList'].toList()
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -1552,17 +1557,14 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeDelCharge', filterCakesSearchList[index]['DeliveryCharge'].toString());
     prefs.setString('cakeTaxRate', filterCakesSearchList[index]['Tax'].toString());
 
-
-
     prefs.setString('vendorID', filterCakesSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', filterCakesSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
 
 
-
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(),
+        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails([],[],[]),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;

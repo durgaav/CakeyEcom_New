@@ -18,13 +18,18 @@ import 'package:http/http.dart' as http;
 import 'package:expandable_text/expandable_text.dart';
 
 class CakeDetails extends StatefulWidget {
-  const CakeDetails({Key? key}) : super(key: key);
+  // const CakeDetails({Key? key}) : super(key: key);
+  List shapes , flavour ,articals;
+  CakeDetails(this.shapes, this.flavour,this.articals);
 
   @override
-  State<CakeDetails> createState() => _CakeDetailsState();
+  State<CakeDetails> createState() => _CakeDetailsState(shapes , flavour , articals);
 }
 
 class _CakeDetailsState extends State<CakeDetails> {
+
+  List shapes , flavour , articals;
+  _CakeDetailsState(this.shapes, this.flavour , this.articals);
 
   //region VARIABLES
   //colors.....
@@ -55,19 +60,15 @@ class _CakeDetailsState extends State<CakeDetails> {
   List<String> cakeImages = [];
 
   //Cakes Listed Data
-  List shapes = [
-    "Default" ,
-    "Round" ,
-    "Square" ,
-    "Rectangle" ,
-    "Heart" ,
-    "Octagon" ,
-  ];
-  List flavour = [
-    "Default flavour - included in price",
-    "Strawberry - additional Rs.100/kg",
-    "ButterScotch - additional Rs.85/kg",
-  ];
+  // List shapes = [
+  //   "Default" ,
+  //   "Round" ,
+  //   "Square" ,
+  //   "Rectangle" ,
+  //   "Heart" ,
+  //   "Octagon" ,
+  // ];
+  // List flavour = [];
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
 
@@ -85,7 +86,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   List<Widget> dots = [];
 
   //Articles
-  var articals = ["None","Happy Birth Day" , "Butterflies" , "Hello World"];
+  // var articals = ["None","Happy Birth Day" , "Butterflies" , "Hello World"];
   var articalsPrice = ['0','100' , '125','50'];
   int articGroupVal = 0;
   String fixedArticle = 'none';
@@ -488,7 +489,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
                                         SizedBox(width:8),
                                         Expanded(child: Container(
-                                          child:Text("${flavour[index]}",
+                                          child:Text("${flavour[index]['Name']}",
                                               style: TextStyle(
                                                   fontFamily: "Poppins", color: Colors.grey,
                                                   fontWeight: FontWeight.bold)),
@@ -1589,8 +1590,8 @@ class _CakeDetailsState extends State<CakeDetails> {
 
       //Lists
       cakeImages = prefs.getStringList('cakeImages') ?? [];
-      flavour = prefs.getStringList('cakeFalvours') ?? [];
-      shapes = prefs.getStringList('cakeShapes') ?? [];
+      // flavour = prefs.getStringList('cakeFalvours') ?? [];
+      // shapes = prefs.getStringList('cakeShapes') ?? [];
       topings = prefs.getStringList('cakeToppings') ?? [];
       weight = prefs.getStringList('cakeWeights') ?? [];
 
@@ -2419,7 +2420,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             ? Text(
                                           flavour.isEmpty
                                               ? 'None'
-                                              : '${flavour[0].toString().split("-").first.toString()}',
+                                              : '${flavour[0]['Name'].toString()}',
                                           style: TextStyle(
                                               fontFamily: "Poppins",
                                               color: darkBlue,
@@ -2905,33 +2906,54 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       return InkWell(
                                         onTap:(){
                                           setState(() {
-                                            articGroupVal = index;
-                                            fixedArticle = articals[index].toString();
-                                            articleExtraCharge = int.parse(articalsPrice[index]);
+                                            if(articGroupVal==index){
+                                              articGroupVal = -1;
+                                              fixedArticle = 'None';
+                                              articleExtraCharge = 0;
+                                            }else{
+                                              articGroupVal = index;
+                                              fixedArticle = articals[index].toString();
+                                              articleExtraCharge = int.parse(articalsPrice[index]);
+                                            }
                                           });
                                         },
-                                        child: Row(
-                                          children:[
-                                            Radio(
-                                                value: index,
-                                                groupValue: articGroupVal,
-                                                onChanged: (int? val){
-                                                  setState(() {
-                                                    fixedArticle = articals[index].toString();
-                                                    articleExtraCharge = int.parse(articalsPrice[index]);
-                                                    articGroupVal = val!;
-                                                  });
-                                                }
-                                            ),
-
-                                            Text('${articals[index]} - ',style: TextStyle(
-                                                fontFamily: "Poppins", color:Colors.black54 , fontSize: 13
-                                            ),),
-
-                                            Text('Rs.${articalsPrice[index]}',style: TextStyle(
-                                                fontFamily: "Poppins", color:darkBlue , fontSize: 13
-                                            ),),
-                                          ]
+                                        child: Container(
+                                          padding:EdgeInsets.only(
+                                            top:5,
+                                            bottom:5,
+                                            left:8
+                                          ),
+                                          child: Row(
+                                            children:[
+                                              articGroupVal!=index?
+                                              Icon(Icons.radio_button_unchecked_rounded,color:Colors.black):
+                                              Icon(Icons.check_circle_rounded,color:Colors.green),
+                                              SizedBox(width:6),
+                                              Expanded(
+                                                 child:Text.rich(
+                                                   TextSpan(
+                                                     children:[
+                                                       TextSpan(
+                                                         text:'${articals[index]['Name']} - ',
+                                                         style:TextStyle(
+                                                           color:Colors.grey,
+                                                           fontFamily: "Poppins",
+                                                         )
+                                                       ),
+                                                       TextSpan(
+                                                         text:'Rs.${articals[index]['Price']}',
+                                                           style:TextStyle(
+                                                             color:Colors.black,
+                                                             fontFamily: "Poppins",
+                                                             fontWeight: FontWeight.bold,
+                                                           )
+                                                       )
+                                                     ]
+                                                   )
+                                                 )
+                                              )
+                                            ]
+                                          )
                                         ),
                                       );
                                     },
@@ -3002,29 +3024,25 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             }
                                           });
                                         },
-                                        child: Row(
-                                            children:[
-                                              Checkbox(
-                                                  shape: CircleBorder(),
-                                                  activeColor: Colors.green,
-                                                  value: picOrDel[index],
-                                                  onChanged: (bool? val){
-                                                    setState(() {
-                                                      for (int i = 0; i < picOrDel.length; i++) {
-                                                        if (i == index) {
-                                                          fixedDelliverMethod = picOrDeliver[i];
-                                                          picOrDel[i] = true;
-                                                        } else {
-                                                          picOrDel[i] = false;
-                                                        }
-                                                      }
-                                                    });
-                                                  }
-                                              ),
-                                              Text('${picOrDeliver[index]}',style: TextStyle(
-                                                  fontFamily: poppins, color:Colors.black54 , fontSize: 13
-                                              ),),
-                                            ]
+                                        child: Container(
+                                          padding:EdgeInsets.only(
+                                              top:5,
+                                              bottom:5,
+                                              left:8
+                                          ),
+                                          child: Row(
+                                              children:[
+                                                picOrDel[index] == false?
+                                                Icon(Icons.radio_button_unchecked_rounded,color:Colors.black):
+                                                Icon(Icons.check_circle_rounded,color:Colors.green),
+                                                SizedBox(width:6),
+                                                Expanded(
+                                                  child:Text('${picOrDeliver[index]}',style: TextStyle(
+                                                      fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                                  ),),
+                                                )
+                                              ]
+                                          ),
                                         ),
                                       );
                                     },

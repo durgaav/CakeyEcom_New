@@ -760,7 +760,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Padding(
                               padding: const EdgeInsets.all(10),
                               child: Text("Select Category",
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                               ),
                             ),
 
@@ -994,7 +994,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Padding(
                               padding: const EdgeInsets.all(10),
                               child: Text("Weight",
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                               ),
                             ),
                             Container(
@@ -1131,7 +1131,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               child: Text(
                                 'Enter Weight',
                                 style: TextStyle(
-                                    fontFamily: poppins, color: darkBlue,fontWeight: FontWeight.bold),
+                                    fontFamily: poppins, color: darkBlue),
                               ),
                             ),
                             SizedBox(height:5),
@@ -1223,7 +1223,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(' Message on the cake',
-                                      style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                                     ),
                                     SizedBox(height:5),
                                     Container(
@@ -1264,7 +1264,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       padding: const EdgeInsets.only(top: 10),
                                       child: Text(
                                         ' Articles',
-                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
                                       ),
                                     ),
 
@@ -1323,7 +1323,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     Padding(
                                       padding: const EdgeInsets.only(top:10),
                                       child: Text(' Special request to bakers',
-                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
                                       ),
                                     ),
                                     Container(
@@ -1359,7 +1359,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         'Delivery Information',
                                         style: TextStyle(
                                             fontFamily: poppins, color: darkBlue , fontSize: 14 ,
-                                            fontWeight:FontWeight.bold),
+                                         ),
                                       ),
                                     ),
                                     Container(
@@ -1408,7 +1408,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       'Delivery Details',
                                       style: TextStyle(
                                           fontFamily: poppins, color: darkBlue , fontSize: 14,
-                                          fontWeight:FontWeight.bold),
+                                          ),
                                     ),
                                   ),
                                   GestureDetector(
@@ -1629,7 +1629,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Padding(
                               padding: const EdgeInsets.only(left: 10.0),
                               child: Text(' Address',
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
                               ),
                             ),
                             Container(
@@ -1663,7 +1663,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Padding(
                               padding: const EdgeInsets.only(left: 10.0),
                               child: Text(' Upload Image',
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
                               ),
                             ),
                             
