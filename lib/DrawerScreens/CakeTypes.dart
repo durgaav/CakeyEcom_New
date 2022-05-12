@@ -64,6 +64,7 @@ class _CakeTypesState extends State<CakeTypes> {
   bool isFilterisOn = false ;
   bool shapeOnlyFilter = false;
   bool searchModeis = false;
+  bool navFromHome = false;
 
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
@@ -1130,6 +1131,7 @@ class _CakeTypesState extends State<CakeTypes> {
       isHomeCakeType = pref.getBool('isHomeCake')??false;
       vendorPhone = pref.getString('myVendorPhone')??'0000000000';
       iamYourVendor = pref.getBool('iamYourVendor')??false;
+      navFromHome = pref.getBool('naveToHome')??false;
       getCakeList();
     });
   }
@@ -1148,10 +1150,22 @@ class _CakeTypesState extends State<CakeTypes> {
       );
       if(response.statusCode==200){
 
-        setState(() {
-          isNetworkError = false;
-          cakesList = jsonDecode(response.body);
-          cakesList = cakesList.reversed.toList();
+        print(response.contentLength);
+
+        //
+        if(response.contentLength!<50){
+          setState((){
+            networkMsg = "No Cakes Found!";
+          });
+          fetchFlavours();
+          fetchShapes();
+          Navigator.pop(context);
+        }else{
+
+          setState(() {
+            isNetworkError = false;
+            cakesList = jsonDecode(response.body);
+            cakesList = cakesList.reversed.toList();
 
             for(int i=0;i<cakesList.length;i++){
               // rangeValuesList.add(int.parse(cakesList[i]['Price']));
@@ -1162,14 +1176,15 @@ class _CakeTypesState extends State<CakeTypes> {
               }
             }
 
-          cakesTypes = cakesTypes.toSet().toList();
+            cakesTypes = cakesTypes.toSet().toList();
 
-          Navigator.pop(context);
-     });
+            Navigator.pop(context);
 
+            fetchFlavours();
+            fetchShapes();
+          });
 
-        fetchFlavours();
-        fetchShapes();
+        }
 
         // rangeValuesList = rangeValuesList.toSet().toList();
         // rangeValuesList = rangeValuesList.reversed.toList();
@@ -1882,6 +1897,7 @@ class _CakeTypesState extends State<CakeTypes> {
     Future.delayed(Duration.zero , () async{
       var pr = await SharedPreferences.getInstance();
       pr.remove('iamYourVendor');
+      pr.remove('naveToHome');
     });
     super.dispose();
   }
@@ -1900,8 +1916,8 @@ class _CakeTypesState extends State<CakeTypes> {
           eggOrEgglesList = cakesList.where((element) =>
               element['EggOrEggless'].toString().toLowerCase().contains("Eggless".toLowerCase())).toList();
 
-          // cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-          //     == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
         });
       }
@@ -1912,8 +1928,8 @@ class _CakeTypesState extends State<CakeTypes> {
               element['EggOrEggless'].toString().toLowerCase()=="eggadded"
           ).toList();
 
-          // cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-          //     == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
         });
       }
@@ -1972,9 +1988,15 @@ class _CakeTypesState extends State<CakeTypes> {
 
     return WillPopScope(
       onWillPop: () async{
-        iamYourVendor?
-        context.read<ContextData>().setCurrentIndex(3):
-        context.read<ContextData>().setCurrentIndex(0);
+        // var myPre = await SharedPreferences.getInstance();
+        if(navFromHome == true){
+          setState((){
+            context.read<ContextData>().setCurrentIndex(0);
+          });
+        }
+        // iamYourVendor?
+        // context.read<ContextData>().setCurrentIndex(3):
+        // context.read<ContextData>().setCurrentIndex(0);
         return false;
       },
       child: Scaffold(

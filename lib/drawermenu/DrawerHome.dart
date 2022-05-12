@@ -57,6 +57,36 @@ class _DrawerHomeState extends State<DrawerHome> {
     "VENDORS",
   ];
 
+
+  //Widget Functions
+  Map<String, WidgetBuilder> _routeBuilders(BuildContext context, int index) {
+    return {
+      '/': (context) {
+        return [
+          HomeScreen(),
+          CakeTypes(),
+          VendorsList(),
+        ].elementAt(index);
+      },
+    };
+  }
+
+  Widget _buildOffstageNavigator(int index) {
+    var routeBuilders = _routeBuilders(context, index);
+
+    return Offstage(
+      offstage: selectedIndex != index,
+      child: Navigator(
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (context) => routeBuilders[routeSettings.name]!(context),
+          );
+        },
+      ),
+    );
+  }
+
+
   //region Alerts
 
   void showlogoutDialog() {

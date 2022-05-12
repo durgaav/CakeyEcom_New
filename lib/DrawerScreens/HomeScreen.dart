@@ -1360,8 +1360,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:15,color: darkBlue,fontWeight: FontWeight.bold),),
                                         InkWell(
                                           onTap: () async{
+                                            var pr = await SharedPreferences.getInstance();
+                                            pr.setBool('naveToHome' , true);
                                             context.read<ContextData>().setCurrentIndex(1);
                                             // getNearbyLoc();
+                                            // Navigator.pushReplacement(context,
+                                            // MaterialPageRoute(builder: (context)=>CakeTypes())
+                                            // );
                                           },
                                           child: Row(
                                             children: [
