@@ -1404,7 +1404,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: InkWell(
                                               onTap: () async{
                                                 FocusScope.of(context).unfocus();
-                                                context.read<ContextData>().setCurrentIndex(2);
+                                                var pr = await SharedPreferences.getInstance();
+                                                pr.setBool('naveToHome' , true);
+                                                context.read<ContextData>().setCurrentIndex(1);
                                               },
                                               child: Column(
                                                 children: [
