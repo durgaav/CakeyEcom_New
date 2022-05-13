@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/TestScreen.dart';
 import 'package:location/location.dart';
@@ -23,7 +24,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -31,12 +31,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  User? authUser = FirebaseAuth.instance.currentUser;
+  User authUser = FirebaseAuth.instance.currentUser;
   bool signedIn = false;
 
-  late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
-  LocationData? _userLocation;
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  LocationData _userLocation;
   Location myLocation = Location();
 
   Future<void> addPrem() async{

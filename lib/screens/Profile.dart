@@ -461,7 +461,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               enabled: false,
               controller: TextEditingController(text: phoneNumber),
               maxLines: 1,
-              maxLengthEnforced: true,
+              // maxLengthEnforced: true,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 hintText: "Type Phone Number",
