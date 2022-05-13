@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CheckOut.dart';
+import 'package:cakey/screens/OrderConfirm.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -3801,7 +3802,28 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           FocusScope.of(context).unfocus();
                                           msgError = false;
                                         });
-                                        showOrderConfirmSheet();
+                                        // showOrderConfirmSheet();
+                                        Navigator.of(context).push(
+                                          PageRouteBuilder(
+                                            pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(),
+                                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                              const begin = Offset(1.0, 0.0);
+                                              const end = Offset.zero;
+                                              const curve = Curves.ease;
+
+                                              final tween = Tween(begin: begin, end: end);
+                                              final curvedAnimation = CurvedAnimation(
+                                                parent: animation,
+                                                curve: curve,
+                                              );
+
+                                              return SlideTransition(
+                                                position: tween.animate(curvedAnimation),
+                                                child: child,
+                                              );
+                                            },
+                                          ),
+                                        );
                                       }
                                     }
 

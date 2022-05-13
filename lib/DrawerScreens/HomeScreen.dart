@@ -4,14 +4,9 @@ import 'dart:ui';
 import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:math';
-import 'package:cakey/TestScreen.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:cakey/ContextData.dart';
-import 'package:cakey/DrawerScreens/CakeTypes.dart';
-import 'package:cakey/DrawerScreens/VendorsList.dart';
-import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +14,11 @@ import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart' as geocode;
-import 'package:geolocator/geolocator.dart' as geolocate;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../screens/Profile.dart';
-import '../screens/SingleVendor.dart';
-import 'CustomiseCake.dart';
 import 'package:location/location.dart';
+
 //This is home screen.........
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -1028,6 +1021,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Column(
             children: [
               //Location and search....

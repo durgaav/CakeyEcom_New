@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "411807857704-ebof3lecabtfikj0v7j0mtmo5bs8867m.apps.googleusercontent.com",
+          "client_id": "411807857704-njhle6kktjt8tr3473amke6jt1rlk9md.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.cakey",
-            "certificate_hash": "e781712bb57e6282baaac463109dd1a6d7916648"
+            "certificate_hash": "e56f16212822f7d672874e25c5e79785047db870"
           }
         },
         {
@@ -37,6 +37,13 @@
             {
               "client_id": "411807857704-l4m5j70ckp1q7gdoo8vbvs5c6h71f34g.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "411807857704-1n3jhhqc6944b8p0shpf8i1ughrc8e8m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cakey"
+              }
             }
           ]
         }

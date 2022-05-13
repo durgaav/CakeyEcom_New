@@ -34,9 +34,9 @@ class _MyAppState extends State<MyApp> {
   User authUser = FirebaseAuth.instance.currentUser;
   bool signedIn = false;
 
-  bool _serviceEnabled;
-  PermissionStatus _permissionGranted;
-  LocationData _userLocation;
+   bool _serviceEnabled;
+   PermissionStatus _permissionGranted;
+   LocationData _userLocation ;
   Location myLocation = Location();
 
   Future<void> addPrem() async{
