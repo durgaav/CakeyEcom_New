@@ -60,16 +60,6 @@ class _CakeDetailsState extends State<CakeDetails> {
   //Lists...
   List<String> cakeImages = [];
 
-  //Cakes Listed Data
-  // List shapes = [
-  //   "Default" ,
-  //   "Round" ,
-  //   "Square" ,
-  //   "Rectangle" ,
-  //   "Heart" ,
-  //   "Octagon" ,
-  // ];
-  // List flavour = [];
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
 
@@ -89,7 +79,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   //Articles
   // var articals = ["None","Happy Birth Day" , "Butterflies" , "Hello World"];
   var articalsPrice = ['0','100' , '125','50'];
-  int articGroupVal = 0;
+  int articGroupVal = -1;
   String fixedArticle = 'none';
   int articleExtraCharge = 0;
 
@@ -138,10 +128,14 @@ class _CakeDetailsState extends State<CakeDetails> {
   String fixedDelliverMethod = "";
   String selectedDropWeight = 'Kg';
 
+  //for fixing the flavours
+  var temp = [];
+
   //ints
   int flavGrpValue = 0;
   int shapeGrpValue = 0;
   int pageViewCurIndex = 0;
+  int weightIndex = -1;
 
   int itemCount = 0;
   int totalAmount = 0;
@@ -155,6 +149,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   //Text controls
   var messageCtrl = new TextEditingController();
   var specialReqCtrl = new TextEditingController();
+  var customweightCtrl = new TextEditingController();
 
   //endregion
 
@@ -401,6 +396,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
   //Cake flavours sheet...
   void showCakeFlavSheet() {
+
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
@@ -459,7 +455,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                   Container(
                       height: 200,
                       child: Scrollbar(
-                        isAlwaysShown: true,
+                        thumbVisibility: true,
                         child: ListView.builder(
                             itemCount: flavour.length,
                             shrinkWrap: true,
@@ -471,13 +467,14 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   setState((){
                                     if(multiFlavChecs[index]==false){
                                       multiFlavChecs[index] = true;
-                                      if(fixedFlavList.contains(flavour[index])){
+                                      if(temp.contains(flavour[index]['Name'])){
+
                                       }else{
-                                        fixedFlavList.add(flavour[index]);
+                                        temp.add(flavour[index]['Name']);
                                       }
                                     }else{
+                                      temp.removeWhere((element) => element==flavour[index]['Name']);
                                       multiFlavChecs[index] = false;
-                                      fixedFlavList.removeWhere((element) => element==flavour[index]);
                                     }
                                   });
                                 },
@@ -514,7 +511,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                       onPressed: () {
                         Navigator.pop(context);
                         setState(() {
-                          saveFixedFlav(flavGrpValue);
+                          saveFixedFlav(temp);
                         });
                       },
                       child: Text(
@@ -599,27 +596,12 @@ class _CakeDetailsState extends State<CakeDetails> {
                             itemCount: shapes.length,
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
-                              // return RadioListTile(
-                              //     activeColor: Colors.green,
-                              //     title: Text(
-                              //       "${shapes[index]}",
-                              //       style: TextStyle(
-                              //           fontFamily: "Poppins", color: darkBlue),
-                              //     ),
-                              //     value: index,
-                              //     groupValue: shapeGrpValue,
-                              //     onChanged: (int? value) {
-                              //       print(value);
-                              //       setState(() {
-                              //         shapeGrpValue = value!;
-                              //       });
-                              //     }
-                              //     );
 
                               return InkWell(
                                 onTap:(){
                                   setState((){
                                     myShapeIndex = index;
+                                    shapeGrpValue = index;
                                   });
                                 },
                                 child: Container(
@@ -677,9 +659,11 @@ class _CakeDetailsState extends State<CakeDetails> {
   }
 
   //Saving fixed flavour from bottomsheet
-  void saveFixedFlav(int i) {
-    setState(() {
-      fixedFlavour = flavour[i];
+
+  void saveFixedFlav(List list) {
+    setState((){
+      fixedFlavList = list;
+      fixedFlavour = list[0];
     });
   }
 
@@ -2429,7 +2413,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               fontWeight: FontWeight.w600),
                                         )
                                             : Text(
-                                          '${fixedFlavour.toString().split('-').first.toString()}',
+                                          '${fixedFlavour}',
                                           style: TextStyle(
                                               color: darkBlue,
                                               fontSize: 13,
@@ -2545,6 +2529,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   onTap: () {
                                     setState(() {
                                       fixedFlavour = "";
+                                      fixedFlavList.clear();
+                                      temp.clear();
                                     });
                                   },
                                   child: Container(
@@ -2707,14 +2693,16 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 return InkWell(
                                   onTap: () {
                                     setState(() {
-                                      for (int i = 0; i < selwIndex.length; i++) {
-                                        if (i == index) {
-                                          selwIndex[i] = true;
-                                          fixedWeight = weight[i];
-                                        } else {
-                                          selwIndex[i] = false;
-                                        }
+                                      FocusScope.of(context).unfocus();
+                                      if(customweightCtrl.text.isNotEmpty){
+                                        customweightCtrl.text = "";
+                                        weightIndex = index;
+                                        fixedWeight = weight[index];
+                                      }else{
+                                        weightIndex = index;
+                                        fixedWeight = weight[index];
                                       }
+
                                     });
                                   },
                                   child: Container(
@@ -2727,7 +2715,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           color: lightPink,
                                           width: 1,
                                         ),
-                                        color: selwIndex[index]
+                                        color: weightIndex==index
                                             ? Colors.pink
                                             : Colors.white),
                                     child: Text(
@@ -2736,7 +2724,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
                                           fontFamily: poppins,
-                                          color: selwIndex[index]
+                                          color: weightIndex==index
                                               ? Colors.white
                                               : darkBlue
                                       ),
@@ -2764,10 +2752,18 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     margin: EdgeInsets.symmetric(horizontal: 10),
                                     child: TextField(
                                       keyboardType: TextInputType.number,
-                                      controller: messageCtrl,
+                                      controller: customweightCtrl,
                                       style:TextStyle(fontFamily: 'Poppins' ,
                                           fontSize: 13
                                       ),
+                                      onChanged: (String text){
+                                        setState((){
+                                          if(weightIndex!=-1){
+                                            weightIndex = -1;
+                                            fixedWeight = customweightCtrl.text;
+                                          }
+                                        });
+                                      },
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.all(0.0),
                                         isDense: true,
@@ -2913,8 +2909,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               articleExtraCharge = 0;
                                             }else{
                                               articGroupVal = index;
-                                              fixedArticle = articals[index].toString();
-                                              articleExtraCharge = int.parse(articalsPrice[index]);
+                                              fixedArticle = articals[index]['Name'].toString();
+                                              articleExtraCharge = int.parse(articals[index]['Price'].toString());
                                             }
                                           });
                                         },
@@ -3753,83 +3749,95 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       borderRadius: BorderRadius.circular(25)),
                                   onPressed: () async{
 
-                                    if(newRegUser==true){
-                                      showDpUpdtaeDialog();
-                                    }
-                                    else{
-                                      if(fixedWeight.isEmpty&&deliverDate=="00-00-0000"&&fixedDelliverMethod.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Please select cake weight ,delivery date ,Pickup or delivery!'),
-                                              behavior: SnackBarBehavior.floating,
-                                            )
-                                        );
-                                      }else if(fixedWeight.isEmpty){
-                                        print('Please select fixedWeight.');
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Please select cake weight!'),
-                                            behavior: SnackBarBehavior.floating,)
-                                        );
-                                      }else if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
-                                        print('Please select deliverDate.');
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select delivery date'),
-                                              behavior: SnackBarBehavior.floating,)
-                                        );
-                                      }else if(fixedDelliverMethod.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select deliver type'),
-                                              behavior: SnackBarBehavior.floating,
-                                            )
-                                        );
-                                      }else if(messageCtrl.text.isEmpty){
-                                        setState(() {
-                                          msgError = true;
-                                        });
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please type cake message'),
-                                              behavior: SnackBarBehavior.floating,
-                                            )
-                                        );
-                                      }
+                                    FocusScope.of(context).unfocus();
 
-                                      //If ok go to Confirm sheet
-                                      if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"
-                                          &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty&&
-                                          messageCtrl.text.isNotEmpty
-                                      ){
-                                        setState(() {
-                                          FocusScope.of(context).unfocus();
-                                          msgError = false;
-                                        });
-                                        // showOrderConfirmSheet();
-                                        Navigator.of(context).push(
-                                          PageRouteBuilder(
-                                            pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(),
-                                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                              const begin = Offset(1.0, 0.0);
-                                              const end = Offset.zero;
-                                              const curve = Curves.ease;
-
-                                              final tween = Tween(begin: begin, end: end);
-                                              final curvedAnimation = CurvedAnimation(
-                                                parent: animation,
-                                                curve: curve,
-                                              );
-
-                                              return SlideTransition(
-                                                position: tween.animate(curvedAnimation),
-                                                child: child,
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      }
-                                    }
-
-                                    
-                                    print(fixedArticle);
+                                    // if(newRegUser==true){
+                                    //   showDpUpdtaeDialog();
+                                    // }
+                                    // else{
+                                    //   if(fixedWeight.isEmpty&&deliverDate=="00-00-0000"&&fixedDelliverMethod.isEmpty){
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //         SnackBar(
+                                    //           content: Text('Please select cake weight ,delivery date ,Pickup or delivery!'),
+                                    //           behavior: SnackBarBehavior.floating,
+                                    //         )
+                                    //     );
+                                    //   }else if(fixedWeight.isEmpty){
+                                    //     print('Please select fixedWeight.');
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //       SnackBar(content: Text('Please select cake weight!'),
+                                    //         behavior: SnackBarBehavior.floating,)
+                                    //     );
+                                    //   }else if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
+                                    //     print('Please select deliverDate.');
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //         SnackBar(content: Text('Please select delivery date'),
+                                    //           behavior: SnackBarBehavior.floating,)
+                                    //     );
+                                    //   }else if(fixedDelliverMethod.isEmpty){
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //         SnackBar(content: Text('Please select deliver type'),
+                                    //           behavior: SnackBarBehavior.floating,
+                                    //         )
+                                    //     );
+                                    //   }else if(messageCtrl.text.isEmpty){
+                                    //     setState(() {
+                                    //       msgError = true;
+                                    //     });
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //         SnackBar(content: Text('Please type cake message'),
+                                    //           behavior: SnackBarBehavior.floating,
+                                    //         )
+                                    //     );
+                                    //   }
+                                    //
+                                    //   //If ok go to Confirm sheet
+                                    //   if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"
+                                    //       &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty&&
+                                    //       messageCtrl.text.isNotEmpty
+                                    //   ){
+                                    //     setState(() {
+                                    //       FocusScope.of(context).unfocus();
+                                    //       msgError = false;
+                                    //     });
+                                    //     // showOrderConfirmSheet();
+                                    //     Navigator.of(context).push(
+                                    //       PageRouteBuilder(
+                                    //         pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(),
+                                    //         transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    //           const begin = Offset(1.0, 0.0);
+                                    //           const end = Offset.zero;
+                                    //           const curve = Curves.ease;
+                                    //
+                                    //           final tween = Tween(begin: begin, end: end);
+                                    //           final curvedAnimation = CurvedAnimation(
+                                    //             parent: animation,
+                                    //             curve: curve,
+                                    //           );
+                                    //
+                                    //           return SlideTransition(
+                                    //             position: tween.animate(curvedAnimation),
+                                    //             child: child,
+                                    //           );
+                                    //         },
+                                    //       ),
+                                    //     );
+                                    //   }
+                                    // }
+                                    //
+                                    //
                                     // print(fixedArticle);
+
+                                    print(cakeName);
+                                    print(fixedFlavList);
+                                    print(counts*int.parse(cakePrice,onError: (e)=>0));
+                                    print(fixedShape);
+                                    print(fixedArticle);
+                                    print(articleExtraCharge);
+                                    print(fixedWeight + " "+selectedDropWeight);
+                                    print(fixedDelliverMethod);
+                                    print(cakeDiscounts);
+
 
                                   },
                                   color: lightPink,

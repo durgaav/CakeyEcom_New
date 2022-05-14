@@ -706,99 +706,99 @@ class _CakeTypesState extends State<CakeTypes> {
                           SizedBox(
                             height: 15,
                           ),
-                          Container(
-                            height: 45,
-                            child: TextField(
-                              onChanged: (String text){
-                                // searchCakeCate = cakeCategoryCtrl.text;
-                                // searchCakeSubType = cakeSubCategoryCtrl.text;
-                                // searchCakeVendor = cakeVendorCtrl.text;
-                                // searchCakeLocation = cakeLocationCtrl.text;
-                                setState((){
-                                  searchCakeLocation = text;
-                                });
-                              },
-                              controller: cakeLocationCtrl,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(5),
-                                  hintText: "Location",
-                                  hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                                  prefixIcon: Icon(Icons.location_on),
-                                  suffixIcon: IconButton(
-                                    onPressed: (){},
-                                    icon: Icon(Icons.my_location),
-                                  ),
-                                  border: OutlineInputBorder()
-                              ),
-                            ),
-                          ),
+                          // Container(
+                          //   height: 45,
+                          //   child: TextField(
+                          //     onChanged: (String text){
+                          //       // searchCakeCate = cakeCategoryCtrl.text;
+                          //       // searchCakeSubType = cakeSubCategoryCtrl.text;
+                          //       // searchCakeVendor = cakeVendorCtrl.text;
+                          //       // searchCakeLocation = cakeLocationCtrl.text;
+                          //       setState((){
+                          //         searchCakeLocation = text;
+                          //       });
+                          //     },
+                          //     controller: cakeLocationCtrl,
+                          //     decoration: InputDecoration(
+                          //         contentPadding: EdgeInsets.all(5),
+                          //         hintText: "Location",
+                          //         hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                          //         prefixIcon: Icon(Icons.location_on),
+                          //         suffixIcon: IconButton(
+                          //           onPressed: (){},
+                          //           icon: Icon(Icons.my_location),
+                          //         ),
+                          //         border: OutlineInputBorder()
+                          //     ),
+                          //   ),
+                          // ),
                           SizedBox(
                             height: 5,
                           ),
                           //kilo meter radius buttons.........
-                          Wrap(
-                            runSpacing: 5.0,
-                            spacing: 5.0,
-                            children: [
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                            ],
-
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-
-                          //Divider
-                          Container(
-                            height: 1.0,
-                            color: Colors.black26,
-                          ),
-
-                          SizedBox(height: 5,),
-
-
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
-                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                          ),
-                          SizedBox(height: 5,),
-                          //stars rattings...
-                          Wrap(
-                            runSpacing: 5.0,
-                            spacing: 5.0,
-                            children: [
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 5,),
+                          // Wrap(
+                          //   runSpacing: 5.0,
+                          //   spacing: 5.0,
+                          //   children: [
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //   ],
+                          //
+                          // ),
+                          // SizedBox(
+                          //   height: 10,
+                          // ),
+                          //
+                          // //Divider
+                          // Container(
+                          //   height: 1.0,
+                          //   color: Colors.black26,
+                          // ),
+                          //
+                          // SizedBox(height: 5,),
+                          //
+                          //
+                          // Align(
+                          //   alignment: Alignment.centerLeft,
+                          //   child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
+                          //       fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                          // ),
+                          // SizedBox(height: 5,),
+                          // //stars rattings...
+                          // Wrap(
+                          //   runSpacing: 5.0,
+                          //   spacing: 5.0,
+                          //   children: [
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //     OutlinedButton(
+                          //       onPressed: (){},
+                          //       child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                          //     ),
+                          //   ],
+                          // ),
+                          //
+                          // SizedBox(height: 5,),
                           //Divider
                           Container(
                             height: 1.0,
@@ -846,9 +846,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                 color: lightPink,
                                 onPressed: (){
                                   setState((){
-
-                                    applySearchFiltersSettings(searchCakeCate ,searchCakeSubType, searchCakeVendor,searchCakeLocation);
-
+                                    Navigator.pop(context);
+                                    searchByGivenFilter(
+                                        cakeCategoryCtrl.text, 
+                                        cakeSubCategoryCtrl.text, 
+                                        cakeVendorCtrl.text
+                                    );
                                   });
 
                                 },
@@ -1118,6 +1121,52 @@ class _CakeTypesState extends State<CakeTypes> {
   //endregion
 
   //region Functions
+
+
+  //search by filters
+  void searchByGivenFilter(String category, String subCategory , String vendorName){
+
+
+
+    List a=[] , b =[], c=[];
+    
+    setState((){
+
+      if(category.isNotEmpty){
+        a = eggOrEgglesList.where((element) => element['Category'].toString().toLowerCase()
+            .contains(category.toLowerCase())).toList();
+        activeSearch = true;
+      }
+
+      if(subCategory.isNotEmpty){
+        b = eggOrEgglesList.where((element) => element['SubCategory'].toString().toLowerCase()
+            .contains(subCategory.toLowerCase())).toList();
+        activeSearch = true;
+      }
+
+      if(vendorName.isNotEmpty){
+
+        print('Entered to Filter..');
+
+        setState((){
+          c = eggOrEgglesList.where((element) => element['VendorName'].toString().toLowerCase()
+              .contains(vendorName.toLowerCase())).toList();
+          activeSearch = true;
+        });
+
+
+        print('end of Filter..');
+
+      }
+
+      cakeSearchList = a + b+ c;
+      cakeSearchList = cakeSearchList.toSet().toList();
+
+    });
+
+
+
+  }
 
   //load prefss...
   Future<void> loadPrefs() async{
@@ -1627,21 +1676,92 @@ class _CakeTypesState extends State<CakeTypes> {
           //flav list ok
           if(flavours.isNotEmpty){
             print('flavours ok !');
-            setState(() {
-              for(int i=0;i<eggOrEgglesList.length;i++){
-                if(eggOrEgglesList[i]['FlavourList'].isNotEmpty){
-                  for(int j = 0 ; j<flavours.length;j++){
-                    if(eggOrEgglesList[i]['FlavourList'].contains(flavours[j])){
-                      a.add(eggOrEgglesList[i]);
+
+
+            for(int i=0;i<eggOrEgglesList.length;i++){
+
+
+
+                if(eggOrEgglesList[i]['FlavourList']!=null && eggOrEgglesList[i]['FlavourList'].isNotEmpty){
+
+                  print('Okey List : $i');
+
+                  for(int j = 0 ; j<eggOrEgglesList[i]['FlavourList'].length;j++){
+
+                    if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
+
+                      print('Iam not null : $j');
+
+                      for(int k = 0;k<flavours.length;k++){
+
+                        if(eggOrEgglesList[i]['FlavourList'][j]['Name'].toString().toLowerCase()
+                        .contains(flavours[k].toString().toLowerCase())
+                        ){
+                          print('Name is exists! $k $j');
+
+                          setState((){
+                            a.add(eggOrEgglesList[i]);
+                            isFilterisOn=true;
+                          });
+
+                        }else {
+                          print('Name Not exists! $k $j');
+                        }
+
+                      }
+
+                    }else{
+                      print('Iam null : $j');
                     }
+
                   }
+
+
                 }else{
 
-                }
-              }
+                  print('Not ok List : $i');
 
-              isFilterisOn=true;
-            });
+                }
+
+
+
+            }
+
+            // try{
+            //   setState(() {
+            //     for(int i = 0 ;i < eggOrEgglesList.length;i++){
+            //       if(eggOrEgglesList[i]['FlavourList'].isNotEmpty && eggOrEgglesList[i]['FlavourList']!=null){
+            //
+            //         for(int j=0;j<eggOrEgglesList[i]['FlavourList'].length;j++){
+            //
+            //           if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
+            //
+            //             print(eggOrEgglesList[i]['FlavourList'][j]['Name']);
+            //
+            //             // for(int k = 0; k<flavours.length;k++){
+            //             //   a = eggOrEgglesList[i]['FlavourList'].where((e)=>e['Name'].toString().toLowerCase()
+            //             //   .contains(flavours[k].toString().toLowerCase())
+            //             //   ).toList();
+            //             // }
+            //
+            //           }
+            //
+            //         }
+            //
+            //       }else{
+            //         print('Iam a empty index $i');
+            //       }
+            //     }
+            //
+            //     a = a.toSet().toList();
+            //
+            //     isFilterisOn=true;
+            //
+            //   });
+            // }catch(e){
+            //   print(e);
+            // }
+
           }
 
           //shapes list ok
@@ -1808,63 +1928,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
-  void applySearchFiltersSettings(String categ , String subCate , String venName , String location){
-
-    print(categ);
-    print(subCate);
-    print(venName);
-    print(location);
-
-    List mainList = [];
-
-    List a = [], b = [], c= [], d = [];
-
-    Navigator.pop(context);
-    if(categ.isEmpty&&subCate.isEmpty&&venName.isEmpty&&location.isEmpty){
-      setState(() {
-        searchModeis = false;
-      });
-    }else{
-
-      setState(() {
-
-        searchModeis = true;
-
-        mainList = eggOrEgglesList.toList();
-
-        if(categ.isNotEmpty){
-          a = mainList.where((element) => element['TypeOfCake'].toString().toLowerCase().contains(
-              categ.toLowerCase()
-          )).toList();
-        }
-
-        if(subCate.isNotEmpty){
-          b = mainList.where((element) => element['Title'].toString().toLowerCase().contains(
-              subCate.toLowerCase()
-          )).toList();
-        }
-
-        if(venName.isNotEmpty){
-          c = mainList.where((element) => element['VendorName'].toString().toLowerCase().contains(
-              venName.toLowerCase()
-          )).toList();
-        }
-
-
-        print(a.length);
-        print(b.length);
-        print(c.length);
-
-        filteredListByUser = a + b + c + d;
-        filteredListByUser = filteredListByUser.toSet().toList();
-        filteredListByUser = filteredListByUser.reversed.toList();
-
-      });
-
-    }
-
-  }
-
   //clear the search
   void clearTheSearch(){
     setState(() {
@@ -1974,6 +2037,32 @@ class _CakeTypesState extends State<CakeTypes> {
           activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         });
+
+        if(cakeVendorCtrl.text.isNotEmpty || cakeCategoryCtrl.text.isNotEmpty|| cakeSubCategoryCtrl.text.isNotEmpty){
+          List a = [] , b = [],c=[];
+          setState((){
+            activeSearch = true;
+
+            a = eggOrEgglesList.where((element) => element['Category'].toString().toLowerCase()
+                .contains(cakeCategoryCtrl.text.toLowerCase())).toList();
+
+            b = eggOrEgglesList.where((element) => element['SubCategory'].toString().toLowerCase()
+                .contains(cakeSubCategoryCtrl.text.toLowerCase())).toList();
+
+            c = eggOrEgglesList.where((element) => element['VendorName'].toString().toLowerCase()
+                .contains(cakeVendorCtrl.text.toLowerCase())).toList();
+
+            cakeSearchList = a + b + c;
+            // cakeSearchList = cakeSearchList.toSet().toList();
+
+            print(c.length);
+
+          });
+        }else{
+          activeSearch = false;
+          cakeSearchList = eggOrEgglesList;
+        }
+
       }
       if(isFiltered==true&&searchCakesText.isNotEmpty){
         setState(() {
@@ -2732,7 +2821,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                             CircleAvatar(
                                               radius: 50,
                                               backgroundImage:
-                                              cakeSearchList[index]['Images'].isEmpty?
+                                              cakeSearchList[index]['Images']==null
+                                                  ||cakeSearchList[index]['Images'].isEmpty?
                                               NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
                                               NetworkImage(cakeSearchList[index]['Images'][0].toString()),
                                             ),

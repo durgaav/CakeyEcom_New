@@ -11,10 +11,10 @@
 
    <application
         android:hardwareAccelerated="true"
-        android:label="Cakey"
+        android:label="Cakey Shop"
         android:usesCleartextTraffic="true"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/cakeylogo">
         <activity
             android:name=".MainActivity"
             android:exported="true"

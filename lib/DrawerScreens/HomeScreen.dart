@@ -1018,6 +1018,8 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
+
+
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
@@ -1131,10 +1133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-
               Container(
                 color: lightGrey,
-                height: height*0.70,
+                height: height*0.72,
                 child: RefreshIndicator(
                   onRefresh: () async{
                     setState(() {
