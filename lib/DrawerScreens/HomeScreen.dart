@@ -1401,7 +1401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 FocusScope.of(context).unfocus();
                                                 var pr = await SharedPreferences.getInstance();
                                                 pr.setBool('naveToHome' , true);
-                                                context.read<ContextData>().setCurrentIndex(1);
+                                                context.read<ContextData>().setCurrentIndex(2);
                                               },
                                               child: Column(
                                                 children: [

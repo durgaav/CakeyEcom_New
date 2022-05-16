@@ -125,6 +125,11 @@ class _CakeTypesState extends State<CakeTypes> {
   bool activeSearch = false;
   List<int> rangeValuesList = [];
 
+  //for search filter
+  List categorySearch = [];
+  List subCategorySearch = [];
+  List vendorBasedSearch = [];
+
   //endregion
 
   //region Dialogs
@@ -2005,12 +2010,14 @@ class _CakeTypesState extends State<CakeTypes> {
       });
       if(searchCakesText.isNotEmpty){
         setState(() {
+          activeSearch = true;
           cakeSearchList = filteredListByUser.where((element) =>
               element['Title'].toString().toLowerCase().contains(searchCakesText.toLowerCase())).toList();
         });
       }
       else{
         setState(() {
+          activeSearch = false;
           cakeSearchList = filteredListByUser.toList();
         });
       }
@@ -2038,28 +2045,49 @@ class _CakeTypesState extends State<CakeTypes> {
           cakeSearchList = eggOrEgglesList;
         });
 
+
+        // set search by filters
+
         if(cakeVendorCtrl.text.isNotEmpty || cakeCategoryCtrl.text.isNotEmpty|| cakeSubCategoryCtrl.text.isNotEmpty){
-          List a = [] , b = [],c=[];
+
           setState((){
+
+            categorySearch = [];
+            subCategorySearch = [];
+            vendorBasedSearch = [];
+
             activeSearch = true;
 
-            a = eggOrEgglesList.where((element) => element['Category'].toString().toLowerCase()
-                .contains(cakeCategoryCtrl.text.toLowerCase())).toList();
+            if(cakeCategoryCtrl.text.isNotEmpty){
+              categorySearch = eggOrEgglesList.where((element) => element['Category'].toString().toLowerCase()
+                  .contains(cakeCategoryCtrl.text.toLowerCase())).toList();
+            }
 
-            b = eggOrEgglesList.where((element) => element['SubCategory'].toString().toLowerCase()
-                .contains(cakeSubCategoryCtrl.text.toLowerCase())).toList();
+            if(cakeSubCategoryCtrl.text.isNotEmpty){
+              subCategorySearch = eggOrEgglesList.where((element) => element['SubCategory'].toString().toLowerCase()
+                  .contains(cakeSubCategoryCtrl.text.toLowerCase())).toList();
+            }
 
-            c = eggOrEgglesList.where((element) => element['VendorName'].toString().toLowerCase()
-                .contains(cakeVendorCtrl.text.toLowerCase())).toList();
+            if(cakeVendorCtrl.text.isNotEmpty){
+              vendorBasedSearch = eggOrEgglesList.where((element) => element['VendorName'].toString().toLowerCase()
+                  .contains(cakeVendorCtrl.text.toLowerCase())).toList();
+            }
 
-            cakeSearchList = a + b + c;
-            // cakeSearchList = cakeSearchList.toSet().toList();
+            cakeSearchList.clear();
 
-            print(c.length);
+            print(categorySearch.length);
+            print(subCategorySearch.length);
+            print(vendorBasedSearch.length);
+
+            cakeSearchList = categorySearch.toList()
+                + subCategorySearch.toList() + vendorBasedSearch.toList();
+            cakeSearchList = cakeSearchList.toSet().toList();
+
 
           });
-        }else{
-          activeSearch = false;
+        }
+        else{
+          // activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         }
 
@@ -2075,7 +2103,6 @@ class _CakeTypesState extends State<CakeTypes> {
         });
       }
     }
-
 
     return WillPopScope(
       onWillPop: () async{
@@ -2625,7 +2652,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
                   //Filttered cakes
                   Visibility(
-                    visible: isFiltered,
+                    visible:isFiltered,
                     child: Column(
                       children: [
                         StaggeredGridView.countBuilder(
@@ -2705,6 +2732,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 ),
                               ):
                               GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: (){
                                   sendFillDetailsToScreen(index);
                                 },
@@ -2748,7 +2776,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                       borderRadius: BorderRadius.circular(8)
                                                   ),
                                                   child: Text(filterCakesSearchList[index]['WeightList'].isEmpty?'NF':
-                                                  '${filterCakesSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
+                                                  '${filterCakesSearchList[index]['WeightList'][0].toString().split(',').first  }'
                                                       ,style: TextStyle(
                                                           color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
                                                       )),
@@ -2935,6 +2963,7 @@ class _CakeTypesState extends State<CakeTypes> {
                         ],
                       ),
                   ):
+                  // cakeSearchList.isNotEmpty?
                   ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -3112,6 +3141,15 @@ class _CakeTypesState extends State<CakeTypes> {
                         );
                       }
                   )
+                  // Padding(
+                  //   padding: const EdgeInsets.all(25.0),
+                  //   child: Text('No Results Found!', style: TextStyle(
+                  //     fontFamily: "Poppins",
+                  //     color: darkBlue,
+                  //     fontWeight: FontWeight.bold,
+                  //     fontSize: 15
+                  //   ), ),
+                  // )
 
                 ],
               ),

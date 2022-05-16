@@ -97,7 +97,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //For category selecions
   List<Widget> cateWidget = [];
   List<bool> selCategory = [];
-  List categories = ["Birthday" , "Wedding" , "Others" , "Anniversary" , "Farewell"];
+  List categories = ["Birthday" , "Wedding"  , "Anniversary" , "Farewell", "Others"];
 
   List nearestVendors = [];
   List mySelectdVendors = [];
@@ -333,6 +333,60 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           );
         }
     );
+  }
+
+  void showOthersCateDialog(){
+
+    var otherCtrl = new TextEditingController();
+    bool error = false;
+
+    showDialog(
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+              builder: (BuildContext context , void Function(void Function()) setState){
+                return AlertDialog(
+                  title: Text('Other Category', style:
+                    TextStyle(
+                      color: darkBlue,
+                      fontFamily: "Poppins",
+                      fontSize: 13
+                    )
+                    ,),
+                  content: Container(
+                    child: TextField(
+                      controller: otherCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Enter Category...',
+                        errorText: error==true?
+                        "Please enter some text.":
+                        null
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    FlatButton(
+                        onPressed: (){
+                          if(otherCtrl.text.isEmpty){
+                            setState((){
+                              error = true;
+                            });
+                          }else{
+                            setState((){
+                              error = false;
+                            });
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Text('Add')
+                    )
+                  ],
+                );
+              }
+          );
+        }
+    );
+
   }
 
   //endregion
@@ -777,6 +831,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         children: [
                                           GestureDetector(
                                             onTap:(){
+
+                                              if(categories[index].toString().contains("Others")){
+                                                print('Yes...');
+                                                showOthersCateDialog();
+                                              }
+
                                               setState((){
                                                 currentIndex = index;
                                                 fixedCategory = categories[currentIndex];
@@ -971,7 +1031,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   title: Text(
                                                     "${cakeArticles[index]}",
                                                     style: TextStyle(
-                                                        fontFamily: "Poppins", color: darkBlue),
+                                                        fontFamily: "Poppins", color: darkBlue
+                                                    ),
                                                   ),
                                                   value: index,
                                                   groupValue: artGrpValue,
