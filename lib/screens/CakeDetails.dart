@@ -483,7 +483,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   child:Row(
                                       children:[
                                         multiFlavChecs[index] == false?
-                                        Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey , size: 28,):
+                                        Icon(Icons.radio_button_unchecked_outlined,color:Colors.green , size: 28,):
                                         Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
                                         SizedBox(width:8),
                                         Expanded(child: Container(
@@ -609,7 +609,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   child:Row(
                                     children:[
                                       myShapeIndex!=index?
-                                      Icon(Icons.radio_button_unchecked_outlined,color:Colors.grey , size: 28,):
+                                      Icon(Icons.radio_button_unchecked_outlined,color:Colors.black , size: 28,):
                                       Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
                                       SizedBox(width:8),
                                       Expanded(child: Container(
@@ -3592,6 +3592,23 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
                                             vendorAddress = adrss;
 
+
+                                            context.read<ContextData>().addMyVendor(true);
+                                            context.read<ContextData>().setMyVendors(
+                                                [
+                                                  {
+                                                    "VendorId":nearestVendors[index]['_id'],
+                                                    "VendorName":nearestVendors[index]['VendorName'],
+                                                    "VendorDesc":nearestVendors[index]['Description'],
+                                                    "VendorProfile":nearestVendors[index]['ProfileImage'],
+                                                    "VendorPhone":nearestVendors[index]['PhoneNumber'],
+                                                    "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
+                                                    "VendorEgg":nearestVendors[index]['EggOrEggless'],
+                                                    "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
+                                                  }
+                                                ]
+                                            );
+
                                           });
 
                                           print('$vendorID \n $vendorName \n '
@@ -3679,7 +3696,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               SizedBox(height: 10,),
                                               Container(
                                                 alignment: Alignment.centerLeft,
-                                                child: Text(nearestVendors[index]['Description']!=null?
+                                                child: Text(nearestVendors[index]['Description']!=null||
+                                                    nearestVendors[index]['Description']!="null"?
                                                 " "+nearestVendors[index]['Description']:'',
                                                   style: TextStyle(color: Colors.black54,fontFamily: "Poppins"),
                                                   overflow: TextOverflow.ellipsis,
@@ -3713,8 +3731,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                       SizedBox(height: 8,),
                                                       Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
                                                           nearestVendors[index]['DeliveryCharge'].toString()=='0'||
-                                                          nearestVendors[index]['DeliveryCharge'].toString()==null
-                                                          ?
+                                                          nearestVendors[index]['DeliveryCharge'].toString()==null ?
                                                       'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
                                                           color: Colors.orange,
                                                           fontSize: 10 ,

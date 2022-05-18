@@ -38,6 +38,7 @@ class _SingleVendorState extends State<SingleVendor> {
   String deliverCharge = '';
   String profileImage = '';
   String vendorEggOrEggless = '';
+  String goBacktoVenList= '';
 
 
   bool ordersNull = false;
@@ -88,6 +89,7 @@ class _SingleVendorState extends State<SingleVendor> {
     var pref = await SharedPreferences.getInstance();
     setState(() {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
+      goBacktoVenList = pref.getString('ventosingleven')??'Not Found';
     });
   }
 
@@ -193,8 +195,10 @@ class _SingleVendorState extends State<SingleVendor> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     return WillPopScope(
       onWillPop: () async{
-        context.read<ContextData>().setCurrentIndex(3);
-        return false;
+        if(goBacktoVenList=="yes"){
+          context.read<ContextData>().setCurrentIndex(3);
+        }
+        return true;
       },
       child: Scaffold(
         // appBar: AppBar(
@@ -494,301 +498,301 @@ class _SingleVendorState extends State<SingleVendor> {
               ),
 
               //Vendors recent orders....
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text("History",
-                  style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                ),
-              ),
-
-              vendorOrders.isNotEmpty?
-              Container(
-                margin: EdgeInsets.all(10),
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: vendorOrders.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context,index){
-                      isExpands.add(false);
-                      return Card(
-                          elevation: 6.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)
-                          ),
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  onTap:(){
-                                    setState(() {
-                                      if(isExpands[index]==false){
-                                        isExpands[index]=true;
-                                      }else{
-                                        isExpands[index]=false;
-                                      }
-                                    });
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(3),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
-                                            color: Colors.black26
-                                        ),
-                                        child:Text('Order ID # ${vendorOrders[index]["_id"]}',style: const TextStyle(
-                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black
-                                        ),),
-                                      ),
-                                      SizedBox(height: 6,),
-                                      //Theme text
-                                      Text('${vendorOrders[index]['Title']}',
-                                        style: TextStyle(color: darkBlue,
-                                            fontWeight: FontWeight.bold,fontSize: 13
-                                        ),
-                                        maxLines: 2,
-                                      ),
-                                      SizedBox(height: 6,),
-                                      ExpandableText(
-                                        '${vendorOrders[index]['Description']}',
-                                        style: TextStyle(
-                                            color: Colors.grey,fontFamily: "Poppins",fontSize: 12
-                                        ),
-                                        expandText: '',
-                                        collapseText: 'collapse',
-                                        maxLines: 3,
-                                        collapseOnTextTap: true,
-                                        expandOnTextTap: true,
-                                      ),
-                                      SizedBox(height: 3,),
-                                      Container(
-                                        height: 1,
-                                        color: Colors.black26,
-                                      ),SizedBox(height: 3,),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              RatingBar.builder(
-                                                initialRating: 4.1,
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 14,
-                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                itemBuilder: (context, _) => Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                onRatingUpdate: (rating) {
-                                                  print(rating);
-                                                },
-                                              ),
-                                              Text(' 4.5',style: TextStyle(
-                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                              ),)
-                                            ],
-                                          ),
-                                          vendorOrders[index]['Status'].toString().toLowerCase().contains('delivered')?
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text("Delivered ",style: TextStyle(color: Colors.green,
-                                                      fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                  Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
-                                                ],
-                                              ),
-                                              SizedBox(width: 5,),
-                                              Text("${vendorOrders[index]['Status_Updated_On'].toString().split(" ").first}",style: TextStyle(color: Colors.black26,
-                                                  fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
-                                            ],
-                                          ):
-                                          Text('${vendorOrders[index]['Status'].toString()}',style: TextStyle(
-                                              color: vendorOrders[index]['Status'].toString().toLowerCase().contains('cancelled')?
-                                              Colors.red:Colors.blueAccent,
-                                              fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 10),)
-                                        ],
-                                      ),
-                                      SizedBox(height: 3,),
-                                      Container(
-                                        height: 1,
-                                        color: Colors.black26,
-                                      ),
-                                      ListTile(
-                                        title: Text('Customer',style: TextStyle(
-                                            fontSize: 12,color: Colors.grey,fontFamily: "Poppins"
-                                        ),),
-                                        subtitle: Text('${vendorOrders[index]['UserName']}',style: TextStyle(
-                                            fontSize: 13,color:darkBlue,fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        ),),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Visibility(
-                                  visible:isExpands[index],
-                                  child: AnimatedContainer(
-                                    duration: const Duration(seconds: 3),
-                                    curve: Curves.elasticInOut,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(15),
-                                        bottomRight: Radius.circular(15),
-                                      )
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(height: 15,),
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(width: 8,),
-                                            const Icon(
-                                              Icons.location_on,
-                                              color: Colors.red,
-                                            ),
-                                            const SizedBox(width: 8,),
-                                            Container(
-                                                width: 260,
-                                                child: Text(
-                                                  "${vendorOrders[index]['DeliveryAddress']}",
-                                                  style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      color: Colors.black54,
-                                                      fontSize: 13
-                                                  ),
-                                                )
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 15,),
-                                        Container(
-                                          margin: const EdgeInsets.only(left: 10,right: 10),
-                                          color: Colors.black26,
-                                          height: 1,
-                                        ),
-
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              const Text('Item Total',style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                              ),),
-                                               Text('₹${vendorOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              const Text('Delivery charge',style: const TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                              ),),
-                                              Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
-                                                '₹${vendorOrders[index]['DeliveryCharge']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),)
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              const Text('Discounts',style: const TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                              ),),
-                                              Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
-                                              '₹${vendorOrders[index]['Discount']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              const Text('Taxes',style: const TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                              ),),
-                                              Text('₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                            ],
-                                          ),
-                                        ),
-
-                                        Container(
-                                          margin: const EdgeInsets.only(left: 10,right: 10),
-                                          color: Colors.black26,
-                                          height: 1,
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              const Text('Bill Total',style: TextStyle(
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold
-                                              ),),
-                                               Text('₹${vendorOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Text('Paid via : ${vendorOrders[index]['PaymentType']}',style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                              ),),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                    }
-                ),
-              ):
-              Center(
-                child: Padding(
-                  padding:EdgeInsets.all(8.0),
-                  child: Text('No Orders Found!' , style: TextStyle(
-                    color: darkBlue , fontFamily: "Poppins" ,
-                    fontSize: 17 , fontWeight: FontWeight.bold
-                  ),),
-                ),
-              )
+              // Padding(
+              //   padding: const EdgeInsets.all(10),
+              //   child: Text("History",
+              //     style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+              //   ),
+              // ),
+              //
+              // vendorOrders.isNotEmpty?
+              // Container(
+              //   margin: EdgeInsets.all(10),
+              //   child: ListView.builder(
+              //       shrinkWrap: true,
+              //       itemCount: vendorOrders.length,
+              //       physics: NeverScrollableScrollPhysics(),
+              //       itemBuilder: (context,index){
+              //         isExpands.add(false);
+              //         return Card(
+              //             elevation: 6.0,
+              //             shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(10)
+              //             ),
+              //             child: Container(
+              //               padding: EdgeInsets.all(10),
+              //               child: Column(
+              //                 crossAxisAlignment: CrossAxisAlignment.start,
+              //                 children: [
+              //                   GestureDetector(
+              //                     onTap:(){
+              //                       setState(() {
+              //                         if(isExpands[index]==false){
+              //                           isExpands[index]=true;
+              //                         }else{
+              //                           isExpands[index]=false;
+              //                         }
+              //                       });
+              //                     },
+              //                     child: Column(
+              //                       crossAxisAlignment: CrossAxisAlignment.start,
+              //                       children: [
+              //                         Container(
+              //                           padding: const EdgeInsets.all(3),
+              //                           decoration: BoxDecoration(
+              //                               borderRadius: BorderRadius.circular(20),
+              //                               color: Colors.black26
+              //                           ),
+              //                           child:Text('Order ID # ${vendorOrders[index]["_id"]}',style: const TextStyle(
+              //                               fontSize: 10,fontFamily: "Poppins",color: Colors.black
+              //                           ),),
+              //                         ),
+              //                         SizedBox(height: 6,),
+              //                         //Theme text
+              //                         Text('${vendorOrders[index]['Title']}',
+              //                           style: TextStyle(color: darkBlue,
+              //                               fontWeight: FontWeight.bold,fontSize: 13
+              //                           ),
+              //                           maxLines: 2,
+              //                         ),
+              //                         SizedBox(height: 6,),
+              //                         ExpandableText(
+              //                           '${vendorOrders[index]['Description']}',
+              //                           style: TextStyle(
+              //                               color: Colors.grey,fontFamily: "Poppins",fontSize: 12
+              //                           ),
+              //                           expandText: '',
+              //                           collapseText: 'collapse',
+              //                           maxLines: 3,
+              //                           collapseOnTextTap: true,
+              //                           expandOnTextTap: true,
+              //                         ),
+              //                         SizedBox(height: 3,),
+              //                         Container(
+              //                           height: 1,
+              //                           color: Colors.black26,
+              //                         ),SizedBox(height: 3,),
+              //                         Row(
+              //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                           children: [
+              //                             Row(
+              //                               children: [
+              //                                 RatingBar.builder(
+              //                                   initialRating: 4.1,
+              //                                   minRating: 1,
+              //                                   direction: Axis.horizontal,
+              //                                   allowHalfRating: true,
+              //                                   itemCount: 5,
+              //                                   itemSize: 14,
+              //                                   itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+              //                                   itemBuilder: (context, _) => Icon(
+              //                                     Icons.star,
+              //                                     color: Colors.amber,
+              //                                   ),
+              //                                   onRatingUpdate: (rating) {
+              //                                     print(rating);
+              //                                   },
+              //                                 ),
+              //                                 Text(' 4.5',style: TextStyle(
+              //                                     color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+              //                                 ),)
+              //                               ],
+              //                             ),
+              //                             vendorOrders[index]['Status'].toString().toLowerCase().contains('delivered')?
+              //                             Row(
+              //                               crossAxisAlignment: CrossAxisAlignment.start,
+              //                               children: [
+              //                                 Row(
+              //                                   children: [
+              //                                     Text("Delivered ",style: TextStyle(color: Colors.green,
+              //                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+              //                                     Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
+              //                                   ],
+              //                                 ),
+              //                                 SizedBox(width: 5,),
+              //                                 Text("${vendorOrders[index]['Status_Updated_On'].toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+              //                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
+              //                               ],
+              //                             ):
+              //                             Text('${vendorOrders[index]['Status'].toString()}',style: TextStyle(
+              //                                 color: vendorOrders[index]['Status'].toString().toLowerCase().contains('cancelled')?
+              //                                 Colors.red:Colors.blueAccent,
+              //                                 fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 10),)
+              //                           ],
+              //                         ),
+              //                         SizedBox(height: 3,),
+              //                         Container(
+              //                           height: 1,
+              //                           color: Colors.black26,
+              //                         ),
+              //                         ListTile(
+              //                           title: Text('Customer',style: TextStyle(
+              //                               fontSize: 12,color: Colors.grey,fontFamily: "Poppins"
+              //                           ),),
+              //                           subtitle: Text('${vendorOrders[index]['UserName']}',style: TextStyle(
+              //                               fontSize: 13,color:darkBlue,fontFamily: "Poppins",
+              //                               fontWeight: FontWeight.bold
+              //                           ),),
+              //                         ),
+              //                       ],
+              //                     ),
+              //                   ),
+              //                   Visibility(
+              //                     visible:isExpands[index],
+              //                     child: AnimatedContainer(
+              //                       duration: const Duration(seconds: 3),
+              //                       curve: Curves.elasticInOut,
+              //                       decoration: BoxDecoration(
+              //                         color: Colors.black12,
+              //                         borderRadius: BorderRadius.only(
+              //                           bottomLeft: Radius.circular(15),
+              //                           bottomRight: Radius.circular(15),
+              //                         )
+              //                       ),
+              //                       child: Column(
+              //                         children: [
+              //                           const SizedBox(height: 15,),
+              //                           Row(
+              //                             crossAxisAlignment: CrossAxisAlignment.start,
+              //                             children: [
+              //                               const SizedBox(width: 8,),
+              //                               const Icon(
+              //                                 Icons.location_on,
+              //                                 color: Colors.red,
+              //                               ),
+              //                               const SizedBox(width: 8,),
+              //                               Container(
+              //                                   width: 260,
+              //                                   child: Text(
+              //                                     "${vendorOrders[index]['DeliveryAddress']}",
+              //                                     style: TextStyle(
+              //                                         fontFamily: "Poppins",
+              //                                         color: Colors.black54,
+              //                                         fontSize: 13
+              //                                     ),
+              //                                   )
+              //                               ),
+              //                             ],
+              //                           ),
+              //                           const SizedBox(height: 15,),
+              //                           Container(
+              //                             margin: const EdgeInsets.only(left: 10,right: 10),
+              //                             color: Colors.black26,
+              //                             height: 1,
+              //                           ),
+              //
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 const Text('Item Total',style: TextStyle(
+              //                                   fontFamily: "Poppins",
+              //                                   color: Colors.black54,
+              //                                 ),),
+              //                                  Text('₹${vendorOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 const Text('Delivery charge',style: const TextStyle(
+              //                                   fontFamily: "Poppins",
+              //                                   color: Colors.black54,
+              //                                 ),),
+              //                                 Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
+              //                                   '₹${vendorOrders[index]['DeliveryCharge']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),)
+              //                               ],
+              //                             ),
+              //                           ),
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 const Text('Discounts',style: const TextStyle(
+              //                                   fontFamily: "Poppins",
+              //                                   color: Colors.black54,
+              //                                 ),),
+              //                                 Text(vendorOrders[index]['DeliveryCharge'].toString()!="null"?
+              //                                 '₹${vendorOrders[index]['Discount']}':'₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 const Text('Taxes',style: const TextStyle(
+              //                                   fontFamily: "Poppins",
+              //                                   color: Colors.black54,
+              //                                 ),),
+              //                                 Text('₹0',style: const TextStyle(fontWeight: FontWeight.bold),),
+              //                               ],
+              //                             ),
+              //                           ),
+              //
+              //                           Container(
+              //                             margin: const EdgeInsets.only(left: 10,right: 10),
+              //                             color: Colors.black26,
+              //                             height: 1,
+              //                           ),
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 const Text('Bill Total',style: TextStyle(
+              //                                     fontFamily: "Poppins",
+              //                                     color: Colors.black,
+              //                                     fontWeight: FontWeight.bold
+              //                                 ),),
+              //                                  Text('₹${vendorOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                           Container(
+              //                             padding: const EdgeInsets.all(10),
+              //                             child: Row(
+              //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                               crossAxisAlignment: CrossAxisAlignment.center,
+              //                               children: [
+              //                                 Text('Paid via : ${vendorOrders[index]['PaymentType']}',style: TextStyle(
+              //                                   fontFamily: "Poppins",
+              //                                   color: Colors.black54,
+              //                                 ),),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ),
+              //                   )
+              //                 ],
+              //               ),
+              //             ),
+              //           );
+              //       }
+              //   ),
+              // ):
+              // Center(
+              //   child: Padding(
+              //     padding:EdgeInsets.all(8.0),
+              //     child: Text('No Orders Found!' , style: TextStyle(
+              //       color: darkBlue , fontFamily: "Poppins" ,
+              //       fontSize: 17 , fontWeight: FontWeight.bold
+              //     ),),
+              //   ),
+              // )
             ],
           ),
         )

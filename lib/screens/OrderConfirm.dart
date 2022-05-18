@@ -176,77 +176,79 @@ class _OrderConfirmState extends State<OrderConfirm> {
   }
 
 
-  //confirm order
-  Future<void> confirmOrder() async{
-    showAlertDialog();
-    String payStatus = '';
-    if(paymentType.toLowerCase()=="cash on delivery"){
-      setState(() {
-        payStatus = paymentType;
-      });
-    }else{
-      setState(() {
-        payStatus = 'Paid';
-      });
-    }
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-    request.body = json.encode({
-
-      "CakeID": "$cakeID",
-      "Title": "$cakeName",
-      "Description": "$cakeDesc",
-      "TypeOfCake": "$cakeType",
-      "Images": "$cakeImage",
-      "EggOrEggless": "$eggOreggless",
-      "Price": "$cakePrice",
-      "Flavour": "$flavour",
-      "Shape": "$shape",
-      "CakeToppings": toppings,
-      "MessageOnTheCake": "$cakeMessage",
-      "SpecialRequest": "$cakeSplReq",
-      "Weight": "$weight",
-      "VendorID": "$vendorID",
-      "VendorName": "$vendorName",
-      "VendorPhoneNumber": "$vendorMobile",
-      "UserID": "$userID",
-      "UserName": "$userName",
-      "UserPhoneNumber": "$userPhone",
-      "DeliveryAddress": "$userAddress",
-      "DeliveryDate": "$deliverDate",
-      "DeliverySession": "$deliverSession",
-      "VendorAddress": "$vendorAddress",
-      "ItemCount": counts,
-      "Discount": "$discount",
-      "Total": "$bilTotal",
-      "DeliveryCharge": "$deliveryCharge",
-      "PaymentType": "$paymentType",
-      "PaymentStatus": "$payStatus",
-      "DeliveryInformation": "$deliverType",
-      "Articles": "$cakeArticle",
-      "Tax": "$taxes",
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      Navigator.pop(context);
-      showOrderCompleteSheet();
-    }
-    else {
-      print(response.reasonPhrase);
-      Navigator.pop(context);
-    }
-
-  }
+  // //confirm order
+  // Future<void> confirmOrder() async{
+  //   showAlertDialog();
+  //   String payStatus = '';
+  //   if(paymentType.toLowerCase()=="cash on delivery"){
+  //     setState(() {
+  //       payStatus = paymentType;
+  //     });
+  //   }else{
+  //     setState(() {
+  //       payStatus = 'Paid';
+  //     });
+  //   }
+  //
+  //   var headers = {
+  //     'Content-Type': 'application/json'
+  //   };
+  //   var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
+  //   request.body = json.encode({
+  //
+  //     "CakeID": "$cakeID",
+  //     "Title": "$cakeName",
+  //     "Description": "$cakeDesc",
+  //     "TypeOfCake": "$cakeType",
+  //     "Images": "$cakeImage",
+  //     "EggOrEggless": "$eggOreggless",
+  //     "Price": "$cakePrice",
+  //     "Flavour": "$flavour",
+  //     "Shape": "$shape",
+  //     "CakeToppings": toppings,
+  //     "MessageOnTheCake": "$cakeMessage",
+  //     "SpecialRequest": "$cakeSplReq",
+  //     "Weight": "$weight",
+  //     "VendorID": "$vendorID",
+  //     "VendorName": "$vendorName",
+  //     "VendorPhoneNumber": "$vendorMobile",
+  //     "UserID": "$userID",
+  //     "UserName": "$userName",
+  //     "UserPhoneNumber": "$userPhone",
+  //     "DeliveryAddress": "$userAddress",
+  //     "DeliveryDate": "$deliverDate",
+  //     "DeliverySession": "$deliverSession",
+  //     "VendorAddress": "$vendorAddress",
+  //     "ItemCount": counts,
+  //     "Discount": "$discount",
+  //     "Total": "$bilTotal",
+  //     "DeliveryCharge": "$deliveryCharge",
+  //     "PaymentType": "$paymentType",
+  //     "PaymentStatus": "$payStatus",
+  //     "DeliveryInformation": "$deliverType",
+  //     "Articles": "$cakeArticle",
+  //     "Tax": "$taxes",
+  //   });
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //   if (response.statusCode == 200) {
+  //     print(await response.stream.bytesToString());
+  //     Navigator.pop(context);
+  //     showOrderCompleteSheet();
+  //   }
+  //   else {
+  //     print(response.reasonPhrase);
+  //     Navigator.pop(context);
+  //   }
+  //
+  // }
 
 
   //order data
+
+
   Future<void> receiveOrderDetails() async{
     var prefs = await SharedPreferences.getInstance();
 

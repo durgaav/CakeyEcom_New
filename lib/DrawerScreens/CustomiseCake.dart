@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' as fil;
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http ;
 import 'package:cakey/DrawerScreens/VendorsList.dart';
@@ -9,10 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../ContextData.dart';
+import 'package:path/path.dart' as Path;
+import 'package:http_parser/http_parser.dart';
+
 
 class CustomiseCake extends StatefulWidget {
   const CustomiseCake({Key? key}) : super(key: key);
@@ -30,17 +34,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Color lightPink = Color(0xffFE8416D);
 
   //shapes
-  var shapesList = ["Default","Round","Square" , "Heart","Rectangle"];
+  var shapesList = ["Round","Square","Heart","Any Shape" , "Others"];
   var shapeGrpValue = 0;
 
   //flavour
-  var flavourList = ["Default","Strawberry","Blueberry","Chacolate"];
+  var flavourList = [
+    "Vanilla",
+    "Chocolate" ,
+    "Strawberry",
+    "Black Forest",
+    "Red Velvet",
+    "Others",
+  ];
+
+
   var flavGrpValue = 0;
 
   //cake articles
   var cakeArticles = ["Default" , 'Cake Article','Cake Article','Cake Art'];
   var artGrpValue = 0;
-  String fixedCakeArticle = 'Default';
+  String fixedCakeArticle = '';
 
   //Articles
   var articals = [
@@ -48,11 +61,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     {"article":'Butterflies',"price":'85'},
     {"article":'Sweet Heart',"price":'150'},
     {"article":'Welcome Home',"price":'70'},
+    {"article":'I Love You',"price":'70'},
+    {"article":'Others',"price":'70'},
   ];
   int articGroupVal = -1;
 
-  int selVendorIndex = 0;
-  var weightCtrl = new TextEditingController();
+  int selVendorIndex = -1;
 
   //String family
   String poppins = "Poppins";
@@ -62,11 +76,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
 
   //Fixed Strings and Lists
-  String fixedCategory = '';
-  String fixedShape = 'Default';
-  String fixedFlavour = 'Default';
+  String fixedCategory = 'Birthday';
+  String fixedShape = 'Round';
+  //flavours
+  List fixedFlavList = [];
+  List flavTempList = [];
+  List<bool> fixedFlavChecks = [];
+
+  String fixedFlavour = 'Vanilla';
   String fixedExtraArticle = '';
   String fixedCakeTower = '';
+
+  //var weight
+  int isFixedWeight = -1;
   String fixedWeight = '';
   String fixedDate = 'Not Yet Select';
   String fixedSession = 'Not Yet Select';
@@ -77,15 +99,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //cake text ctrls
   var msgCtrl = new TextEditingController();
   var specialReqCtrl = new TextEditingController();
+  var addArticleCtrl = new TextEditingController();
+  var weightCtrl = new TextEditingController();
   String cakeMessage = '';
   String cakeRequest = "";
 
   //main variables
   bool egglesSwitch = true;
+  bool addOtherArticle = false;
   String userCurLocation = 'Searching...';
 
   var weight = [
-    1.5,2,2.5,3,4,5,6,7,8
+    1, 1.5 , 2 , 2.5 , 3 , 4 , 5 , 5.5, 6 , 7,
   ];
 
   var cakeTowers = ["2","3","5","8"];
@@ -97,7 +122,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //For category selecions
   List<Widget> cateWidget = [];
   List<bool> selCategory = [];
-  List categories = ["Birthday" , "Wedding"  , "Anniversary" , "Farewell", "Others"];
+  List categories = ["Birthday" , "Wedding"  , "Anniversary" , "Farewell","Occation", "Others"];
 
   List nearestVendors = [];
   List mySelectdVendors = [];
@@ -105,20 +130,33 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var selFromVenList = false;
 
   //my venor details
-  String myVendorName = '';
-  String myVendorId = '';
-  String myVendorProfile ='';
-  String myVendorDelCharge = '';
-  String myVendorPhone = '';
-  String myVendorDesc = '';
+  String myVendorName = 'null';
+  String myVendorId = 'null';
+  String myVendorProfile ='null';
+  String myVendorDelCharge = 'null';
+  String myVendorPhone = 'null';
+  String myVendorDesc = 'null';
   bool iamYourVendor = false;
 
   //file
-  File file = new File('');
+  var file = new fil.File('');
 
   //Del or Picup
   var picOrDeliver = ["Pickup","Delivery"];
-  var picOrDel = 0;
+  var picOrDel = -1;
+
+  //vendors details
+  String vendorID = '';
+  String vendorName = '';
+  String vendorAddress = '';
+  String vendorPhone = '';
+  String vendorModId = '';
+
+  //Current user details
+  String userID ='';
+  String userModId = '';
+  String userName ='';
+  String userPhone ='';
 
   //endregion
 
@@ -335,6 +373,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     );
   }
 
+  //add other category
   void showOthersCateDialog(){
 
     var otherCtrl = new TextEditingController();
@@ -367,6 +406,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   actions: [
                     FlatButton(
                         onPressed: (){
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel')
+                    ),
+                    FlatButton(
+                        onPressed: (){
                           if(otherCtrl.text.isEmpty){
                             setState((){
                               error = true;
@@ -374,8 +419,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           }else{
                             setState((){
                               error = false;
+                              saveAllOthers(otherCtrl.text, "", "", "");
                             });
-                            Navigator.pop(context);
                           }
                         },
                         child: Text('Add')
@@ -387,6 +432,201 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         }
     );
 
+  }
+
+  //add other flavour
+  void showOthersFlavourDialog(int index){
+
+    var otherCtrl = new TextEditingController();
+    bool error = false;
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+              builder: (BuildContext context , void Function(void Function()) setState){
+                return AlertDialog(
+                  title: Text('Other Flavour', style:
+                  TextStyle(
+                      color: darkBlue,
+                      fontFamily: "Poppins",
+                      fontSize: 13
+                  )
+                    ,),
+                  content: Container(
+                    child: TextField(
+                      controller: otherCtrl,
+                      decoration: InputDecoration(
+                          hintText: 'Enter Flavour...',
+                          errorText: error==true?
+                          "Please enter some text.":
+                          null
+                      ),
+                    ),
+                  ),
+                  actions: [
+
+                    FlatButton(
+                        onPressed: (){
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel')
+                    ),
+
+                    FlatButton(
+                        onPressed: (){
+                          if(otherCtrl.text.isEmpty){
+                            setState((){
+                              error = true;
+                            });
+                          }else{
+                            setState((){
+                              error = false;
+                              saveAllOthers("", "" ,otherCtrl.text.toString() , "");
+                            });
+                          }
+                        },
+                        child: Text('Add')
+                    ),
+                  ],
+                );
+              }
+          );
+        }
+    );
+
+  }
+
+  //add other shape
+  void showOthersShapeDialog(int index){
+
+    var otherCtrl = new TextEditingController();
+    bool error = false;
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+              builder: (BuildContext context , void Function(void Function()) setState){
+                return AlertDialog(
+                  title: Text('Other Shape', style:
+                  TextStyle(
+                      color: darkBlue,
+                      fontFamily: "Poppins",
+                      fontSize: 13
+                  )
+                    ,),
+                  content: Container(
+                    child: TextField(
+                      controller: otherCtrl,
+                      decoration: InputDecoration(
+                          hintText: 'Enter Shape...',
+                          errorText: error==true?
+                          "Please enter some text.":
+                          null
+                      ),
+                    ),
+                  ),
+                  actions: [
+
+                    FlatButton(
+                        onPressed: (){
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel')
+                    ),
+
+                    FlatButton(
+                        onPressed: (){
+                          if(otherCtrl.text.isEmpty){
+                            setState((){
+                              error = true;
+                            });
+                          }else{
+                            setState((){
+                              error = false;
+                              saveAllOthers("", otherCtrl.text ,"", "");
+                            });
+                          }
+                        },
+                        child: Text('Add')
+                    ),
+                  ],
+                );
+              }
+          );
+        }
+    );
+
+  }
+
+  //Confirm order
+  void showConfirmOrder(){
+    showDialog(
+        context: context,
+        builder: (context)=>
+            AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)
+              ),
+              title: Row(
+                children: [
+                  Text('Confirm This Order' , style: TextStyle(
+                      color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
+                      fontWeight: FontWeight.bold
+                  ),),
+                ],
+              ),
+              content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
+                  color:lightPink , fontSize: 13 , fontFamily: "Poppins"
+              ),),
+              actions: [
+                FlatButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    child: Text('Cancel')
+                ),
+                FlatButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                      confirmOrder();
+                    },
+                    child: Text('Order Now')
+                ),
+              ],
+            ),
+      // CupertinoAlertDialog(
+      //   title: Row(
+      //     children: [
+      //       Text('Confirm This Order' , style: TextStyle(
+      //           color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
+      //           fontWeight: FontWeight.bold
+      //       ),),
+      //     ],
+      //   ),
+      //   content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
+      //       color:lightPink , fontSize: 13 , fontFamily: "Poppins"
+      //   ),),
+      //   actions: [
+      //     FlatButton(
+      //         onPressed: (){
+      //           Navigator.pop(context);
+      //         },
+      //         child: Text('Cancel')
+      //     ),
+      //     FlatButton(
+      //         onPressed: (){
+      //           Navigator.pop(context);
+      //           confirmOrder();
+      //         },
+      //         child: Text('Order Now')
+      //     ),
+      //   ],
+      // )
+    );
   }
 
   //endregion
@@ -431,10 +671,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
+      userID = pref.getString('userID')??'Not Found';
+      userModId = pref.getString('userModId')??'Not Found';
+      userName = pref.getString('userName')??'Not Found';
+      deliverAddress = pref.getString('userAddress')??'Not Found';
+      userPhone = pref.getString('phoneNumber')??'Not Found';
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
     getVendorsList();
+
+    // prefs.setString('userID', userID);
+    // prefs.setString('userAddress', userAddress);
+    // prefs.setString('userName', userName);
+
   }
 
   //sessions based on time
@@ -558,12 +808,379 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     if (result != null) {
       setState(() {
         String path = result.files.single.path.toString();
-        file = File(path);
+        file = fil.File(path);
         print("file $file");
       });
     } else {
       // User canceled the picker
     }
+  }
+
+  //Save all added others
+  Future<void> saveAllOthers(String category, String shape, String flavour, String article) async{
+    print('Others Entre....');
+
+    setState((){
+
+      if(category.isNotEmpty){
+        fixedCategory = category;
+      }
+
+      if(shape.isNotEmpty){
+        fixedShape = shape;
+      }
+
+      if(flavour.isNotEmpty){
+        flavTempList.add(flavour);
+      }
+
+      // fixedCakeArticle = article;
+    });
+
+
+    print(fixedCategory);
+    print(fixedShape);
+    print(fixedFlavList);
+    print(fixedCakeArticle);
+
+    Navigator.pop(context);
+
+  }
+  
+  //Load Order Preferences...
+  Future<void> confirmOrder() async{
+
+    setState((){
+      if(fixedFlavList.isEmpty){
+        fixedFlavList = ["Vanilla"];
+      }else{
+        fixedFlavList = fixedFlavList + flavTempList;
+      }
+
+    });
+
+    showAlertDialog();
+
+    //below 5 kg it will work...
+    if(int.parse(fixedWeight , onError: (e)=>0) < 5){
+
+
+      try{
+
+        //user not select the file
+        if(file.path.isEmpty){
+
+
+          var request = http.MultipartRequest('POST',
+              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
+
+          request.headers['Content-Type'] = 'multipart/form-data';
+
+          for (String item in fixedFlavList) {
+            request.files.add(http.MultipartFile.fromString('Flavour', item));
+          }
+
+
+          request.fields.addAll({
+            'TypeOfCake': '$fixedCategory',
+            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            // 'Flavour': 'Chocolate',
+            // 'Flavour':{},
+            'Shape': '$fixedShape',
+            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Weight': '${fixedWeight}kg',
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
+            'DeliveryAddress': '$deliverAddress',
+            'DeliveryDate': '$fixedDate',
+            'DeliverySession': '$fixedSession',
+            'DeliveryInformation': '$fixedDelliverMethod',
+            'VendorID': '$vendorID',
+            'VendorName': '$vendorName',
+            'VendorPhoneNumber': '$vendorPhone',
+            'VendorAddress': '$vendorAddress',
+            'Vendor_ID':'$vendorModId',
+            "User_ID":"$userModId",
+            'UserID': '$userID',
+            'UserName': '$userName',
+            'UserPhoneNumber': '$userPhone'
+          });
+
+          // request.files.add(await http.MultipartFile.fromPath(
+          //     'files', file.path.toString(),
+          //     filename: Path.basename(file.path),
+          //     contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+          // ));
+
+          http.StreamedResponse response = await request.send();
+
+          if (response.statusCode == 200) {
+            print(await response.stream.bytesToString());
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Order Posted.!'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+          }
+          else {
+            print(response.reasonPhrase);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(response.reasonPhrase.toString()),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+            Navigator.pop(context);
+          }
+
+        }else{
+
+          var request = http.MultipartRequest('POST',
+              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
+
+          request.headers['Content-Type'] = 'multipart/form-data';
+
+          for (String item in fixedFlavList) {
+            request.files.add(http.MultipartFile.fromString('Flavour', item));
+          }
+
+
+          request.fields.addAll({
+            'TypeOfCake': '$fixedCategory',
+            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            // 'Flavour': 'Chocolate',
+            // 'Flavour':{},
+            'Shape': '$fixedShape',
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Weight': '${fixedWeight}kg',
+            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
+            'DeliveryAddress': '$deliverAddress',
+            'DeliveryDate': '$fixedDate',
+            'DeliverySession': '$fixedSession',
+            'DeliveryInformation': '$fixedDelliverMethod',
+            'VendorID': '$vendorID',
+            'VendorName': '$vendorName',
+            'VendorPhoneNumber': '$vendorPhone',
+            'VendorAddress': '$vendorAddress',
+            'Vendor_ID':'$vendorModId',
+            "User_ID":"$userModId",
+            'UserID': '$userID',
+            'UserName': '$userName',
+            'UserPhoneNumber': '$userPhone'
+          });
+
+          request.files.add(await http.MultipartFile.fromPath(
+              'files', file.path.toString(),
+              filename: Path.basename(file.path),
+              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+          ));
+
+          http.StreamedResponse response = await request.send();
+
+          if (response.statusCode == 200) {
+            print(await response.stream.bytesToString());
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Order Posted.!'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+          }
+          else {
+            print(response.reasonPhrase);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(response.reasonPhrase.toString()),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+            Navigator.pop(context);
+          }
+
+        }
+
+      }catch(e){
+        print(e);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Something Went Wrong!'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+
+    }else{
+
+
+      try{
+
+        //user not select the file
+        if(file.path.isEmpty){
+
+
+          var request = http.MultipartRequest('POST',
+              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
+
+          request.headers['Content-Type'] = 'multipart/form-data';
+
+          for (String item in fixedFlavList) {
+            request.files.add(http.MultipartFile.fromString('Flavour', item));
+          }
+
+
+          request.fields.addAll({
+            'TypeOfCake': '$fixedCategory',
+            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            // 'Flavour': 'Chocolate',
+            // 'Flavour':{},
+            'Shape': '$fixedShape',
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Weight': '${fixedWeight}kg',
+            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
+            'DeliveryAddress': '$deliverAddress',
+            'DeliveryDate': '$fixedDate',
+            'DeliverySession': '$fixedSession',
+            'DeliveryInformation': '$fixedDelliverMethod',
+            // 'VendorID': '$vendorID',
+            // 'VendorName': '$vendorName',
+            // 'VendorPhoneNumber': '$vendorPhone',
+            // 'VendorAddress': '$vendorAddress',
+            // 'Vendor_ID':'$vendorModId',
+            "User_ID":"$userModId",
+            'UserID': '$userID',
+            'UserName': '$userName',
+            'UserPhoneNumber': '$userPhone'
+          });
+
+          // request.files.add(await http.MultipartFile.fromPath(
+          //     'files', file.path.toString(),
+          //     filename: Path.basename(file.path),
+          //     contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+          // ));
+
+          http.StreamedResponse response = await request.send();
+
+          if (response.statusCode == 200) {
+            print(await response.stream.bytesToString());
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Order Posted.!'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+          }
+          else {
+            print(response.reasonPhrase);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(response.reasonPhrase.toString()),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+            Navigator.pop(context);
+          }
+
+        }else{
+
+          var request = http.MultipartRequest('POST',
+              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
+
+          request.headers['Content-Type'] = 'multipart/form-data';
+
+          for (String item in fixedFlavList) {
+            request.files.add(http.MultipartFile.fromString('Flavour', item));
+          }
+
+
+          request.fields.addAll({
+            'TypeOfCake': '$fixedCategory',
+            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            // 'Flavour': 'Chocolate',
+            // 'Flavour':{},
+            'Shape': '$fixedShape',
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Weight': '${fixedWeight}kg',
+            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
+            'DeliveryAddress': '$deliverAddress',
+            'DeliveryDate': '$fixedDate',
+            'DeliverySession': '$fixedSession',
+            'DeliveryInformation': '$fixedDelliverMethod',
+            // 'VendorID': '$vendorID',
+            // 'VendorName': '$vendorName',
+            // 'VendorPhoneNumber': '$vendorPhone',
+            // 'VendorAddress': '$vendorAddress',
+            // 'Vendor_ID':'$vendorModId',
+            "User_ID":"$userModId",
+            'UserID': '$userID',
+            'User_ID':'$userModId',
+            'UserName': '$userName',
+            'UserPhoneNumber': '$userPhone'
+          });
+
+          request.files.add(await http.MultipartFile.fromPath(
+              'files', file.path.toString(),
+              filename: Path.basename(file.path),
+              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+          ));
+
+          http.StreamedResponse response = await request.send();
+
+          if (response.statusCode == 200) {
+            print(await response.stream.bytesToString());
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Order Posted.!'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+          }
+          else {
+            print(response.reasonPhrase);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(response.reasonPhrase.toString()),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
+            Navigator.pop(context);
+          }
+
+        }
+
+      }catch(e){
+        print(e);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Something Went Wrong!'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+
+      }
+
+
+    }
+
   }
 
   //endregion
@@ -606,6 +1223,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     selFromVenList = context.watch<ContextData>().getAddedMyVendor();
     mySelectdVendors = context.watch<ContextData>().getMyVendorsList();
+
+    // "VendorId":nearestVendors[index]['_id'],
+    // "VendorModId":nearestVendors[index]['Id'],
+    // "VendorName":nearestVendors[index]['VendorName'],
+    // "VendorDesc":nearestVendors[index]['Description'],
+    // "VendorProfile":nearestVendors[index]['ProfileImage'],
+    // "VendorPhone":nearestVendors[index]['PhoneNumber1'],
+    // "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
+    // "VendorEgg":nearestVendors[index]['EggOrEggless'],
+    // "VendorAddress":nearestV
+
+    setState((){
+      if(mySelectdVendors.isNotEmpty){
+        vendorID = mySelectdVendors[0]['VendorId'];
+        vendorModId = mySelectdVendors[0]['VendorModId'];
+        vendorName = mySelectdVendors[0]['VendorName'];
+        vendorPhone = mySelectdVendors[0]['VendorPhone'];
+        vendorAddress = mySelectdVendors[0]['VendorAddress'];
+      }
+    });
 
     return Scaffold(
       // appBar: AppBar(
@@ -878,7 +1515,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               ),
                                               child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
                                             )
-                                          ):Positioned(
+                                          ):
+                                          Positioned(
                                               right: 0,
                                               child: Container()
                                           ),
@@ -892,14 +1530,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Container(
                               margin:const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                  color:Colors.red[100],
+                                  color:Colors.red[50],
                                   borderRadius: BorderRadius.circular(12)
                                ),
                                 child:Column(
                                 children:[
                                   ExpansionTile(
                                     title: Text('Shapes',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
+                                        fontFamily: "Poppins",fontSize: 13,color: Colors.grey
                                     ),),
                                     subtitle:Text('$fixedShape',style: TextStyle(
                                         fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
@@ -923,22 +1561,53 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             itemCount: shapesList.length,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
-                                              return RadioListTile(
-                                                  activeColor: Colors.green,
-                                                  title: Text(
-                                                    "${shapesList[index]}",
-                                                    style: TextStyle(
-                                                        fontFamily: "Poppins", color: darkBlue),
+                                              // return RadioListTile(
+                                              //     activeColor: Colors.green,
+                                              //     title: Text(
+                                              //       "${shapesList[index]}",
+                                              //       style: TextStyle(
+                                              //           fontFamily: "Poppins", color: darkBlue),
+                                              //     ),
+                                              //     value: index,
+                                              //     groupValue: shapeGrpValue,
+                                              //     onChanged: (int? value) {
+                                              //       print(value);
+                                              //       setState(() {
+                                              //         shapeGrpValue = value!;
+                                              //         fixedShape = shapesList[index];
+                                              //       });
+                                              //     });
+
+                                              return InkWell(
+                                                onTap: ()=>setState((){
+
+                                                  shapeGrpValue = index;
+                                                  fixedShape = shapesList[index];
+
+                                                  if(shapesList[index].toString().contains('Others')){
+                                                    showOthersShapeDialog(index);
+                                                  }
+
+                                                }),
+                                                child: Container(
+                                                  padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
+                                                  child: Row(
+                                                    children: [
+                                                      shapeGrpValue!=index?
+                                                      Icon(Icons.radio_button_unchecked, color: Colors.black,):
+                                                      Icon(Icons.check_circle, color: Colors.green,),
+                                                      SizedBox(width: 5,),
+                                                      Expanded(child: Text(
+                                                        "${shapesList[index]}",
+                                                        style: TextStyle(
+                                                            fontFamily: "Poppins", color: darkBlue,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),)
+                                                    ],
                                                   ),
-                                                  value: index,
-                                                  groupValue: shapeGrpValue,
-                                                  onChanged: (int? value) {
-                                                    print(value);
-                                                    setState(() {
-                                                      shapeGrpValue = value!;
-                                                      fixedShape = shapesList[index];
-                                                    });
-                                                  });
+                                                ),
+                                              );
                                             }),
                                       ),
                                     ],
@@ -950,9 +1619,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                   ExpansionTile(
                                     title: Text('Flavours',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold,color: Colors.grey
+                                        fontFamily: "Poppins",fontSize: 13,color:Colors.grey
                                     ),),
-                                    subtitle:Text('$fixedFlavour',style: TextStyle(
+                                    subtitle:Text(fixedFlavList.isEmpty&&flavTempList.isEmpty?'$fixedFlavour':
+                                    '${fixedFlavList.length+flavTempList.length} Selected Flavours',style: TextStyle(
                                         fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
                                         color: darkBlue
                                     ),),
@@ -969,28 +1639,132 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     children: [
                                       Container(
                                         color:Colors.white,
-                                        child:ListView.builder(
-                                            physics: NeverScrollableScrollPhysics(),
-                                            itemCount: flavourList.length,
-                                            shrinkWrap: true,
-                                            itemBuilder: (context, index) {
-                                              return RadioListTile(
-                                                  activeColor: Colors.green,
-                                                  title: Text(
-                                                    "${flavourList[index]}",
-                                                    style: TextStyle(
-                                                        fontFamily: "Poppins", color: darkBlue),
-                                                  ),
-                                                  value: index,
-                                                  groupValue: flavGrpValue,
-                                                  onChanged: (int? value) {
-                                                    print(value);
-                                                    setState(() {
-                                                      flavGrpValue = value!;
-                                                      fixedFlavour = flavourList[index];
-                                                    });
-                                                  });
-                                            }),
+                                        child:Column(
+                                          children: [
+                                            ListView.builder(
+                                                physics: NeverScrollableScrollPhysics(),
+                                                itemCount: flavourList.length,
+                                                shrinkWrap: true,
+                                                itemBuilder: (context, index) {
+                                                  // return RadioListTile(
+                                                  //     activeColor: Colors.green,
+                                                  //     title: Text(
+                                                  //       "${flavourList[index]}",
+                                                  //       style: TextStyle(
+                                                  //           fontFamily: "Poppins", color: darkBlue),
+                                                  //     ),
+                                                  //     value: index,
+                                                  //     groupValue: flavGrpValue,
+                                                  //     onChanged: (int? value) {
+                                                  //       print(value);
+                                                  //       setState(() {
+                                                  //         flavGrpValue = value!;
+                                                  //         fixedFlavour = flavourList[index];
+                                                  //       });
+                                                  //     });
+                                                  fixedFlavChecks.add(false);
+                                                  return InkWell(
+                                                    onTap: (){
+
+                                                      if(flavourList[index].toString().contains('Others')){
+                                                        print('Index is $index');
+                                                        showOthersFlavourDialog(index);
+                                                      }else{
+                                                        setState((){
+                                                          if(fixedFlavChecks[index]==false){
+                                                            fixedFlavChecks[index] = true;
+                                                            if(fixedFlavList.contains(flavourList[index])){
+                                                              print('exists...');
+                                                            }else{
+                                                              fixedFlavList.add(flavourList[index]);
+                                                            }
+                                                          }else{
+                                                            fixedFlavChecks[index] = false;
+                                                            fixedFlavList.removeWhere((element) => element==flavourList[index]);
+                                                          }
+
+                                                        });
+                                                      }
+
+
+                                                    },
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
+                                                      child:
+                                                      index==5?
+                                                      Row(
+                                                        children: [
+                                                          flavTempList.isEmpty?
+                                                          Icon(Icons.radio_button_unchecked, color: Colors.green,):
+                                                          Icon(Icons.check_circle, color: Colors.green,),
+                                                          SizedBox(width: 5,),
+                                                          Expanded(child: Text(
+                                                            "${flavourList[index]}",
+                                                            style: TextStyle(
+                                                                fontFamily: "Poppins", color: darkBlue,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),),
+                                                        ],
+                                                      ):
+                                                      Row(
+                                                        children: [
+                                                          fixedFlavChecks[index]!=true?
+                                                          Icon(Icons.radio_button_unchecked, color: Colors.green,):
+                                                          Icon(Icons.check_circle, color: Colors.green,),
+                                                          SizedBox(width: 5,),
+                                                          Expanded(child: Text(
+                                                            "${flavourList[index]}",
+                                                            style: TextStyle(
+                                                                fontFamily: "Poppins", color: darkBlue,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+
+                                                }),
+
+                                            flavTempList.isNotEmpty?
+                                            Container(
+                                              width: MediaQuery.of(context).size.width,
+                                              height: 55,
+                                              child: ListView.builder(
+                                                  scrollDirection: Axis.horizontal,
+                                                  //
+                                                  itemCount: flavTempList.length,
+                                                  shrinkWrap: true,
+                                                  itemBuilder: (c, i)=>Container(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(4.0),
+                                                      child: ActionChip(
+                                                          label:Row(
+                                                            children: [
+                                                              Text(flavTempList[i]),
+                                                              SizedBox(width: 4,),
+                                                              Icon(Icons.close , size: 20,)
+                                                            ],
+                                                          ),
+                                                          onPressed: (){
+                                                            setState((){
+                                                              if(flavTempList.contains(flavTempList[i])){
+                                                                flavTempList.removeWhere((element) => element==flavTempList[i]);
+                                                              }else{
+                                                                print('Nope...');
+                                                              }
+                                                            });
+                                                          }
+                                                      ),
+                                                    ),
+                                                  )
+                                              ),
+                                            ):
+                                            Container(),
+
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -999,54 +1773,54 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     height: 0.5,
                                     color:Colors.white,
                                   ),
-                                  ExpansionTile(
-                                    title: Text('Cake Articles',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
-                                        color: Colors.grey
-                                    ),),
-                                    subtitle:Text('$fixedCakeArticle',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                        color: darkBlue
-                                    ),),
-                                    trailing: Container(
-                                      alignment: Alignment.center,
-                                      height: 25,
-                                      width: 25,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle ,
-                                      ),
-                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                                    ),
-                                    children: [
-                                      Container(
-                                        color:Colors.white,
-                                        child:ListView.builder(
-                                            physics: NeverScrollableScrollPhysics(),
-                                            itemCount: cakeArticles.length,
-                                            shrinkWrap: true,
-                                            itemBuilder: (context, index) {
-                                              return RadioListTile(
-                                                  activeColor: Colors.green,
-                                                  title: Text(
-                                                    "${cakeArticles[index]}",
-                                                    style: TextStyle(
-                                                        fontFamily: "Poppins", color: darkBlue
-                                                    ),
-                                                  ),
-                                                  value: index,
-                                                  groupValue: artGrpValue,
-                                                  onChanged: (int? value) {
-                                                    print(value);
-                                                    setState(() {
-                                                      artGrpValue = value!;
-                                                      fixedCakeArticle = cakeArticles[index];
-                                                    });
-                                                  });
-                                            }),
-                                      ),
-                                    ],
-                                  ),
+                                  // ExpansionTile(
+                                  //   title: Text('Cake Articles',style: TextStyle(
+                                  //       fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
+                                  //       color: Colors.grey
+                                  //   ),),
+                                  //   subtitle:Text('$fixedCakeArticle',style: TextStyle(
+                                  //       fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                  //       color: darkBlue
+                                  //   ),),
+                                  //   trailing: Container(
+                                  //     alignment: Alignment.center,
+                                  //     height: 25,
+                                  //     width: 25,
+                                  //     decoration: BoxDecoration(
+                                  //       color: Colors.white,
+                                  //       shape: BoxShape.circle ,
+                                  //     ),
+                                  //     child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                  //   ),
+                                  //   children: [
+                                  //     Container(
+                                  //       color:Colors.white,
+                                  //       child:ListView.builder(
+                                  //           physics: NeverScrollableScrollPhysics(),
+                                  //           itemCount: cakeArticles.length,
+                                  //           shrinkWrap: true,
+                                  //           itemBuilder: (context, index) {
+                                  //             return RadioListTile(
+                                  //                 activeColor: Colors.green,
+                                  //                 title: Text(
+                                  //                   "${cakeArticles[index]}",
+                                  //                   style: TextStyle(
+                                  //                       fontFamily: "Poppins", color: darkBlue
+                                  //                   ),
+                                  //                 ),
+                                  //                 value: index,
+                                  //                 groupValue: artGrpValue,
+                                  //                 onChanged: (int? value) {
+                                  //                   print(value);
+                                  //                   setState(() {
+                                  //                     artGrpValue = value!;
+                                  //                     fixedCakeArticle = cakeArticles[index];
+                                  //                   });
+                                  //                 });
+                                  //           }),
+                                  //     ),
+                                  //   ],
+                                  // ),
                                 ]
                               )
                             ),
@@ -1072,24 +1846,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         onTap: () {
 
                                           setState(() {
-                                            for (int i = 0; i < selwIndex.length; i++) {
-                                              if (i == index) {
-                                                selwIndex[i] = true;
-                                                fixedWeight = weight[index].toString();
-                                              } else {
-                                                selwIndex[i] = false;
-                                              }
-                                            }
-
-                                            if(weight[index]>=5){
-                                              setState(() {
-                                                btnMsg = "CONNECT - HELP DESK";
-                                              });
-                                            }else{
-                                              btnMsg = "ORDER NOW";
-                                            }
-
+                                            isFixedWeight = index;
+                                            fixedWeight = weight[index].toString();
                                           });
+
                                         },
                                         child:Container(
                                           width: 70,
@@ -1101,15 +1861,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 color: lightPink,
                                                 width: 1,
                                               ),
-                                              color: selwIndex[index]
+                                              color: isFixedWeight==index
                                                   ? Colors.pink
-                                                  : Colors.white),
+                                                  : Colors.white
+                                          ),
                                           child:
                                           Text(
                                             '${weight[index]} Kg',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontFamily: "Poppins",color: selwIndex[index]?Colors.white:darkBlue
+                                                fontFamily: "Poppins",
+                                                color: isFixedWeight==index?Colors.white:darkBlue
                                             ),
                                           ),
                                         ),
@@ -1117,6 +1879,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     })),
 
                             SizedBox(height:10),
+                            
                             //  Container(
                             //   margin: EdgeInsets.only(left: 8,right: 8),
                             //   height: 0.5,
@@ -1211,6 +1974,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         style:TextStyle(fontFamily: 'Poppins' ,
                                             fontSize: 13
                                         ),
+                                        onChanged: (String text){
+                                          setState((){
+                                            isFixedWeight = -1;
+                                            fixedWeight = text;
+                                          });
+                                        },
                                         decoration: InputDecoration(
                                           contentPadding: EdgeInsets.all(0.0),
                                           isDense: true,
@@ -1302,6 +2071,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       style:TextStyle(fontFamily: 'Poppins' ,
                                                           fontSize: 13
                                                       ),
+                                                      controller:msgCtrl,
                                                       decoration: InputDecoration(
                                                         hintText: 'Type here..',
                                                         contentPadding: EdgeInsets.all(0.0),
@@ -1338,11 +2108,28 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             return InkWell(
                                               onTap:(){
                                                 setState(() {
-                                                  if(articGroupVal==index){
-                                                    articGroupVal = -1;
+                                                  if(articals[index]['article'].toString().contains('Others')){
+
+                                                    if(articGroupVal==index){
+                                                      articGroupVal = -1;
+                                                      addOtherArticle = false;
+                                                    }else{
+                                                      addOtherArticle = true;
+                                                      articGroupVal = index;
+                                                    }
+
                                                   }else{
-                                                    articGroupVal = index;
+                                                    if(articGroupVal==index){
+                                                      fixedCakeArticle = 'None';
+                                                      articGroupVal = -1;
+                                                      addOtherArticle = false;
+                                                    }else{
+                                                      articGroupVal = index;
+                                                      fixedCakeArticle = articals[index]['article'].toString();
+                                                      addOtherArticle = false;
+                                                    }
                                                   }
+
                                                 });
                                               },
                                               child: Container(
@@ -1363,12 +2150,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                     style: TextStyle(
                                                                             fontFamily: poppins, color:Colors.black54 , fontSize: 13
                                                                         ),),
-                                                                  TextSpan(
-                                                                    text:"- Rs.${articals[index]['price']}",
-                                                                    style:TextStyle(
-                                                                        fontFamily: "Poppins", color:Colors.black , fontSize: 13,
-                                                                        fontWeight:FontWeight.bold
-                                                                    ),),
                                                                 ]
                                                             )
                                                         ),
@@ -1381,6 +2162,62 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         )
                                     ),
 
+                                    AnimatedSwitcher(
+                                        switchInCurve: Curves.ease,
+                                        switchOutCurve: Curves.ease,
+                                        duration: Duration(seconds: 1),
+                                        child: addOtherArticle?
+                                        Column(
+                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(' Add Your Article On Cake',
+                                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
+                                              ),
+                                              SizedBox(height:5),
+                                              Container(
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      crossAxisAlignment:CrossAxisAlignment.center,
+                                                      children: [
+                                                        SizedBox(width: 8,),
+                                                        Icon(Icons.add_box,color: lightPink,),
+                                                        Expanded(
+                                                          child: Container(
+                                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                                            child: TextField(
+                                                              controller: addArticleCtrl,
+                                                              style:TextStyle(fontFamily: 'Poppins' ,
+                                                                  fontSize: 13
+                                                              ),
+                                                              onChanged: (String text){
+                                                                setState((){
+                                                                  articGroupVal = -1;
+                                                                  fixedCakeArticle=text;
+                                                                });
+                                                              },
+                                                              decoration: InputDecoration(
+                                                                hintText: 'Type here..',
+                                                                contentPadding: EdgeInsets.all(0.0),
+                                                                isDense: true,
+                                                                hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                                                    fontSize: 13
+                                                                ),
+                                                                // border: InputBorder.none
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                        ):
+                                        Container()
+                                    ),
+
                                     Padding(
                                       padding: const EdgeInsets.only(top:10),
                                       child: Text(' Special request to bakers',
@@ -1390,6 +2227,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     Container(
                                       margin: EdgeInsets.all(10),
                                       child: TextField(
+                                        controller: specialReqCtrl,
                                         style:TextStyle(fontFamily: 'Poppins' ,
                                             fontSize: 13
                                         ),
@@ -1432,7 +2270,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             return InkWell(
                                               onTap:(){
                                                 setState(() {
+                                                  FocusScope.of(context).unfocus();
                                                   picOrDel = index;
+                                                  fixedDelliverMethod = picOrDeliver[index];
                                                 });
                                               },
                                               child: Container(
@@ -1474,6 +2314,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                   GestureDetector(
                                     onTap : () async {
+                                      FocusScope.of(context).unfocus();
                                       DateTime? SelDate = await showDatePicker(
                                         context: context,
                                         initialDate: DateTime.now(),
@@ -1520,6 +2361,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                   GestureDetector(
                                     onTap :  () {
+                                      FocusScope.of(context).unfocus();
                                       showDialog(
                                           context: context,
                                           builder: (context) {
@@ -1767,7 +2609,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                        TextButton(
                                               onPressed: (){
                                                 setState(() {
-                                                  file = new File('');
+                                                  file = new fil.File('');
                                                 });
                                               },
                                               child: Text('Remove' , style: TextStyle(
@@ -1830,7 +2672,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               ):
                                               Container(
                                                 width:90,
-                                                height:100,
+                                                height:105,
                                                 decoration: BoxDecoration(
                                                     color:Colors.red ,
                                                     borderRadius:BorderRadius.circular(10) ,
@@ -1890,7 +2732,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                             ],
                                                           ),
                                                         ),
-                                                        selVendorIndex==-1?Icon(Icons.check_circle,color:Colors.green):Container(),
+                                                        // selVendorIndex==-1?
+                                                        Icon(Icons.check_circle,color:Colors.green)
+                                                        // :Container(),
                                                       ],
                                                     ),
 
@@ -2039,6 +2883,30 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                                     setState((){
                                                       selVendorIndex = index;
+
+                                                      vendorID = nearestVendors[index]['_id'];
+                                                      vendorModId = nearestVendors[index]['Id'];
+                                                      vendorName = nearestVendors[index]['VendorName'];
+                                                      vendorPhone = nearestVendors[index]['PhoneNumber1'];
+                                                      vendorAddress = nearestVendors[index]['Address']['FullAddress'];
+
+                                                      context.read<ContextData>().addMyVendor(true);
+                                                      context.read<ContextData>().setMyVendors(
+                                                          [
+                                                            {
+                                                              "VendorId":nearestVendors[index]['_id'],
+                                                              "VendorModId":nearestVendors[index]['Id'],
+                                                              "VendorName":nearestVendors[index]['VendorName'],
+                                                              "VendorDesc":nearestVendors[index]['Description'],
+                                                              "VendorProfile":nearestVendors[index]['ProfileImage'],
+                                                              "VendorPhone":nearestVendors[index]['PhoneNumber1'],
+                                                              "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
+                                                              "VendorEgg":nearestVendors[index]['EggOrEggless'],
+                                                              "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
+                                                            }
+                                                          ]
+                                                      );
+
                                                     });
 
                                                   },
@@ -2241,21 +3109,44 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         ),
                                         onPressed: (){
 
-                                          print('Show my vendors : $mySelectdVendors');
-
-                                          print(!egglesSwitch?'Egg':'Eggless');
-                                          if(fixedCategory.isEmpty){
-                                            setState(() {
-                                              fixedCategory = categories[0];
-                                            });
+                                          // if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
+                                          //     fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
+                                          //
+                                          //   ScaffoldMessenger.of(context).showSnackBar(
+                                          //       SnackBar(
+                                          //         content: Text('Plase Select Weight / Deliver Info / Date & Session'),
+                                          //         behavior: SnackBarBehavior.floating,
+                                          //       )
+                                          //   );
+                                          //
+                                          // }else
+                                            if(fixedWeight.isEmpty){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text('Plase Select Weight!'),
+                                                  behavior: SnackBarBehavior.floating,
+                                              )
+                                            );
+                                          }else if(fixedDelliverMethod.isEmpty){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Plase Select Deliver Information!'),
+                                                  behavior: SnackBarBehavior.floating,
+                                                )
+                                            );
+                                          }else if(fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Plase Select Deliver Date / Session'),
+                                                  behavior: SnackBarBehavior.floating,
+                                                )
+                                            );
+                                          }else{
+                                              showConfirmOrder();
                                           }
 
-                                          print("Fixed Category : $fixedCategory");
-                                          print("Fixed Shape : $fixedShape");
-                                          print("Fixed Flav : $fixedFlavour");
-                                          print("Fixed Article : $fixedCakeArticle");
-                                          print("Fixed Weight : $fixedWeight");
-                                          print("Fixed Tower : $fixedCakeTower");
+                                          // showConfirmOrder();
+
 
                                         },
                                         color: lightPink,

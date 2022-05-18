@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
+import 'package:cakey/screens/CakeDetails.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:math';
@@ -27,7 +28,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   //TODO : API AUTH
   // final response = await http.get(url, headers: {
   // 'Content-Type': 'application/json',
@@ -56,7 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool ordersLoading = true;
   bool isAllLoading = true;
   bool vendorsLoading = true;
-
+//for search
+  bool isFiltered = false;
+  bool activeSearch = false;
+  bool search = false;
   //Strings
   String poppins = "Poppins";
   String phoneNumber = '';
@@ -64,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String searchText = '';
 
   //latlong
-  String location ='Null, Press Button';
+  String location = 'Null, Press Button';
   //address
   String userLocalityAdr = 'Searching...';
   //users details
@@ -73,6 +76,11 @@ class _HomeScreenState extends State<HomeScreen> {
   String userProfileUrl = "";
   String userName = "";
   String userMainLocation = "";
+  //search filter string
+  String searchCakeCate = '';
+  String searchCakeSubType = '';
+  String searchCakeVendor = '';
+  String searchCakeLocation = '';
 
   //Lists
   List cakesList = [];
@@ -84,8 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
   List searchVendors = [];
   List filteredByEggList = [];
   List nearestVendors = [];
-
-
+//search all type
+  List cakeSearchList = [];
+  List categoryList=[];
+  List  subCategoryList=[];
+  List vendorNameList=[];
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
   var cakeSubCategoryCtrl = new TextEditingController();
@@ -107,12 +118,149 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Alerts
 
+  //send details to next screen
+  Future<void> sendDetailsToScreen(int index) async {
+    //Local Vars
+    List<String> cakeImgs = [];
+    List<String> cakeFlavs = [];
+    List<String> cakeWeights = [];
+    List<String> cakeShapes = [];
+    List<String> cakeTopings = [];
+    var prefs = await SharedPreferences.getInstance();
+
+    //region API LIST
+    //getting cake pics
+    if (cakeSearchList[index]['Images'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['Images'].length; i++) {
+          cakeImgs.add(cakeSearchList[index]['Images'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeImgs = [];
+      });
+    }
+
+    print(cakeSearchList[index]['FlavourList'][0]['Name']);
+
+    //getting cake flavs
+    if (cakeSearchList[index]['FlavourList'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['FlavourList'].length; i++) {
+          cakeFlavs.add(cakeSearchList[index]['FlavourList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeFlavs = [];
+      });
+    }
+
+    //getting cake shapes
+    if (cakeSearchList[index]['ShapeList'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['ShapeList'].length; i++) {
+          cakeShapes.add(cakeSearchList[index]['ShapeList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeShapes = [];
+      });
+    }
+
+    //getting cake toppings list
+    // if(cakeSearchList[index]['CakeToppings'].isNotEmpty){
+    //   setState(() {
+    //     for(int i=0;i<cakeSearchList[index]['CakeToppings'].length;i++){
+    //       cakeTopings.add(cakeSearchList[index]['CakeToppings'][i].toString());
+    //     }
+    //   });
+    // }
+    // else{
+    //   setState(() {
+    //     cakeTopings = [];
+    //   });
+    // }
+
+    //getting cake weights
+    if (cakeSearchList[index]['WeightList'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['WeightList'].length; i++) {
+          cakeWeights.add(cakeSearchList[index]['WeightList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeWeights = [];
+      });
+    }
+    //endregion
+
+    //set The preferece...
+
+    //API LIST
+    prefs.setStringList('cakeImages', cakeImgs);
+    // prefs.setStringList('cakeFalvours', cakeFlavs);
+    prefs.setStringList('cakeWeights', cakeWeights);
+    // prefs.setStringList('cakeShapes', cakeShapes);
+    prefs.setStringList('cakeToppings', cakeTopings);
+
+    //API STRINGS AND INTS
+    prefs.setString('cakeRatings', cakeSearchList[index]['Ratings'].toString());
+    prefs.setString(
+        'cakeEggOrEggless', cakeSearchList[index]['EggOrEggless'].toString());
+    prefs.setString('cakeNames', cakeSearchList[index]['Title'].toString());
+    prefs.setString('cakeId', cakeSearchList[index]['_id'].toString());
+    prefs.setString(
+        'cakeDiscount', cakeSearchList[index]['Discount'].toString());
+    prefs.setString('cakePrice', cakeSearchList[index]['Price'].toString());
+    prefs.setString(
+        'cakeDescription', cakeSearchList[index]['Description'].toString());
+    prefs.setString('cakeType', cakeSearchList[index]['TypeOfCake'].toString());
+    prefs.setString(
+        'cakeDelCharge', cakeSearchList[index]['DeliveryCharge'].toString());
+    prefs.setInt('cakeTaxRate', cakeSearchList[index]['Tax'].toInt());
+
+    prefs.setString('vendorID', cakeSearchList[index]['VendorID'].toString());
+    prefs.setString(
+        'vendorName', cakeSearchList[index]['VendorName'].toString());
+    prefs.setString(
+        'vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
+            cakeSearchList[index]['ShapeList'].toList(),
+            cakeSearchList[index]['FlavourList'].toList(),
+            cakeSearchList[index]['ArticleList'].toList()),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
   //Default loader dialog
-  void showAlertDialog(){
+  void showAlertDialog() {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
             content: Container(
               height: 75,
@@ -124,286 +272,354 @@ class _HomeScreenState extends State<HomeScreen> {
                     radius: 17,
                     color: lightPink,
                   ),
-                  SizedBox(height: 13,),
-                  Text('Please Wait...',style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'Poppins',
-                  ),)
+                  SizedBox(
+                    height: 13,
+                  ),
+                  Text(
+                    'Please Wait...',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                    ),
+                  )
                 ],
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //Filter Bottom sheet(**important...)
-  void showFilterBottom(){
-
+  void showFilterBottom() {
     setState(() {
       cakeLocationCtrl.text = userLocalityAdr;
     });
 
-      showModalBottomSheet(
+    showModalBottomSheet(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(topRight: Radius.circular(20),topLeft: Radius.circular(20)),
-      ),
-      context: context,
-      isScrollControlled: true,
-      builder: (context){
-       return StatefulBuilder(
-           builder: (BuildContext context , void Function(void Function()) setState){
-             return Container(
-               // padding: EdgeInsets.all(15),
-               padding: EdgeInsets.only(
-                 bottom: MediaQuery.of(context).viewInsets.bottom,
-               ),
-               child:SingleChildScrollView(
-                 child: Container(
-                   padding: EdgeInsets.all(20),
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     mainAxisSize: MainAxisSize.min,
-                     children: [
-                       SizedBox(height: 8,),
-                       //Title text...
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: [
-                           Text('SEARCH',style: TextStyle(color: darkBlue,fontSize: 18,
-                               fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                           GestureDetector(
-                             onTap: ()=>Navigator.pop(context),
-                             child: Container(
-                                 width: 35,
-                                 height: 35,
-                                 decoration: BoxDecoration(
-                                     color: Colors.black12,
-                                     borderRadius: BorderRadius.circular(10)
-                                 ),
-                                 alignment: Alignment.center,
-                                 child: Icon(Icons.close_outlined,color: lightPink,)
-                             ),
-                           ),
-                         ],
-                       ),
-                       SizedBox(
-                         height: 15,
-                       ),
-                       //Edit texts...
-                       Container(
-                         height: 45,
-                         child: TextField(
-                           controller: cakeCategoryCtrl,
-                           decoration: InputDecoration(
-                               contentPadding: EdgeInsets.all(5),
-                               hintText: "Category",
-                               hintStyle: TextStyle(fontFamily: "Poppins" , fontSize: 13),
-                               prefixIcon: Icon(Icons.search_outlined),
-                               border: OutlineInputBorder()
-                           ),
-                         ),
-                       ),
-                       SizedBox(
-                         height: 15,
-                       ),
-                       Container(
-                         height: 45,
-                         child: TextField(
-                           controller: cakeSubCategoryCtrl,
-                           decoration: InputDecoration(
-                               contentPadding: EdgeInsets.all(5),
-                               hintText: "Sub Category",
-                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                               prefixIcon: Icon(Icons.search_outlined),
-                               border: OutlineInputBorder()
-                           ),
-                         ),
-                       ),
-                       SizedBox(
-                         height: 15,
-                       ),
-                       Container(
-                         height: 45,
-                         child: TextField(
-                           controller: cakeVendorCtrl,
-                           decoration: InputDecoration(
-                               contentPadding: EdgeInsets.all(5),
-                               hintText: "Vendors",
-                               hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                               prefixIcon: Icon(Icons.sentiment_very_satisfied_rounded),
-                               border: OutlineInputBorder()
-                           ),
-                         ),
-                       ),
-                       SizedBox(
-                         height: 4,
-                       ),
-                       Text("nearest 10 km radius from your location", style:  TextStyle(
-                           color: darkBlue , fontSize: 11 , fontFamily: "Poppins"),),
-                       SizedBox(
-                         height: 15,
-                       ),
-                       // Container(
-                       //   height: 45,
-                       //   child: TextField(
-                       //     controller: cakeLocationCtrl,
-                       //     decoration: InputDecoration(
-                       //         contentPadding: EdgeInsets.all(5),
-                       //         hintText: "Location",
-                       //         hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                       //         prefixIcon: Icon(Icons.location_on),
-                       //         suffixIcon: IconButton(
-                       //           onPressed: (){},
-                       //           icon: Icon(Icons.my_location),
-                       //         ),
-                       //         border: OutlineInputBorder()
-                       //     ),
-                       //   ),
-                       // ),
-                       // SizedBox(
-                       //   height: 5,
-                       // ),
-                       // //kilo meter radius buttons.........
-                       // Wrap(
-                       //   runSpacing: 5.0,
-                       //   spacing: 5.0,
-                       //   children: [
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //   ],
-                       //
-                       // ),
-                       SizedBox(
-                         height: 10,
-                       ),
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+        ),
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return StatefulBuilder(builder:
+              (BuildContext context, void Function(void Function()) setState) {
+            return Container(
+              // padding: EdgeInsets.all(15),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 8,
+                      ),
+                      //Title text...
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'SEARCH',
+                            style: TextStyle(
+                                color: darkBlue,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Poppins"),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.circular(10)),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.close_outlined,
+                                  color: lightPink,
+                                )),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      //Edit texts...
+                      Container(
+                        height: 45,
+                        child: TextField(
+                          onChanged: (String? text) {
+                            searchCakeCate = text!;
+                          },
+                          controller: cakeCategoryCtrl,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              hintText: "Category",
+                              hintStyle: TextStyle(
+                                  fontFamily: "Poppins", fontSize: 13),
+                              prefixIcon: Icon(Icons.search_outlined),
+                              border: OutlineInputBorder()),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        height: 45,
+                        child: TextField(
+                          onChanged: (String? text) {
+                            searchCakeSubType = text!;
+                          },
+                          controller: cakeSubCategoryCtrl,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              hintText: "Sub Category",
+                              hintStyle: TextStyle(
+                                  fontFamily: "Poppins", fontSize: 13),
+                              prefixIcon: Icon(Icons.search_outlined),
+                              border: OutlineInputBorder()),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        height: 45,
+                        child: TextField(
+                          onChanged: (String? text) {
+                            searchCakeVendor = text!;
+                          },
+                          controller: cakeVendorCtrl,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              hintText: "Vendors",
+                              hintStyle: TextStyle(
+                                  fontFamily: "Poppins", fontSize: 13),
+                              prefixIcon:
+                              Icon(Icons.sentiment_very_satisfied_rounded),
+                              border: OutlineInputBorder()),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        "nearest 10 km radius from your location",
+                        style: TextStyle(
+                            color: darkBlue,
+                            fontSize: 11,
+                            fontFamily: "Poppins"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      // Container(
+                      //   height: 45,
+                      //   child: TextField(
+                      //     controller: cakeLocationCtrl,
+                      //     decoration: InputDecoration(
+                      //         contentPadding: EdgeInsets.all(5),
+                      //         hintText: "Location",
+                      //         hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
+                      //         prefixIcon: Icon(Icons.location_on),
+                      //         suffixIcon: IconButton(
+                      //           onPressed: (){},
+                      //           icon: Icon(Icons.my_location),
+                      //         ),
+                      //         border: OutlineInputBorder()
+                      //     ),
+                      //   ),
+                      // ),
+                      // SizedBox(
+                      //   height: 5,
+                      // ),
+                      // //kilo meter radius buttons.........
+                      // Wrap(
+                      //   runSpacing: 5.0,
+                      //   spacing: 5.0,
+                      //   children: [
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('5 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('10 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('15 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('20 KM',style: TextStyle(color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //   ],
+                      //
+                      // ),
+                      SizedBox(
+                        height: 10,
+                      ),
 
-                       //Divider
-                       Container(
-                         height: 1.0,
-                         color: Colors.black26,
-                       ),
+                      //Divider
+                      Container(
+                        height: 1.0,
+                        color: Colors.black26,
+                      ),
 
-                       SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
 
-                       // Align(
-                       //   alignment: Alignment.centerLeft,
-                       //   child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
-                       //       fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                       // ),
-                       // SizedBox(height: 5,),
-                       // //stars rattings...
-                       // Wrap(
-                       //   runSpacing: 5.0,
-                       //   spacing: 5.0,
-                       //   children: [
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //     OutlinedButton(
-                       //       onPressed: (){},
-                       //       child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                       //     ),
-                       //   ],
-                       // ),
-                       //
-                       // SizedBox(height: 5,),
-                       // //Divider
-                       // Container(
-                       //   height: 1.0,
-                       //   color: Colors.black26,
-                       // ),
-                       // //cake types....
-                       // SizedBox(height: 5,),
+                      // Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: Text('Star Ratting',style: TextStyle(color: darkBlue,fontSize: 16,
+                      //       fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
+                      // ),
+                      // SizedBox(height: 5,),
+                      // //stars rattings...
+                      // Wrap(
+                      //   runSpacing: 5.0,
+                      //   spacing: 5.0,
+                      //   children: [
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('3 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('4 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //     OutlinedButton(
+                      //       onPressed: (){},
+                      //       child: Text('5 Star',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
+                      //     ),
+                      //   ],
+                      // ),
+                      //
+                      // SizedBox(height: 5,),
+                      // //Divider
+                      // Container(
+                      //   height: 1.0,
+                      //   color: Colors.black26,
+                      // ),
+                      // //cake types....
+                      // SizedBox(height: 5,),
 
-                       Align(
-                         alignment: Alignment.centerLeft,
-                         child: Text('Types',style: TextStyle(color: darkBlue,fontSize: 16,
-                             fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                       ),
-                       SizedBox(height: 5,),
-                       //types of cakes btn...
-                       Wrap(
-                         runSpacing: 2.0,
-                         spacing: 3.0,
-                         children: [
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('Normal Cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('Basic Customize Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('Fully Customize Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                           OutlinedButton(
-                             onPressed: (){},
-                             child: Text('Theme Cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                           ),
-                         ],
-                       ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Types',
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins"),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      //types of cakes btn...
+                      Wrap(
+                        runSpacing: 2.0,
+                        spacing: 3.0,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Normal Cakes',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: darkBlue,
+                                  fontFamily: "Poppins"),
+                            ),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Basic Customize Cake',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: darkBlue,
+                                  fontFamily: "Poppins"),
+                            ),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Fully Customize Cake',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: darkBlue,
+                                  fontFamily: "Poppins"),
+                            ),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Theme Cake',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: darkBlue,
+                                  fontFamily: "Poppins"),
+                            ),
+                          ),
+                        ],
+                      ),
 
-                       SizedBox(height: 10,),
-                       //Search button...
-                       Center(
-                         child: Container(
-                           height: 55,
-                           width: 200,
-                           child: RaisedButton(
-                             shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(30),
-                             ),
-                             color: lightPink,
-                             onPressed: (){
-                               Navigator.pop(context);
-                               showDpUpdtaeDialog();
-                             },
-                             child: Text("SEARCH",style: TextStyle(
-                                 color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "Poppins"
-                             ),),
-                           ),
-                         ),
-                       )
-
-                     ],
-                   ),
-                 ),
-               ),
-             );
-           }
-       );
-    }
-    );
+                      SizedBox(
+                        height: 10,
+                      ),
+                      //Search button...
+                      Center(
+                        child: Container(
+                          height: 55,
+                          width: 200,
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            color: lightPink,
+                            onPressed: () {
+                              Navigator.pop(context);
+                              searchByGivenFilter(
+                                  cakeCategoryCtrl.text,
+                                  cakeSubCategoryCtrl.text,
+                                  cakeVendorCtrl.text);
+                            },
+                            child: Text(
+                              "SEARCH",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Poppins"),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          });
+        });
   }
 
   //Profile update remainder dialog
-  void showDpUpdtaeDialog(){
+  void showDpUpdtaeDialog() {
     showDialog(
         barrierDismissible: true,
         context: context,
-        builder: (context){
+        builder: (context) {
           return Align(
             alignment: Alignment.topCenter,
             child: Container(
@@ -411,13 +627,14 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 90,
               decoration: BoxDecoration(
                   color: Colors.white,
-                   border: Border.all(color: lightPink,width: 1.5,style: BorderStyle.solid),
-                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14),
-                   bottomRight: Radius.circular(14),
-                  )
-              ),
+                  border: Border.all(
+                      color: lightPink, width: 1.5, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(14),
+                    bottomRight: Radius.circular(14),
+                  )),
               padding: EdgeInsets.all(5),
-             child: Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -426,39 +643,52 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 45,
                       decoration: BoxDecoration(
                           color: Colors.amber,
-                          borderRadius: BorderRadius.circular(10)
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                       alignment: Alignment.center,
-                      child: Icon(Icons.volume_up_rounded,color: darkBlue,size: 30,)
+                      child: Icon(
+                        Icons.volume_up_rounded,
+                        color: darkBlue,
+                        size: 30,
+                      )),
+                  SizedBox(
+                    width: 7,
                   ),
-                  SizedBox(width : 7,),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        child: Text('Complete Your Profile & Easy To Take\nYour Order',
+                        child: Text(
+                          'Complete Your Profile & Easy To Take\nYour Order',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
-                          style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins",fontSize: 12,decoration: TextDecoration.none),
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins",
+                              fontSize: 12,
+                              decoration: TextDecoration.none),
                         ),
                       ),
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Container(
                         height: 25,
                         width: 80,
                         child: RaisedButton(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)
-                          ),
-                          color:lightPink,
-                          onPressed: (){
+                              borderRadius: BorderRadius.circular(25)),
+                          color: lightPink,
+                          onPressed: () {
                             Navigator.of(context).push(
                               PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => Profile(
-                                  defindex: 0,
-                                ),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                    Profile(
+                                      defindex: 0,
+                                    ),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
                                   const begin = Offset(1.0, 0.0);
                                   const end = Offset.zero;
                                   const curve = Curves.ease;
@@ -477,37 +707,103 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          child: Text('PROFILE',
-                            style: TextStyle(color:Colors.white,fontFamily: "Poppins",fontSize: 10),
+                          child: Text(
+                            'PROFILE',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Poppins",
+                                fontSize: 10),
                           ),
                         ),
                       ),
                     ],
                   ),
                   Expanded(
-                      child: Align(
-                        alignment:Alignment.topRight,
-                        child: GestureDetector(
-                          onTap: ()=>Navigator.pop(context),
-                          child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                  color: Colors.black12,
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon(Icons.close_outlined,color: darkBlue,)
-                          ),
-                        ),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                            width: 35,
+                            height: 35,
+                            decoration: BoxDecoration(
+                                color: Colors.black12,
+                                borderRadius: BorderRadius.circular(10)),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.close_outlined,
+                              color: darkBlue,
+                            )),
                       ),
+                    ),
                   )
                 ],
               ),
             ),
           );
-        }
-    );
+        });
+  }
+
+  //search by filters
+  void searchByGivenFilter(String category, String subCategory, String vendorName) {
+    categoryList = []; subCategoryList = []; vendorNameList = [];
+    activeSearch = true;
+    // search=true;
+    setState(() {
+      if (category.isEmpty && subCategory.isEmpty && vendorName.isEmpty){
+        categoryList=[];
+        subCategoryList=[];
+        vendorNameList=[];
+        isFiltered=false;
+        activeSearch=false;
+      }else if (category.isNotEmpty) {
+        isFiltered=true;
+        print('active search $activeSearch');
+        categoryList = cakesList
+            .where((element) =>
+            element['Category']
+                .toString()
+                .toLowerCase()
+                .contains(category.toLowerCase()))
+            .toList();
+      }
+
+      if (subCategory.isNotEmpty) {
+        print(activeSearch);
+        isFiltered=true;
+
+        activeSearch = true;
+        subCategoryList = cakesList
+            .where((element) => element['SubCategory']
+            .toString()
+            .toLowerCase()
+            .contains(subCategory.toLowerCase()))
+            .toList();
+        // print(subCategoryList);
+      }
+
+      if (vendorName.isNotEmpty) {
+        print('Entered to Filter..');
+        isFiltered=true;
+        setState(() {
+          print(activeSearch);
+          activeSearch = true;
+          print(activeSearch);
+          vendorNameList = cakesList
+              .where((element) => element['VendorName']
+              .toString()
+              .toLowerCase()
+              .contains(vendorName.toLowerCase()))
+              .toList();
+          // print(vendorNameList);
+        });
+
+        print('end of Filter..');
+
+        cakesTypes = categoryList.toList() + subCategoryList.toList() + vendorNameList.toList();
+        cakesTypes = cakesTypes.toSet().toList();
+        print(cakesTypes);
+      }});
   }
 
   //endregion
@@ -515,7 +811,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //region Functions
 
   //send nearest vendor details.
-  Future<void> sendNearVendorDataToScreen(int index) async{
+  Future<void> sendNearVendorDataToScreen(int index) async {
     var pref = await SharedPreferences.getInstance();
 
     String address = "${nearestVendors[index]['Address']['Street']} , "
@@ -526,24 +822,26 @@ class _HomeScreenState extends State<HomeScreen> {
     //common keyword single****
     pref.setString('singleVendorID', nearestVendors[index]['_id']);
     pref.setString('singleVendorName', nearestVendors[index]['VendorName']);
-    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'No description');
-    pref.setString('singleVendorPhone', nearestVendors[index]['PhoneNumber']??'0000000000');
-    pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
-    pref.setString('singleVendorDelivery', nearestVendors[index]['DeliveryCharge']??'null');
-    pref.setString('singleVendorAddress', address??'null');
-
+    pref.setString('singleVendorDesc',
+        nearestVendors[index]['Description'] ?? 'No description');
+    pref.setString('singleVendorPhone',
+        nearestVendors[index]['PhoneNumber'] ?? '0000000000');
+    pref.setString(
+        'singleVendorDpImage', nearestVendors[index]['ProfileImage'] ?? 'null');
+    pref.setString('singleVendorDelivery',
+        nearestVendors[index]['DeliveryCharge'] ?? 'null');
+    pref.setString('singleVendorAddress', address ?? 'null');
 
     context.read<ContextData>().setCurrentIndex(4);
-
   }
 
   //getting prefes
-  Future<void> loadPrefs() async{
+  Future<void> loadPrefs() async {
     var prefs = await SharedPreferences.getInstance();
     setState(() {
-      profileRemainder = prefs.getBool("profileUpdated")??false;
-      phoneNumber = prefs.getString("phoneNumber")??"";
-      newRegUser = prefs.getBool("newRegUser")??false;
+      profileRemainder = prefs.getBool("profileUpdated") ?? false;
+      phoneNumber = prefs.getString("phoneNumber") ?? "";
+      newRegUser = prefs.getBool("newRegUser") ?? false;
       fetchProfileByPhn();
       timerTrigger();
     });
@@ -551,29 +849,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //update profile timer dialog for new users
   void timerTrigger() {
-    if(newRegUser==true){
+    if (newRegUser == true) {
       setState(() {
-        Timer(
-            Duration(seconds: 5),(){
-            showDpUpdtaeDialog();
-        }
-        );
+        Timer(Duration(seconds: 5), () {
+          showDpUpdtaeDialog();
+        });
       });
-    }else{
+    } else {
       print("New reg user $newRegUser");
     }
   }
 
   //Fetching user details from API....
-  Future<void> fetchProfileByPhn() async{
+  Future<void> fetchProfileByPhn() async {
     showAlertDialog();
     var prefs = await SharedPreferences.getInstance();
 
-    try{
-
-      http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+    try {
+      http.Response response = await http
+          .get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
           "${int.parse(phoneNumber)}"));
-      if(response.statusCode==200){
+      if (response.statusCode == 200) {
         // Navigator.pop(context);
         setState(() {
           List body = jsonDecode(response.body);
@@ -585,6 +881,7 @@ class _HomeScreenState extends State<HomeScreen> {
           userName = body[0]['UserName'].toString();
 
           prefs.setString('userID', userID);
+          prefs.setString('userModId', body[0]['Id'].toString());
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
 
@@ -595,46 +892,43 @@ class _HomeScreenState extends State<HomeScreen> {
           getVendorsList();
           Navigator.pop(context);
         });
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
-              backgroundColor: Colors.amber,
-              action: SnackBarAction(
-                label: "Retry",
-                onPressed:()=>setState(() {
-                  loadPrefs();
-                }),
-              ),
-            )
-        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
+          backgroundColor: Colors.amber,
+          action: SnackBarAction(
+            label: "Retry",
+            onPressed: () => setState(() {
+              loadPrefs();
+            }),
+          ),
+        ));
         setState(() {
           isNetworkError = true;
-          networkMsg = "Error Code : ${response.statusCode} ${response.reasonPhrase}";
+          networkMsg =
+          "Error Code : ${response.statusCode} ${response.reasonPhrase}";
         });
         Navigator.pop(context);
       }
-
-    }on Exception catch(e){
+    } on Exception catch (e) {
       setState(() {
         isNetworkError = true;
         networkMsg = "Check Your Connection!";
       });
       print(e);
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Check Your Connection! try again'),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Check Your Connection! try again'),
         backgroundColor: Colors.amber,
         action: SnackBarAction(
           label: "Retry",
-          onPressed:()=>setState(() {
+          onPressed: () => setState(() {
             loadPrefs();
           }),
         ),
-        )
-      );
-
+      ));
     }
-
   }
 
   // //Fetching user's current location...Lat Long
@@ -684,86 +978,82 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
   //
 
-
   //getting users accurate location address...
 
-  Future<void> GetAddressFromLatLong(double? lat , double? long)async {
-
+  Future<void> GetAddressFromLatLong(double? lat, double? long) async {
     var prefs = await SharedPreferences.getInstance();
 
-    placemarks = await geocode.placemarkFromCoordinates(lat! , long!);
+    placemarks = await geocode.placemarkFromCoordinates(lat!, long!);
 
-    List<geocode.Location> latLong = await geocode.locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
+    List<geocode.Location> latLong = await geocode
+        .locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
 
     geocode.Placemark place = placemarks[0];
 
     // print(placemarks);
 
-    setState(()  {
-
-      if(place.subLocality.toString().isEmpty){
+    setState(() {
+      if (place.subLocality.toString().isEmpty) {
         userLocalityAdr = '${place.locality}';
-      }else{
+      } else {
         userLocalityAdr = '${place.subLocality}';
       }
 
       userMainLocation = '${place.locality}';
-      prefs.setString("userCurrentLocation",userLocalityAdr);
-      prefs.setString("userMainLocation",place.locality.toString());
+      prefs.setString("userCurrentLocation", userLocalityAdr);
+      prefs.setString("userMainLocation", place.locality.toString());
     });
 
     // print("Distance : "+calculateDistance(11.024932, 76.8994178, position.latitude, position.longitude).toString());
-
   }
 
   //Calculate the distance
 
   //Distance calculator
-  double calculateDistance(lat1, lon1, lat2, lon2){
+  double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
 
   //Fetching cake list API...
-  Future<void> getCakeList() async{
+  Future<void> getCakeList() async {
     cakesList.clear();
     setState(() {
       isAllLoading = true;
     });
 
-    try{
-      http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/cake/list")
-      );
-      if(response.statusCode==200){
+    try {
+      http.Response response = await http
+          .get(Uri.parse("https://cakey-database.vercel.app/api/cake/list"));
+      if (response.statusCode == 200) {
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
           print("My res : ${jsonDecode(response.body)}");
           cakesList = cakesList.reversed.toList();
-          for(int i =0 ;i<cakesList.length;i++){
-            if(i==0){
+          for (int i = 0; i < cakesList.length; i++) {
+            if (i == 0) {
               searchCakeType.add('Customize your cake');
-            }else{
+            } else {
               searchCakeType.add(cakesList[i]['TypeOfCake']);
             }
           }
           searchCakeType = searchCakeType.toSet().toList();
           isAllLoading = false;
         });
-      }else{
-          print(response.statusCode);
-          setState(() {
-            isNetworkError = true;
-            networkMsg = "Server error! try again latter";
-            isAllLoading = false;
-          });
+      } else {
+        print(response.statusCode);
+        setState(() {
+          isNetworkError = true;
+          networkMsg = "Server error! try again latter";
+          isAllLoading = false;
+        });
       }
-    }catch(error){
+    } catch (error) {
       setState(() {
         isNetworkError = true;
         isAllLoading = false;
@@ -772,30 +1062,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //Check the internet
-  Future<void> checkNetwork() async{
+  Future<void> checkNetwork() async {
     try {
       final result = await InternetAddress.lookup('www.google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Connected...!'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Connected...!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ));
         setState(() {
           networkMsg = "Network connected";
         });
         print('connected');
       }
     } on SocketException catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You are offline!'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('You are offline!'),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ));
       print('not connected');
       setState(() {
         networkMsg = "No Internet! Connect & tap here";
@@ -805,30 +1091,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //getting recent orders list by UserId
-  Future<void> getOrderList() async{
+  Future<void> getOrderList() async {
     recentOrders.clear();
     setState(() {
       ordersLoading = true;
     });
-    try{
-      http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID")
-      );
-      if(response.statusCode==200){
+    try {
+      http.Response response = await http.get(Uri.parse(
+          "https://cakey-database.vercel.app/api/order/listbyuserid/$userID"));
+      if (response.statusCode == 200) {
         setState(() {
           isNetworkError = false;
           ordersLoading = false;
           recentOrders = jsonDecode(response.body);
           recentOrders = recentOrders.reversed.toList();
         });
-      }
-      else{
+      } else {
         setState(() {
           isNetworkError = true;
           ordersLoading = false;
         });
       }
-    }catch(error){
+    } catch (error) {
       setState(() {
         isNetworkError = true;
         ordersLoading = false;
@@ -838,13 +1122,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fetchlocation lat long
   Future<void> _getUserLocation() async {
-
     // Check if permission is granted
     _permissionGranted = await myLocation.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await myLocation.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
-        _permissionGranted = await myLocation.requestPermission();;
+        _permissionGranted = await myLocation.requestPermission();
+        ;
       }
     }
 
@@ -862,41 +1146,37 @@ class _HomeScreenState extends State<HomeScreen> {
     final _locationData = await myLocation.getLocation();
     setState(() {
       _userLocation = _locationData;
-      print(_userLocation!.latitude.toString() + "  ${_userLocation!.longitude}");
+      print(
+          _userLocation!.latitude.toString() + "  ${_userLocation!.longitude}");
     });
 
     GetAddressFromLatLong(_userLocation!.latitude, _userLocation!.longitude);
-
   }
 
-  Future<void> getNearbyLoc() async{
-
+  Future<void> getNearbyLoc() async {
     List<List<geocode.Location>> location = [];
     List myList = vendorsList;
     List newlist = [];
 
-    for (var i =0 ; i<myList.length;i++){
-
-      try{
-        if(myList[i]['Address']!=null&&myList[i]['Address']['FullAddress']!=null) {
+    for (var i = 0; i < myList.length; i++) {
+      try {
+        if (myList[i]['Address'] != null &&
+            myList[i]['Address']['FullAddress'] != null) {
           print('My index : $i');
-          location.add(await geocode.locationFromAddress(
-              myList[i]['Address']['FullAddress']
-          ));
+          location.add(await geocode
+              .locationFromAddress(myList[i]['Address']['FullAddress']));
 
-          newlist.add(myList[i].toString() + {'lat': 00, "long": 000}.toString());
-
+          newlist
+              .add(myList[i].toString() + {'lat': 00, "long": 000}.toString());
         }
-      }catch(e){
+      } catch (e) {
         print(e);
       }
-
     }
 
     // +{'lat': 00, "long": 000}
 
     print(newlist);
-
 
     // print(location);
 
@@ -913,29 +1193,30 @@ class _HomeScreenState extends State<HomeScreen> {
     //
     //   }
     // }
-
   }
 
   //Get vendors list
-  Future<void> getVendorsList() async{
-
+  Future<void> getVendorsList() async {
     filteredByEggList.clear();
 
     print(userMainLocation);
 
-    try{
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+    try {
+      var res = await http
+          .get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
-      if(res.statusCode==200){
-        setState((){
-
+      if (res.statusCode == 200) {
+        setState(() {
           vendorsList = jsonDecode(res.body);
 
           // getNearbyLoc();
 
-          for(int i = 0; i<vendorsList.length;i++){
-            if(vendorsList[i]['Address']!=null&&
-                vendorsList[i]['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())){
+          for (int i = 0; i < vendorsList.length; i++) {
+            if (vendorsList[i]['Address'] != null &&
+                vendorsList[i]['Address']['City']
+                    .toString()
+                    .toLowerCase()
+                    .contains(userMainLocation.toLowerCase())) {
               print('found .... $i');
               setState(() {
                 filteredByEggList.add(vendorsList[i]);
@@ -943,23 +1224,18 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           }
 
-
           // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
           // contains(userMainLocation.toLowerCase())).toList();
 
           filteredByEggList = filteredByEggList.toSet().toList();
           filteredByEggList = filteredByEggList.reversed.toList();
-
         });
-
-      }
-      else{
+      } else {
         print(res.statusCode);
       }
-    }catch(e){
+    } catch (e) {
       print("vendor error: $e");
     }
-
   }
 
   //endregion
@@ -970,9 +1246,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     _getUserLocation();
-    Future.delayed(Duration.zero ,() async{
-
+    Future.delayed(Duration.zero, () async {
       loadPrefs();
+      print(activeSearch);
+      print(isFiltered);
+      print(userID);
 
     });
   }
@@ -981,7 +1259,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
+    print(isFiltered);
     // Changing locations
     // myLocation.onLocationChanged.listen((LocationData currentLocation) {
     //   // Use current location
@@ -992,599 +1270,983 @@ class _HomeScreenState extends State<HomeScreen> {
     // });
 
     //perform search
-
-    if(searchText.isNotEmpty){
+    // if(activeSearch==false) {}
+    // }
+    if (searchText.isNotEmpty) {
       setState(() {
-        cakesTypes = searchCakeType.where((element) => element.toString().toLowerCase()
-            .contains(searchText.toLowerCase())).toList();
-
+        activeSearch = true;
+        isFiltered=true;
+        cakesTypes = cakesList
+            .where((element) =>
+            element['Title']
+                .toString()
+                .toLowerCase()
+                .contains(searchText.toLowerCase()))
+            .toList();
       });
     }else{
+      activeSearch = false;
+      cakesTypes = searchCakeType;
+      nearestVendors = searchVendors;
+    }
+    if(isFiltered== true) {
+      categoryList = [];
+      subCategoryList = [];
+      vendorNameList = [];
+      print(isFiltered);
+      if (cakeCategoryCtrl.text.isNotEmpty) {
+        // setState(() {
+        //   isFiltered= true;
+        //   print(activeSearch);
+        //   categoryList = cakesList
+        //       .where((element) =>
+        //       element['Category']
+        //           .toString()
+        //           .toLowerCase()
+        //           .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
+        //       .toList();
+        //   print(categoryList);
+        // });
+        print('Entered to Filter..');
+
+        setState(() {
+          isFiltered = true;
+          // print(activeSearch);
+          activeSearch = true;
+          // print(activeSearch);
+          categoryList = cakesList
+              .where((element) =>
+              element['Category']
+                  .toString()
+                  .toLowerCase()
+                  .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
+              .toList();
+          // print(vendorNameList);
+        });
+
+        print('end of Filter..');
+
+      }
+      if (cakeSubCategoryCtrl.text.isNotEmpty) {
+        // setState(() {
+        //   print(activeSearch);
+        //   isFiltered= true;
+        //   activeSearch = true;
+        //   subCategoryList = cakesList
+        //       .where((element) =>
+        //       element['SubCategory']
+        //           .toString()
+        //           .toLowerCase()
+        //           .contains(cakeSubCategoryCtrl.text.toString().toLowerCase()))
+        //       .toList();
+        // });
+        print('Entered to Filter..');
+
+        setState(() {
+          isFiltered = true;
+          // print(activeSearch);
+          activeSearch = true;
+          // print(activeSearch);
+          subCategoryList = cakesList
+              .where((element) =>
+              element['SubCategory']
+                  .toString()
+                  .toLowerCase()
+                  .contains(cakeSubCategoryCtrl.text.toString().toLowerCase()))
+              .toList();
+          // print(vendorNameList);
+        });
+
+        print('end of Filter..');
+
+      }
+
+      if (cakeVendorCtrl.text.isNotEmpty) {
+        print('Entered to Filter..');
+
+        setState(() {
+          isFiltered = true;
+          // print(activeSearch);
+          activeSearch = true;
+          // print(activeSearch);
+          vendorNameList = cakesList
+              .where((element) =>
+              element['VendorName']
+                  .toString()
+                  .toLowerCase()
+                  .contains(cakeVendorCtrl.text.toString().toLowerCase()))
+              .toList();
+          // print(vendorNameList);
+        });
+
+        print('end of Filter..');
+      }
+      cakesTypes = categoryList.toList() + subCategoryList.toList() +
+          vendorNameList.toList();
+      cakesTypes = cakesTypes.toSet().toList();
+      print(cakesTypes);
+
+
+      print('sucesssss.....');
+    }
+    else {
       setState(() {
+        activeSearch = false;
+        // cakeSearchList=cakesList;
         cakesTypes = searchCakeType;
         nearestVendors = searchVendors;
       });
     }
+    // if (searchText.isNotEmpty){
+    //   setState(() {
+    //     activeSearch = true;
+    //     search=true;
+    //     cakesTypes = cakesList
+    //         .where((element) =>
+    //         element['Title']
+    //             .toString()
+    //             .toLowerCase()
+    //             .contains(searchText.toLowerCase()))
+    //         .toList();
+    //   });
+    // } else {
+    //   setState(() {
+    //     activeSearch = false;
+    //     // cakeSearchList=cakesList;
+    //     cakesTypes = searchCakeType;
+    //     nearestVendors = searchVendors;
+    //   });
+    // }
 
     //set egg or eggless
-    if(egglesSwitch == false){
+    if (egglesSwitch == false) {
       setState(() {
-         nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Egg'||
-             element['EggOrEggless']=='Both').toList();
+        nearestVendors = filteredByEggList
+            .where((element) =>
+        element['EggOrEggless'] == 'Egg' ||
+            element['EggOrEggless'] == 'Both')
+            .toList();
       });
-    }else{
+    } else {
       setState(() {
-        nearestVendors = filteredByEggList.where((element) => element['EggOrEggless']=='Eggless').toList();
+        nearestVendors = filteredByEggList
+            .where((element) => element['EggOrEggless'] == 'Eggless')
+            .toList();
       });
     }
-
-
 
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              //Location and search....
-              Container(
-                padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
-                color: lightGrey,
-                child: Column(
-                  children: [
-                    Container(
-                      child: Row(
-                        children: [
-                          Icon(Icons.location_on,color: Colors.red,),
-                          SizedBox(width: 5,),
-                          Text('Delivery to',style: TextStyle(color: Colors.black54,
-                              fontWeight: FontWeight.bold,fontFamily: poppins , fontSize: 13),)
-                        ],
-                      ),
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            //Location and search....
+            Container(
+              padding: EdgeInsets.only(left: 10, top: 8, bottom: 15),
+              color: lightGrey,
+              child: Column(
+                children: [
+                  Container(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Delivery to',
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: poppins,
+                              fontSize: 13),
+                        )
+                      ],
                     ),
-                    Container(
-                      padding: EdgeInsets.only(left: 8),
-                      alignment: Alignment.centerLeft,
-                      child: Text('$userLocalityAdr',style:TextStyle(fontFamily: poppins,fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 8),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '$userLocalityAdr',
+                      style: TextStyle(
+                          fontFamily: poppins,
+                          fontSize: 15,
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: 15),
-                      padding: EdgeInsets.only(right: 10),
-                      alignment: Alignment.center,
-                      child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: width*0.79,
-                            height: 50,
-                            child: TextField(
-                              style: TextStyle(color: Colors.black,
-                                  fontFamily: poppins ,fontSize: 13 ,
-                                  fontWeight: FontWeight.bold
-                              ),
-                              controller: mainSearchCtrl,
-                              onChanged: (String text){
-                                setState(() {
-                                  searchText = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: "Search cake, vendor, etc...",
-                                hintStyle: TextStyle(fontFamily: poppins,fontSize: 13),
-                                prefixIcon: Icon(Icons.search),
-                                suffixIcon: IconButton(
-                                  onPressed:(){
-                                    FocusScope.of(context).unfocus();
-                                    setState(() {
-                                      mainSearchCtrl.text = "";
-                                      searchText = "";
-                                    });
-                                  },
-                                  icon: Icon(Icons.clear_sharp),
-                                ),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8)
-                                ),
-                                contentPadding: EdgeInsets.all(5),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5,),
-                          Container(
-                            width: width*0.13,
-                            height: 50,
-                            decoration: BoxDecoration(
-                                color: lightPink,
-                                borderRadius: BorderRadius.circular(8)
-                            ),
-                            child:IconButton(
-                                splashColor: Colors.black26,
-                                onPressed:(){
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 15),
+                    padding: EdgeInsets.only(right: 10),
+                    alignment: Alignment.center,
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: width * 0.79,
+                          height: 50,
+                          child: TextField(
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: poppins,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold),
+                            controller: mainSearchCtrl,
+                            onChanged: (String text) {
+                              setState(() {
+                                searchText = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Search cake, vendor, etc...",
+                              hintStyle:
+                              TextStyle(fontFamily: poppins, fontSize: 13),
+                              prefixIcon: Icon(Icons.search),
+                              suffixIcon: IconButton(
+                                onPressed: () {
                                   FocusScope.of(context).unfocus();
-                                  showFilterBottom();
+                                  setState(() {
+                                    mainSearchCtrl.text = "";
+                                    searchText = "";
+                                  });
                                 },
-                                icon: Icon(Icons.tune,color:Colors.white,)
+                                icon: Icon(Icons.clear_sharp),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              contentPadding: EdgeInsets.all(5),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Container(
+                          width: width * 0.13,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              color: lightPink,
+                              borderRadius: BorderRadius.circular(8)),
+                          child: IconButton(
+                              splashColor: Colors.black26,
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                                showFilterBottom();
+                              },
+                              icon: Icon(
+                                Icons.tune,
+                                color: Colors.white,
+                              )),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+
+            //Tap here to retry....
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  loadPrefs();
+                });
+              },
+              child: AnimatedContainer(
+                height: isNetworkError ? 35 : 0,
+                curve: Curves.ease,
+                alignment: Alignment.center,
+                color: Colors.red,
+                duration: Duration(seconds: 2),
+                child: Text(
+                  '$networkMsg (-Tap Here-)',
+                  style: TextStyle(
+                      fontFamily: "Poppins", color: Colors.white, fontSize: 13),
+                  textAlign: TextAlign.center,
                 ),
               ),
+            ),
 
-              //Tap here to retry....
-              GestureDetector(
-                onTap: (){
+            !activeSearch
+                ?
+            // Visibility(
+            //         visible: isFiltered ? false : true,
+            //         child:
+            Container(
+              color: lightGrey,
+              height: height * 0.72,
+              child: RefreshIndicator(
+                onRefresh: () async {
                   setState(() {
                     loadPrefs();
+                    _getUserLocation();
                   });
                 },
-                child: AnimatedContainer(
-                  height: isNetworkError?35:0,
-                  curve: Curves.ease,
-                  alignment: Alignment.center,
-                  color: Colors.red,
-                  duration: Duration(seconds: 2),
-                  child: Text('$networkMsg (-Tap Here-)',style: TextStyle(
-                      fontFamily: "Poppins",color: Colors.white,fontSize: 13
-                  ),textAlign: TextAlign.center,),
-                ),
-              ),
-
-              Container(
-                color: lightGrey,
-                height: height*0.72,
-                child: RefreshIndicator(
-                  onRefresh: () async{
-                    setState(() {
-                      loadPrefs();
-                      _getUserLocation();
-                    });
-                  },
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        isAllLoading?
-                        //Shimmer loading.....
-                        Column(
-                          children: [
-                            Container(
-                              height: 175,
-                              child: ListView.builder(
-                                itemCount: 10,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context , position){
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.white,
-                                    highlightColor: Colors.grey[300]!,
-                                    child: Container(
-                                      width: 150,
-                                      padding : EdgeInsets.all(5),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            height: 125,
-                                            width: 130,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20) ,
-                                              color:Colors.grey[400]
-                                            ),
-                                          ),
-                                          SizedBox(height: 10,),
-                                          Container(
-                                            height: 10,
-                                            width: 110,
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20) ,
-                                                color:Colors.grey[400]
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 0.5,
-                              width: double.infinity,
-                              margin: EdgeInsets.all(10),
-                              color: Colors.black26,
-                            ),
-                            Container(
-                              height: 175,
-                              child: ListView.builder(
-                                itemCount: 10,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context , position){
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.white,
-                                    highlightColor: Colors.grey[300]!,
-                                    child: Container(
-                                      width: 150,
-                                      padding : EdgeInsets.all(5),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            height: 125,
-                                            width: 130,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20) ,
-                                              color:Colors.grey[400]
-                                            ),
-                                          ),
-                                          SizedBox(height: 10,),
-                                          Container(
-                                            height: 10,
-                                            width: 110,
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20) ,
-                                                color:Colors.grey[400]
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 0.5,
-                              width: double.infinity,
-                              margin: EdgeInsets.all(10),
-                              color: Colors.black26,
-                            ),
-                            ListView.builder(
-                                itemCount: 10,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: (context , index){
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.white,
-                                    highlightColor: Colors.grey[300]!,
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: 125,
-                                      margin: EdgeInsets.all(8),
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20) ,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 120,
-                                            width: 90,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20) ,
-                                              color:Colors.grey[400]
-                                            ),
-                                          ),
-                                          SizedBox(width: 5,),
-                                          Expanded(
-                                              child: Container(
-                                                height: 120,
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(20) ,
-                                                    color:Colors.grey[400]
-                                                ),
-                                              ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
-                            )
-                          ],
-                        ):
-                        //List views and orders...
-                        Column(
-                          children: [
-                            Container(
-                              color:Colors.white,
-                              height:140,
-                              child:ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: 3,
-                                  itemBuilder: (c , i){
-                                    return Container(
-                                      alignment: Alignment.bottomLeft,
-                                      margin: EdgeInsets.all(8),
-                                      width:230,
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            style: BorderStyle.solid,
-                                            width:1.5
-                                          ),
-                                          color:Colors.white ,
-                                          borderRadius: BorderRadius.circular(22),
-                                          image: DecorationImage(
-                                            image:NetworkImage('https://png.pngtree.com/thumb_back/fh260/back_our/20190620/ourmid/pngtree-pink-romantic-wind-wedding-cake-promotion-banner-image_169057.jpg'),
-                                            fit: BoxFit.cover
-                                          )
-                                      ),
-                                      child:Padding(
-                                        padding: const EdgeInsets.only(left:8 , bottom:8),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children:[
-                                            Text('HAPPY' ,style: TextStyle(
-                                              color:Colors.white , fontWeight:FontWeight.bold ,
-                                              fontSize:25 , fontFamily:'Poppins'
-                                            ),),
-                                            Text(i==0?'CHRISTMAS':'BIRTHDAY',style: TextStyle(
-                                                color:Colors.deepOrange , fontWeight:FontWeight.bold ,
-                                                fontSize:25 , fontFamily:'Poppins'
-                                            ),),
-                                          ]
-                                        ),
-                                      ),
-                                    );
-                                  }
-                              )
-                            ),
-
-                            Container(
-                              height: 500,
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                    image:Svg('assets/images/splash.svg'),
-                                    fit: BoxFit.cover,
-                                    colorFilter:ColorFilter.mode(Colors.white70,BlendMode.darken)
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.all(15),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      isAllLoading
+                          ?
+                      //Shimmer loading.....
+                      Column(
+                        children: [
+                          Container(
+                            height: 175,
+                            child: ListView.builder(
+                              itemCount: 10,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, position) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.white,
+                                  highlightColor:
+                                  Colors.grey[300]!,
+                                  child: Container(
+                                    width: 150,
+                                    padding: EdgeInsets.all(5),
+                                    child: Column(
+                                      mainAxisSize:
+                                      MainAxisSize.min,
                                       children: [
-                                        Text('Type of Cakes',style: TextStyle(fontFamily: poppins,fontSize:15,color: darkBlue,fontWeight: FontWeight.bold),),
-                                        InkWell(
-                                          onTap: () async{
-                                            var pr = await SharedPreferences.getInstance();
-                                            pr.setBool('naveToHome' , true);
-                                            context.read<ContextData>().setCurrentIndex(1);
-                                            // getNearbyLoc();
-                                            // Navigator.pushReplacement(context,
-                                            // MaterialPageRoute(builder: (context)=>CakeTypes())
-                                            // );
-                                          },
-                                          child: Row(
-                                            children: [
-                                              Text('See All',style: TextStyle(color: lightPink,fontFamily: poppins,fontWeight: FontWeight.bold),),
-                                              Icon(Icons.keyboard_arrow_right,color: lightPink,)
-                                            ],
-                                          ),
+                                        Container(
+                                          height: 125,
+                                          width: 130,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  20),
+                                              color: Colors
+                                                  .grey[400]),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          height: 10,
+                                          width: 110,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  20),
+                                              color: Colors
+                                                  .grey[400]),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Container(
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            height: 0.5,
+                            width: double.infinity,
+                            margin: EdgeInsets.all(10),
+                            color: Colors.black26,
+                          ),
+                          Container(
+                            height: 175,
+                            child: ListView.builder(
+                              itemCount: 10,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, position) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.white,
+                                  highlightColor:
+                                  Colors.grey[300]!,
+                                  child: Container(
+                                    width: 150,
                                     padding: EdgeInsets.all(5),
-                                    alignment: Alignment.centerLeft,
-                                    height:175,
-                                    child: cakesTypes.isEmpty?
-                                      Center(
-                                        child: Text('No Results Found!',
-                                        style: TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: lightPink,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16
+                                    child: Column(
+                                      mainAxisSize:
+                                      MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          height: 125,
+                                          width: 130,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  20),
+                                              color: Colors
+                                                  .grey[400]),
                                         ),
+                                        SizedBox(
+                                          height: 10,
                                         ),
-                                      ):
-                                      ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount:cakesTypes.length,
-                                        itemBuilder: (context , index){
-                                          return cakesTypes[index].contains('Customize your cake')?
-                                           Container(
-                                            width: 150,
-                                            child: InkWell(
-                                              onTap: () async{
-                                                FocusScope.of(context).unfocus();
-                                                var pr = await SharedPreferences.getInstance();
-                                                pr.setBool('naveToHome' , true);
-                                                context.read<ContextData>().setCurrentIndex(2);
-                                              },
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    height: 120,
-                                                    width: 130,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(20),
-                                                        border: Border.all(color: Colors.white,width: 2),
-                                                        image: DecorationImage(
-                                                            image:AssetImage('assets/images/customcake.png'),
-                                                            fit: BoxFit.cover
-                                                        )
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 2,),
-                                                  Text(
-                                                    cakesTypes[index]==null?
-                                                    'No name':"Customise Your \nCake"
-                                                    ,style:TextStyle(color: darkBlue,
-                                                      fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 13),
-                                                    textAlign: TextAlign.center,
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                          :Container(
-                                            width: 150,
-                                            child: InkWell(
-                                              onTap: () async{
-                                                FocusScope.of(context).unfocus();
-                                                var prefs = await SharedPreferences.getInstance();
-                                                prefs.setString('homeCakeType',cakesTypes[index]);
-                                                prefs.setInt('homeCTindex' , index);
-                                                prefs.setBool('isHomeCake',true);
-                                                context.read<ContextData>().setCurrentIndex(1);
-                                              },
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    height: 120,
-                                                    width: 130,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(20),
-                                                        border: Border.all(color: Colors.white,width: 2),
-                                                        image: DecorationImage(
-                                                            image:
-                                                            cakesList[index]['Images'].isEmpty?
-                                                            NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg'):
-                                                            NetworkImage(cakesList[index]['Images'][0].toString()),
-                                                            fit: BoxFit.cover
-                                                        )
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 2,),
-                                                  Text(
-                                                    cakesTypes[index]==null?
-                                                    'No name':"${cakesTypes[index][0].toString().toUpperCase()+
-                                                        cakesTypes[index].toString().substring(1).toLowerCase()}"
-                                                    ,style:TextStyle(color: darkBlue,
-                                                      fontWeight: FontWeight.bold,fontFamily: poppins ,fontSize: 13),
-                                                    textAlign: TextAlign.center,maxLines: 2,
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }
+                                        Container(
+                                          height: 10,
+                                          width: 110,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  20),
+                                              color: Colors
+                                                  .grey[400]),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Container(
-                                    height: 0.5,
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            height: 0.5,
+                            width: double.infinity,
+                            margin: EdgeInsets.all(10),
+                            color: Colors.black26,
+                          ),
+                          ListView.builder(
+                              itemCount: 10,
+                              shrinkWrap: true,
+                              physics:
+                              NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.white,
+                                  highlightColor:
+                                  Colors.grey[300]!,
+                                  child: Container(
                                     width: double.infinity,
-                                    margin: EdgeInsets.only(left: 10,right: 10),
-                                    color: Colors.black26,
+                                    height: 125,
+                                    margin: EdgeInsets.all(8),
+                                    padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                          20),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          height: 120,
+                                          width: 90,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  20),
+                                              color: Colors
+                                                  .grey[400]),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            height: 120,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(
+                                                    20),
+                                                color: Colors
+                                                    .grey[400]),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  Container(
-                                      padding: EdgeInsets.all(15),
-                                      width: double.infinity,
-                                      alignment: Alignment.centerLeft,
-                                      child:Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Recent Ordered',style: TextStyle(fontFamily: poppins,fontSize:15,color: darkBlue,fontWeight: FontWeight.bold),),
+                                );
+                              })
+                        ],
+                      )
+                          :
+                      //List views and orders...
+                      Column(
+                        children: [
+                          Container(
+                              color: Colors.white,
+                              height: 140,
+                              child: ListView.builder(
+                                  scrollDirection:
+                                  Axis.horizontal,
+                                  itemCount: 3,
+                                  itemBuilder: (c, i) {
+                                    return Container(
+                                      alignment:
+                                      Alignment.bottomLeft,
+                                      margin: EdgeInsets.all(8),
+                                      width: 230,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.white,
+                                              style: BorderStyle
+                                                  .solid,
+                                              width: 1.5),
+                                          color: Colors.white,
+                                          borderRadius:
+                                          BorderRadius
+                                              .circular(22),
+                                          image: DecorationImage(
+                                              image: NetworkImage(
+                                                  'https://png.pngtree.com/thumb_back/fh260/back_our/20190622/ourmid/pngtree-wedding-cake-banner-background-illustration-image_209636.jpg'),
+                                              fit: BoxFit.cover)),
+                                      child: Padding(
+                                        padding:
+                                        const EdgeInsets.only(
+                                            left: 8,
+                                            bottom: 8),
+                                        child: Column(
+                                            mainAxisSize:
+                                            MainAxisSize.min,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment
+                                                .start,
+                                            children: [
+                                              Text(
+                                                'HAPPY',
+                                                style: TextStyle(
+                                                    color: Colors
+                                                        .white,
+                                                    fontWeight:
+                                                    FontWeight
+                                                        .bold,
+                                                    fontSize: 25,
+                                                    fontFamily:
+                                                    'Poppins'),
+                                              ),
+                                              Text(
+                                                i == 0
+                                                    ? 'CHRISTMAS'
+                                                    : 'BIRTHDAY',
+                                                style: TextStyle(
+                                                    color: Colors
+                                                        .deepOrange,
+                                                    fontWeight:
+                                                    FontWeight
+                                                        .bold,
+                                                    fontSize: 25,
+                                                    fontFamily:
+                                                    'Poppins'),
+                                              ),
+                                            ]),
+                                      ),
+                                    );
+                                  })),
+
+                          Container(
+                            height: 500,
+                            decoration: const BoxDecoration(
+                              image: DecorationImage(
+                                  image: Svg(
+                                      'assets/images/splash.svg'),
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(
+                                      Colors.white70,
+                                      BlendMode.darken)),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Type of Cakes',
+                                        style: TextStyle(
+                                            fontFamily: poppins,
+                                            fontSize: 15,
+                                            color: darkBlue,
+                                            fontWeight:
+                                            FontWeight.bold),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          var pr =
+                                          await SharedPreferences
+                                              .getInstance();
+                                          pr.setBool(
+                                              'naveToHome', true);
+                                          context
+                                              .read<ContextData>()
+                                              .setCurrentIndex(1);
+                                          // getNearbyLoc();
+                                          // Navigator.pushReplacement(context,
+                                          // MaterialPageRoute(builder: (context)=>CakeTypes())
+                                          // );
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'See All',
+                                              style: TextStyle(
+                                                  color:
+                                                  lightPink,
+                                                  fontFamily:
+                                                  poppins,
+                                                  fontWeight:
+                                                  FontWeight
+                                                      .bold),
+                                            ),
+                                            Icon(
+                                              Icons
+                                                  .keyboard_arrow_right,
+                                              color: lightPink,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(5),
+                                  alignment: Alignment.centerLeft,
+                                  height: 175,
+                                  child: cakesTypes.isEmpty
+                                      ? Center(
+                                    child: Text(
+                                      'No Results Found!',
+                                      style: TextStyle(
+                                          fontFamily:
+                                          "Poppins",
+                                          color: lightPink,
+                                          fontWeight:
+                                          FontWeight
+                                              .bold,
+                                          fontSize: 16),
+                                    ),
+                                  )
+                                      : ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection:
+                                      Axis.horizontal,
+                                      itemCount:
+                                      cakesTypes.length,
+                                      itemBuilder:
+                                          (context, index) {
+                                        return cakesTypes[
+                                        index]
+                                            .contains(
+                                            'Customize your cake')
+                                            ? Container(
+                                          width: 150,
+                                          child:
                                           InkWell(
-                                            onTap: () async{
-                                              Navigator.of(context).push(
-                                                PageRouteBuilder(
-                                                  pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 1,),
-                                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                    const begin = Offset(1.0, 0.0);
-                                                    const end = Offset.zero;
-                                                    const curve = Curves.ease;
-
-                                                    final tween = Tween(begin: begin, end: end);
-                                                    final curvedAnimation = CurvedAnimation(
-                                                      parent: animation,
-                                                      curve: curve,
-                                                    );
-
-                                                    return SlideTransition(
-                                                      position: tween.animate(curvedAnimation),
-                                                      child: child,
-                                                    );
-                                                  },
-                                                ),
-                                              );
+                                            onTap:
+                                                () async {
+                                              FocusScope.of(
+                                                  context)
+                                                  .unfocus();
+                                              var pr =
+                                              await SharedPreferences
+                                                  .getInstance();
+                                              pr.setBool(
+                                                  'naveToHome',
+                                                  true);
+                                              context
+                                                  .read<
+                                                  ContextData>()
+                                                  .setCurrentIndex(
+                                                  2);
                                             },
-                                            child: Row(
+                                            child:
+                                            Column(
                                               children: [
-                                                Text('See All',style: TextStyle(color: lightPink,fontFamily: poppins,fontWeight: FontWeight.bold),),
-                                                Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                                Container(
+                                                  height:
+                                                  120,
+                                                  width:
+                                                  130,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(20),
+                                                      border: Border.all(color: Colors.white, width: 2),
+                                                      image: DecorationImage(image: AssetImage('assets/images/customcake.png'), fit: BoxFit.cover)),
+                                                ),
+                                                SizedBox(
+                                                  height:
+                                                  2,
+                                                ),
+                                                Text(
+                                                  cakesTypes[index] == null
+                                                      ? 'No name'
+                                                      : "Customise Your \nCake",
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: poppins,
+                                                      fontSize: 13),
+                                                  textAlign:
+                                                  TextAlign.center,
+                                                )
                                               ],
                                             ),
                                           ),
-                                        ],
+                                        )
+                                            : Container(
+                                          width: 150,
+                                          child:
+                                          InkWell(
+                                            onTap:
+                                                () async {
+                                              FocusScope.of(
+                                                  context)
+                                                  .unfocus();
+                                              var prefs =
+                                              await SharedPreferences
+                                                  .getInstance();
+                                              prefs.setString(
+                                                  'homeCakeType',
+                                                  cakesTypes[
+                                                  index]);
+                                              prefs.setInt(
+                                                  'homeCTindex',
+                                                  index);
+                                              prefs.setBool(
+                                                  'isHomeCake',
+                                                  true);
+                                              context
+                                                  .read<
+                                                  ContextData>()
+                                                  .setCurrentIndex(
+                                                  1);
+                                            },
+                                            child:
+                                            Column(
+                                              children: [
+                                                Container(
+                                                  height:
+                                                  120,
+                                                  width:
+                                                  130,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(20),
+                                                      border: Border.all(color: Colors.white, width: 2),
+                                                      image: DecorationImage(image: cakesList[index]['Images'].isEmpty ? NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg') : NetworkImage(cakesList[index]['Images'][0].toString()), fit: BoxFit.cover)),
+                                                ),
+                                                SizedBox(
+                                                  height:
+                                                  2,
+                                                ),
+                                                Text(
+                                                  cakesTypes[index] == null
+                                                      ? 'No name'
+                                                      : "${cakesTypes[index][0].toString().toUpperCase() + cakesTypes[index].toString().substring(1).toLowerCase()}",
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: poppins,
+                                                      fontSize: 13),
+                                                  textAlign:
+                                                  TextAlign.center,
+                                                  maxLines:
+                                                  2,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                                Container(
+                                  height: 0.5,
+                                  width: double.infinity,
+                                  margin: EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  color: Colors.black26,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(15),
+                                  width: double.infinity,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Recent Ordered',
+                                        style: TextStyle(
+                                            fontFamily: poppins,
+                                            fontSize: 15,
+                                            color: darkBlue,
+                                            fontWeight:
+                                            FontWeight.bold),
                                       ),
+                                      InkWell(
+                                        onTap: () async {
+                                          Navigator.of(context)
+                                              .push(
+                                            PageRouteBuilder(
+                                              pageBuilder: (context,
+                                                  animation,
+                                                  secondaryAnimation) =>
+                                                  Profile(
+                                                    defindex: 1,
+                                                  ),
+                                              transitionsBuilder:
+                                                  (context,
+                                                  animation,
+                                                  secondaryAnimation,
+                                                  child) {
+                                                const begin =
+                                                Offset(
+                                                    1.0, 0.0);
+                                                const end =
+                                                    Offset.zero;
+                                                const curve =
+                                                    Curves.ease;
+
+                                                final tween =
+                                                Tween(
+                                                    begin:
+                                                    begin,
+                                                    end: end);
+                                                final curvedAnimation =
+                                                CurvedAnimation(
+                                                  parent:
+                                                  animation,
+                                                  curve: curve,
+                                                );
+
+                                                return SlideTransition(
+                                                  position: tween
+                                                      .animate(
+                                                      curvedAnimation),
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'See All',
+                                              style: TextStyle(
+                                                  color:
+                                                  lightPink,
+                                                  fontFamily:
+                                                  poppins,
+                                                  fontWeight:
+                                                  FontWeight
+                                                      .bold),
+                                            ),
+                                            Icon(
+                                              Icons
+                                                  .keyboard_arrow_right,
+                                              color: lightPink,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Container(
+                                ),
+                                Container(
                                     height: 200,
-                                    child:
-                                    ordersLoading?
-                                    Center(
+                                    child: ordersLoading
+                                        ? Center(
                                         child: Transform.scale(
                                             scale: 0.8,
-                                            child: CircularProgressIndicator()
-                                        )
-                                    ):
-                                    recentOrders.length>0?
-                                    ListView.builder(
-                                        itemCount: 3,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (context,index){
+                                            child:
+                                            CircularProgressIndicator()))
+                                        : recentOrders.length > 0
+                                        ? ListView.builder(
+                                        itemCount: recentOrders.length < 4?
+                                        recentOrders.length:4,
+                                        scrollDirection:
+                                        Axis
+                                            .horizontal,
+                                        itemBuilder:
+                                            (context,
+                                            index) {
                                           return GestureDetector(
-                                            onTap: (){
-                                              Navigator.of(context).push(
+                                            onTap: () {
+                                              Navigator.of(
+                                                  context)
+                                                  .push(
                                                 PageRouteBuilder(
-                                                  pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 1,),
-                                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                    const begin = Offset(1.0, 0.0);
-                                                    const end = Offset.zero;
-                                                    const curve = Curves.ease;
+                                                  pageBuilder: (context,
+                                                      animation,
+                                                      secondaryAnimation) =>
+                                                      Profile(
+                                                        defindex:
+                                                        1,
+                                                      ),
+                                                  transitionsBuilder: (context,
+                                                      animation,
+                                                      secondaryAnimation,
+                                                      child) {
+                                                    const begin = Offset(
+                                                        1.0,
+                                                        0.0);
+                                                    const end =
+                                                        Offset.zero;
+                                                    const curve =
+                                                        Curves.ease;
 
-                                                    final tween = Tween(begin: begin, end: end);
-                                                    final curvedAnimation = CurvedAnimation(
-                                                      parent: animation,
-                                                      curve: curve,
+                                                    final tween = Tween(
+                                                        begin: begin,
+                                                        end: end);
+                                                    final curvedAnimation =
+                                                    CurvedAnimation(
+                                                      parent:
+                                                      animation,
+                                                      curve:
+                                                      curve,
                                                     );
 
                                                     return SlideTransition(
-                                                      position: tween.animate(curvedAnimation),
-                                                      child: child,
+                                                      position:
+                                                      tween.animate(curvedAnimation),
+                                                      child:
+                                                      child,
                                                     );
                                                   },
                                                 ),
                                               );
                                             },
-                                            child: Container(
-                                              margin: EdgeInsets.only(left: 10 , right : 10),
-                                              child: Stack(
-                                                alignment: Alignment.topCenter,
+                                            child:
+                                            Container(
+                                              margin: EdgeInsets.only(
+                                                  left:
+                                                  10,
+                                                  right:
+                                                  10),
+                                              child:
+                                              Stack(
+                                                alignment:
+                                                Alignment
+                                                    .topCenter,
                                                 children: [
                                                   Container(
-                                                    width: width/2.2,
-                                                    height: 135,
+                                                    width:
+                                                    width / 2.2,
+                                                    height:
+                                                    135,
                                                     decoration: BoxDecoration(
                                                         borderRadius: BorderRadius.circular(15),
-                                                        image: DecorationImage(
-                                                            fit: BoxFit.cover,
-                                                            image: NetworkImage('${recentOrders[index]['Images']}')
-                                                        )
-                                                    ),
+                                                        image: DecorationImage(fit: BoxFit.cover, image: NetworkImage('${recentOrders[index]['Images']}'))),
                                                   ),
-
                                                   Positioned(
-                                                    top:85,
-                                                    child: Card(
-                                                      shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(10)
-                                                      ),
-                                                      elevation: 7,
-                                                      child: Container(
+                                                    top:
+                                                    85,
+                                                    child:
+                                                    Card(
+                                                      shape:
+                                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                      elevation:
+                                                      7,
+                                                      child:
+                                                      Container(
                                                         padding: EdgeInsets.all(8),
                                                         width: 155,
                                                         child: Column(
@@ -1595,40 +2257,59 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 alignment: Alignment.centerLeft,
                                                                 child: Container(
                                                                   width: 120,
-                                                                  child: Text('${recentOrders[index]['Title']}',style: TextStyle(color: darkBlue
-                                                                      ,fontWeight: FontWeight.bold,fontFamily: poppins, fontSize: 12
-                                                                  ),maxLines: 1,overflow: TextOverflow.ellipsis,),
-                                                                )
+                                                                  child: Text(
+                                                                    '${recentOrders[index]['Title']}',
+                                                                    style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
+                                                                    maxLines: 1,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
+                                                                )),
+                                                            SizedBox(
+                                                              height: 4,
                                                             ),
-                                                            SizedBox(height: 4,),
                                                             Row(
                                                               children: [
-                                                                Icon(Icons.account_circle,),
+                                                                Icon(
+                                                                  Icons.account_circle,
+                                                                ),
                                                                 Container(
                                                                     width: 105,
-                                                                    child: Text(' ${recentOrders[index]['VendorName']}',
-                                                                      overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                          color: Colors.black54,fontWeight:FontWeight.bold,fontFamily: poppins , fontSize: 11),maxLines: 1,))
+                                                                    child: Text(
+                                                                      ' ${recentOrders[index]['VendorName']}',
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                      maxLines: 1,
+                                                                    ))
                                                               ],
                                                             ),
-                                                            SizedBox(height: 4,),
+                                                            SizedBox(
+                                                              height: 4,
+                                                            ),
                                                             Container(
                                                               height: 0.5,
                                                               color: Colors.black54,
-                                                              margin: EdgeInsets.only(left: 5,right: 5),
+                                                              margin: EdgeInsets.only(left: 5, right: 5),
                                                             ),
-                                                            SizedBox(height: 4,),
+                                                            SizedBox(
+                                                              height: 4,
+                                                            ),
                                                             Row(
                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                               children: [
-                                                                Text("₹ ${recentOrders[index]['Total']}",style: TextStyle(color: lightPink,
-                                                                    fontWeight: FontWeight.bold,fontFamily: poppins, fontSize:12),maxLines: 1,),
-                                                                recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
-                                                                Text("${recentOrders[index]['Status'].toString()}",style: TextStyle(color: Colors.green,
-                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 11),)
-                                                                    :
-                                                                Text("${recentOrders[index]['Status']}",style: TextStyle(color: Colors.blueAccent,
-                                                                    fontWeight: FontWeight.bold,fontFamily: poppins,fontSize: 11),)
+                                                                Text(
+                                                                  "₹ ${recentOrders[index]['Total']}",
+                                                                  style: TextStyle(color: lightPink, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
+                                                                  maxLines: 1,
+                                                                ),
+                                                                recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
+                                                                    ? Text(
+                                                                  "${recentOrders[index]['Status'].toString()}",
+                                                                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                )
+                                                                    : Text(
+                                                                  "${recentOrders[index]['Status']}",
+                                                                  style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                )
                                                               ],
                                                             )
                                                           ],
@@ -1636,299 +2317,613 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                     ),
                                                   ),
-
                                                 ],
                                               ),
                                             ),
                                           );
-                                        }
-                                    ):
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.shopping_basket_outlined,
-                                            color: lightPink,
-                                            size: 35,
-                                          ),
-
-                                          Text('No Recent Orders',style: TextStyle(
-                                              color: darkBlue,
-                                              fontFamily: "Poppins",
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15
-                                          ),),
-
-                                        ],
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ),
-                            //Vendors........
-                            Container(
-                              padding: EdgeInsets.all(15),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text('Vendors list',style: TextStyle(fontSize:15,
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                      Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
-                                    ],
-                                  ),
-                                  InkWell(
-                                    onTap: (){
-                                      context.read<ContextData>().setCurrentIndex(3);
-                                    },
-                                    child: Row(
+                                        })
+                                        : Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment
+                                          .center,
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment
+                                          .center,
                                       children: [
-                                        Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                        Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                        Icon(
+                                          Icons
+                                              .shopping_basket_outlined,
+                                          color:
+                                          lightPink,
+                                          size: 35,
+                                        ),
+                                        Text(
+                                          'No Recent Orders',
+                                          style: TextStyle(
+                                              color:
+                                              darkBlue,
+                                              fontFamily:
+                                              "Poppins",
+                                              fontWeight:
+                                              FontWeight
+                                                  .bold,
+                                              fontSize:
+                                              15),
+                                        ),
                                       ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                    )),
+                              ],
                             ),
-                            Column(
+                          ),
+                          //Vendors........
+                          Container(
+                            padding: EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.only(left: 10),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Vendors list',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: darkBlue,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                          fontFamily: poppins),
+                                    ),
+                                    Text(
+                                      '  (10km radius)',
+                                      style: TextStyle(
+                                          color: Colors.black45,
+                                          fontFamily: poppins),
+                                    ),
+                                  ],
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    context
+                                        .read<ContextData>()
+                                        .setCurrentIndex(3);
+                                  },
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Transform.scale(
-                                            scale: 0.7,
-                                            child: CupertinoSwitch(
-                                              thumbColor: Colors.white,
-                                              value: egglesSwitch,
-                                              onChanged: (bool? val){
-                                                setState(() {
-                                                  egglesSwitch = val!;
-                                                });
-                                              },
-                                              activeColor: Colors.green,
-                                            ),
-                                          ),
-                                          Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
-                                              fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                        ],
+                                      Text(
+                                        'See All',
+                                        style: TextStyle(
+                                            color: lightPink,
+                                            fontWeight:
+                                            FontWeight.bold,
+                                            fontFamily: poppins),
                                       ),
+                                      Icon(
+                                        Icons
+                                            .keyboard_arrow_right,
+                                        color: lightPink,
+                                      )
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  child:
-                                  nearestVendors.isEmpty?
-                                  Column(
-                                    children: [
-                                      SizedBox(height:20),
-                                      Text('No Results Found!',style:TextStyle(
-                                        fontFamily:'Poppins',color:darkBlue
-                                      )),
-                                      SizedBox(height:20),
-                                    ],
-                                  ):
-                                  ListView.builder(
-                                      itemCount: nearestVendors.length,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context,index){
-                                        return InkWell(
-                                          splashColor: Colors.pink[100],
-                                          onTap:()=>sendNearVendorDataToScreen(index),
-                                          child: Card(
-                                            margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(15)
-                                            ),
-                                            child: Container(
-                                              // margin: EdgeInsets.all(5),
-                                              padding: EdgeInsets.all(6),
-                                              height: 130,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(15)
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  nearestVendors[index]['ProfileImage']!=null?
-                                                  Container(
-                                                    height: 120,
-                                                    width: 90,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(15),
-                                                        image: DecorationImage(
-                                                          fit: BoxFit.cover,
-                                                          image: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
-                                                        )
-                                                    ),
-                                                  ):
-                                                  Container(
-                                                    height: 120,
-                                                    width: 90,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(15),
-                                                        image: DecorationImage(
-                                                          fit: BoxFit.cover,
-                                                          image: Svg('assets/images/pictwo.svg'),
-                                                        )
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    padding: EdgeInsets.only(left: 10),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                      children: [
-                                                        Container(
-                                                          width:width*0.63,
-                                                          child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            children: [
-                                                              Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: [
-                                                                  Container(
-                                                                    width:width*0.5,
-                                                                    child: Text(
-                                                                      '${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                      "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}'
-                                                                      ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                                        color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
-                                                                    ),),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Container(
+                                padding:
+                                EdgeInsets.only(left: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Transform.scale(
+                                          scale: 0.7,
+                                          child: CupertinoSwitch(
+                                            thumbColor:
+                                            Colors.white,
+                                            value: egglesSwitch,
+                                            onChanged:
+                                                (bool? val) {
+                                              setState(() {
+                                                egglesSwitch =
+                                                val!;
+                                              });
+                                            },
+                                            activeColor:
+                                            Colors.green,
+                                          ),
+                                        ),
+                                        Text(
+                                          egglesSwitch
+                                              ? 'Eggless'
+                                              : 'Egg',
+                                          style: TextStyle(
+                                              color: darkBlue,
+                                              fontWeight:
+                                              FontWeight.bold,
+                                              fontFamily:
+                                              poppins),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                child: nearestVendors.isEmpty
+                                    ? Column(
+                                  children: [
+                                    SizedBox(height: 20),
+                                    Text(
+                                        'No Results Found!',
+                                        style: TextStyle(
+                                            fontFamily:
+                                            'Poppins',
+                                            color:
+                                            darkBlue)),
+                                    SizedBox(height: 20),
+                                  ],
+                                )
+                                    : ListView.builder(
+                                    itemCount:
+                                    nearestVendors.length,
+                                    shrinkWrap: true,
+                                    physics:
+                                    NeverScrollableScrollPhysics(),
+                                    itemBuilder:
+                                        (context, index) {
+                                      return InkWell(
+                                        splashColor:
+                                        Colors.pink[100],
+                                        onTap: () =>
+                                            sendNearVendorDataToScreen(
+                                                index),
+                                        child: Card(
+                                          margin:
+                                          EdgeInsets.only(
+                                              left: 10,
+                                              right: 10,
+                                              top: 10,
+                                              bottom: 5),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(
+                                                  15)),
+                                          child: Container(
+                                            // margin: EdgeInsets.all(5),
+                                            padding:
+                                            EdgeInsets
+                                                .all(6),
+                                            height: 130,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(
+                                                    15)),
+                                            child: Row(
+                                              children: [
+                                                nearestVendors[index]
+                                                [
+                                                'ProfileImage'] !=
+                                                    null
+                                                    ? Container(
+                                                  height:
+                                                  120,
+                                                  width:
+                                                  90,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(15),
+                                                      image: DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                      )),
+                                                )
+                                                    : Container(
+                                                  height:
+                                                  120,
+                                                  width:
+                                                  90,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(15),
+                                                      image: DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: Svg('assets/images/pictwo.svg'),
+                                                      )),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets
+                                                      .only(
+                                                      left:
+                                                      10),
+                                                  child:
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start,
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                        width * 0.63,
+                                                        child:
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                          MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Container(
+                                                                  width: width * 0.5,
+                                                                  child: Text(
+                                                                    '${nearestVendors[index]['VendorName'][0].toString().toUpperCase() + "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}',
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: poppins),
                                                                   ),
-                                                                  Row(
-                                                                    children: [
-                                                                      RatingBar.builder(
-                                                                        initialRating: 4.1,
-                                                                        minRating: 1,
-                                                                        direction: Axis.horizontal,
-                                                                        allowHalfRating: true,
-                                                                        itemCount: 5,
-                                                                        itemSize: 14,
-                                                                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                        itemBuilder: (context, _) => Icon(
-                                                                          Icons.star,
-                                                                          color: Colors.amber,
-                                                                        ),
-                                                                        onRatingUpdate: (rating) {
-                                                                        },
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    RatingBar.builder(
+                                                                      initialRating: 4.1,
+                                                                      minRating: 1,
+                                                                      direction: Axis.horizontal,
+                                                                      allowHalfRating: true,
+                                                                      itemCount: 5,
+                                                                      itemSize: 14,
+                                                                      itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                      itemBuilder: (context, _) => Icon(
+                                                                        Icons.star,
+                                                                        color: Colors.amber,
                                                                       ),
-                                                                      Text(' 4.5',style: TextStyle(
-                                                                          color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                      ),)
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              InkWell(
-                                                                onTap: (){
-                                                                  sendNearVendorDataToScreen(index);
-                                                                },
-                                                                child: Container(
-                                                                  decoration: BoxDecoration(
-                                                                      color: lightGrey,
-                                                                      shape: BoxShape.circle
-                                                                  ),
-                                                                  padding: EdgeInsets.all(4),
-                                                                  height: 35,
-                                                                  width: 35,
-                                                                  child: Icon(Icons.keyboard_arrow_right,color: lightPink,),
+                                                                      onRatingUpdate: (rating) {},
+                                                                    ),
+                                                                    Text(
+                                                                      ' 4.5',
+                                                                      style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontSize: 13, fontFamily: poppins),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            InkWell(
+                                                              onTap: () {
+                                                                sendNearVendorDataToScreen(index);
+                                                              },
+                                                              child: Container(
+                                                                decoration: BoxDecoration(color: lightGrey, shape: BoxShape.circle),
+                                                                padding: EdgeInsets.all(4),
+                                                                height: 35,
+                                                                width: 35,
+                                                                child: Icon(
+                                                                  Icons.keyboard_arrow_right,
+                                                                  color: lightPink,
                                                                 ),
                                                               ),
-                                                            ],
-                                                          ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                        Container(
-                                                          width: width*0.63,
-                                                          child: Text(nearestVendors[index]['Description']!=null?
-                                                          "${nearestVendors[index]['Description']}":'No description',overflow: TextOverflow.ellipsis,style: TextStyle(
-                                                              color: Colors.black54,fontFamily: poppins,fontSize: 13
-                                                          ),maxLines: 1,),
+                                                      ),
+                                                      Container(
+                                                        width:
+                                                        width * 0.63,
+                                                        child:
+                                                        Text(
+                                                          nearestVendors[index]['Description'] != null
+                                                              ? "${nearestVendors[index]['Description']}"
+                                                              : 'No description',
+                                                          overflow:
+                                                          TextOverflow.ellipsis,
+                                                          style: TextStyle(
+                                                              color: Colors.black54,
+                                                              fontFamily: poppins,
+                                                              fontSize: 13),
+                                                          maxLines:
+                                                          1,
                                                         ),
-                                                        Container(
-                                                          height: 1,
-                                                          width: width*0.63,
-                                                          color: Colors.black26,
-                                                        ),
-                                                        Container(
-                                                          width: width*0.63,
-                                                          child:
-                                                          nearestVendors[index]['DeliveryCharge']==null||
-                                                              nearestVendors[index]['DeliveryCharge']=='0'?
-                                                          Row(
+                                                      ),
+                                                      Container(
+                                                        height:
+                                                        1,
+                                                        width:
+                                                        width * 0.63,
+                                                        color:
+                                                        Colors.black26,
+                                                      ),
+                                                      Container(
+                                                          width:
+                                                          width * 0.63,
+                                                          child: nearestVendors[index]['DeliveryCharge'] == null || nearestVendors[index]['DeliveryCharge'] == '0'
+                                                              ? Row(
                                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                             // runSpacing: 5.0,
                                                             // spacing: 5.0,
                                                             // runAlignment: WrapAlignment.spaceBetween,
                                                             children: [
-                                                              Text('DELIVERY FREE',style: TextStyle(
-                                                                  color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                              ),),
+                                                              Text(
+                                                                'DELIVERY FREE',
+                                                                style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                              ),
                                                               SizedBox(
                                                                 width: 20,
                                                               ),
-                                                              nearestVendors[index]['EggOrEggless']=='Both'?
-                                                              Text('Includes eggless',style: TextStyle(
-                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                              ),overflow: TextOverflow.ellipsis,
-                                                              ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
-                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                              ),overflow: TextOverflow.ellipsis,)
+                                                              nearestVendors[index]['EggOrEggless'] == 'Both'
+                                                                  ? Text(
+                                                                'Includes eggless',
+                                                                style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: poppins),
+                                                                overflow: TextOverflow.ellipsis,
+                                                              )
+                                                                  : Text(
+                                                                '${nearestVendors[index]['EggOrEggless']}',
+                                                                style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: poppins),
+                                                                overflow: TextOverflow.ellipsis,
+                                                              )
                                                             ],
-                                                          ):
-                                                          Wrap(
+                                                          )
+                                                              : Wrap(
                                                             alignment: WrapAlignment.start,
                                                             children: [
-                                                              Text('10 Km Delivery Charge Rs.${nearestVendors[index]['DeliveryCharge']}'
-                                                                ,style: TextStyle(
-                                                                  color: darkBlue,fontSize: 10,fontFamily: poppins
-                                                              ),),
+                                                              Text(
+                                                                '10 Km Delivery Charge Rs.${nearestVendors[index]['DeliveryCharge']}',
+                                                                style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: poppins),
+                                                              ),
                                                               SizedBox(
                                                                 width: 40,
                                                               ),
-                                                              nearestVendors[index]['EggOrEggless']=='Both'?
-                                                              Text('Includes eggless',style: TextStyle(
-                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                              ),overflow: TextOverflow.ellipsis,
-                                                              ):Text('${nearestVendors[index]['EggOrEggless']}',style: TextStyle(
-                                                                  color: Colors.black,fontSize: 10,fontWeight: FontWeight.bold,fontFamily: poppins
-                                                              ),overflow: TextOverflow.ellipsis,)
+                                                              nearestVendors[index]['EggOrEggless'] == 'Both'
+                                                                  ? Text(
+                                                                'Includes eggless',
+                                                                style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: poppins),
+                                                                overflow: TextOverflow.ellipsis,
+                                                              )
+                                                                  : Text(
+                                                                '${nearestVendors[index]['EggOrEggless']}',
+                                                                style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: poppins),
+                                                                overflow: TextOverflow.ellipsis,
+                                                              )
                                                             ],
-                                                          )
-                                                        )
-                                                      ],
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
+                                                          ))
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                           ),
-                                        );
-                                      }
-                                  ),
-                                ),
-                                SizedBox(height: 15,),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                                        ),
+                                      );
+                                    }),
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+            // )
+                :Visibility(
+              visible: isFiltered?true:false,
+              child: (cakesTypes.length==0)?Text('No Similar Data Found'):
+              ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: cakesTypes.length,
+                  itemBuilder: (c, i) {
+                    return Container(
+                      margin: EdgeInsets.only(
+                          left: 15, right: 15, top: 5, bottom: 5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white,
+                          border: Border.all(
+                              color: Colors.grey[400]!, width: 0.5)),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //header text (name , stars)
+                          Container(
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 10, right: 10),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                  ),
+                                  color: Colors.grey[300]),
+                              child: Row(children: [
+                                Container(
+                                  width: cakesTypes[i]['VendorName']
+                                      .toString()
+                                      .length >
+                                      25
+                                      ? 130
+                                      : 60,
+                                  child: Text(
+                                    '${cakesTypes[i]['VendorName']}',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins',
+                                        fontSize: 13),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    RatingBar.builder(
+                                      initialRating: 4.1,
+                                      minRating: 1,
+                                      direction: Axis.horizontal,
+                                      allowHalfRating: true,
+                                      itemCount: 5,
+                                      itemSize: 14,
+                                      itemPadding: EdgeInsets.symmetric(
+                                          horizontal: 1.0),
+                                      itemBuilder: (context, _) => Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                      ),
+                                      onRatingUpdate: (rating) {
+                                        print(rating);
+                                      },
+                                    ),
+                                    Text(
+                                      ' 4.5',
+                                      style: TextStyle(
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          fontFamily: poppins),
+                                    )
+                                  ],
+                                ),
+                                Expanded(
+                                    child: Container(
+                                        alignment: Alignment.centerRight,
+                                        child: InkWell(
+                                          onTap: () {
+                                            sendDetailsToScreen(i);
+                                          },
+                                          child: Container(
+                                              alignment: Alignment.center,
+                                              height: 25,
+                                              width: 25,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.white),
+                                              child: Icon(
+                                                Icons.arrow_forward_ios_sharp,
+                                                color: lightPink,
+                                                size: 15,
+                                              )),
+                                        )))
+                              ])),
+                          //body (image , cake name)
+                          InkWell(
+                            splashColor: Colors.red[100],
+                            onTap: () {
+                              sendDetailsToScreen(i);
+                            },
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                child: Row(children: [
+                                  cakesTypes[i]['Images'].isEmpty ||
+                                      cakesTypes[i]['Images'][0] == ''
+                                      ? Container(
+                                    height: 85,
+                                    width: 85,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(15),
+                                      color: Colors.pink[100],
+                                    ),
+                                    child: Icon(
+                                      Icons.cake_outlined,
+                                      size: 50,
+                                      color: lightPink,
+                                    ),
+                                  )
+                                      : Container(
+                                    height: 85,
+                                    width: 85,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(15),
+                                        color: Colors.blue,
+                                        image: DecorationImage(
+                                            image: NetworkImage(
+                                                cakesTypes[i]['Images']
+                                                [0]),
+                                            fit: BoxFit.cover)),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                      child: Container(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  // width:120,
+                                                  child: Text(
+                                                    '${cakesTypes[i]['Title']}',
+                                                    style: TextStyle(
+                                                        color: darkBlue,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 12),
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 5),
+                                                Container(
+                                                  // width:120,
+                                                  child: Text(
+                                                    'Price Rs.${cakesTypes[i]['Price']}/Kg Min Quantity 1 Kg Customization Available',
+                                                    style: TextStyle(
+                                                        color: Colors.grey,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 10),
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 5),
+                                                Container(
+                                                    height: 0.5,
+                                                    color: Color(0xffdddddd)),
+                                                SizedBox(height: 5),
+                                                Container(
+                                                  // width:120,
+                                                  child: Text(
+                                                    cakesTypes[i]['DeliveryCharge'] ==
+                                                        "0" ||
+                                                        cakesTypes[i][
+                                                        'DeliveryCharge'] ==
+                                                            "null" ||
+                                                        cakesTypes[i][
+                                                        'DeliveryCharge'] ==
+                                                            null
+                                                        ? 'DELIVERY FREE'
+                                                        : 'Delivery Charge Rs.${cakesTypes[i]['DeliveryCharge']} ',
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 10),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ])))
+                                ])),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
+            )
+          ],
         ),
+      ),
     );
   }
 }
-
-
 

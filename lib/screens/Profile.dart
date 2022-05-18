@@ -302,6 +302,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           context.read<ContextData>().setProfileUrl(userProfileUrl);
           userName = body[0]['UserName'].toString();
           prefs.setString('userID', userID);
+          prefs.setString('userModId', body[0]['Id'].toString());
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
           context.read<ContextData>().setUserName(userName);
@@ -590,11 +591,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget OrdersView(){
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      // mainAxisAlignment: MainAxisAlignment.center,
       children: [
         isLoading?
         Center(child: CircularProgressIndicator(),):
-        recentOrders.length>0?ListView.builder(
+        recentOrders.length>0?
+        ListView.builder(
               itemCount: recentOrders.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -920,8 +922,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   );
               }
-          )
-        :Center(
+          ):
+        Center(
           child: Column(
             children: [
               Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
@@ -1085,10 +1087,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       SingleChildScrollView(
                           child: ProfileView()
                       ),
-                      Center(
-                        child: SingleChildScrollView(
+                      SingleChildScrollView(
                             child: OrdersView()
-                        ),
                       ),
                     ]
                 ),

@@ -498,7 +498,23 @@ class _DrawerHomeState extends State<DrawerHome> {
     selectedIndex = context.watch<ContextData>().getCurrentIndex();
     return WillPopScope(
       onWillPop: () async{
-        showExitDialog();
+        // showExitDialog();
+
+        switch(selectedIndex){
+          case 0:
+            showExitDialog();
+            break;
+          case 1:
+            context.read<ContextData>().setCurrentIndex(0);
+            break;
+          case 1:
+            context.read<ContextData>().setCurrentIndex(0);
+            break;
+          case 4:
+            context.read<ContextData>().setCurrentIndex(3);
+            break;
+        }
+
         return false;
       },
       child: Scaffold(
