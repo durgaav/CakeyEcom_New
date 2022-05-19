@@ -39,6 +39,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   Color lightPink = Color(0xffFE8416D);
   Color lightGrey = Color(0xffF5F5F5);
 
+
   //bool
   bool newRegUser = false;
 
@@ -58,7 +59,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   List mySelVendors = [];
 
   //Lists...
-  List<String> cakeImages = [];
+  List cakeImages = [];
+  List cakesList = [];
+  List myCakesList = [];
 
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
@@ -150,6 +153,8 @@ class _CakeDetailsState extends State<CakeDetails> {
   var messageCtrl = new TextEditingController();
   var specialReqCtrl = new TextEditingController();
   var customweightCtrl = new TextEditingController();
+
+  var myScrollCtrl = ScrollController();
 
   //endregion
 
@@ -1605,7 +1610,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       // vendorID = prefs.getString('vendorID') ?? 'Unknown';
       // vendorName = prefs.getString('vendorName') ?? 'Unknown';
 
-      getVendorsList();
+      getCakesList();
 
     });
   }
@@ -1850,30 +1855,66 @@ class _CakeDetailsState extends State<CakeDetails> {
 
   //get vendorsList
   Future<void> getVendorsList() async{
-    showAlertDialog();
+    print("begin...");
+
     var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
 
     if(res.statusCode==200){
-
+      // getCakesList();
       setState(() {
         List vendorsList = jsonDecode(res.body);
 
-        for(int i = 0; i<vendorsList.length;i++){
-          if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
-              vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){
-            print('found .... $i');
-            setState(() {
-              nearestVendors.add(vendorsList[i]);
-            });
+        // for(int i = 0; i<vendorsList.length;i++){
+        //   if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
+        //       vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){
+        //     print('found .... $i');
+        //     setState(() {
+        //       nearestVendors.add(vendorsList[i]);
+        //     });
+        //   }
+        // }
+
+        for(int i = 0 ; i<vendorsList.length;i++){
+          // print(cakesList[i]['VendorName'] + "Id" + cakesList[i]['_id']);
+
+          for(int j = 0;j<cakesList.length;j++){
+            if(vendorsList[i]['_id'].toString()==cakesList[j]['VendorID'].toString()){
+              // print('yesss... $i $j');
+              setState((){
+                nearestVendors.add(vendorsList[i]);
+              });
+            }else{
+              // print('nooo... $i $j');
+            }
           }
         }
 
-        Navigator.pop(context);
+
       });
 
     }else{
+
+    }
+    print("...end");
+  }
+
+  //getAllcakes List
+  Future<void> getCakesList() async{
+    showAlertDialog();
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/cake/list'));
+
+    if(res.statusCode==200){
+      setState((){
+        myCakesList = jsonDecode(res.body);
+        cakesList = myCakesList.where((element) => element['Title'].toString().contains(cakeName.toString())).toList();
+
+        getVendorsList();
+        Navigator.pop(context);
+      });
+    }else{
       Navigator.pop(context);
     }
+
   }
 
   //endregion
@@ -2174,6 +2215,8 @@ class _CakeDetailsState extends State<CakeDetails> {
               ];
             },
             body: SingleChildScrollView(
+              // controller: myScrollCtrl,
+              // physics: BouncingScrollPhysics(),
               child: SafeArea(
                 child: Container(
                   width: MediaQuery.of(context).size.width,
@@ -2479,7 +2522,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                         padding: EdgeInsets.all(12),
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
-                            color: Colors.pink[100],
+                            color: Colors.red[50],
                             borderRadius: BorderRadius.circular(10)),
                         child: Column(
                           children: [
@@ -2586,11 +2629,11 @@ class _CakeDetailsState extends State<CakeDetails> {
                                 )
                                     : CircleAvatar(
                                     radius: 15,
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: Colors.green,
                                     child: Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                      size: 30,
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 16 ,
                                     )),
                               ],
                             ),
@@ -2658,14 +2701,14 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       color: darkBlue,
                                     ),
                                   ),
-                                ):CircleAvatar(
+                                ): CircleAvatar(
                                     radius: 15,
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: Colors.green,
                                     child: Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                      size: 30,
-                                ))
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 16 ,
+                                    )),
                               ],
                             ),
                           ],
@@ -3548,7 +3591,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         style: TextStyle(
                                             color: lightPink,
                                             fontWeight: FontWeight.bold,
-                                            fontFamily: poppins),
+                                            fontFamily: poppins
+                                        ),
                                       ),
                                       Icon(
                                         Icons.keyboard_arrow_right,
@@ -3572,9 +3616,10 @@ class _CakeDetailsState extends State<CakeDetails> {
                                           borderRadius: BorderRadius.circular(10)
                                       ),
                                       child: InkWell(
-                                        splashColor:Colors.red[200] ,
+                                        splashColor:Colors.red[200],
                                         onTap: (){
-                                          print(index);
+                                          List artTempList = [];
+                                          // print(index);
 
                                           String adrss = '1/4 vellandipalayam , Avinashi';
 
@@ -3598,10 +3643,11 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 [
                                                   {
                                                     "VendorId":nearestVendors[index]['_id'],
+                                                    "VendorModId":nearestVendors[index]['Id'],
                                                     "VendorName":nearestVendors[index]['VendorName'],
                                                     "VendorDesc":nearestVendors[index]['Description'],
                                                     "VendorProfile":nearestVendors[index]['ProfileImage'],
-                                                    "VendorPhone":nearestVendors[index]['PhoneNumber'],
+                                                    "VendorPhone":nearestVendors[index]['PhoneNumber1'],
                                                     "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
                                                     "VendorEgg":nearestVendors[index]['EggOrEggless'],
                                                     "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
@@ -3609,12 +3655,45 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 ]
                                             );
 
+                                            // myCakesList.where((element) => element['Title'].toString().contains(cakeName.toString())).toList();
+
+                                            artTempList = myCakesList.where((element)=>
+                                            element['VendorID'].toString()==nearestVendors[index]['_id'].toString()).toList();
+
+                                            print(artTempList);
+
+                                            artTempList = artTempList.where((element) =>
+                                                element['Title'].toString().toLowerCase().
+                                                contains(cakeName.toString().toLowerCase())).toList();
+
+                                            print(artTempList.length);
+
+                                            cakeImages = artTempList[0]['Images'].toList();
+                                            weight = artTempList[0]['WeightList'].toList();
+                                            // cakeRatings = artTempList[index]['Images'].toList();
+                                            cakeEggorEgless = artTempList[0]['EggOrEggless'].toString();
+                                            cakeName = artTempList[0]['Title'].toString();
+                                            cakePrice = artTempList[0]['Price'].toString();
+                                            cakeDescription = artTempList[0]['Description'].toString();
+                                            flavour = artTempList[0]['FlavourList'].toList();
+                                            shapes = artTempList[0]['ShapeList'].toList();
+                                            articals = artTempList[0]['ArticleList'].toList();
+
+                                            // myScrollCtrl.jumpTo(myScrollCtrl.position.minScrollExtent);
+
                                           });
+                                          
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text('Updated to vendor (${artTempList[0]['VendorName']})'),
+                                                duration: Duration(seconds: 1),
+                                            )
+                                          );
 
-                                          print('$vendorID \n $vendorName \n '
-                                              '$vendorMobileNum \n $vendorAddress');
-
-                                          print('index :$index / venIndex : $selVendorIndex');
+                                          // print('$vendorID \n $vendorName \n '
+                                          //     '$vendorMobileNum \n $vendorAddress');
+                                          //
+                                          // print('index :$index / venIndex : $selVendorIndex');
 
                                         },
                                         child: Container(

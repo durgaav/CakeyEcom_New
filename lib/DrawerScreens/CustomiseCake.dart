@@ -89,7 +89,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //var weight
   int isFixedWeight = -1;
-  String fixedWeight = '';
+  String fixedWeight = '0.0';
   String fixedDate = 'Not Yet Select';
   String fixedSession = 'Not Yet Select';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
@@ -122,8 +122,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //For category selecions
   List<Widget> cateWidget = [];
   List<bool> selCategory = [];
-  List categories = ["Birthday" , "Wedding"  , "Anniversary" , "Farewell","Occation", "Others"];
-
+  List categories = ["Birthday" , "Wedding"  ,
+    "Anniversary" , "Farewell","Occasion", "Others"
+  ];
   List nearestVendors = [];
   List mySelectdVendors = [];
 
@@ -157,6 +158,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String userModId = '';
   String userName ='';
   String userPhone ='';
+
+  var cateListScrollCtrl = new ScrollController();
 
   //endregion
 
@@ -406,7 +409,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   actions: [
                     FlatButton(
                         onPressed: (){
-                          Navigator.pop(context);
+                          saveNotOther();
                         },
                         child: Text('Cancel')
                     ),
@@ -533,7 +536,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                     FlatButton(
                         onPressed: (){
-                          Navigator.pop(context);
+                          saveNotOtherShape();
                         },
                         child: Text('Cancel')
                     ),
@@ -632,6 +635,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //endregion
 
   //region Functions
+
 
   Future<void> removeMyVendorPref() async{
 
@@ -816,14 +820,41 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }
   }
 
+
+  //save if not enter others
+  void saveNotOther(){
+    Navigator.pop(context);
+    setState((){
+      currentIndex=0;
+      fixedCategory = "${categories[0]}";
+      cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
+    });
+  }
+
+  void saveNotOtherShape(){
+    Navigator.pop(context);
+    setState((){
+      shapeGrpValue = 0;
+      fixedShape = "Round";
+    });
+  }
+
   //Save all added others
   Future<void> saveAllOthers(String category, String shape, String flavour, String article) async{
-    print('Others Entre....');
+    print('$category Entre....');
 
     setState((){
 
       if(category.isNotEmpty){
-        fixedCategory = category;
+        if(category=="Others"){
+          currentIndex = 0;
+        }else{
+          categories.insert(0, '$category');
+          currentIndex = 0;
+          cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
+          fixedCategory = category;
+        }
+
       }
 
       if(shape.isNotEmpty){
@@ -1461,6 +1492,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               padding: EdgeInsets.all(10),
                               child: ListView.builder(
                                     shrinkWrap: true,
+                                    controller: cateListScrollCtrl,
                                     itemCount: categories.length,
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context , index){
@@ -1561,22 +1593,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             itemCount: shapesList.length,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
-                                              // return RadioListTile(
-                                              //     activeColor: Colors.green,
-                                              //     title: Text(
-                                              //       "${shapesList[index]}",
-                                              //       style: TextStyle(
-                                              //           fontFamily: "Poppins", color: darkBlue),
-                                              //     ),
-                                              //     value: index,
-                                              //     groupValue: shapeGrpValue,
-                                              //     onChanged: (int? value) {
-                                              //       print(value);
-                                              //       setState(() {
-                                              //         shapeGrpValue = value!;
-                                              //         fixedShape = shapesList[index];
-                                              //       });
-                                              //     });
+
 
                                               return InkWell(
                                                 onTap: ()=>setState((){
@@ -1848,6 +1865,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           setState(() {
                                             isFixedWeight = index;
                                             fixedWeight = weight[index].toString();
+                                            print(fixedWeight);
                                           });
 
                                         },
@@ -1880,75 +1898,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                             SizedBox(height:10),
                             
-                            //  Container(
-                            //   margin: EdgeInsets.only(left: 8,right: 8),
-                            //   height: 0.5,
-                            //   color:Colors.pink[200],
-                            // ),
 
-                            //Tower...
-                            // Padding(
-                            //   padding: const EdgeInsets.all(10),
-                            //   child: Text("Cake Tower",
-                            //     style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                            //   ),
-                            // ),
-                            // Container(
-                            //     height: MediaQuery.of(context).size.height * 0.06,
-                            //     width: MediaQuery.of(context).size.width,
-                            //     margin: EdgeInsets.symmetric(horizontal: 10),
-                            //     //  color: Colors.grey,
-                            //     child: ListView.builder(
-                            //         shrinkWrap: true,
-                            //         itemCount: cakeTowers.length,
-                            //         scrollDirection: Axis.horizontal,
-                            //         itemBuilder: (context, index) {
-                            //           selCakeTower.add(false);
-                            //           return InkWell(
-                            //             onTap: () {
-                            //               setState(() {
-                            //                 for (int i = 0; i < selCakeTower.length; i++) {
-                            //                   if (i == index) {
-                            //                     selCakeTower[i] = true;
-                            //                     fixedCakeTower = cakeTowers[index];
-                            //                   } else {
-                            //                     selCakeTower[i] = false;
-                            //                   }
-                            //                 }
-                            //               });
-                            //             },
-                            //             child:Container(
-                            //               width: 60,
-                            //               alignment: Alignment.center,
-                            //               margin: EdgeInsets.all(5),
-                            //               decoration: BoxDecoration(
-                            //                   borderRadius: BorderRadius.circular(18),
-                            //                   border: Border.all(
-                            //                     color: lightPink,
-                            //                     width: 1,
-                            //                   ),
-                            //                   color: selCakeTower[index]
-                            //                       ? Colors.pink
-                            //                       : Colors.white
-                            //               ),
-                            //               child:
-                            //               Text(
-                            //                 cakeTowers[index],
-                            //                 style: TextStyle(
-                            //                     fontWeight: FontWeight.bold,
-                            //                     fontFamily: "Poppins",color: selCakeTower[index]?Colors.white:darkBlue ,
-                            //                     fontSize: 13
-                            //                 ),
-                            //               ),
-                            //             ),
-                            //           );
-                            //         })),
-                            // SizedBox(height:15),
-                            // Container(
-                            //   margin: EdgeInsets.only(left: 8,right: 8),
-                            //   height: 0.5,
-                            //   color:Colors.pink[200],
-                            // ),
 
                             Padding(
                               padding: const EdgeInsets.only(left :15.0 , top:15),
@@ -2631,7 +2581,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  int.parse(fixedWeight,onError: (e)=>0)<5?
+                                  double.parse(fixedWeight)<5.0?
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [

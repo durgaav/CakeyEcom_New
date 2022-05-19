@@ -56,10 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool ordersLoading = true;
   bool isAllLoading = true;
   bool vendorsLoading = true;
-//for search
+  //for search
   bool isFiltered = false;
   bool activeSearch = false;
-  bool search = false;
+
   //Strings
   String poppins = "Poppins";
   String phoneNumber = '';
@@ -92,17 +92,23 @@ class _HomeScreenState extends State<HomeScreen> {
   List searchVendors = [];
   List filteredByEggList = [];
   List nearestVendors = [];
+
 //search all type
   List cakeSearchList = [];
-  List categoryList=[];
-  List  subCategoryList=[];
-  List vendorNameList=[];
+  List categoryList = [];
+  List subCategoryList = [];
+  List vendorNameList = [];
+
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
   var cakeSubCategoryCtrl = new TextEditingController();
   var cakeVendorCtrl = new TextEditingController();
   var cakeLocationCtrl = new TextEditingController();
   var mainSearchCtrl = new TextEditingController();
+
+
+  int currentIndex = 0;
+  bool selectedIndex=false;
 
   //latt and long and maps
   double lat = 0.0;
@@ -333,7 +339,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontFamily: "Poppins"),
                           ),
                           GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () {
+                              Navigator.pop(context);
+                              searchCakeVendor = '';
+                              searchCakeSubType = '';
+                              searchCakeCate = '';
+                            },
                             child: Container(
                                 width: 35,
                                 height: 35,
@@ -527,54 +538,136 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(
                         height: 5,
                       ),
-                      //types of cakes btn...
+
+                      //               Container(
+                      //   height: 80,
+                      //   padding: EdgeInsets.all(10),
+                      //   child: ListView.builder(
+                      //         shrinkWrap: true,
+                      //         itemCount: 4,
+                      //         scrollDirection: Axis.horizontal,
+                      //         itemBuilder: (context , index){
+                      //           return Stack(
+                      //             children: [
+                      //               GestureDetector(
+                      //                 onTap:(){
+                      //                   setState((){
+                      //                     currentIndex = index;
+                      //                   });
+                      //                 },
+                      //                    child:Text('Normal cake')
+                      //               ),
+                      //               currentIndex == index?
+                      //               Positioned(
+                      //                 right: 0,
+                      //                 child:Container(
+                      //                   alignment: Alignment.center,
+                      //                   height: 20,
+                      //                   width: 20,
+                      //                   decoration: BoxDecoration(
+                      //                     color:Colors.green,
+                      //                     shape: BoxShape.circle
+                      //                   ),
+                      //                   child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
+                      //                 )
+                      //               ):Positioned(
+                      //                   right: 0,
+                      //                   child: Container()
+                      //               ),
+                      //             ],
+                      //           );
+                      //         }
+                      //     )
+                      // ),
+                      //
+
+
+                      //  types of cakes btn...
                       Wrap(
-                        runSpacing: 2.0,
-                        spacing: 3.0,
+                        // runSpacing: 4.0,
+                        spacing: 5.0,
                         children: [
+
                           OutlinedButton(
-                            onPressed: () {},
+                            style:(currentIndex == 0)?( selectedIndex=true)?OutlinedButton.styleFrom(
+                                primary: Colors.white,
+                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
+                            // ):OutlinedButton.styleFrom(primary: darkBlue,backgroundColor: Colors.amber),
+                            onPressed: () {
+                              setState((){
+                                currentIndex=0;
+                                print(currentIndex);
+                                selectedIndex=true;
+                                print(selectedIndex);
+                              });
+                            },
                             child: Text(
                               'Normal Cakes',
-                              style: TextStyle(
+                              style:TextStyle(
                                   fontSize: 12,
-                                  color: darkBlue,
+                                  // color: darkBlue,
                                   fontFamily: "Poppins"),
                             ),
                           ),
                           OutlinedButton(
-                            onPressed: () {},
+                            style:(currentIndex == 1)?( selectedIndex=true)?OutlinedButton.styleFrom(
+                                primary: Colors.white,
+                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
+                            onPressed: () {
+                              setState((){
+                                currentIndex=1;
+                                print(currentIndex);
+                                selectedIndex=true;
+                                print(selectedIndex);
+                              });
+                            },
                             child: Text(
                               'Basic Customize Cake',
                               style: TextStyle(
                                   fontSize: 12,
-                                  color: darkBlue,
                                   fontFamily: "Poppins"),
                             ),
                           ),
                           OutlinedButton(
-                            onPressed: () {},
+                            style:(currentIndex == 2)?( selectedIndex=true)?OutlinedButton.styleFrom(
+                                primary: Colors.white,
+                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
+                            onPressed: () {
+                              setState((){
+                                currentIndex=2;
+                                print(currentIndex);
+                                selectedIndex=true;
+                                print(selectedIndex);
+                              });
+                            },
                             child: Text(
                               'Fully Customize Cake',
                               style: TextStyle(
                                   fontSize: 12,
-                                  color: darkBlue,
                                   fontFamily: "Poppins"),
                             ),
                           ),
                           OutlinedButton(
-                            onPressed: () {},
+                            style:(currentIndex == 3)?( selectedIndex=true)?OutlinedButton.styleFrom(
+                                primary: Colors.white,
+                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
+                            onPressed: () {
+                              setState((){
+                                currentIndex=3;
+                                print(currentIndex);
+                                selectedIndex=true;
+                                print(selectedIndex);
+                              });
+                            },
                             child: Text(
                               'Theme Cake',
                               style: TextStyle(
                                   fontSize: 12,
-                                  color: darkBlue,
                                   fontFamily: "Poppins"),
                             ),
                           ),
                         ],
                       ),
-
                       SizedBox(
                         height: 10,
                       ),
@@ -593,7 +686,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               searchByGivenFilter(
                                   cakeCategoryCtrl.text,
                                   cakeSubCategoryCtrl.text,
-                                  cakeVendorCtrl.text);
+                                  cakeVendorCtrl.text
+                              );
                             },
                             child: Text(
                               "SEARCH",
@@ -745,32 +839,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //search by filters
-  void searchByGivenFilter(String category, String subCategory, String vendorName) {
-    categoryList = []; subCategoryList = []; vendorNameList = [];
+  void searchByGivenFilter(
+      String category, String subCategory, String vendorName) {
+    categoryList = [];
+    subCategoryList = [];
+    vendorNameList = [];
     activeSearch = true;
+    mainSearchCtrl.text =
+    '$searchCakeCate $searchCakeSubType $searchCakeVendor';
     // search=true;
     setState(() {
-      if (category.isEmpty && subCategory.isEmpty && vendorName.isEmpty){
-        categoryList=[];
-        subCategoryList=[];
-        vendorNameList=[];
-        isFiltered=false;
-        activeSearch=false;
-      }else if (category.isNotEmpty) {
-        isFiltered=true;
+      if (category.isEmpty && subCategory.isEmpty && vendorName.isEmpty) {
+        categoryList = [];
+        subCategoryList = [];
+        vendorNameList = [];
+        isFiltered = false;
+        activeSearch = false;
+      } else if (category.isNotEmpty) {
+        isFiltered = true;
         print('active search $activeSearch');
         categoryList = cakesList
-            .where((element) =>
-            element['Category']
-                .toString()
-                .toLowerCase()
-                .contains(category.toLowerCase()))
+            .where((element) => element['Category']
+            .toString()
+            .toLowerCase()
+            .contains(category.toLowerCase()))
             .toList();
       }
 
       if (subCategory.isNotEmpty) {
         print(activeSearch);
-        isFiltered=true;
+        isFiltered = true;
 
         activeSearch = true;
         subCategoryList = cakesList
@@ -784,7 +882,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (vendorName.isNotEmpty) {
         print('Entered to Filter..');
-        isFiltered=true;
+        isFiltered = true;
         setState(() {
           print(activeSearch);
           activeSearch = true;
@@ -800,10 +898,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
         print('end of Filter..');
 
-        cakesTypes = categoryList.toList() + subCategoryList.toList() + vendorNameList.toList();
+        cakesTypes = categoryList.toList() +
+            subCategoryList.toList() +
+            vendorNameList.toList();
         cakesTypes = cakesTypes.toSet().toList();
         print(cakesTypes);
-      }});
+      }
+    });
   }
 
   //endregion
@@ -881,7 +982,6 @@ class _HomeScreenState extends State<HomeScreen> {
           userName = body[0]['UserName'].toString();
 
           prefs.setString('userID', userID);
-          prefs.setString('userModId', body[0]['Id'].toString());
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
 
@@ -1248,10 +1348,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _getUserLocation();
     Future.delayed(Duration.zero, () async {
       loadPrefs();
-      print(activeSearch);
-      print(isFiltered);
-      print(userID);
-
     });
   }
 
@@ -1270,126 +1366,107 @@ class _HomeScreenState extends State<HomeScreen> {
     // });
 
     //perform search
-    // if(activeSearch==false) {}
-    // }
+
     if (searchText.isNotEmpty) {
       setState(() {
+        print(isFiltered);
+        isFiltered = true;
+        print('is filter data....  $isFiltered');
         activeSearch = true;
-        isFiltered=true;
-        cakesTypes = cakesList
-            .where((element) =>
-            element['Title']
-                .toString()
-                .toLowerCase()
-                .contains(searchText.toLowerCase()))
-            .toList();
       });
-    }else{
+    } else {
       activeSearch = false;
       cakesTypes = searchCakeType;
       nearestVendors = searchVendors;
     }
-    if(isFiltered== true) {
+    if (isFiltered == true) {
       categoryList = [];
       subCategoryList = [];
       vendorNameList = [];
       print(isFiltered);
-      if (cakeCategoryCtrl.text.isNotEmpty) {
-        // setState(() {
-        //   isFiltered= true;
-        //   print(activeSearch);
-        //   categoryList = cakesList
-        //       .where((element) =>
-        //       element['Category']
-        //           .toString()
-        //           .toLowerCase()
-        //           .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
-        //       .toList();
-        //   print(categoryList);
-        // });
-        print('Entered to Filter..');
-
+      if (searchText.isNotEmpty) {
         setState(() {
-          isFiltered = true;
-          // print(activeSearch);
-          activeSearch = true;
-          // print(activeSearch);
-          categoryList = cakesList
-              .where((element) =>
-              element['Category']
-                  .toString()
-                  .toLowerCase()
-                  .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
+          cakesTypes = cakesList
+              .where((element) => element['Title']
+              .toString()
+              .toLowerCase()
+              .contains(searchText.toLowerCase()))
               .toList();
-          // print(vendorNameList);
+          cakesTypes = cakesTypes.toList();
+          print('new data................... $cakesTypes');
         });
-
-        print('end of Filter..');
-
       }
-      if (cakeSubCategoryCtrl.text.isNotEmpty) {
-        // setState(() {
-        //   print(activeSearch);
-        //   isFiltered= true;
-        //   activeSearch = true;
-        //   subCategoryList = cakesList
-        //       .where((element) =>
-        //       element['SubCategory']
-        //           .toString()
-        //           .toLowerCase()
-        //           .contains(cakeSubCategoryCtrl.text.toString().toLowerCase()))
-        //       .toList();
-        // });
-        print('Entered to Filter..');
+      if (cakeCategoryCtrl.text.isNotEmpty ||
+          cakeSubCategoryCtrl.text.isNotEmpty ||
+          cakeVendorCtrl.text.isNotEmpty) {
+        if (cakeCategoryCtrl.text.isNotEmpty) {
+          print('Entered to Filter..');
 
-        setState(() {
-          isFiltered = true;
-          // print(activeSearch);
-          activeSearch = true;
-          // print(activeSearch);
-          subCategoryList = cakesList
-              .where((element) =>
-              element['SubCategory']
-                  .toString()
-                  .toLowerCase()
-                  .contains(cakeSubCategoryCtrl.text.toString().toLowerCase()))
-              .toList();
-          // print(vendorNameList);
-        });
+          setState(() {
+            isFiltered = true;
+            // print(activeSearch);
+            activeSearch = true;
+            // print(activeSearch);
+            categoryList = cakesList
+                .where((element) => element['Category']
+                .toString()
+                .toLowerCase()
+                .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
+                .toList();
+            // print(vendorNameList);
+          });
 
-        print('end of Filter..');
+          print('end of Filter..');
+        }
+        if (cakeSubCategoryCtrl.text.isNotEmpty) {
+          print('Entered to Filter..');
 
+          setState(() {
+            isFiltered = true;
+            // print(activeSearch);
+            activeSearch = true;
+            // print(activeSearch);
+            subCategoryList = cakesList
+                .where((element) => element['SubCategory']
+                .toString()
+                .toLowerCase()
+                .contains(
+                cakeSubCategoryCtrl.text.toString().toLowerCase()))
+                .toList();
+            // print(vendorNameList);
+          });
+
+          print('end of Filter..');
+        }
+
+        if (cakeVendorCtrl.text.isNotEmpty) {
+          print('Entered to Filter..');
+
+          setState(() {
+            isFiltered = true;
+            // print(activeSearch);
+            activeSearch = true;
+            // print(activeSearch);
+            vendorNameList = cakesList
+                .where((element) => element['VendorName']
+                .toString()
+                .toLowerCase()
+                .contains(cakeVendorCtrl.text.toString().toLowerCase()))
+                .toList();
+            // print(vendorNameList);
+          });
+
+          print('end of Filter..');
+        }
+        cakesTypes = categoryList.toList() +
+            subCategoryList.toList() +
+            vendorNameList.toList();
+        cakesTypes = cakesTypes.toSet().toList();
+        print(cakesTypes);
       }
-
-      if (cakeVendorCtrl.text.isNotEmpty) {
-        print('Entered to Filter..');
-
-        setState(() {
-          isFiltered = true;
-          // print(activeSearch);
-          activeSearch = true;
-          // print(activeSearch);
-          vendorNameList = cakesList
-              .where((element) =>
-              element['VendorName']
-                  .toString()
-                  .toLowerCase()
-                  .contains(cakeVendorCtrl.text.toString().toLowerCase()))
-              .toList();
-          // print(vendorNameList);
-        });
-
-        print('end of Filter..');
-      }
-      cakesTypes = categoryList.toList() + subCategoryList.toList() +
-          vendorNameList.toList();
-      cakesTypes = cakesTypes.toSet().toList();
-      print(cakesTypes);
-
 
       print('sucesssss.....');
-    }
-    else {
+    } else {
       setState(() {
         activeSearch = false;
         // cakeSearchList=cakesList;
@@ -1397,26 +1474,6 @@ class _HomeScreenState extends State<HomeScreen> {
         nearestVendors = searchVendors;
       });
     }
-    // if (searchText.isNotEmpty){
-    //   setState(() {
-    //     activeSearch = true;
-    //     search=true;
-    //     cakesTypes = cakesList
-    //         .where((element) =>
-    //         element['Title']
-    //             .toString()
-    //             .toLowerCase()
-    //             .contains(searchText.toLowerCase()))
-    //         .toList();
-    //   });
-    // } else {
-    //   setState(() {
-    //     activeSearch = false;
-    //     // cakeSearchList=cakesList;
-    //     cakesTypes = searchCakeType;
-    //     nearestVendors = searchVendors;
-    //   });
-    // }
 
     //set egg or eggless
     if (egglesSwitch == false) {
@@ -1434,7 +1491,6 @@ class _HomeScreenState extends State<HomeScreen> {
             .toList();
       });
     }
-
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
@@ -1514,6 +1570,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setState(() {
                                     mainSearchCtrl.text = "";
                                     searchText = "";
+                                    searchCakeVendor = '';
+                                    searchCakeSubType = '';
+                                    searchCakeCate = '';
+                                    cakeCategoryCtrl.text = '';
+                                    cakeSubCategoryCtrl.text = '';
+                                    cakeVendorCtrl.text = '';
                                   });
                                 },
                                 icon: Icon(Icons.clear_sharp),
@@ -1574,11 +1636,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             !activeSearch
-                ?
-            // Visibility(
-            //         visible: isFiltered ? false : true,
-            //         child:
-            Container(
+                ? Container(
               color: lightGrey,
               height: height * 0.72,
               child: RefreshIndicator(
@@ -1605,8 +1663,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, position) {
                                 return Shimmer.fromColors(
                                   baseColor: Colors.white,
-                                  highlightColor:
-                                  Colors.grey[300]!,
+                                  highlightColor: Colors.grey[300]!,
                                   child: Container(
                                     width: 150,
                                     padding: EdgeInsets.all(5),
@@ -1620,10 +1677,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius
-                                                  .circular(
-                                                  20),
-                                              color: Colors
-                                                  .grey[400]),
+                                                  .circular(20),
+                                              color:
+                                              Colors.grey[400]),
                                         ),
                                         SizedBox(
                                           height: 10,
@@ -1634,10 +1690,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius
-                                                  .circular(
-                                                  20),
-                                              color: Colors
-                                                  .grey[400]),
+                                                  .circular(20),
+                                              color:
+                                              Colors.grey[400]),
                                         ),
                                       ],
                                     ),
@@ -1661,8 +1716,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, position) {
                                 return Shimmer.fromColors(
                                   baseColor: Colors.white,
-                                  highlightColor:
-                                  Colors.grey[300]!,
+                                  highlightColor: Colors.grey[300]!,
                                   child: Container(
                                     width: 150,
                                     padding: EdgeInsets.all(5),
@@ -1676,10 +1730,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius
-                                                  .circular(
-                                                  20),
-                                              color: Colors
-                                                  .grey[400]),
+                                                  .circular(20),
+                                              color:
+                                              Colors.grey[400]),
                                         ),
                                         SizedBox(
                                           height: 10,
@@ -1690,10 +1743,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius
-                                                  .circular(
-                                                  20),
-                                              color: Colors
-                                                  .grey[400]),
+                                                  .circular(20),
+                                              color:
+                                              Colors.grey[400]),
                                         ),
                                       ],
                                     ),
@@ -1716,8 +1768,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, index) {
                                 return Shimmer.fromColors(
                                   baseColor: Colors.white,
-                                  highlightColor:
-                                  Colors.grey[300]!,
+                                  highlightColor: Colors.grey[300]!,
                                   child: Container(
                                     width: double.infinity,
                                     height: 125,
@@ -1725,8 +1776,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: EdgeInsets.all(5),
                                     decoration: BoxDecoration(
                                       borderRadius:
-                                      BorderRadius.circular(
-                                          20),
+                                      BorderRadius.circular(20),
                                     ),
                                     child: Row(
                                       children: [
@@ -1736,10 +1786,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius
-                                                  .circular(
-                                                  20),
-                                              color: Colors
-                                                  .grey[400]),
+                                                  .circular(20),
+                                              color:
+                                              Colors.grey[400]),
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -1771,8 +1820,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.white,
                               height: 140,
                               child: ListView.builder(
-                                  scrollDirection:
-                                  Axis.horizontal,
+                                  scrollDirection: Axis.horizontal,
                                   itemCount: 3,
                                   itemBuilder: (c, i) {
                                     return Container(
@@ -1783,22 +1831,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       decoration: BoxDecoration(
                                           border: Border.all(
                                               color: Colors.white,
-                                              style: BorderStyle
-                                                  .solid,
+                                              style:
+                                              BorderStyle.solid,
                                               width: 1.5),
                                           color: Colors.white,
                                           borderRadius:
-                                          BorderRadius
-                                              .circular(22),
+                                          BorderRadius.circular(
+                                              22),
                                           image: DecorationImage(
                                               image: NetworkImage(
-                                                  'https://png.pngtree.com/thumb_back/fh260/back_our/20190622/ourmid/pngtree-wedding-cake-banner-background-illustration-image_209636.jpg'),
+                                                  'https://as2.ftcdn.net/v2/jpg/03/33/60/19/1000_F_333601933_hSdfWhDfRG3zaiVRvYZF24KixdVBdGfB.jpg'),
                                               fit: BoxFit.cover)),
                                       child: Padding(
                                         padding:
                                         const EdgeInsets.only(
-                                            left: 8,
-                                            bottom: 8),
+                                            left: 8, bottom: 8),
                                         child: Column(
                                             mainAxisSize:
                                             MainAxisSize.min,
@@ -1887,8 +1934,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Text(
                                               'See All',
                                               style: TextStyle(
-                                                  color:
-                                                  lightPink,
+                                                  color: lightPink,
                                                   fontFamily:
                                                   poppins,
                                                   fontWeight:
@@ -1919,8 +1965,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           "Poppins",
                                           color: lightPink,
                                           fontWeight:
-                                          FontWeight
-                                              .bold,
+                                          FontWeight.bold,
                                           fontSize: 16),
                                     ),
                                   )
@@ -1932,14 +1977,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       cakesTypes.length,
                                       itemBuilder:
                                           (context, index) {
-                                        return cakesTypes[
-                                        index]
+                                        return cakesTypes[index]
                                             .contains(
                                             'Customize your cake')
                                             ? Container(
                                           width: 150,
-                                          child:
-                                          InkWell(
+                                          child: InkWell(
                                             onTap:
                                                 () async {
                                               FocusScope.of(
@@ -1957,8 +2000,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .setCurrentIndex(
                                                   2);
                                             },
-                                            child:
-                                            Column(
+                                            child: Column(
                                               children: [
                                                 Container(
                                                   height:
@@ -1966,7 +2008,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   width:
                                                   130,
                                                   decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(20),
+                                                      borderRadius:
+                                                      BorderRadius.circular(20),
                                                       border: Border.all(color: Colors.white, width: 2),
                                                       image: DecorationImage(image: AssetImage('assets/images/customcake.png'), fit: BoxFit.cover)),
                                                 ),
@@ -1975,14 +2018,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   2,
                                                 ),
                                                 Text(
-                                                  cakesTypes[index] == null
+                                                  cakesTypes[index] ==
+                                                      null
                                                       ? 'No name'
                                                       : "Customise Your \nCake",
                                                   style: TextStyle(
-                                                      color: darkBlue,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontFamily: poppins,
-                                                      fontSize: 13),
+                                                      color:
+                                                      darkBlue,
+                                                      fontWeight: FontWeight
+                                                          .bold,
+                                                      fontFamily:
+                                                      poppins,
+                                                      fontSize:
+                                                      13),
                                                   textAlign:
                                                   TextAlign.center,
                                                 )
@@ -1992,8 +2040,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         )
                                             : Container(
                                           width: 150,
-                                          child:
-                                          InkWell(
+                                          child: InkWell(
                                             onTap:
                                                 () async {
                                               FocusScope.of(
@@ -2018,8 +2065,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .setCurrentIndex(
                                                   1);
                                             },
-                                            child:
-                                            Column(
+                                            child: Column(
                                               children: [
                                                 Container(
                                                   height:
@@ -2027,7 +2073,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   width:
                                                   130,
                                                   decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(20),
+                                                      borderRadius:
+                                                      BorderRadius.circular(20),
                                                       border: Border.all(color: Colors.white, width: 2),
                                                       image: DecorationImage(image: cakesList[index]['Images'].isEmpty ? NetworkImage('https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg') : NetworkImage(cakesList[index]['Images'][0].toString()), fit: BoxFit.cover)),
                                                 ),
@@ -2036,14 +2083,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   2,
                                                 ),
                                                 Text(
-                                                  cakesTypes[index] == null
+                                                  cakesTypes[index] ==
+                                                      null
                                                       ? 'No name'
                                                       : "${cakesTypes[index][0].toString().toUpperCase() + cakesTypes[index].toString().substring(1).toLowerCase()}",
                                                   style: TextStyle(
-                                                      color: darkBlue,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontFamily: poppins,
-                                                      fontSize: 13),
+                                                      color:
+                                                      darkBlue,
+                                                      fontWeight: FontWeight
+                                                          .bold,
+                                                      fontFamily:
+                                                      poppins,
+                                                      fontSize:
+                                                      13),
                                                   textAlign:
                                                   TextAlign.center,
                                                   maxLines:
@@ -2104,21 +2156,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 const curve =
                                                     Curves.ease;
 
-                                                final tween =
-                                                Tween(
-                                                    begin:
-                                                    begin,
+                                                final tween = Tween(
+                                                    begin: begin,
                                                     end: end);
                                                 final curvedAnimation =
                                                 CurvedAnimation(
-                                                  parent:
-                                                  animation,
+                                                  parent: animation,
                                                   curve: curve,
                                                 );
 
                                                 return SlideTransition(
-                                                  position: tween
-                                                      .animate(
+                                                  position:
+                                                  tween.animate(
                                                       curvedAnimation),
                                                   child: child,
                                                 );
@@ -2131,8 +2180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Text(
                                               'See All',
                                               style: TextStyle(
-                                                  color:
-                                                  lightPink,
+                                                  color: lightPink,
                                                   fontFamily:
                                                   poppins,
                                                   fontWeight:
@@ -2160,11 +2208,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                             CircularProgressIndicator()))
                                         : recentOrders.length > 0
                                         ? ListView.builder(
-                                        itemCount: recentOrders.length < 4?
-                                        recentOrders.length:4,
+                                        itemCount: recentOrders
+                                            .length <
+                                            3
+                                            ? recentOrders
+                                            .length
+                                            : 3,
                                         scrollDirection:
-                                        Axis
-                                            .horizontal,
+                                        Axis.horizontal,
                                         itemBuilder:
                                             (context,
                                             index) {
@@ -2194,8 +2245,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Curves.ease;
 
                                                     final tween = Tween(
-                                                        begin: begin,
-                                                        end: end);
+                                                        begin:
+                                                        begin,
+                                                        end:
+                                                        end);
                                                     final curvedAnimation =
                                                     CurvedAnimation(
                                                       parent:
@@ -2216,29 +2269,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                             },
                                             child:
                                             Container(
-                                              margin: EdgeInsets.only(
+                                              margin: EdgeInsets
+                                                  .only(
                                                   left:
                                                   10,
                                                   right:
                                                   10),
-                                              child:
-                                              Stack(
+                                              child: Stack(
                                                 alignment:
                                                 Alignment
                                                     .topCenter,
                                                 children: [
                                                   Container(
-                                                    width:
-                                                    width / 2.2,
+                                                    width: width /
+                                                        2.2,
                                                     height:
                                                     135,
                                                     decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(15),
+                                                        borderRadius:
+                                                        BorderRadius.circular(15),
                                                         image: DecorationImage(fit: BoxFit.cover, image: NetworkImage('${recentOrders[index]['Images']}'))),
                                                   ),
                                                   Positioned(
-                                                    top:
-                                                    85,
+                                                    top: 85,
                                                     child:
                                                     Card(
                                                       shape:
@@ -2247,9 +2300,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       7,
                                                       child:
                                                       Container(
-                                                        padding: EdgeInsets.all(8),
-                                                        width: 155,
-                                                        child: Column(
+                                                        padding:
+                                                        EdgeInsets.all(8),
+                                                        width:
+                                                        155,
+                                                        child:
+                                                        Column(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           mainAxisSize: MainAxisSize.min,
                                                           children: [
@@ -2398,8 +2454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             fontFamily: poppins),
                                       ),
                                       Icon(
-                                        Icons
-                                            .keyboard_arrow_right,
+                                        Icons.keyboard_arrow_right,
                                         color: lightPink,
                                       )
                                     ],
@@ -2411,8 +2466,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Column(
                             children: [
                               Container(
-                                padding:
-                                EdgeInsets.only(left: 10),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Row(
                                   mainAxisAlignment:
                                   MainAxisAlignment
@@ -2426,11 +2480,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             thumbColor:
                                             Colors.white,
                                             value: egglesSwitch,
-                                            onChanged:
-                                                (bool? val) {
+                                            onChanged: (bool? val) {
                                               setState(() {
-                                                egglesSwitch =
-                                                val!;
+                                                egglesSwitch = val!;
                                               });
                                             },
                                             activeColor:
@@ -2445,8 +2497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: darkBlue,
                                               fontWeight:
                                               FontWeight.bold,
-                                              fontFamily:
-                                              poppins),
+                                              fontFamily: poppins),
                                         ),
                                       ],
                                     ),
@@ -2458,13 +2509,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ? Column(
                                   children: [
                                     SizedBox(height: 20),
-                                    Text(
-                                        'No Results Found!',
+                                    Text('No Results Found!',
                                         style: TextStyle(
                                             fontFamily:
                                             'Poppins',
-                                            color:
-                                            darkBlue)),
+                                            color: darkBlue)),
                                     SizedBox(height: 20),
                                   ],
                                 )
@@ -2497,8 +2546,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Container(
                                             // margin: EdgeInsets.all(5),
                                             padding:
-                                            EdgeInsets
-                                                .all(6),
+                                            EdgeInsets.all(
+                                                6),
                                             height: 130,
                                             decoration: BoxDecoration(
                                                 borderRadius:
@@ -2540,8 +2589,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .only(
                                                       left:
                                                       10),
-                                                  child:
-                                                  Column(
+                                                  child: Column(
                                                     crossAxisAlignment:
                                                     CrossAxisAlignment
                                                         .start,
@@ -2550,8 +2598,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .spaceAround,
                                                     children: [
                                                       Container(
-                                                        width:
-                                                        width * 0.63,
+                                                        width: width *
+                                                            0.63,
                                                         child:
                                                         Row(
                                                           mainAxisAlignment:
@@ -2611,8 +2659,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         ),
                                                       ),
                                                       Container(
-                                                        width:
-                                                        width * 0.63,
+                                                        width: width *
+                                                            0.63,
                                                         child:
                                                         Text(
                                                           nearestVendors[index]['Description'] != null
@@ -2631,10 +2679,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       Container(
                                                         height:
                                                         1,
-                                                        width:
-                                                        width * 0.63,
-                                                        color:
-                                                        Colors.black26,
+                                                        width: width *
+                                                            0.63,
+                                                        color: Colors
+                                                            .black26,
                                                       ),
                                                       Container(
                                                           width:
@@ -2711,11 +2759,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )
-            // )
-                :Visibility(
-              visible: isFiltered?true:false,
-              child: (cakesTypes.length==0)?Text('No Similar Data Found'):
-              ListView.builder(
+                : Visibility(
+              visible: isFiltered ? true : false,
+              child: (cakesTypes.length < 0)
+                  ? Text('No Similar Data Found')
+                  : ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: cakesTypes.length,
@@ -2736,7 +2784,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           //header text (name , stars)
                           Container(
                               padding: EdgeInsets.only(
-                                  top: 4, bottom: 4, left: 10, right: 10),
+                                  top: 4,
+                                  bottom: 4,
+                                  left: 10,
+                                  right: 10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(15),
@@ -2771,12 +2822,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       allowHalfRating: true,
                                       itemCount: 5,
                                       itemSize: 14,
-                                      itemPadding: EdgeInsets.symmetric(
+                                      itemPadding:
+                                      EdgeInsets.symmetric(
                                           horizontal: 1.0),
-                                      itemBuilder: (context, _) => Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
+                                      itemBuilder: (context, _) =>
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
                                       onRatingUpdate: (rating) {
                                         print(rating);
                                       },
@@ -2793,20 +2846,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 Expanded(
                                     child: Container(
-                                        alignment: Alignment.centerRight,
+                                        alignment:
+                                        Alignment.centerRight,
                                         child: InkWell(
                                           onTap: () {
                                             sendDetailsToScreen(i);
                                           },
                                           child: Container(
-                                              alignment: Alignment.center,
+                                              alignment:
+                                              Alignment.center,
                                               height: 25,
                                               width: 25,
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.white),
+                                              decoration:
+                                              BoxDecoration(
+                                                  shape: BoxShape
+                                                      .circle,
+                                                  color: Colors
+                                                      .white),
                                               child: Icon(
-                                                Icons.arrow_forward_ios_sharp,
+                                                Icons
+                                                    .arrow_forward_ios_sharp,
                                                 color: lightPink,
                                                 size: 15,
                                               )),
@@ -2822,14 +2881,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.all(8),
                                 child: Row(children: [
                                   cakesTypes[i]['Images'].isEmpty ||
-                                      cakesTypes[i]['Images'][0] == ''
+                                      cakesTypes[i]['Images']
+                                      [0] ==
+                                          ''
                                       ? Container(
                                     height: 85,
                                     width: 85,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       borderRadius:
-                                      BorderRadius.circular(15),
+                                      BorderRadius.circular(
+                                          15),
                                       color: Colors.pink[100],
                                     ),
                                     child: Icon(
@@ -2843,11 +2905,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: 85,
                                     decoration: BoxDecoration(
                                         borderRadius:
-                                        BorderRadius.circular(15),
+                                        BorderRadius
+                                            .circular(15),
                                         color: Colors.blue,
                                         image: DecorationImage(
                                             image: NetworkImage(
-                                                cakesTypes[i]['Images']
+                                                cakesTypes[i][
+                                                'Images']
                                                 [0]),
                                             fit: BoxFit.cover)),
                                   ),
@@ -2856,7 +2920,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Container(
                                           child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment
+                                                  .start,
                                               children: [
                                                 Container(
                                                   // width:120,
@@ -2864,11 +2929,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     '${cakesTypes[i]['Title']}',
                                                     style: TextStyle(
                                                         color: darkBlue,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                        FontWeight.bold,
                                                         fontFamily: 'Poppins',
                                                         fontSize: 12),
                                                     maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                                 SizedBox(height: 5),
@@ -2878,11 +2945,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     'Price Rs.${cakesTypes[i]['Price']}/Kg Min Quantity 1 Kg Customization Available',
                                                     style: TextStyle(
                                                         color: Colors.grey,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                        FontWeight.bold,
                                                         fontFamily: 'Poppins',
                                                         fontSize: 10),
                                                     maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                                 SizedBox(height: 5),
@@ -2905,11 +2974,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         : 'Delivery Charge Rs.${cakesTypes[i]['DeliveryCharge']} ',
                                                     style: TextStyle(
                                                         color: Colors.orange,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                        FontWeight.bold,
                                                         fontFamily: 'Poppins',
                                                         fontSize: 10),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ])))

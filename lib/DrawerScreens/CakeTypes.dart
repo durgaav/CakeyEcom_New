@@ -1131,8 +1131,6 @@ class _CakeTypesState extends State<CakeTypes> {
   //search by filters
   void searchByGivenFilter(String category, String subCategory , String vendorName){
 
-
-
     List a=[] , b =[], c=[];
     
     setState((){
@@ -1219,17 +1217,15 @@ class _CakeTypesState extends State<CakeTypes> {
           setState(() {
             isNetworkError = false;
             cakesList = jsonDecode(response.body);
-            cakesList = cakesList.reversed.toList();
+            // cakesList = cakesList.reversed.toList();
 
             for(int i=0;i<cakesList.length;i++){
+              print(cakesList[i]['TypeOfCake']);
               // rangeValuesList.add(int.parse(cakesList[i]['Price']));
-              if(i==0){
-                cakesTypes.add('All cakes');
-              }else{
-                cakesTypes.add(cakesList[i]['TypeOfCake']);
-              }
+              cakesTypes.add(cakesList[i]['TypeOfCake']);
             }
 
+            cakesTypes.insert(0, "All Cakes");
             cakesTypes = cakesTypes.toSet().toList();
 
             Navigator.pop(context);
@@ -1510,7 +1506,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Send filtered prefs to next screen
   Future<void> sendFillDetailsToScreen(int index) async{
-    //Local Vars
+
+    // filterCakesSearchList
+
     List<String> cakeImgs = [];
     List<String> cakeFlavs = [];
     List<String> cakeWeights = [];
@@ -1533,6 +1531,8 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeImgs = [];
       });
     }
+
+    print(filterCakesSearchList[index]['FlavourList'][0]['Name']);
 
     //getting cake flavs
     if(filterCakesSearchList[index]['FlavourList'].isNotEmpty){
@@ -1563,18 +1563,18 @@ class _CakeTypesState extends State<CakeTypes> {
     }
 
     //getting cake toppings list
-    if(filterCakesSearchList[index]['CakeToppings'].isNotEmpty){
-      setState(() {
-        for(int i=0;i<filterCakesSearchList[index]['CakeToppings'].length;i++){
-          cakeTopings.add(filterCakesSearchList[index]['CakeToppings'][i].toString());
-        }
-      });
-    }
-    else{
-      setState(() {
-        cakeTopings = [];
-      });
-    }
+    // if(cakeSearchList[index]['CakeToppings'].isNotEmpty){
+    //   setState(() {
+    //     for(int i=0;i<cakeSearchList[index]['CakeToppings'].length;i++){
+    //       cakeTopings.add(cakeSearchList[index]['CakeToppings'][i].toString());
+    //     }
+    //   });
+    // }
+    // else{
+    //   setState(() {
+    //     cakeTopings = [];
+    //   });
+    // }
 
     //getting cake weights
     if(filterCakesSearchList[index]['WeightList'].isNotEmpty){
@@ -1595,9 +1595,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
     //API LIST
     prefs.setStringList('cakeImages', cakeImgs);
-    prefs.setStringList('cakeFalvours', cakeFlavs);
+    // prefs.setStringList('cakeFalvours', cakeFlavs);
     prefs.setStringList('cakeWeights', cakeWeights);
-    prefs.setStringList('cakeShapes', cakeShapes);
+    // prefs.setStringList('cakeShapes', cakeShapes);
     prefs.setStringList('cakeToppings', cakeTopings);
 
     //API STRINGS AND INTS
@@ -1605,20 +1605,23 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeEggOrEggless', filterCakesSearchList[index]['EggOrEggless'].toString());
     prefs.setString('cakeNames', filterCakesSearchList[index]['Title'].toString());
     prefs.setString('cakeId', filterCakesSearchList[index]['_id'].toString());
+    prefs.setString('cakeDiscount', filterCakesSearchList[index]['Discount'].toString());
     prefs.setString('cakePrice', filterCakesSearchList[index]['Price'].toString());
     prefs.setString('cakeDescription', filterCakesSearchList[index]['Description'].toString());
     prefs.setString('cakeType', filterCakesSearchList[index]['TypeOfCake'].toString());
     prefs.setString('cakeDelCharge', filterCakesSearchList[index]['DeliveryCharge'].toString());
-    prefs.setString('cakeTaxRate', filterCakesSearchList[index]['Tax'].toString());
+    prefs.setInt('cakeTaxRate', filterCakesSearchList[index]['Tax'].toInt());
 
     prefs.setString('vendorID', filterCakesSearchList[index]['VendorID'].toString());
     prefs.setString('vendorName', filterCakesSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', filterCakesSearchList[index]['VendorPhoneNumber'].toString());
 
-
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails([],[],[]),
+        pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
+            filterCakesSearchList[index]['ShapeList'].toList(),filterCakesSearchList[index]['FlavourList'].toList(),
+            filterCakesSearchList[index]['ArticleList'].toList()
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -1637,6 +1640,7 @@ class _CakeTypesState extends State<CakeTypes> {
         },
       ),
     );
+
 
   }
 
@@ -1775,15 +1779,20 @@ class _CakeTypesState extends State<CakeTypes> {
 
             setState(() {
               for(int i=0;i<eggOrEgglesList.length;i++){
+
                 if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-                  for(int j = 0 ; j<shapes.length;j++){
-                    if(eggOrEgglesList[i]['ShapeList'].contains(shapes[j])){
-                      b.add(eggOrEgglesList[i]);
+                  print("${eggOrEgglesList[i]['ShapeList']} : $i");
+                  print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
+
+                  for(int j=0;j<shapes.length;j++){
+                    if(eggOrEgglesList[i]['ShapeList'].toList().contains(
+                        shapes[j][0].toString().toUpperCase()+shapes[j].toString().substring(1).toLowerCase()
+                    )){
+                      myShapesFilter.add(eggOrEgglesList[i]);
                     }
                   }
-                }else{
-
                 }
+
               }
               isFilterisOn=true;
             });
@@ -1813,7 +1822,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
           myFilterList = a+b+c+d;
-          filteredListByUser = myFilterList+ myShapesFilter;
+          filteredListByUser = myFilterList + myShapesFilter;
           filteredListByUser = filteredListByUser.toSet().toList();
           filteredListByUser = filteredListByUser.reversed.toList();
 
@@ -1865,6 +1874,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //applying shape only filter
   void applyFilterByShape(List shapes){
+
+    print(shapes);
+
       setState(() {
         if(shapes.isEmpty){
           Navigator.pop(context);
@@ -1872,18 +1884,23 @@ class _CakeTypesState extends State<CakeTypes> {
         }
         else{
           myShapesFilter.clear();
-          print('shapes okk!');
           setState(() {
             for(int i=0;i<eggOrEgglesList.length;i++){
+
               if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-                  for(int k = 0 ;k < shapes.length;k++){
-                    if(eggOrEgglesList[i]['ShapeList'].contains(shapes[k])){
-                      setState(() {
-                        myShapesFilter.add(eggOrEgglesList[i]);
-                      });
-                    }
+                print("${eggOrEgglesList[i]['ShapeList']} : $i");
+                print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
+
+                for(int j=0;j<shapes.length;j++){
+                  if(eggOrEgglesList[i]['ShapeList'].toList().contains(
+                      shapes[j][0].toString().toUpperCase()+shapes[j].toString().substring(1).toLowerCase()
+                  )){
+                    myShapesFilter.add(eggOrEgglesList[i]);
                   }
+                }
+
               }
+
             }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -2073,7 +2090,7 @@ class _CakeTypesState extends State<CakeTypes> {
                   .contains(cakeVendorCtrl.text.toLowerCase())).toList();
             }
 
-            cakeSearchList.clear();
+            // cakeSearchList.clear();
 
             print(categorySearch.length);
             print(subCategorySearch.length);
@@ -2107,11 +2124,11 @@ class _CakeTypesState extends State<CakeTypes> {
     return WillPopScope(
       onWillPop: () async{
         // var myPre = await SharedPreferences.getInstance();
-        if(navFromHome == true){
-          setState((){
-            context.read<ContextData>().setCurrentIndex(0);
-          });
-        }
+        // if(navFromHome == true){
+        //   setState((){
+        //     context.read<ContextData>().setCurrentIndex(0);
+        //   });
+        // }
         // iamYourVendor?
         // context.read<ContextData>().setCurrentIndex(3):
         // context.read<ContextData>().setCurrentIndex(0);
@@ -2676,7 +2693,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     Text('Found',style: TextStyle(
                                         color: darkBlue,fontSize: 16,fontFamily: "Poppins"
                                     )),
-                                    Text(filterCakesSearchList.length.toString()+" item",style: TextStyle(
+                                    Text(filterCakesSearchList.length.toString()+" items",style: TextStyle(
                                         color: darkBlue,fontWeight: FontWeight.bold,
                                         fontSize: 20,fontFamily: "Poppins"
                                     )),
@@ -2718,7 +2735,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                     borderRadius: BorderRadius.circular(8)
                                                 ),
                                                 child: Text(filterCakesSearchList[index]['WeightList'].isEmpty?'NF':
-                                                '${filterCakesSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
+                                                '${filterCakesSearchList[index]['WeightList'][0].toString()}'
                                                     ,style: TextStyle(
                                                         color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
                                                     )),
