@@ -1466,6 +1466,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('cakeEggOrEggless', cakeSearchList[index]['EggOrEggless'].toString());
     prefs.setString('cakeNames', cakeSearchList[index]['Title'].toString());
     prefs.setString('cakeId', cakeSearchList[index]['_id'].toString());
+    prefs.setString('cakesmodId', cakeSearchList[index]['Id'].toString());
     prefs.setString('cakeDiscount', cakeSearchList[index]['Discount'].toString());
     prefs.setString('cakePrice', cakeSearchList[index]['Price'].toString());
     prefs.setString('cakeDescription', cakeSearchList[index]['Description'].toString());
@@ -1474,6 +1475,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setInt('cakeTaxRate', cakeSearchList[index]['Tax'].toInt());
 
     prefs.setString('vendorID', cakeSearchList[index]['VendorID'].toString());
+    prefs.setString('vendorsmodID', cakeSearchList[index]['Vendor_ID'].toString());
     prefs.setString('vendorName', cakeSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
 
