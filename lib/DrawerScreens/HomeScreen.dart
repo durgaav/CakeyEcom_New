@@ -93,12 +93,20 @@ class _HomeScreenState extends State<HomeScreen> {
   List filteredByEggList = [];
   List nearestVendors = [];
 
+  //Filter caketype
+  List filterTypeList=["Birthday","Wedding","Theme Cake","Normal Cake"];
+  List selectedFilter=[];
+
+
 //search all type
   List cakeSearchList = [];
   List categoryList = [];
   List subCategoryList = [];
-  List vendorNameList = [];
+  //for filter search
+  List cakeTypeList=[];
 
+  List vendorNameList = [];
+  List typesList = [];
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
   var cakeSubCategoryCtrl = new TextEditingController();
@@ -107,8 +115,6 @@ class _HomeScreenState extends State<HomeScreen> {
   var mainSearchCtrl = new TextEditingController();
 
 
-  int currentIndex = 0;
-  bool selectedIndex=false;
 
   //latt and long and maps
   double lat = 0.0;
@@ -136,10 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     //region API LIST
     //getting cake pics
-    if (cakeSearchList[index]['Images'].isNotEmpty) {
+    if (cakesTypes[index]['Images'].isNotEmpty) {
       setState(() {
-        for (int i = 0; i < cakeSearchList[index]['Images'].length; i++) {
-          cakeImgs.add(cakeSearchList[index]['Images'][i].toString());
+        for (int i = 0; i < cakesTypes[index]['Images'].length; i++) {
+          cakeImgs.add(cakesTypes[index]['Images'][i].toString());
         }
       });
     } else {
@@ -148,13 +154,13 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    print(cakeSearchList[index]['FlavourList'][0]['Name']);
+    print(cakesTypes[index]['FlavourList'][0]['Name']);
 
     //getting cake flavs
-    if (cakeSearchList[index]['FlavourList'].isNotEmpty) {
+    if (cakesTypes[index]['FlavourList'].isNotEmpty) {
       setState(() {
-        for (int i = 0; i < cakeSearchList[index]['FlavourList'].length; i++) {
-          cakeFlavs.add(cakeSearchList[index]['FlavourList'][i].toString());
+        for (int i = 0; i < cakesTypes[index]['FlavourList'].length; i++) {
+          cakeFlavs.add(cakesTypes[index]['FlavourList'][i].toString());
         }
       });
     } else {
@@ -164,10 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     //getting cake shapes
-    if (cakeSearchList[index]['ShapeList'].isNotEmpty) {
+    if (cakesTypes[index]['ShapeList'].isNotEmpty) {
       setState(() {
-        for (int i = 0; i < cakeSearchList[index]['ShapeList'].length; i++) {
-          cakeShapes.add(cakeSearchList[index]['ShapeList'][i].toString());
+        for (int i = 0; i < cakesTypes[index]['ShapeList'].length; i++) {
+          cakeShapes.add(cakesTypes[index]['ShapeList'][i].toString());
         }
       });
     } else {
@@ -191,10 +197,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // }
 
     //getting cake weights
-    if (cakeSearchList[index]['WeightList'].isNotEmpty) {
+    if (cakesTypes[index]['WeightList'].isNotEmpty) {
       setState(() {
-        for (int i = 0; i < cakeSearchList[index]['WeightList'].length; i++) {
-          cakeWeights.add(cakeSearchList[index]['WeightList'][i].toString());
+        for (int i = 0; i < cakesTypes[index]['WeightList'].length; i++) {
+          cakeWeights.add(cakesTypes[index]['WeightList'][i].toString());
         }
       });
     } else {
@@ -214,33 +220,33 @@ class _HomeScreenState extends State<HomeScreen> {
     prefs.setStringList('cakeToppings', cakeTopings);
 
     //API STRINGS AND INTS
-    prefs.setString('cakeRatings', cakeSearchList[index]['Ratings'].toString());
+    prefs.setString('cakeRatings', cakesTypes[index]['Ratings'].toString());
     prefs.setString(
-        'cakeEggOrEggless', cakeSearchList[index]['EggOrEggless'].toString());
-    prefs.setString('cakeNames', cakeSearchList[index]['Title'].toString());
-    prefs.setString('cakeId', cakeSearchList[index]['_id'].toString());
+        'cakeEggOrEggless', cakesTypes[index]['EggOrEggless'].toString());
+    prefs.setString('cakeNames', cakesTypes[index]['Title'].toString());
+    prefs.setString('cakeId', cakesTypes[index]['_id'].toString());
     prefs.setString(
-        'cakeDiscount', cakeSearchList[index]['Discount'].toString());
-    prefs.setString('cakePrice', cakeSearchList[index]['Price'].toString());
+        'cakeDiscount', cakesTypes[index]['Discount'].toString());
+    prefs.setString('cakePrice', cakesTypes[index]['Price'].toString());
     prefs.setString(
-        'cakeDescription', cakeSearchList[index]['Description'].toString());
-    prefs.setString('cakeType', cakeSearchList[index]['TypeOfCake'].toString());
+        'cakeDescription', cakesTypes[index]['Description'].toString());
+    prefs.setString('cakeType', cakesTypes[index]['TypeOfCake'].toString());
     prefs.setString(
-        'cakeDelCharge', cakeSearchList[index]['DeliveryCharge'].toString());
-    prefs.setInt('cakeTaxRate', cakeSearchList[index]['Tax'].toInt());
+        'cakeDelCharge', cakesTypes[index]['DeliveryCharge'].toString());
+    prefs.setInt('cakeTaxRate', cakesTypes[index]['Tax'].toInt());
 
-    prefs.setString('vendorID', cakeSearchList[index]['VendorID'].toString());
+    prefs.setString('vendorID', cakesTypes[index]['VendorID'].toString());
     prefs.setString(
-        'vendorName', cakeSearchList[index]['VendorName'].toString());
+        'vendorName', cakesTypes[index]['VendorName'].toString());
     prefs.setString(
-        'vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
+        'vendorMobile', cakesTypes[index]['VendorPhoneNumber'].toString());
 
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
-            cakeSearchList[index]['ShapeList'].toList(),
-            cakeSearchList[index]['FlavourList'].toList(),
-            cakeSearchList[index]['ArticleList'].toList()),
+            cakesTypes[index]['ShapeList'].toList(),
+            cakesTypes[index]['FlavourList'].toList(),
+            cakesTypes[index]['ArticleList'].toList()),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -341,9 +347,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
-                              searchCakeVendor = '';
-                              searchCakeSubType = '';
-                              searchCakeCate = '';
+                              // searchCakeVendor = '';
+                              // searchCakeSubType = '';
+                              // searchCakeCate = '';
                             },
                             child: Container(
                                 width: 35,
@@ -539,135 +545,120 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 5,
                       ),
 
-                      //               Container(
-                      //   height: 80,
-                      //   padding: EdgeInsets.all(10),
-                      //   child: ListView.builder(
+
+                      // Container(
+                      //   height: 200,
+                      //     child: ListView.builder(
+                      //         itemCount: filterTypeList.length,
                       //         shrinkWrap: true,
-                      //         itemCount: 4,
-                      //         scrollDirection: Axis.horizontal,
-                      //         itemBuilder: (context , index){
-                      //           return Stack(
-                      //             children: [
-                      //               GestureDetector(
-                      //                 onTap:(){
-                      //                   setState((){
-                      //                     currentIndex = index;
-                      //                   });
+                      //         itemBuilder: (context, index) {
+                      //           return
+                      //             Wrap(
+                      //               children:
+                      //               filterTypeList.map(
+                      //                     (item) {
+                      //                   bool isSelected = false;
+                      //                   // if (selectCakeType.contains(item)) {
+                      //                   //   isSelected = true;
+                      //                   // }
+                      //                   return GestureDetector(
+                      //                     onTap: () {
+                      //                       // if (!selectCakeType.contains(item)) {
+                      //                       //   if (selectCakeType.length < 5) {
+                      //                       //     setState(() {
+                      //                       //       selectCakeType.add(item);
+                      //                       //     });
+                      //                       //     print(selectCakeType);
+                      //                       //   }
+                      //                       // } else {
+                      //                       //   setState(() {
+                      //                       //     selectCakeType
+                      //                       //         .removeWhere((element) => element == item);
+                      //                       //   });
+                      //                       //   print(selectCakeType);
+                      //                       // }
+                      //                     },
+                      //                     child: Container(
+                      //                         margin: EdgeInsets.symmetric(
+                      //                             horizontal: 5, vertical: 4),
+                      //                         child: Container(
+                      //                           height: 30,
+                      //                           padding: EdgeInsets.symmetric(
+                      //                               vertical: 5, horizontal: 12),
+                      //                           decoration: BoxDecoration(
+                      //                               color:isSelected?lightPink:Colors.white,
+                      //                               borderRadius: BorderRadius.circular(5),
+                      //                               border: Border.all(
+                      //                                   color:isSelected?lightPink:Colors.grey,width: 1)),
+                      //                           child: Text(
+                      //                             item,
+                      //                             style: TextStyle(
+                      //                                 color:
+                      //                                 isSelected ? Colors.white : darkBlue,
+                      //                                 fontSize: 14),
+                      //                           ),
+                      //                         )),
+                      //                   );
                       //                 },
-                      //                    child:Text('Normal cake')
-                      //               ),
-                      //               currentIndex == index?
-                      //               Positioned(
-                      //                 right: 0,
-                      //                 child:Container(
-                      //                   alignment: Alignment.center,
-                      //                   height: 20,
-                      //                   width: 20,
-                      //                   decoration: BoxDecoration(
-                      //                     color:Colors.green,
-                      //                     shape: BoxShape.circle
-                      //                   ),
-                      //                   child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
-                      //                 )
-                      //               ):Positioned(
-                      //                   right: 0,
-                      //                   child: Container()
-                      //               ),
-                      //             ],
-                      //           );
-                      //         }
-                      //     )
-                      // ),
+                      //               ).toList(),
+                      //             );
                       //
+                      //         }),
+                      // ),
 
 
-                      //  types of cakes btn...
-                      Wrap(
-                        // runSpacing: 4.0,
-                        spacing: 5.0,
-                        children: [
-
-                          OutlinedButton(
-                            style:(currentIndex == 0)?( selectedIndex=true)?OutlinedButton.styleFrom(
-                                primary: Colors.white,
-                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
-                            // ):OutlinedButton.styleFrom(primary: darkBlue,backgroundColor: Colors.amber),
-                            onPressed: () {
-                              setState((){
-                                currentIndex=0;
-                                print(currentIndex);
-                                selectedIndex=true;
-                                print(selectedIndex);
-                              });
-                            },
-                            child: Text(
-                              'Normal Cakes',
-                              style:TextStyle(
-                                  fontSize: 12,
-                                  // color: darkBlue,
-                                  fontFamily: "Poppins"),
-                            ),
-                          ),
-                          OutlinedButton(
-                            style:(currentIndex == 1)?( selectedIndex=true)?OutlinedButton.styleFrom(
-                                primary: Colors.white,
-                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
-                            onPressed: () {
-                              setState((){
-                                currentIndex=1;
-                                print(currentIndex);
-                                selectedIndex=true;
-                                print(selectedIndex);
-                              });
-                            },
-                            child: Text(
-                              'Basic Customize Cake',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: "Poppins"),
-                            ),
-                          ),
-                          OutlinedButton(
-                            style:(currentIndex == 2)?( selectedIndex=true)?OutlinedButton.styleFrom(
-                                primary: Colors.white,
-                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
-                            onPressed: () {
-                              setState((){
-                                currentIndex=2;
-                                print(currentIndex);
-                                selectedIndex=true;
-                                print(selectedIndex);
-                              });
-                            },
-                            child: Text(
-                              'Fully Customize Cake',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: "Poppins"),
-                            ),
-                          ),
-                          OutlinedButton(
-                            style:(currentIndex == 3)?( selectedIndex=true)?OutlinedButton.styleFrom(
-                                primary: Colors.white,
-                                backgroundColor: lightPink):OutlinedButton.styleFrom(primary: darkBlue):OutlinedButton.styleFrom(primary: darkBlue),
-                            onPressed: () {
-                              setState((){
-                                currentIndex=3;
-                                print(currentIndex);
-                                selectedIndex=true;
-                                print(selectedIndex);
-                              });
-                            },
-                            child: Text(
-                              'Theme Cake',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: "Poppins"),
-                            ),
-                          ),
-                        ],
+                      Container(
+                        height: 100,
+                        child: ListView.builder(
+                            itemCount: 1,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return
+                                Wrap(
+                                  children:
+                                  filterTypeList.map(
+                                        (item) {
+                                      bool isSelected = false;
+                                      if (selectedFilter!.contains(item)) {
+                                        isSelected = true;
+                                      }
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState((){
+                                            if (!selectedFilter.contains(item)) {
+                                              if (selectedFilter.length < 5) {
+                                                selectedFilter.add(item);
+                                                print('is selected item...  $isSelected');
+                                                print(' selected index $selectedFilter');
+                                              }
+                                            } else {
+                                              print('is selected item...  $isSelected');
+                                              selectedFilter
+                                                  .removeWhere((element) => element == item);
+                                              print(' selected index $selectedFilter');
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 5, vertical: 4),
+                                            child: Container(
+                                              height: 30,
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 5, horizontal: 12),
+                                              decoration: BoxDecoration(
+                                                  color: isSelected?lightPink:Colors.white,
+                                                  borderRadius: BorderRadius.circular(5),
+                                                  border: Border.all(width: 1,color: isSelected?lightPink:Colors.grey)),
+                                              child: Text(item, style: TextStyle(fontSize: 14,color:isSelected?Colors.white:darkBlue,fontFamily: "Poppins"),),
+                                            )),
+                                      );
+                                    },
+                                  ).toList(),
+                                );
+                            }),
                       ),
+
                       SizedBox(
                         height: 10,
                       ),
@@ -686,7 +677,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               searchByGivenFilter(
                                   cakeCategoryCtrl.text,
                                   cakeSubCategoryCtrl.text,
-                                  cakeVendorCtrl.text
+                                  cakeVendorCtrl.text,
+                                  selectedFilter
                               );
                             },
                             child: Text(
@@ -840,22 +832,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //search by filters
   void searchByGivenFilter(
-      String category, String subCategory, String vendorName) {
+      String category, String subCategory, String vendorName, List filterCType) {
     categoryList = [];
     subCategoryList = [];
     vendorNameList = [];
+    cakeTypeList =[];
     activeSearch = true;
     mainSearchCtrl.text =
-    '$searchCakeCate $searchCakeSubType $searchCakeVendor';
+    '$searchCakeCate $searchCakeSubType $searchCakeVendor ${selectedFilter.toString().replaceAll("[", "").
+    replaceAll("]", "")}';
     // search=true;
     setState(() {
-      if (category.isEmpty && subCategory.isEmpty && vendorName.isEmpty) {
+      if (category.isEmpty && subCategory.isEmpty && vendorName.isEmpty && filterCType.isEmpty) {
         categoryList = [];
         subCategoryList = [];
         vendorNameList = [];
+        cakeTypeList=[];
         isFiltered = false;
         activeSearch = false;
-      } else if (category.isNotEmpty) {
+      }
+      else if(filterCType.isNotEmpty){
+        isFiltered=true;
+        print('active search $activeSearch');
+        for(int i=0;i<cakesList.length;i++){
+          print(i);
+          if(cakesList[i]['TypeOfCake'].isNotEmpty){
+            for(int j = 0 ; j<filterCType.length;j++){
+              print(j);
+              if(cakesList[i]['TypeOfCake'].contains(filterCType[j])){
+                cakeTypeList.add(cakesList[i]);
+                print(filterCType);
+              }
+            }
+          }
+        }
+        // print('active search $activeSearch');
+        // print(filterCType);
+        // cakeTypeList=cakesList.where((element) => element['TypeOfCake'].toString().toLowerCase().contains(filterCType.toString().toLowerCase())).toList();
+        print('neww type of cakes...............   $cakeTypeList');
+      }
+      if (category.isNotEmpty) {
         isFiltered = true;
         print('active search $activeSearch');
         categoryList = cakesList
@@ -869,7 +885,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (subCategory.isNotEmpty) {
         print(activeSearch);
         isFiltered = true;
-
         activeSearch = true;
         subCategoryList = cakesList
             .where((element) => element['SubCategory']
@@ -879,6 +894,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .toList();
         // print(subCategoryList);
       }
+
 
       if (vendorName.isNotEmpty) {
         print('Entered to Filter..');
@@ -900,7 +916,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         cakesTypes = categoryList.toList() +
             subCategoryList.toList() +
-            vendorNameList.toList();
+            vendorNameList.toList()+cakeTypeList.toList();
         cakesTypes = cakesTypes.toSet().toList();
         print(cakesTypes);
       }
@@ -1098,7 +1114,6 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         userLocalityAdr = '${place.subLocality}';
       }
-
       userMainLocation = '${place.locality}';
       prefs.setString("userCurrentLocation", userLocalityAdr);
       prefs.setString("userMainLocation", place.locality.toString());
@@ -1122,6 +1137,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //Fetching cake list API...
   Future<void> getCakeList() async {
     cakesList.clear();
+    searchCakeType.clear();
     setState(() {
       isAllLoading = true;
     });
@@ -1135,14 +1151,19 @@ class _HomeScreenState extends State<HomeScreen> {
           cakesList = jsonDecode(response.body);
           print("My res : ${jsonDecode(response.body)}");
           cakesList = cakesList.reversed.toList();
-          for (int i = 0; i < cakesList.length; i++) {
-            if (i == 0) {
-              searchCakeType.add('Customize your cake');
-            } else {
-              searchCakeType.add(cakesList[i]['TypeOfCake']);
-            }
+
+          for(int i=0;i<cakesList.length;i++){
+            print(i);
+            print('cake type list.....');
+            // print(searchCakeType[i]['TypeOfCake']);
+            // rangeValuesList.add(int.parse(cakesList[i]['Price']));
+            searchCakeType.add(cakesList[i]['TypeOfCake']);
           }
+
+          print('cake type list...  $searchCakeType');
           searchCakeType = searchCakeType.toSet().toList();
+          searchCakeType =searchCakeType.reversed.toList();
+          searchCakeType.insert(0, "Customize your cake");
           isAllLoading = false;
         });
       } else {
@@ -1383,6 +1404,7 @@ class _HomeScreenState extends State<HomeScreen> {
       categoryList = [];
       subCategoryList = [];
       vendorNameList = [];
+      cakeTypeList=[];
       print(isFiltered);
       if (searchText.isNotEmpty) {
         setState(() {
@@ -1398,7 +1420,33 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       if (cakeCategoryCtrl.text.isNotEmpty ||
           cakeSubCategoryCtrl.text.isNotEmpty ||
-          cakeVendorCtrl.text.isNotEmpty) {
+          cakeVendorCtrl.text.isNotEmpty||selectedFilter.isNotEmpty) {
+
+
+
+        if (selectedFilter.isNotEmpty) {
+          print('Entered to Filter..');
+
+          setState(() {
+            isFiltered = true;
+            // print(activeSearch);
+            activeSearch = true;
+            for(int i=0;i<cakesList.length;i++){
+              print(i);
+              if(cakesList[i]['TypeOfCake'].isNotEmpty){
+                for(int j = 0 ; j<selectedFilter.length;j++){
+                  print(j);
+                  if(cakesList[i]['TypeOfCake'].contains(selectedFilter[j])){
+                    cakeTypeList.add(cakesList[i]);
+                    print(selectedFilter);
+                  }
+                }
+              }
+            }          });
+
+          print('end new Filter..');
+        }
+
         if (cakeCategoryCtrl.text.isNotEmpty) {
           print('Entered to Filter..');
 
@@ -1460,7 +1508,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         cakesTypes = categoryList.toList() +
             subCategoryList.toList() +
-            vendorNameList.toList();
+            vendorNameList.toList()+cakeTypeList.toList();
         cakesTypes = cakesTypes.toSet().toList();
         print(cakesTypes);
       }
@@ -1491,6 +1539,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .toList();
       });
     }
+
     return Scaffold(
       key: _scaffoldKey,
       body: SingleChildScrollView(
@@ -1576,6 +1625,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     cakeCategoryCtrl.text = '';
                                     cakeSubCategoryCtrl.text = '';
                                     cakeVendorCtrl.text = '';
+                                    selectedFilter=[];
                                   });
                                 },
                                 icon: Icon(Icons.clear_sharp),
@@ -1840,7 +1890,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               22),
                                           image: DecorationImage(
                                               image: NetworkImage(
-                                                  'https://as2.ftcdn.net/v2/jpg/03/33/60/19/1000_F_333601933_hSdfWhDfRG3zaiVRvYZF24KixdVBdGfB.jpg'),
+                                                  'https://media.istockphoto.com/photos/birthday-cake-with-pink-candles-picture-id918219026?k=20&m=918219026&s=612x612&w=0&h=8vOP575w7k7rTY289BojCUENfmlrAdmkjjNCb8uC4zc='),
                                               fit: BoxFit.cover)),
                                       child: Padding(
                                         padding:
@@ -2761,8 +2811,8 @@ class _HomeScreenState extends State<HomeScreen> {
             )
                 : Visibility(
               visible: isFiltered ? true : false,
-              child: (cakesTypes.length < 0)
-                  ? Text('No Similar Data Found')
+              child: (cakesTypes.length == 0)
+                  ? Text('No Similar Data Found',style: TextStyle(fontFamily:"Poppins",fontWeight: FontWeight.bold),)
                   : ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),

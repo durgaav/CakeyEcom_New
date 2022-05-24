@@ -34,19 +34,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Color lightPink = Color(0xffFE8416D);
 
   //shapes
-  var shapesList = ["Round","Square","Heart","Any Shape" , "Others"];
+  var shapesList = [];
+  // var shapesList = ["Round","Square","Heart","Any Shape" , "Others"];
   var shapeGrpValue = 0;
 
   //flavour
-  var flavourList = [
-    "Vanilla",
-    "Chocolate" ,
-    "Strawberry",
-    "Black Forest",
-    "Red Velvet",
-    "Others",
-  ];
-
+  // var flavourList = [
+  //   "Vanilla",
+  //   "Chocolate" ,
+  //   "Strawberry",
+  //   "Black Forest",
+  //   "Red Velvet",
+  //   "Others",
+  // ];
+  var flavourList = [];
 
   var flavGrpValue = 0;
 
@@ -57,12 +58,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //Articles
   var articals = [
-    {"article":'Happy Birthday',"price":'100'},
-    {"article":'Butterflies',"price":'85'},
-    {"article":'Sweet Heart',"price":'150'},
-    {"article":'Welcome Home',"price":'70'},
-    {"article":'I Love You',"price":'70'},
-    {"article":'Others',"price":'70'},
+    // {"article":'Happy Birthday',"price":'100'},
+    // {"article":'Butterflies',"price":'85'},
+    // {"article":'Sweet Heart',"price":'150'},
+    // {"article":'Welcome Home',"price":'70'},
+    // {"article":'I Love You',"price":'70'},
+    // {"article":'Others',"price":'70'},
   ];
   int articGroupVal = -1;
 
@@ -389,20 +390,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               builder: (BuildContext context , void Function(void Function()) setState){
                 return AlertDialog(
                   title: Text('Other Category', style:
-                    TextStyle(
+                  TextStyle(
                       color: darkBlue,
                       fontFamily: "Poppins",
                       fontSize: 13
-                    )
+                  )
                     ,),
                   content: Container(
                     child: TextField(
                       controller: otherCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Enter Category...',
-                        errorText: error==true?
-                        "Please enter some text.":
-                        null
+                          hintText: 'Enter Category...',
+                          errorText: error==true?
+                          "Please enter some text.":
+                          null
                       ),
                     ),
                   ),
@@ -568,39 +569,39 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //Confirm order
   void showConfirmOrder(){
     showDialog(
-        context: context,
-        builder: (context)=>
-            AlertDialog(
-              shape: RoundedRectangleBorder(
+      context: context,
+      builder: (context)=>
+          AlertDialog(
+            shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16)
-              ),
-              title: Row(
-                children: [
-                  Text('Confirm This Order' , style: TextStyle(
-                      color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
-                      fontWeight: FontWeight.bold
-                  ),),
-                ],
-              ),
-              content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
-                  color:lightPink , fontSize: 13 , fontFamily: "Poppins"
-              ),),
-              actions: [
-                FlatButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                    },
-                    child: Text('Cancel')
-                ),
-                FlatButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                      confirmOrder();
-                    },
-                    child: Text('Order Now')
-                ),
+            ),
+            title: Row(
+              children: [
+                Text('Confirm This Order' , style: TextStyle(
+                    color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
+                    fontWeight: FontWeight.bold
+                ),),
               ],
             ),
+            content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
+                color:lightPink , fontSize: 13 , fontFamily: "Poppins"
+            ),),
+            actions: [
+              FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')
+              ),
+              FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    confirmOrder();
+                  },
+                  child: Text('Order Now')
+              ),
+            ],
+          ),
       // CupertinoAlertDialog(
       //   title: Row(
       //     children: [
@@ -683,6 +684,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
+    getShapesList();
+    getFlavsList();
+    getArticleList();
     getVendorsList();
 
     // prefs.setString('userID', userID);
@@ -763,9 +767,72 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   }
 
+  //geting the flavous fom collection
+  Future<void> getFlavsList() async{
+
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'));
+
+    if(res.statusCode==200){
+      setState((){
+        List myList = jsonDecode(res.body);
+
+        for(int i=0;i<myList.length;i++){
+          flavourList.add(myList[i]['Name']);
+        }
+        flavourList.insert(flavourList.indexWhere((element) => element==flavourList.last)+1, "Others");
+      });
+    }else{
+      print(res.statusCode);
+    }
+
+  }
+
+  //geting the shapes fom collection
+  Future<void> getShapesList() async{
+    
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/shape/list'));
+
+    if(res.statusCode==200){
+      setState((){
+        shapesList = jsonDecode(res.body);
+
+        shapesList.insert(shapesList.indexWhere((element) => element==shapesList.last)+1, {"Name":"Others"});
+
+
+      });
+    }else{
+      print(res.statusCode);
+    }
+    
+  }
+
+  //geting the article fom collection
+  Future<void> getArticleList() async{
+
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/article/list'));
+
+    if(res.statusCode==200){
+      setState((){
+        List myList = jsonDecode(res.body);
+
+        for(int i=0;i<myList.length;i++){
+          articals.add(myList[i]['Name']);
+        }
+        articals.insert(articals.indexWhere((element) => element==articals.last)+1, "Others");
+      });
+    }else{
+      print(res.statusCode);
+    }
+
+  }
+
+  //geting the weight fom collection
+  Future<void> getWeightList() async{
+
+  }
+
   //get the vendors....
   Future<void> getVendorsList() async{
-
     showAlertDialog();
     try{
       var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
@@ -785,7 +852,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           Navigator.pop(context);
         });
-
       }else{
         Navigator.pop(context);
       }
@@ -877,7 +943,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     Navigator.pop(context);
 
   }
-  
+
   //Load Order Preferences...
   Future<void> confirmOrder() async{
 
@@ -894,7 +960,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     //below 5 kg it will work...
     if(int.parse(fixedWeight , onError: (e)=>0) < 5){
-
 
       try{
 
@@ -915,7 +980,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            // 'Flavour': 'Chocolate',
+            'Flavour': '$fixedFlavList',
             // 'Flavour':{},
             'Shape': '$fixedShape',
             'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
@@ -983,7 +1048,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            // 'Flavour': 'Chocolate',
+            'Flavour': '$fixedFlavList',
             // 'Flavour':{},
             'Shape': '$fixedShape',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
@@ -1064,15 +1129,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
-          for (String item in fixedFlavList) {
-            request.files.add(http.MultipartFile.fromString('Flavour', item));
-          }
+          // for (String item in fixedFlavList) {
+          //   request.files.add(http.MultipartFile.fromString('Flavour', item));
+          // }
 
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            // 'Flavour': 'Chocolate',
+            'Flavour': '$fixedFlavList',
             // 'Flavour':{},
             'Shape': '$fixedShape',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
@@ -1132,15 +1197,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
-          for (String item in fixedFlavList) {
-            request.files.add(http.MultipartFile.fromString('Flavour', item));
-          }
+          // for (String item in fixedFlavList) {
+          //   request.files.add(http.MultipartFile.fromString('Flavour', item));
+          // }
 
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            // 'Flavour': 'Chocolate',
+            'Flavour': '$fixedFlavList',
             // 'Flavour':{},
             'Shape': '$fixedShape',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
@@ -1415,594 +1480,727 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       resizeToAvoidBottomInset: false,
       body:SingleChildScrollView(
         child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //Location name...
-              Container(
-                padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
-                color: lightGrey,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //Location name...
+            Container(
+              padding: EdgeInsets.only(left:10,top: 8,bottom: 15),
+              color: lightGrey,
+              child: Column(
+                children: [
+                  Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on,color: Colors.red,),
+                        SizedBox(width: 5,),
+                        Text('Delivery to',style: TextStyle(color: Colors.black54,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,fontFamily: "Poppins"),)
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 8),
+                    alignment: Alignment.centerLeft,
+                    child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
+                  ),
+                ],
+              ),
+            ),
+            //Main widgets....
+            Container(
+              height: MediaQuery.of(context).size.height*0.8,
+              child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      child: Row(
-                        children: [
-                          Icon(Icons.location_on,color: Colors.red,),
-                          SizedBox(width: 5,),
-                          Text('Delivery to',style: TextStyle(color: Colors.black54,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,fontFamily: "Poppins"),)
-                        ],
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
+                        style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.only(left: 8),
-                      alignment: Alignment.centerLeft,
-                      child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
-                    ),
-                  ],
-                ),
-              ),
-              //Main widgets....
-               Container(
-                 height: MediaQuery.of(context).size.height*0.8,
-                 child: SingleChildScrollView(
-                    child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
-                                style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                              ),
-                            ),
 
-                            //Egg Eggless switch
-                            Row(
-                              children: [
-                                Transform.scale(
-                                  scale: 0.6,
-                                  child: CupertinoSwitch(
-                                    thumbColor: Colors.white,
-                                    value: egglesSwitch,
-                                    onChanged: (bool? val){
-                                      setState(() {
-                                        egglesSwitch = val!;
+                    //Egg Eggless switch
+                    Row(
+                      children: [
+                        Transform.scale(
+                          scale: 0.6,
+                          child: CupertinoSwitch(
+                            thumbColor: Colors.white,
+                            value: egglesSwitch,
+                            onChanged: (bool? val){
+                              setState(() {
+                                egglesSwitch = val!;
+                              });
+                            },
+                            activeColor: Colors.green,
+                          ),
+                        ),
+                        Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
+                            fontWeight: FontWeight.bold,fontFamily: "Poppins" ,fontSize: 13),),
+                      ],
+                    ),
+
+                    //Category Text
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text("Select Category",
+                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
+                      ),
+                    ),
+
+                    //Category stacks ()....
+                    Container(
+                        height: 80,
+                        padding: EdgeInsets.all(10),
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            controller: cateListScrollCtrl,
+                            itemCount: categories.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context , index){
+                              return Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap:(){
+
+                                      if(categories[index].toString().contains("Others")){
+                                        print('Yes...');
+                                        showOthersCateDialog();
+                                      }
+
+                                      setState((){
+                                        currentIndex = index;
+                                        fixedCategory = categories[currentIndex];
                                       });
                                     },
-                                    activeColor: Colors.green,
+                                    child: Container(
+                                      padding: EdgeInsets.all(5),
+                                      child: Container(
+                                        padding: EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(color: lightPink,width: 1),
+                                            borderRadius: BorderRadius.circular(8)
+                                        ),
+                                        child:
+                                        categories[index]=="Others"?
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.add_circle_outline,color: lightPink,),
+                                            SizedBox(width: 10,),
+                                            Text('${categories[index]}',style: TextStyle(
+                                                fontFamily: "Poppins",
+                                                color: darkBlue
+                                            ),),
+                                            SizedBox(width: 10,),
+                                          ],
+                                        ):
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.cake_outlined,color: lightPink,),
+                                            SizedBox(width: 10,),
+                                            Text('${categories[index]}',style: TextStyle(
+                                                fontFamily: "Poppins",
+                                                color: darkBlue
+                                            ),),
+                                            SizedBox(width: 10,),
+                                          ],
+                                        )
+                                      ),
+                                    ),
                                   ),
+                                  currentIndex == index?
+                                  Positioned(
+                                      right: 0,
+                                      child:Container(
+                                          alignment: Alignment.center,
+                                          height: 20,
+                                          width: 20,
+                                          decoration: BoxDecoration(
+                                              color:Colors.green,
+                                              shape: BoxShape.circle
+                                          ),
+                                          child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
+                                      )
+                                  ):
+                                  Positioned(
+                                      right: 0,
+                                      child: Container()
+                                  ),
+                                ],
+                              );
+                            }
+                        )
+                    ),
+
+                    //Shapes....flav...toppings
+                    Container(
+                        margin:const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color:Colors.red[50],
+                            borderRadius: BorderRadius.circular(12)
+                        ),
+                        child:Column(
+                            children:[
+                              ExpansionTile(
+                                title: Text('Shapes',style: TextStyle(
+                                    fontFamily: "Poppins",fontSize: 13,color: Colors.grey
+                                ),),
+                                subtitle:Text('$fixedShape',style: TextStyle(
+                                    fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                    color: darkBlue
+                                ),),
+                                trailing: Container(
+                                  alignment: Alignment.center,
+                                  height: 25,
+                                  width: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle ,
+                                  ),
+                                  child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
                                 ),
-                                Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
-                                    fontWeight: FontWeight.bold,fontFamily: "Poppins" ,fontSize: 13),),
-                              ],
-                            ),
+                                children: [
+                                  Container(
+                                    color:Colors.white,
+                                    child:ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: shapesList.length,
+                                        shrinkWrap: true,
+                                        itemBuilder: (context, index) {
 
-                            //Category Text
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text("Select Category",
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
-                              ),
-                            ),
+                                          return InkWell(
+                                            onTap: ()=>setState((){
 
-                            //Category stacks ()....
-                            Container(
-                              height: 80,
-                              padding: EdgeInsets.all(10),
-                              child: ListView.builder(
-                                    shrinkWrap: true,
-                                    controller: cateListScrollCtrl,
-                                    itemCount: categories.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context , index){
-                                      return Stack(
-                                        children: [
-                                          GestureDetector(
-                                            onTap:(){
+                                              shapeGrpValue = index;
+                                              fixedShape = shapesList[index]['Name'];
 
-                                              if(categories[index].toString().contains("Others")){
-                                                print('Yes...');
-                                                showOthersCateDialog();
+                                              if(shapesList[index]['Name'].toString().contains('Others')){
+                                                showOthersShapeDialog(index);
                                               }
 
-                                              setState((){
-                                                currentIndex = index;
-                                                fixedCategory = categories[currentIndex];
-                                              });
-                                            },
+                                            }),
                                             child: Container(
-                                              padding: EdgeInsets.all(5),
-                                              child: Container(
-                                                padding: EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(color: lightPink,width: 1),
-                                                    borderRadius: BorderRadius.circular(8)
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(Icons.cake_outlined,color: lightPink,),
-                                                    SizedBox(width: 10,),
-                                                    Text('${categories[index]}',style: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        color: darkBlue
-                                                    ),),
-                                                    SizedBox(width: 10,),
-                                                  ],
-                                                ),
-                                              ),
+                                              padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
+                                              child:
+                                              shapesList[index]['Name']=="Others"?
+                                              Row(
+                                                children: [
+                                                  shapeGrpValue!=index?
+                                                  Icon(Icons.add_circle_outline_rounded, color: Colors.black,):
+                                                  Icon(Icons.check_circle, color: Colors.green,),
+                                                  SizedBox(width: 5,),
+                                                  Expanded(child: Text(
+                                                    "${shapesList[index]['Name']}",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins", color: darkBlue,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                  ),)
+                                                ],
+                                              ):
+                                              Row(
+                                                children: [
+                                                  shapeGrpValue!=index?
+                                                  Icon(Icons.radio_button_unchecked, color: Colors.black,):
+                                                  Icon(Icons.check_circle, color: Colors.green,),
+                                                  SizedBox(width: 5,),
+                                                  Expanded(child: Text(
+                                                    "${shapesList[index]['Name']}",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins", color: darkBlue,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                  ),)
+                                                ],
+                                              )
                                             ),
-                                          ),
-                                          currentIndex == index?
-                                          Positioned(
-                                            right: 0,
-                                            child:Container(
-                                              alignment: Alignment.center,
-                                              height: 20,
-                                              width: 20,
-                                              decoration: BoxDecoration(
-                                                color:Colors.green,
-                                                shape: BoxShape.circle
-                                              ),
-                                              child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
-                                            )
-                                          ):
-                                          Positioned(
-                                              right: 0,
-                                              child: Container()
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                )
-                            ),
-
-                            //Shapes....flav...toppings
-                            Container(
-                              margin:const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  color:Colors.red[50],
-                                  borderRadius: BorderRadius.circular(12)
-                               ),
-                                child:Column(
-                                children:[
-                                  ExpansionTile(
-                                    title: Text('Shapes',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,color: Colors.grey
-                                    ),),
-                                    subtitle:Text('$fixedShape',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                        color: darkBlue
-                                    ),),
-                                    trailing: Container(
-                                      alignment: Alignment.center,
-                                      height: 25,
-                                      width: 25,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle ,
-                                      ),
-                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                                    ),
-                                    children: [
-                                      Container(
-                                        color:Colors.white,
-                                        child:ListView.builder(
+                                          );
+                                        }),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 8,right: 8),
+                                height: 0.5,
+                                color:Colors.white,
+                              ),
+                              ExpansionTile(
+                                title: Text('Flavours',style: TextStyle(
+                                    fontFamily: "Poppins",fontSize: 13,color:Colors.grey
+                                ),),
+                                subtitle:Text(fixedFlavList.isEmpty&&flavTempList.isEmpty?'$fixedFlavour':
+                                '${fixedFlavList.length+flavTempList.length} Selected Flavours',style: TextStyle(
+                                    fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                    color: darkBlue
+                                ),),
+                                trailing: Container(
+                                  alignment: Alignment.center,
+                                  height: 25,
+                                  width: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle ,
+                                  ),
+                                  child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                ),
+                                children: [
+                                  Container(
+                                    color:Colors.white,
+                                    child:Column(
+                                      children: [
+                                        ListView.builder(
                                             physics: NeverScrollableScrollPhysics(),
-                                            itemCount: shapesList.length,
+                                            itemCount: flavourList.length,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
 
-
+                                              fixedFlavChecks.add(false);
                                               return InkWell(
-                                                onTap: ()=>setState((){
+                                                onTap: (){
 
-                                                  shapeGrpValue = index;
-                                                  fixedShape = shapesList[index];
+                                                  if(flavourList[index].toString().contains('Others')){
+                                                    print('Index is $index');
+                                                    showOthersFlavourDialog(index);
+                                                  }else{
+                                                    setState((){
+                                                      if(fixedFlavChecks[index]==false){
+                                                        fixedFlavChecks[index] = true;
+                                                        if(fixedFlavList.contains(flavourList[index].toString())){
+                                                          print('exists...');
+                                                        }else{
+                                                          fixedFlavList.add(flavourList[index].toString());
+                                                        }
+                                                      }else{
+                                                        fixedFlavChecks[index] = false;
+                                                        fixedFlavList.removeWhere((element) => element==flavourList[index].toString());
+                                                      }
 
-                                                  if(shapesList[index].toString().contains('Others')){
-                                                    showOthersShapeDialog(index);
+                                                    });
                                                   }
 
-                                                }),
+
+                                                },
                                                 child: Container(
                                                   padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
-                                                  child: Row(
+                                                  child:
+                                                  flavourList[index]=="Others"?
+                                                  Row(
                                                     children: [
-                                                      shapeGrpValue!=index?
-                                                      Icon(Icons.radio_button_unchecked, color: Colors.black,):
+                                                      flavTempList.isEmpty?
+                                                      Icon(Icons.add_circle_outline_rounded, color: Colors.green,):
                                                       Icon(Icons.check_circle, color: Colors.green,),
                                                       SizedBox(width: 5,),
                                                       Expanded(child: Text(
-                                                        "${shapesList[index]}",
+                                                        "${flavourList[index]}",
                                                         style: TextStyle(
                                                             fontFamily: "Poppins", color: darkBlue,
                                                             fontWeight: FontWeight.bold
                                                         ),
-                                                      ),)
+                                                      ),),
+                                                    ],
+                                                  ):
+                                                  Row(
+                                                    children: [
+                                                      fixedFlavChecks[index]!=true?
+                                                      Icon(Icons.radio_button_unchecked, color: Colors.green,):
+                                                      Icon(Icons.check_circle, color: Colors.green,),
+                                                      SizedBox(width: 5,),
+                                                      Expanded(child: Text(
+                                                        "${flavourList[index]}",
+                                                        style: TextStyle(
+                                                            fontFamily: "Poppins", color: darkBlue,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),),
                                                     ],
                                                   ),
                                                 ),
                                               );
+
                                             }),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 8,right: 8),
-                                    height: 0.5,
-                                    color:Colors.white,
-                                  ),
-                                  ExpansionTile(
-                                    title: Text('Flavours',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,color:Colors.grey
-                                    ),),
-                                    subtitle:Text(fixedFlavList.isEmpty&&flavTempList.isEmpty?'$fixedFlavour':
-                                    '${fixedFlavList.length+flavTempList.length} Selected Flavours',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                        color: darkBlue
-                                    ),),
-                                    trailing: Container(
-                                      alignment: Alignment.center,
-                                      height: 25,
-                                      width: 25,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle ,
-                                      ),
-                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                                    ),
-                                    children: [
-                                      Container(
-                                        color:Colors.white,
-                                        child:Column(
-                                          children: [
-                                            ListView.builder(
-                                                physics: NeverScrollableScrollPhysics(),
-                                                itemCount: flavourList.length,
-                                                shrinkWrap: true,
-                                                itemBuilder: (context, index) {
-                                                  // return RadioListTile(
-                                                  //     activeColor: Colors.green,
-                                                  //     title: Text(
-                                                  //       "${flavourList[index]}",
-                                                  //       style: TextStyle(
-                                                  //           fontFamily: "Poppins", color: darkBlue),
-                                                  //     ),
-                                                  //     value: index,
-                                                  //     groupValue: flavGrpValue,
-                                                  //     onChanged: (int? value) {
-                                                  //       print(value);
-                                                  //       setState(() {
-                                                  //         flavGrpValue = value!;
-                                                  //         fixedFlavour = flavourList[index];
-                                                  //       });
-                                                  //     });
-                                                  fixedFlavChecks.add(false);
-                                                  return InkWell(
-                                                    onTap: (){
 
-                                                      if(flavourList[index].toString().contains('Others')){
-                                                        print('Index is $index');
-                                                        showOthersFlavourDialog(index);
-                                                      }else{
+                                        flavTempList.isNotEmpty?
+                                        Container(
+                                          width: MediaQuery.of(context).size.width,
+                                          height: 55,
+                                          child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              //
+                                              itemCount: flavTempList.length,
+                                              shrinkWrap: true,
+                                              itemBuilder: (c, i)=>Container(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4.0),
+                                                  child: ActionChip(
+                                                      label:Row(
+                                                        children: [
+                                                          Text(flavTempList[i]),
+                                                          SizedBox(width: 4,),
+                                                          Icon(Icons.close , size: 20,)
+                                                        ],
+                                                      ),
+                                                      onPressed: (){
                                                         setState((){
-                                                          if(fixedFlavChecks[index]==false){
-                                                            fixedFlavChecks[index] = true;
-                                                            if(fixedFlavList.contains(flavourList[index])){
-                                                              print('exists...');
-                                                            }else{
-                                                              fixedFlavList.add(flavourList[index]);
-                                                            }
+                                                          if(flavTempList.contains(flavTempList[i])){
+                                                            flavTempList.removeWhere((element) => element==flavTempList[i]);
                                                           }else{
-                                                            fixedFlavChecks[index] = false;
-                                                            fixedFlavList.removeWhere((element) => element==flavourList[index]);
+                                                            print('Nope...');
                                                           }
-
                                                         });
                                                       }
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                        ):
+                                        Container(),
 
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 8,right: 8),
+                                height: 0.5,
+                                color:Colors.white,
+                              ),
+                              // ExpansionTile(
+                              //   title: Text('Cake Articles',style: TextStyle(
+                              //       fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
+                              //       color: Colors.grey
+                              //   ),),
+                              //   subtitle:Text('$fixedCakeArticle',style: TextStyle(
+                              //       fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                              //       color: darkBlue
+                              //   ),),
+                              //   trailing: Container(
+                              //     alignment: Alignment.center,
+                              //     height: 25,
+                              //     width: 25,
+                              //     decoration: BoxDecoration(
+                              //       color: Colors.white,
+                              //       shape: BoxShape.circle ,
+                              //     ),
+                              //     child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                              //   ),
+                              //   children: [
+                              //     Container(
+                              //       color:Colors.white,
+                              //       child:ListView.builder(
+                              //           physics: NeverScrollableScrollPhysics(),
+                              //           itemCount: cakeArticles.length,
+                              //           shrinkWrap: true,
+                              //           itemBuilder: (context, index) {
+                              //             return RadioListTile(
+                              //                 activeColor: Colors.green,
+                              //                 title: Text(
+                              //                   "${cakeArticles[index]}",
+                              //                   style: TextStyle(
+                              //                       fontFamily: "Poppins", color: darkBlue
+                              //                   ),
+                              //                 ),
+                              //                 value: index,
+                              //                 groupValue: artGrpValue,
+                              //                 onChanged: (int? value) {
+                              //                   print(value);
+                              //                   setState(() {
+                              //                     artGrpValue = value!;
+                              //                     fixedCakeArticle = cakeArticles[index];
+                              //                   });
+                              //                 });
+                              //           }),
+                              //     ),
+                              //   ],
+                              // ),
+                            ]
+                        )
+                    ),
 
-                                                    },
-                                                    child: Container(
-                                                      padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
-                                                      child:
-                                                      index==5?
-                                                      Row(
-                                                        children: [
-                                                          flavTempList.isEmpty?
-                                                          Icon(Icons.radio_button_unchecked, color: Colors.green,):
-                                                          Icon(Icons.check_circle, color: Colors.green,),
-                                                          SizedBox(width: 5,),
-                                                          Expanded(child: Text(
-                                                            "${flavourList[index]}",
-                                                            style: TextStyle(
-                                                                fontFamily: "Poppins", color: darkBlue,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),),
-                                                        ],
-                                                      ):
-                                                      Row(
-                                                        children: [
-                                                          fixedFlavChecks[index]!=true?
-                                                          Icon(Icons.radio_button_unchecked, color: Colors.green,):
-                                                          Icon(Icons.check_circle, color: Colors.green,),
-                                                          SizedBox(width: 5,),
-                                                          Expanded(child: Text(
-                                                            "${flavourList[index]}",
-                                                            style: TextStyle(
-                                                                fontFamily: "Poppins", color: darkBlue,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
+                    //Weight...
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text("Weight",
+                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
+                      ),
+                    ),
+                    Container(
+                        height: MediaQuery.of(context).size.height * 0.06,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        //  color: Colors.grey,
+                        child: ListView.builder(
+                            itemCount: weight.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              selwIndex.add(false);
+                              return InkWell(
+                                onTap: () {
 
-                                                }),
+                                  setState(() {
+                                    isFixedWeight = index;
+                                    fixedWeight = weight[index].toString();
+                                    print(fixedWeight);
+                                  });
 
-                                            flavTempList.isNotEmpty?
-                                            Container(
-                                              width: MediaQuery.of(context).size.width,
-                                              height: 55,
-                                              child: ListView.builder(
-                                                  scrollDirection: Axis.horizontal,
-                                                  //
-                                                  itemCount: flavTempList.length,
-                                                  shrinkWrap: true,
-                                                  itemBuilder: (c, i)=>Container(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(4.0),
-                                                      child: ActionChip(
-                                                          label:Row(
-                                                            children: [
-                                                              Text(flavTempList[i]),
-                                                              SizedBox(width: 4,),
-                                                              Icon(Icons.close , size: 20,)
-                                                            ],
-                                                          ),
-                                                          onPressed: (){
-                                                            setState((){
-                                                              if(flavTempList.contains(flavTempList[i])){
-                                                                flavTempList.removeWhere((element) => element==flavTempList[i]);
-                                                              }else{
-                                                                print('Nope...');
-                                                              }
-                                                            });
-                                                          }
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            ):
-                                            Container(),
-
-                                          ],
-                                        ),
+                                },
+                                child:Container(
+                                  width: 70,
+                                  alignment: Alignment.center,
+                                  margin: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: lightPink,
+                                        width: 1,
                                       ),
-                                    ],
+                                      color: isFixedWeight==index
+                                          ? Colors.pink
+                                          : Colors.white
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 8,right: 8),
-                                    height: 0.5,
-                                    color:Colors.white,
+                                  child:
+                                  Text(
+                                    '${weight[index]} Kg',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Poppins",
+                                        color: isFixedWeight==index?Colors.white:darkBlue
+                                    ),
                                   ),
-                                  // ExpansionTile(
-                                  //   title: Text('Cake Articles',style: TextStyle(
-                                  //       fontFamily: "Poppins",fontSize: 13,fontWeight: FontWeight.bold ,
-                                  //       color: Colors.grey
-                                  //   ),),
-                                  //   subtitle:Text('$fixedCakeArticle',style: TextStyle(
-                                  //       fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
-                                  //       color: darkBlue
-                                  //   ),),
-                                  //   trailing: Container(
-                                  //     alignment: Alignment.center,
-                                  //     height: 25,
-                                  //     width: 25,
-                                  //     decoration: BoxDecoration(
-                                  //       color: Colors.white,
-                                  //       shape: BoxShape.circle ,
-                                  //     ),
-                                  //     child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                                  //   ),
-                                  //   children: [
-                                  //     Container(
-                                  //       color:Colors.white,
-                                  //       child:ListView.builder(
-                                  //           physics: NeverScrollableScrollPhysics(),
-                                  //           itemCount: cakeArticles.length,
-                                  //           shrinkWrap: true,
-                                  //           itemBuilder: (context, index) {
-                                  //             return RadioListTile(
-                                  //                 activeColor: Colors.green,
-                                  //                 title: Text(
-                                  //                   "${cakeArticles[index]}",
-                                  //                   style: TextStyle(
-                                  //                       fontFamily: "Poppins", color: darkBlue
-                                  //                   ),
-                                  //                 ),
-                                  //                 value: index,
-                                  //                 groupValue: artGrpValue,
-                                  //                 onChanged: (int? value) {
-                                  //                   print(value);
-                                  //                   setState(() {
-                                  //                     artGrpValue = value!;
-                                  //                     fixedCakeArticle = cakeArticles[index];
-                                  //                   });
-                                  //                 });
-                                  //           }),
-                                  //     ),
-                                  //   ],
-                                  // ),
-                                ]
-                              )
-                            ),
+                                ),
+                              );
+                            })),
 
-                            //Weight...
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text("Weight",
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
+                    SizedBox(height:10),
+
+
+
+                    Padding(
+                      padding: const EdgeInsets.only(left :15.0 , top:15),
+                      child: Text(
+                        'Enter Weight',
+                        style: TextStyle(
+                            fontFamily: poppins, color: darkBlue),
+                      ),
+                    ),
+                    SizedBox(height:5),
+                    Container(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(width: 15,),
+                          Icon(Icons.scale_outlined,color: lightPink,),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                controller: weightCtrl,
+                                style:TextStyle(fontFamily: 'Poppins' ,
+                                    fontSize: 13
+                                ),
+                                onChanged: (String text){
+                                  setState((){
+                                    isFixedWeight = -1;
+                                    fixedWeight = text;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(0.0),
+                                  isDense: true,
+                                  hintText: 'Type here..',
+                                  hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                      fontSize: 13
+                                  ),
+                                  // border: InputBorder.none
+                                ),
                               ),
                             ),
-                            Container(
-                                height: MediaQuery.of(context).size.height * 0.06,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                //  color: Colors.grey,
-                                child: ListView.builder(
-                                    itemCount: weight.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) {
-                                      selwIndex.add(false);
-                                      return InkWell(
-                                        onTap: () {
-
-                                          setState(() {
-                                            isFixedWeight = index;
-                                            fixedWeight = weight[index].toString();
-                                            print(fixedWeight);
-                                          });
-
-                                        },
-                                        child:Container(
-                                          width: 70,
-                                          alignment: Alignment.center,
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(18),
-                                              border: Border.all(
-                                                color: lightPink,
-                                                width: 1,
-                                              ),
-                                              color: isFixedWeight==index
-                                                  ? Colors.pink
-                                                  : Colors.white
-                                          ),
-                                          child:
-                                          Text(
-                                            '${weight[index]} Kg',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: "Poppins",
-                                                color: isFixedWeight==index?Colors.white:darkBlue
-                                            ),
-                                          ),
+                          ),
+                          GestureDetector(
+                            child: Container(
+                                padding:EdgeInsets.all(4),
+                                margin:EdgeInsets.only(right:10),
+                                decoration: BoxDecoration(
+                                    color:Colors.grey[300]!,
+                                    borderRadius:BorderRadius.circular(5)
+                                ),
+                                child:PopupMenuButton(
+                                    child: Row(
+                                      children: [
+                                        Text('$selectedDropWeight' , style:TextStyle(
+                                            color:darkBlue , fontFamily:'Poppins'
+                                        )),
+                                        SizedBox(
+                                          width: 5,
                                         ),
-                                      );
-                                    })),
+                                        Icon(Icons.keyboard_arrow_down,
+                                            color: darkBlue)
+                                      ],
+                                    ),
+                                    itemBuilder: (context)=>[
+                                      PopupMenuItem(
+                                          onTap:(){
+                                            setState((){
+                                              selectedDropWeight = "Kg";
+                                            });
+                                          },
+                                          child:Text('Kilo Gram')
+                                      ),
+                                      PopupMenuItem(onTap:(){
+                                        setState((){
+                                          selectedDropWeight = "Ib";
+                                        });
+                                      },child:Text('Pounds')),
+                                      PopupMenuItem(onTap:(){
+                                        setState((){
+                                          selectedDropWeight = "G";
+                                        });
+                                      },child:Text('Gram')),
+                                    ]
+                                )
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                        margin: EdgeInsets.symmetric(horizontal: 15),
+                        child: Divider(
+                          color: Colors.pink[100],
+                        )),
 
-                            SizedBox(height:10),
-                            
-
-
-                            Padding(
-                              padding: const EdgeInsets.only(left :15.0 , top:15),
-                              child: Text(
-                                'Enter Weight',
-                                style: TextStyle(
-                                    fontFamily: poppins, color: darkBlue),
-                              ),
+                    Container(
+                      //margin
+                        margin: EdgeInsets.all(10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(' Message on the cake',
+                              style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                             ),
                             SizedBox(height:5),
                             Container(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              child: Column(
                                 children: [
-                                  SizedBox(width: 15,),
-                                  Icon(Icons.scale_outlined,color: lightPink,),
-                                  Expanded(
-                                    child: Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 10),
-                                      child: TextField(
-                                        keyboardType: TextInputType.number,
-                                        controller: weightCtrl,
-                                        style:TextStyle(fontFamily: 'Poppins' ,
-                                            fontSize: 13
-                                        ),
-                                        onChanged: (String text){
-                                          setState((){
-                                            isFixedWeight = -1;
-                                            fixedWeight = text;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(0.0),
-                                          isDense: true,
-                                          hintText: 'Type here..',
-                                          hintStyle: TextStyle(fontFamily: 'Poppins' ,
-                                              fontSize: 13
-                                          ),
-                                          // border: InputBorder.none
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    child: Container(
-                                        padding:EdgeInsets.all(4),
-                                        margin:EdgeInsets.only(right:10),
-                                        decoration: BoxDecoration(
-                                            color:Colors.grey[300]!,
-                                            borderRadius:BorderRadius.circular(5)
-                                        ),
-                                        child:PopupMenuButton(
-                                            child: Row(
-                                              children: [
-                                                Text('$selectedDropWeight' , style:TextStyle(
-                                                    color:darkBlue , fontFamily:'Poppins'
-                                                )),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Icon(Icons.keyboard_arrow_down,
-                                                    color: darkBlue)
-                                              ],
+                                  Row(
+                                    crossAxisAlignment:CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(width: 8,),
+                                      Icon(Icons.message_outlined,color: lightPink,),
+                                      Expanded(
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(horizontal: 10),
+                                          child: TextField(
+                                            style:TextStyle(fontFamily: 'Poppins' ,
+                                                fontSize: 13
                                             ),
-                                            itemBuilder: (context)=>[
-                                              PopupMenuItem(
-                                                  onTap:(){
-                                                    setState((){
-                                                      selectedDropWeight = "Kg";
-                                                    });
-                                                  },
-                                                  child:Text('Kilo Gram')
+                                            controller:msgCtrl,
+                                            decoration: InputDecoration(
+                                              hintText: 'Type here..',
+                                              contentPadding: EdgeInsets.all(0.0),
+                                              isDense: true,
+                                              hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                                  fontSize: 13
                                               ),
-                                              PopupMenuItem(onTap:(){
-                                                setState((){
-                                                  selectedDropWeight = "Ib";
-                                                });
-                                              },child:Text('Pounds')),
-                                              PopupMenuItem(onTap:(){
-                                                setState((){
-                                                  selectedDropWeight = "G";
-                                                });
-                                              },child:Text('Gram')),
-                                            ]
-                                        )
-                                    ),
-                                  )
+                                              // border: InputBorder.none
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
-                            Container(
-                                margin: EdgeInsets.symmetric(horizontal: 15),
-                                child: Divider(
-                                  color: Colors.pink[100],
-                                )),
+
+                            //Articlessss
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Text(
+                                ' Articles',
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                              ),
+                            ),
 
                             Container(
-                              //margin
-                                margin: EdgeInsets.all(10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                child:ListView.builder(
+                                  shrinkWrap : true,
+                                  physics : NeverScrollableScrollPhysics(),
+                                  itemCount:articals.length,
+                                  itemBuilder: (context , index){
+                                    return InkWell(
+                                      onTap:(){
+                                        setState(() {
+                                          if(articals[index].toString().contains('Others')){
+
+                                            if(articGroupVal==index){
+                                              articGroupVal = -1;
+                                              addOtherArticle = false;
+                                            }else{
+                                              addOtherArticle = true;
+                                              articGroupVal = index;
+                                            }
+
+                                          }else{
+                                            if(articGroupVal==index){
+                                              fixedCakeArticle = 'None';
+                                              articGroupVal = -1;
+                                              addOtherArticle = false;
+                                            }else{
+                                              articGroupVal = index;
+                                              fixedCakeArticle = articals[index].toString();
+                                              addOtherArticle = false;
+                                            }
+                                          }
+
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(5),
+                                        child: Row(
+                                            children:[
+                                              articGroupVal!=index?
+                                              Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
+                                              Icon(Icons.check_circle_rounded, color:Colors.green),
+                                              SizedBox(width:5),
+                                              Expanded(
+                                                child:Text.rich(
+                                                    TextSpan(
+                                                        text: "",
+                                                        children: <InlineSpan>[
+                                                          TextSpan(
+                                                            text:"${articals[index]} ",
+                                                            style: TextStyle(
+                                                                fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                                            ),),
+                                                        ]
+                                                    )
+                                                ),
+                                              ),
+                                            ]
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                            ),
+
+                            AnimatedSwitcher(
+                                switchInCurve: Curves.ease,
+                                switchOutCurve: Curves.ease,
+                                duration: Duration(seconds: 1),
+                                child: addOtherArticle?
+                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(' Message on the cake',
+                                    Text(' Add Your Article On Cake',
                                       style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                                     ),
                                     SizedBox(height:5),
@@ -2013,1109 +2211,990 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             crossAxisAlignment:CrossAxisAlignment.center,
                                             children: [
                                               SizedBox(width: 8,),
-                                              Icon(Icons.message_outlined,color: lightPink,),
+                                              Icon(Icons.add_box,color: lightPink,),
                                               Expanded(
-                                                  child: Container(
-                                                    margin: EdgeInsets.symmetric(horizontal: 10),
-                                                    child: TextField(
-                                                      style:TextStyle(fontFamily: 'Poppins' ,
+                                                child: Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                                  child: TextField(
+                                                    controller: addArticleCtrl,
+                                                    style:TextStyle(fontFamily: 'Poppins' ,
+                                                        fontSize: 13
+                                                    ),
+                                                    onChanged: (String text){
+                                                      setState((){
+                                                        articGroupVal = -1;
+                                                        fixedCakeArticle=text;
+                                                      });
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      hintText: 'Type here..',
+                                                      contentPadding: EdgeInsets.all(0.0),
+                                                      isDense: true,
+                                                      hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                           fontSize: 13
                                                       ),
-                                                      controller:msgCtrl,
-                                                      decoration: InputDecoration(
-                                                        hintText: 'Type here..',
-                                                        contentPadding: EdgeInsets.all(0.0),
-                                                        isDense: true,
-                                                        hintStyle: TextStyle(fontFamily: 'Poppins' ,
-                                                        fontSize: 13
-                                                        ),
-                                                        // border: InputBorder.none
-                                                      ),
+                                                      // border: InputBorder.none
                                                     ),
                                                   ),
+                                                ),
                                               )
                                             ],
                                           ),
                                         ],
                                       ),
                                     ),
-
-                                    //Articlessss
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 10),
-                                      child: Text(
-                                        ' Articles',
-                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                                      ),
-                                    ),
-
-                                    Container(
-                                        child:ListView.builder(
-                                          shrinkWrap : true,
-                                          physics : NeverScrollableScrollPhysics(),
-                                          itemCount:articals.length,
-                                          itemBuilder: (context , index){
-                                            return InkWell(
-                                              onTap:(){
-                                                setState(() {
-                                                  if(articals[index]['article'].toString().contains('Others')){
-
-                                                    if(articGroupVal==index){
-                                                      articGroupVal = -1;
-                                                      addOtherArticle = false;
-                                                    }else{
-                                                      addOtherArticle = true;
-                                                      articGroupVal = index;
-                                                    }
-
-                                                  }else{
-                                                    if(articGroupVal==index){
-                                                      fixedCakeArticle = 'None';
-                                                      articGroupVal = -1;
-                                                      addOtherArticle = false;
-                                                    }else{
-                                                      articGroupVal = index;
-                                                      fixedCakeArticle = articals[index]['article'].toString();
-                                                      addOtherArticle = false;
-                                                    }
-                                                  }
-
-                                                });
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.all(5),
-                                                child: Row(
-                                                    children:[
-                                                      articGroupVal!=index?
-                                                      Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
-                                                      Icon(Icons.check_circle_rounded, color:Colors.green),
-                                                      SizedBox(width:5),
-                                                      Expanded(
-                                                        child:Text.rich(
-                                                            TextSpan(
-                                                                text: "",
-                                                                children: <InlineSpan>[
-                                                                  TextSpan(
-                                                                    text:"${articals[index]['article']} ",
-                                                                    style: TextStyle(
-                                                                            fontFamily: poppins, color:Colors.black54 , fontSize: 13
-                                                                        ),),
-                                                                ]
-                                                            )
-                                                        ),
-                                                      ),
-                                                    ]
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        )
-                                    ),
-
-                                    AnimatedSwitcher(
-                                        switchInCurve: Curves.ease,
-                                        switchOutCurve: Curves.ease,
-                                        duration: Duration(seconds: 1),
-                                        child: addOtherArticle?
-                                        Column(
-                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(' Add Your Article On Cake',
-                                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
-                                              ),
-                                              SizedBox(height:5),
-                                              Container(
-                                                child: Column(
-                                                  children: [
-                                                    Row(
-                                                      crossAxisAlignment:CrossAxisAlignment.center,
-                                                      children: [
-                                                        SizedBox(width: 8,),
-                                                        Icon(Icons.add_box,color: lightPink,),
-                                                        Expanded(
-                                                          child: Container(
-                                                            margin: EdgeInsets.symmetric(horizontal: 10),
-                                                            child: TextField(
-                                                              controller: addArticleCtrl,
-                                                              style:TextStyle(fontFamily: 'Poppins' ,
-                                                                  fontSize: 13
-                                                              ),
-                                                              onChanged: (String text){
-                                                                setState((){
-                                                                  articGroupVal = -1;
-                                                                  fixedCakeArticle=text;
-                                                                });
-                                                              },
-                                                              decoration: InputDecoration(
-                                                                hintText: 'Type here..',
-                                                                contentPadding: EdgeInsets.all(0.0),
-                                                                isDense: true,
-                                                                hintStyle: TextStyle(fontFamily: 'Poppins' ,
-                                                                    fontSize: 13
-                                                                ),
-                                                                // border: InputBorder.none
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                        ):
-                                        Container()
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:10),
-                                      child: Text(' Special request to bakers',
-                                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.all(10),
-                                      child: TextField(
-                                        controller: specialReqCtrl,
-                                        style:TextStyle(fontFamily: 'Poppins' ,
-                                            fontSize: 13
-                                        ),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor:Colors.grey[200],
-                                          hintText: 'Type here..',
-                                          hintStyle: TextStyle(fontFamily: 'Poppins' ,
-                                              fontSize: 13
-                                          ),
-                                          border: OutlineInputBorder(
-                                              borderSide: BorderSide.none,
-                                              borderRadius: BorderRadius.circular(8)
-                                          ),
-                                        ),
-                                        maxLines: 8,
-                                        minLines: 5,
-                                      ),
-                                    ),
-                                    Container(
-                                        margin: EdgeInsets.symmetric(horizontal: 10),
-                                        child: Divider(
-                                          color: Colors.pink[100],
-                                        )),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 10 , left: 10),
-                                      child: Text(
-                                        'Delivery Information',
-                                        style: TextStyle(
-                                            fontFamily: poppins, color: darkBlue , fontSize: 14 ,
-                                         ),
-                                      ),
-                                    ),
-                                    Container(
-                                        child:ListView.builder(
-                                          shrinkWrap : true,
-                                          physics : NeverScrollableScrollPhysics(),
-                                          itemCount:picOrDeliver.length,
-                                          itemBuilder: (context , index){
-                                            return InkWell(
-                                              onTap:(){
-                                                setState(() {
-                                                  FocusScope.of(context).unfocus();
-                                                  picOrDel = index;
-                                                  fixedDelliverMethod = picOrDeliver[index];
-                                                });
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.only(left:10 , top:7),
-                                                child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    children:[
-                                                      picOrDel!=index?
-                                                      Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
-                                                      Icon(Icons.check_circle_rounded, color:Colors.green),
-                                                      SizedBox(width:6),
-                                                      Text('${picOrDeliver[index]}',style: TextStyle(
-                                                          fontFamily: poppins, color:Colors.black54 , fontSize: 14
-                                                      ),),
-                                                    ]
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        )
-                                    ),
                                   ],
+                                ):
+                                Container()
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(top:10),
+                              child: Text(' Special request to bakers',
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.all(10),
+                              child: TextField(
+                                controller: specialReqCtrl,
+                                style:TextStyle(fontFamily: 'Poppins' ,
+                                    fontSize: 13
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor:Colors.grey[200],
+                                  hintText: 'Type here..',
+                                  hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                      fontSize: 13
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(8)
+                                  ),
+                                ),
+                                maxLines: 8,
+                                minLines: 5,
+                              ),
+                            ),
+                            Container(
+                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                child: Divider(
+                                  color: Colors.pink[100],
                                 )),
-
-                            //Delivery Details
-                            Container(
-                              margin:EdgeInsets.only(left:10 , right: 10 , bottom:5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 10 , left: 10, bottom:5),
-                                    child: Text(
-                                      'Delivery Details',
-                                      style: TextStyle(
-                                          fontFamily: poppins, color: darkBlue , fontSize: 14,
-                                          ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap : () async {
-                                      FocusScope.of(context).unfocus();
-                                      DateTime? SelDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        lastDate: DateTime(2050),
-                                        firstDate: DateTime.now()
-                                            .subtract(Duration(days: 0)),
-                                      );
-
-                                      setState(() {
-                                        fixedDate = simplyFormat(
-                                            time: SelDate, dateOnly: true);
-                                      });
-
-                                      // print(SelDate.toString());
-                                      // print(DateTime.now().subtract(Duration(days: 0)));
-                                    },
-                                    child: Container(
-                                        margin:EdgeInsets.all(5),
-                                        padding:EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                            color:Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                                color: Colors.grey[400]!,
-                                                width:0.5
-                                            )
-                                        ),
-                                        child:Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children:[
-                                              Text(
-                                                '$fixedDate',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.grey,
-                                                    fontSize: 13),
-                                              ),
-
-                                              Icon(Icons.date_range_outlined,
-                                                  color: darkBlue)
-                                            ]
-                                        )
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap :  () {
-                                      FocusScope.of(context).unfocus();
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                  BorderRadius.circular(
-                                                      20)),
-                                              title: Text(
-                                                  "Select delivery session",
-                                                  style: TextStyle(
-                                                    color: lightPink,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 16,
-                                                  )),
-                                              content: Container(
-                                                height:250,
-                                                child: Scrollbar(
-                                                  isAlwaysShown: true,
-                                                  child: SingleChildScrollView(
-                                                    child: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        PopupMenuItem(
-                                                            child: Text('Morning 8 - 9'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Morning 8 - 9';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Morning 9 - 10'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Morning 9 - 10';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Morning 10 - 11'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Morning 10 - 11';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Morning 11 - 12'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Morning 11 - 12';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Afternoon 12 - 1'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Afternoon 12 - 1';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Afternoon 1 - 2'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Afternoon 1 - 9';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Afternoon 2 - 3'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Afternoon 8 - 9';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Afternoon 3 - 4'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Afternoon 3 - 4';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Afternoon 4 - 5'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Afternoon 4 - 5';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Evening 5 - 6'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Evening 5 - 6';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Evening 6 - 7'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Evening 6 - 7';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Evening 7 - 8'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Evening 7 - 8';
-                                                              });
-                                                            }
-                                                        ),
-                                                        PopupMenuItem(
-                                                            child: Text('Evening 8 - 9'),
-                                                            onTap:(){
-                                                              setState((){
-                                                                fixedSession = 'Evening 8 - 9';
-                                                              });
-                                                            }
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                    },
-                                    child: Container(
-                                        margin:EdgeInsets.all(5),
-                                        padding:EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                            color:Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                                color: Colors.grey[400]!,
-                                                width:0.5
-                                            )
-                                        ),
-                                        child:Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children:[
-                                              Text(
-                                                '$fixedSession',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.grey,
-                                                    fontSize: 13
-                                                ),
-                                              ),
-                                              Icon(Icons.keyboard_arrow_down,
-                                                  color: darkBlue)
-                                            ]
-                                        )
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
                             Padding(
-                              padding: const EdgeInsets.only(left: 10.0),
-                              child: Text(' Address',
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                              ),
-                            ),
-                            Container(
-                              padding:EdgeInsets.only(left:15 , right:15,top:3),
-                              child:Row(
-                                crossAxisAlignment:CrossAxisAlignment.center,
-                                children:[
-                                  Expanded(
-                                    child:Text('$deliverAddress',
-                                      style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
-                                    ),
-                                  ),
-                                  Icon(Icons.check_circle,color: Colors.green,size: 25,),
-                                ]
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(left: 10),
-                              alignment: Alignment.centerLeft,
-                              child: TextButton(
-                                  onPressed: (){
-                                    showAddAddressAlert();
-                                  },
-                                  child: const Text('add new address',style: const TextStyle(
-                                      color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
-                                  ),)
-                              ),
-                            ),
-
-                            //Image Upload
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10.0),
-                              child: Text(' Upload Image',
-                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                              ),
-                            ),
-                            
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: DottedBorder(
-                                radius: Radius.circular(20),
-                                color: Colors.grey,//color of dotted/dash line
-                                strokeWidth: 1, //thickness of dash/dots
-                                dashPattern: [3,2],
-                                child: InkWell(
-                                  splashColor: Colors.red[100],
-                                  onTap:()=>filePicker(),
-                                  child: file.path.isEmpty?Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 160,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.image_rounded , color: Colors.blueAccent,size: 40,),
-                                        Text('Pick Your Image',
-                                          style: TextStyle(color: darkBlue,fontSize: 16,fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ):Container(
-                                    alignment: Alignment.center,
-                                    padding: EdgeInsets.all(10),
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 160,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          height: 150,
-                                          width: 200,
-                                          child: Image.file(file),
-                                        ),
-                                       TextButton(
-                                              onPressed: (){
-                                                setState(() {
-                                                  file = new fil.File('');
-                                                });
-                                              },
-                                              child: Text('Remove' , style: TextStyle(
-                                                fontFamily: "Poppins"
-                                              ),),
-                                       )
-                                      ],
-                                    ),
-                                  ),
+                              padding: EdgeInsets.only(top: 10 , left: 10),
+                              child: Text(
+                                'Delivery Information',
+                                style: TextStyle(
+                                  fontFamily: poppins, color: darkBlue , fontSize: 14 ,
                                 ),
                               ),
                             ),
-
-                            SizedBox(height: 15,),
-                            
                             Container(
-                              padding: EdgeInsets.only(left:10.0 , right:10.0 , top:15, bottom:15),
-                              color: Colors.black12,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  double.parse(fixedWeight)<5.0?
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      selFromVenList?
-                                      Text('Selected Vendor',style: TextStyle(fontSize:15,
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),):
-                                      Container(),
-                                      //mySelectdVendors
-                                      selFromVenList?
-                                      InkWell(
-                                        onTap:(){
-                                          setState((){
-                                            selVendorIndex = -1;
-                                          });
-                                        },
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width,
-                                          padding: EdgeInsets.all(5),
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              color:Colors.white ,
-                                              borderRadius:BorderRadius.circular(10)
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              mySelectdVendors[0]['VendorProfile']!=null?
-                                              Container(
-                                                width:90,
-                                                height:100,
-                                                decoration: BoxDecoration(
-                                                    color:Colors.red ,
-                                                    borderRadius:BorderRadius.circular(10) ,
-                                                    image:DecorationImage(
-                                                        image:NetworkImage(mySelectdVendors[0]['VendorProfile'].toString()),
-                                                        fit: BoxFit.cover
-                                                    )
-                                                ),
-                                              ):
-                                              Container(
-                                                width:90,
-                                                height:105,
-                                                decoration: BoxDecoration(
-                                                    color:Colors.red ,
-                                                    borderRadius:BorderRadius.circular(10) ,
-                                                    image:DecorationImage(
-                                                        image:Svg("assets/images/pictwo.svg"),
-                                                        fit: BoxFit.cover
-                                                    )
-                                                ),
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Container(
-                                                          width:155,
-                                                          child: Column(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Container(
-                                                                child: Text('${mySelectdVendors[0]['VendorName']}' , style: TextStyle(
-                                                                  color: Colors.black,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  fontFamily: "Poppins",
-                                                                ),overflow: TextOverflow.ellipsis,),
-                                                              ),
-                                                              SizedBox(height: 6,) ,
-                                                              Row(
-                                                                children: [
-                                                                  RatingBar.builder(
-                                                                    initialRating: 4.1,
-                                                                    minRating: 1,
-                                                                    direction: Axis.horizontal,
-                                                                    allowHalfRating: true,
-                                                                    itemCount: 5,
-                                                                    itemSize: 14,
-                                                                    itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                    itemBuilder: (context, _) => Icon(
-                                                                      Icons.star,
-                                                                      color: Colors.amber,
-                                                                    ),
-                                                                    onRatingUpdate: (rating) {
-                                                                      print(rating);
-                                                                    },
-                                                                  ),
-                                                                  Text(' 4.5',style: TextStyle(
-                                                                      color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                  ),)
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        // selVendorIndex==-1?
-                                                        Icon(Icons.check_circle,color:Colors.green)
-                                                        // :Container(),
-                                                      ],
-                                                    ),
-
-                                                    Text(mySelectdVendors[0]['VendorDesc']!=null||
-                                                        mySelectdVendors[0]['VendorDesc']!='null'?
-                                                    "${mySelectdVendors[0]['VendorDesc']}":"No Description",
-                                                      style:TextStyle(
-                                                        fontSize:12,
-                                                        fontFamily: "Poppins" ,
-                                                        color:Colors.grey,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),maxLines: 1,),
-                                                    SizedBox(height: 6,) ,
-                                                    Container(
-                                                      height:1,
-                                                      color:Colors.grey,
-                                                      // margin: EdgeInsets.only(left:6,right:6),
-                                                    ),
-                                                    SizedBox(height: 6,) ,
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(mySelectdVendors[0]['VendorEgg']=='Both'?
-                                                            'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
-                                                              style:TextStyle(
-                                                                fontSize:11,
-                                                                fontFamily: "Poppins" ,
-                                                                color:darkBlue,
-                                                              ),maxLines: 1,),
-                                                            SizedBox(height:3),
-                                                            Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
-                                                                mySelectdVendors[0]['VendorDelCharge']==null?
-                                                            "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
-                                                              style:TextStyle(
-                                                                fontSize:10,
-                                                                fontFamily: "Poppins" ,
-                                                                color:Colors.orange,
-                                                              ),maxLines: 1,),
-                                                          ],
-                                                        ),
-                                                        Container(
-                                                          width: 100,
-                                                          child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.end,
-                                                            children: [
-                                                              InkWell(
-                                                                onTap: (){
-                                                                  print('phone..');
-                                                                },
-                                                                child: Container(
-                                                                  alignment: Alignment.center,
-                                                                  height: 35,
-                                                                  width: 35,
-                                                                  decoration: BoxDecoration(
-                                                                    shape: BoxShape.circle,
-                                                                    color: Colors.grey[200],
-                                                                  ),
-                                                                  child:const Icon(Icons.phone,color: Colors.blueAccent,),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(width: 10,),
-                                                              InkWell(
-                                                                onTap: (){
-                                                                  print('whatsapp : ');
-                                                                },
-                                                                child: Container(
-                                                                  alignment: Alignment.center,
-                                                                  height: 35,
-                                                                  width: 35,
-                                                                  decoration: BoxDecoration(
-                                                                      shape: BoxShape.circle,
-                                                                      color:Colors.grey[200]
-                                                                  ),
-                                                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                child:ListView.builder(
+                                  shrinkWrap : true,
+                                  physics : NeverScrollableScrollPhysics(),
+                                  itemCount:picOrDeliver.length,
+                                  itemBuilder: (context , index){
+                                    return InkWell(
+                                      onTap:(){
+                                        setState(() {
+                                          FocusScope.of(context).unfocus();
+                                          picOrDel = index;
+                                          fixedDelliverMethod = picOrDeliver[index];
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.only(left:10 , top:7),
+                                        child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children:[
+                                              picOrDel!=index?
+                                              Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
+                                              Icon(Icons.check_circle_rounded, color:Colors.green),
+                                              SizedBox(width:6),
+                                              Text('${picOrDeliver[index]}',style: TextStyle(
+                                                  fontFamily: poppins, color:Colors.black54 , fontSize: 14
+                                              ),),
+                                            ]
                                         ),
-                                      ):
-                                      Container(),
-                                      SizedBox(height:10),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text('Select Vendors',style: TextStyle(fontSize:15,
-                                                  color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                              Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
-                                            ],
-                                          ),
-                                          InkWell(
-                                            onTap: () async{
-                                              print('see more..');
-                                              var pref = await SharedPreferences.getInstance();
-                                              pref.setBool('iamFromCustomise', true);
-                                              setState(() {
-                                                // context.read<ContextData>().setCurrentIndex(3);
-                                                Navigator.push(context, MaterialPageRoute(
-                                                    builder: (context)=>VendorsList()
-                                                ));
-                                              });
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                                Icon(Icons.keyboard_arrow_right,color: lightPink,)
-                                              ],
-                                            ),
-                                          )
-                                        ],
+                                      ),
+                                    );
+                                  },
+                                )
+                            ),
+                          ],
+                        )),
+
+                    //Delivery Details
+                    Container(
+                      margin:EdgeInsets.only(left:10 , right: 10 , bottom:5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 10 , left: 10, bottom:5),
+                            child: Text(
+                              'Delivery Details',
+                              style: TextStyle(
+                                fontFamily: poppins, color: darkBlue , fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap : () async {
+                              FocusScope.of(context).unfocus();
+                              DateTime? SelDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                lastDate: DateTime(2050),
+                                firstDate: DateTime.now()
+                                    .subtract(Duration(days: 0)),
+                              );
+
+                              setState(() {
+                                fixedDate = simplyFormat(
+                                    time: SelDate, dateOnly: true);
+                              });
+
+                              // print(SelDate.toString());
+                              // print(DateTime.now().subtract(Duration(days: 0)));
+                            },
+                            child: Container(
+                                margin:EdgeInsets.all(5),
+                                padding:EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color:Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.grey[400]!,
+                                        width:0.5
+                                    )
+                                ),
+                                child:Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children:[
+                                      Text(
+                                        '$fixedDate',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                            fontSize: 13),
                                       ),
 
-                                      SizedBox(height: 15,),
-
-                                      Container(
-                                        height: 200,
-                                        child:
-                                        ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            shrinkWrap: true,
-                                            itemCount: nearestVendors.length,
-                                            itemBuilder: (context , index){
-                                              return Card(
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(10)
+                                      Icon(Icons.date_range_outlined,
+                                          color: darkBlue)
+                                    ]
+                                )
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap :  () {
+                              FocusScope.of(context).unfocus();
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              20)),
+                                      title: Text(
+                                          "Select delivery session",
+                                          style: TextStyle(
+                                            color: lightPink,
+                                            fontFamily: "Poppins",
+                                            fontSize: 16,
+                                          )),
+                                      content: Container(
+                                        height:250,
+                                        child: Scrollbar(
+                                          isAlwaysShown: true,
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                PopupMenuItem(
+                                                    child: Text('Morning 8 - 9'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Morning 8 - 9';
+                                                      });
+                                                    }
                                                 ),
-                                                child: InkWell(
-                                                  splashColor:Colors.red[200] ,
-                                                  onTap: (){
-                                                    print(index);
+                                                PopupMenuItem(
+                                                    child: Text('Morning 9 - 10'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Morning 9 - 10';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Morning 10 - 11'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Morning 10 - 11';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Morning 11 - 12'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Morning 11 - 12';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Afternoon 12 - 1'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Afternoon 12 - 1';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Afternoon 1 - 2'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Afternoon 1 - 9';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Afternoon 2 - 3'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Afternoon 8 - 9';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Afternoon 3 - 4'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Afternoon 3 - 4';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Afternoon 4 - 5'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Afternoon 4 - 5';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Evening 5 - 6'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Evening 5 - 6';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Evening 6 - 7'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Evening 6 - 7';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Evening 7 - 8'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Evening 7 - 8';
+                                                      });
+                                                    }
+                                                ),
+                                                PopupMenuItem(
+                                                    child: Text('Evening 8 - 9'),
+                                                    onTap:(){
+                                                      setState((){
+                                                        fixedSession = 'Evening 8 - 9';
+                                                      });
+                                                    }
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  });
+                            },
+                            child: Container(
+                                margin:EdgeInsets.all(5),
+                                padding:EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color:Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.grey[400]!,
+                                        width:0.5
+                                    )
+                                ),
+                                child:Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children:[
+                                      Text(
+                                        '$fixedSession',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                            fontSize: 13
+                                        ),
+                                      ),
+                                      Icon(Icons.keyboard_arrow_down,
+                                          color: darkBlue)
+                                    ]
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                                                    String adrss = '1/4 vellandipalayam , Avinashi';
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Text(' Address',
+                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                      ),
+                    ),
+                    Container(
+                      padding:EdgeInsets.only(left:15 , right:15,top:3),
+                      child:Row(
+                          crossAxisAlignment:CrossAxisAlignment.center,
+                          children:[
+                            Expanded(
+                              child:Text('$deliverAddress',
+                                style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
+                              ),
+                            ),
+                            Icon(Icons.check_circle,color: Colors.green,size: 25,),
+                          ]
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 10),
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                          onPressed: (){
+                            showAddAddressAlert();
+                          },
+                          child: const Text('add new address',style: const TextStyle(
+                              color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
+                          ),)
+                      ),
+                    ),
 
-                                                    setState((){
-                                                      selVendorIndex = index;
+                    //Image Upload
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Text(' Upload Image',
+                        style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                      ),
+                    ),
 
-                                                      vendorID = nearestVendors[index]['_id'];
-                                                      vendorModId = nearestVendors[index]['Id'];
-                                                      vendorName = nearestVendors[index]['VendorName'];
-                                                      vendorPhone = nearestVendors[index]['PhoneNumber1'];
-                                                      vendorAddress = nearestVendors[index]['Address']['FullAddress'];
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: DottedBorder(
+                        radius: Radius.circular(20),
+                        color: Colors.grey,//color of dotted/dash line
+                        strokeWidth: 1, //thickness of dash/dots
+                        dashPattern: [3,2],
+                        child: InkWell(
+                          splashColor: Colors.red[100],
+                          onTap:()=>filePicker(),
+                          child: file.path.isEmpty?Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 160,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image_rounded , color: Colors.blueAccent,size: 40,),
+                                Text('Pick Your Image',
+                                  style: TextStyle(color: darkBlue,fontSize: 16,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ):Container(
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(10),
+                            width: MediaQuery.of(context).size.width,
+                            height: 160,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 150,
+                                  width: 200,
+                                  child: Image.file(file),
+                                ),
+                                TextButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      file = new fil.File('');
+                                    });
+                                  },
+                                  child: Text('Remove' , style: TextStyle(
+                                      fontFamily: "Poppins"
+                                  ),),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
-                                                      context.read<ContextData>().addMyVendor(true);
-                                                      context.read<ContextData>().setMyVendors(
-                                                          [
-                                                            {
-                                                              "VendorId":nearestVendors[index]['_id'],
-                                                              "VendorModId":nearestVendors[index]['Id'],
-                                                              "VendorName":nearestVendors[index]['VendorName'],
-                                                              "VendorDesc":nearestVendors[index]['Description'],
-                                                              "VendorProfile":nearestVendors[index]['ProfileImage'],
-                                                              "VendorPhone":nearestVendors[index]['PhoneNumber1'],
-                                                              "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
-                                                              "VendorEgg":nearestVendors[index]['EggOrEggless'],
-                                                              "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
-                                                            }
-                                                          ]
-                                                      );
+                    SizedBox(height: 15,),
 
-                                                    });
-
-                                                  },
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(10),
-                                                    width: 260,
-                                                    child: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.start,
-                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                          children: [
-                                                            nearestVendors[index]['ProfileImage']!=null?
-                                                            CircleAvatar(
-                                                              radius:32,
-                                                              backgroundColor: Colors.white,
-                                                              child: CircleAvatar(
-                                                                radius:30,
-                                                                backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
-                                                              ),
-                                                            ):
-                                                            CircleAvatar(
-                                                              radius:32,
-                                                              backgroundColor: Colors.white,
-                                                              child: CircleAvatar(
-                                                                radius:30,
-                                                                backgroundImage:Svg('assets/images/pictwo.svg'),
-                                                              ),
+                    Container(
+                      padding: EdgeInsets.only(left:10.0 , right:10.0 , top:15, bottom:15),
+                      color: Colors.black12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          double.parse(fixedWeight)<5.0?
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              selFromVenList?
+                              Text('Selected Vendor',style: TextStyle(fontSize:15,
+                                  color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),):
+                              Container(),
+                              //mySelectdVendors
+                              selFromVenList?
+                              InkWell(
+                                onTap:(){
+                                  setState((){
+                                    selVendorIndex = -1;
+                                  });
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  padding: EdgeInsets.all(5),
+                                  margin: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      color:Colors.white ,
+                                      borderRadius:BorderRadius.circular(10)
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      mySelectdVendors[0]['VendorProfile']!=null?
+                                      Container(
+                                        width:90,
+                                        height:100,
+                                        decoration: BoxDecoration(
+                                            color:Colors.red ,
+                                            borderRadius:BorderRadius.circular(10) ,
+                                            image:DecorationImage(
+                                                image:NetworkImage(mySelectdVendors[0]['VendorProfile'].toString()),
+                                                fit: BoxFit.cover
+                                            )
+                                        ),
+                                      ):
+                                      Container(
+                                        width:90,
+                                        height:105,
+                                        decoration: BoxDecoration(
+                                            color:Colors.red ,
+                                            borderRadius:BorderRadius.circular(10) ,
+                                            image:DecorationImage(
+                                                image:Svg("assets/images/pictwo.svg"),
+                                                fit: BoxFit.cover
+                                            )
+                                        ),
+                                      ),
+                                      SizedBox(width: 8,),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width:155,
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Container(
+                                                        child: Text('${mySelectdVendors[0]['VendorName']}' , style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontFamily: "Poppins",
+                                                        ),overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      SizedBox(height: 6,) ,
+                                                      Row(
+                                                        children: [
+                                                          RatingBar.builder(
+                                                            initialRating: 4.1,
+                                                            minRating: 1,
+                                                            direction: Axis.horizontal,
+                                                            allowHalfRating: true,
+                                                            itemCount: 5,
+                                                            itemSize: 14,
+                                                            itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                            itemBuilder: (context, _) => Icon(
+                                                              Icons.star,
+                                                              color: Colors.amber,
                                                             ),
-                                                            SizedBox(width: 6,),
-                                                            Container(
-                                                              width:170,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                children: [
-                                                                  Column(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    children: [
-                                                                      Container(
-                                                                        width:120,
-                                                                        child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
-                                                                        'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
-                                                                            nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
-                                                                        }',style: TextStyle(
-                                                                            color: darkBlue,fontWeight: FontWeight.bold,
-                                                                            fontFamily: "Poppins"
-                                                                        ),overflow: TextOverflow.ellipsis,),
-                                                                      ),
-                                                                      Row(
-                                                                        children: [
-                                                                          RatingBar.builder(
-                                                                            initialRating: 4.1,
-                                                                            minRating: 1,
-                                                                            direction: Axis.horizontal,
-                                                                            allowHalfRating: true,
-                                                                            itemCount: 5,
-                                                                            itemSize: 14,
-                                                                            itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                                                            itemBuilder: (context, _) => Icon(
-                                                                              Icons.star,
-                                                                              color: Colors.amber,
-                                                                            ),
-                                                                            onRatingUpdate: (rating) {
-                                                                              print(rating);
-                                                                            },
-                                                                          ),
-                                                                          Text(' 4.5',style: TextStyle(
-                                                                              color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                                                                          ),)
-                                                                        ],
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(height: 10,),
-                                                        Container(
-                                                          alignment: Alignment.centerLeft,
-                                                          child: Text(nearestVendors[index]['Description']!=null?
-                                                          " "+nearestVendors[index]['Description']:'',
-                                                            style: TextStyle(color: Colors.black54,fontFamily: "Poppins" , fontSize: 13),
-                                                            overflow: TextOverflow.ellipsis,
-                                                            maxLines: 1,
-                                                            textAlign: TextAlign.start,
+                                                            onRatingUpdate: (rating) {
+                                                              print(rating);
+                                                            },
                                                           ),
+                                                          Text(' 4.5',style: TextStyle(
+                                                              color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                          ),)
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                // selVendorIndex==-1?
+                                                Icon(Icons.check_circle,color:Colors.green)
+                                                // :Container(),
+                                              ],
+                                            ),
+
+                                            Text(mySelectdVendors[0]['VendorDesc']!=null||
+                                                mySelectdVendors[0]['VendorDesc']!='null'?
+                                            "${mySelectdVendors[0]['VendorDesc']}":"No Description",
+                                              style:TextStyle(
+                                                fontSize:12,
+                                                fontFamily: "Poppins" ,
+                                                color:Colors.grey,
+                                                fontWeight: FontWeight.bold,
+                                              ),maxLines: 1,),
+                                            SizedBox(height: 6,) ,
+                                            Container(
+                                              height:1,
+                                              color:Colors.grey,
+                                              // margin: EdgeInsets.only(left:6,right:6),
+                                            ),
+                                            SizedBox(height: 6,) ,
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(mySelectdVendors[0]['VendorEgg']=='Both'?
+                                                    'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
+                                                      style:TextStyle(
+                                                        fontSize:11,
+                                                        fontFamily: "Poppins" ,
+                                                        color:darkBlue,
+                                                      ),maxLines: 1,),
+                                                    SizedBox(height:3),
+                                                    Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
+                                                        mySelectdVendors[0]['VendorDelCharge']==null?
+                                                    "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
+                                                      style:TextStyle(
+                                                        fontSize:10,
+                                                        fontFamily: "Poppins" ,
+                                                        color:Colors.orange,
+                                                      ),maxLines: 1,),
+                                                  ],
+                                                ),
+                                                Container(
+                                                  width: 100,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      InkWell(
+                                                        onTap: (){
+                                                          print('phone..');
+                                                        },
+                                                        child: Container(
+                                                          alignment: Alignment.center,
+                                                          height: 35,
+                                                          width: 35,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: Colors.grey[200],
+                                                          ),
+                                                          child:const Icon(Icons.phone,color: Colors.blueAccent,),
                                                         ),
-                                                        Container(
-                                                          margin:EdgeInsets.only(top: 10),
-                                                          height: 0.5,
-                                                          color: Colors.black26,
+                                                      ),
+                                                      const SizedBox(width: 10,),
+                                                      InkWell(
+                                                        onTap: (){
+                                                          print('whatsapp : ');
+                                                        },
+                                                        child: Container(
+                                                          alignment: Alignment.center,
+                                                          height: 35,
+                                                          width: 35,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              color:Colors.grey[200]
+                                                          ),
+                                                          child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
                                                         ),
-                                                        SizedBox(height: 15,),
-                                                        Row(
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ):
+                              Container(),
+                              SizedBox(height:10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('Select Vendors',style: TextStyle(fontSize:15,
+                                          color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                      Text('  (10km radius)',style: TextStyle(color: Colors.black45,fontFamily: poppins),),
+                                    ],
+                                  ),
+                                  InkWell(
+                                    onTap: () async{
+                                      print('see more..');
+                                      var pref = await SharedPreferences.getInstance();
+                                      pref.setBool('iamFromCustomise', true);
+                                      setState(() {
+                                        // context.read<ContextData>().setCurrentIndex(3);
+                                        Navigator.push(context, MaterialPageRoute(
+                                            builder: (context)=>VendorsList()
+                                        ));
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Text('See All',style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                                        Icon(Icons.keyboard_arrow_right,color: lightPink,)
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+
+                              SizedBox(height: 15,),
+
+                              Container(
+                                  height: 200,
+                                  child:
+                                  ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      shrinkWrap: true,
+                                      itemCount: nearestVendors.length,
+                                      itemBuilder: (context , index){
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10)
+                                          ),
+                                          child: InkWell(
+                                            splashColor:Colors.red[200] ,
+                                            onTap: (){
+                                              print(index);
+
+                                              String adrss = '1/4 vellandipalayam , Avinashi';
+
+                                              setState((){
+                                                selVendorIndex = index;
+
+                                                vendorID = nearestVendors[index]['_id'];
+                                                vendorModId = nearestVendors[index]['Id'];
+                                                vendorName = nearestVendors[index]['VendorName'];
+                                                vendorPhone = nearestVendors[index]['PhoneNumber1'];
+                                                vendorAddress = nearestVendors[index]['Address']['FullAddress'];
+
+                                                context.read<ContextData>().addMyVendor(true);
+                                                context.read<ContextData>().setMyVendors(
+                                                    [
+                                                      {
+                                                        "VendorId":nearestVendors[index]['_id'],
+                                                        "VendorModId":nearestVendors[index]['Id'],
+                                                        "VendorName":nearestVendors[index]['VendorName'],
+                                                        "VendorDesc":nearestVendors[index]['Description'],
+                                                        "VendorProfile":nearestVendors[index]['ProfileImage'],
+                                                        "VendorPhone":nearestVendors[index]['PhoneNumber1'],
+                                                        "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
+                                                        "VendorEgg":nearestVendors[index]['EggOrEggless'],
+                                                        "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
+                                                      }
+                                                    ]
+                                                );
+
+                                              });
+
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.all(10),
+                                              width: 260,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      nearestVendors[index]['ProfileImage']!=null?
+                                                      CircleAvatar(
+                                                        radius:32,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          radius:30,
+                                                          backgroundImage: NetworkImage('${nearestVendors[index]['ProfileImage']}'),
+                                                        ),
+                                                      ):
+                                                      CircleAvatar(
+                                                        radius:32,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          radius:30,
+                                                          backgroundImage:Svg('assets/images/pictwo.svg'),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 6,),
+                                                      Container(
+                                                        width:170,
+                                                        child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
                                                             Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                nearestVendors[index]['EggOrEggless'].toString()=='Both'?
-                                                                Text('Egg and Eggless',style: TextStyle(
-                                                                    color: darkBlue,
-                                                                    fontSize: 10,
-                                                                    fontFamily: "Poppins"
-                                                                ),):
-                                                                Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
-                                                                    color: darkBlue,
-                                                                    fontSize: 10,
-                                                                    fontFamily: "Poppins"
-                                                                ),),
-                                                                SizedBox(height: 8,),
-                                                                Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
-                                                                    nearestVendors[index]['DeliveryCharge'].toString()=='0'||
-                                                                    nearestVendors[index]['DeliveryCharge'].toString()==null
-                                                                    ?
-                                                                'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
-                                                                    color: Colors.orange,
-                                                                    fontSize: 10 ,
-                                                                    fontFamily: "Poppins"
-                                                                ),),
+                                                                Container(
+                                                                  width:120,
+                                                                  child: Text(nearestVendors[index]['VendorName'].toString().isEmpty?
+                                                                  'Un name':'${nearestVendors[index]['VendorName'][0].toString().toUpperCase()+
+                                                                      nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                                  }',style: TextStyle(
+                                                                      color: darkBlue,fontWeight: FontWeight.bold,
+                                                                      fontFamily: "Poppins"
+                                                                  ),overflow: TextOverflow.ellipsis,),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    RatingBar.builder(
+                                                                      initialRating: 4.1,
+                                                                      minRating: 1,
+                                                                      direction: Axis.horizontal,
+                                                                      allowHalfRating: true,
+                                                                      itemCount: 5,
+                                                                      itemSize: 14,
+                                                                      itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                                      itemBuilder: (context, _) => Icon(
+                                                                        Icons.star,
+                                                                        color: Colors.amber,
+                                                                      ),
+                                                                      onRatingUpdate: (rating) {
+                                                                        print(rating);
+                                                                      },
+                                                                    ),
+                                                                    Text(' 4.5',style: TextStyle(
+                                                                        color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
+                                                                    ),)
+                                                                  ],
+                                                                ),
                                                               ],
                                                             ),
-                                                            selVendorIndex==index?
-                                                            Icon(Icons.check_circle,color: Colors.green,):
-                                                            Container(),
                                                           ],
-                                                        )
-                                                      ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Container(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text(nearestVendors[index]['Description']!=null?
+                                                    " "+nearestVendors[index]['Description']:'',
+                                                      style: TextStyle(color: Colors.black54,fontFamily: "Poppins" , fontSize: 13),
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      textAlign: TextAlign.start,
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            }
-                                        )
-                                      ),
-                                      SizedBox(height: 15,),
-                                    ],
-                                  ):
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Selected Vendor',style: TextStyle(fontSize:15,
-                                          color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
-                                      SizedBox(height:10),
-                                      Container(
-                                       padding:EdgeInsets.all(7),
-                                       height:85,
-                                       decoration: BoxDecoration(
-                                         color:Colors.white,
-                                         borderRadius:BorderRadius.circular(10),
-                                         border:Border.all(
-                                             color: Colors.grey,
-                                           width:1,
-                                         )
-                                       ),
-                                       child:Row(
-                                          mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                                          children:[
-                                            Container(
-                                              width:75,
-                                              decoration: BoxDecoration(
-                                                  color:Colors.red,
-                                                  borderRadius:BorderRadius.circular(10),
-                                                  image:DecorationImage(
-                                                    image:AssetImage('assets/images/customcake.png'),
-                                                      fit:BoxFit.cover
+                                                  Container(
+                                                    margin:EdgeInsets.only(top: 10),
+                                                    height: 0.5,
+                                                    color: Colors.black26,
+                                                  ),
+                                                  SizedBox(height: 15,),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          nearestVendors[index]['EggOrEggless'].toString()=='Both'?
+                                                          Text('Egg and Eggless',style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontSize: 10,
+                                                              fontFamily: "Poppins"
+                                                          ),):
+                                                          Text('${nearestVendors[index]['EggOrEggless'].toString()}',style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontSize: 10,
+                                                              fontFamily: "Poppins"
+                                                          ),),
+                                                          SizedBox(height: 8,),
+                                                          Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
+                                                              nearestVendors[index]['DeliveryCharge'].toString()=='0'||
+                                                              nearestVendors[index]['DeliveryCharge'].toString()==null
+                                                              ?
+                                                          'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
+                                                              color: Colors.orange,
+                                                              fontSize: 10 ,
+                                                              fontFamily: "Poppins"
+                                                          ),),
+                                                        ],
+                                                      ),
+                                                      selVendorIndex==index?
+                                                      Icon(Icons.check_circle,color: Colors.green,):
+                                                      Container(),
+                                                    ],
                                                   )
+                                                ],
                                               ),
                                             ),
-                                            Container(
-                                              width:80,
-                                              child:Image(
-                                                image:Svg('assets/images/cakeylogo.svg')
-                                              )
-                                            ),
-                                            Text('PREMIUM\nVENDOR',style:TextStyle(
-                                                  color:Colors.orange,fontFamily: "Poppins",fontSize:18
-                                            ))
-                                          ]  
-                                       )
-                                      ),
-                                    ],
+                                          ),
+                                        );
+                                      }
+                                  )
+                              ),
+                              SizedBox(height: 15,),
+                            ],
+                          ):
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Selected Vendor',style: TextStyle(fontSize:15,
+                                  color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins),),
+                              SizedBox(height:10),
+                              Container(
+                                  padding:EdgeInsets.all(7),
+                                  height:85,
+                                  decoration: BoxDecoration(
+                                      color:Colors.white,
+                                      borderRadius:BorderRadius.circular(10),
+                                      border:Border.all(
+                                        color: Colors.grey,
+                                        width:1,
+                                      )
                                   ),
-
-                                  SizedBox(height: 15,),
-                                  
-                                  Center(
-                                    child: Container(
-                                      height: 50,
-                                      width: 200,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(25)
-                                      ),
-                                      child: RaisedButton(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(25)
+                                  child:Row(
+                                      mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                      children:[
+                                        Container(
+                                          width:75,
+                                          decoration: BoxDecoration(
+                                              color:Colors.red,
+                                              borderRadius:BorderRadius.circular(10),
+                                              image:DecorationImage(
+                                                  image:AssetImage('assets/images/customcake.png'),
+                                                  fit:BoxFit.cover
+                                              )
+                                          ),
                                         ),
-                                        onPressed: (){
+                                        Container(
+                                            width:80,
+                                            child:Image(
+                                                image:Svg('assets/images/cakeylogo.svg')
+                                            )
+                                        ),
+                                        Text('PREMIUM\nVENDOR',style:TextStyle(
+                                            color:Colors.orange,fontFamily: "Poppins",fontSize:18
+                                        ))
+                                      ]
+                                  )
+                              ),
+                            ],
+                          ),
 
-                                          // if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
-                                          //     fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-                                          //
-                                          //   ScaffoldMessenger.of(context).showSnackBar(
-                                          //       SnackBar(
-                                          //         content: Text('Plase Select Weight / Deliver Info / Date & Session'),
-                                          //         behavior: SnackBarBehavior.floating,
-                                          //       )
-                                          //   );
-                                          //
-                                          // }else
-                                            if(fixedWeight.isEmpty){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text('Plase Select Weight!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                              )
-                                            );
-                                          }else if(fixedDelliverMethod.isEmpty){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Plase Select Deliver Information!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                )
-                                            );
-                                          }else if(fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Plase Select Deliver Date / Session'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                )
-                                            );
-                                          }else{
-                                              showConfirmOrder();
-                                          }
+                          SizedBox(height: 15,),
 
-                                          // showConfirmOrder();
+                          Center(
+                            child: Container(
+                              height: 50,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25)
+                              ),
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)
+                                ),
+                                onPressed: (){
 
+                                  // if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
+                                  //     fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
+                                  //
+                                  //   ScaffoldMessenger.of(context).showSnackBar(
+                                  //       SnackBar(
+                                  //         content: Text('Plase Select Weight / Deliver Info / Date & Session'),
+                                  //         behavior: SnackBarBehavior.floating,
+                                  //       )
+                                  //   );
+                                  //
+                                  // }else
+                                  if(fixedWeight.isEmpty){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Plase Select Weight!'),
+                                          behavior: SnackBarBehavior.floating,
+                                        )
+                                    );
+                                  }else if(fixedDelliverMethod.isEmpty){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Plase Select Deliver Information!'),
+                                          behavior: SnackBarBehavior.floating,
+                                        )
+                                    );
+                                  }else if(fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Plase Select Deliver Date / Session'),
+                                          behavior: SnackBarBehavior.floating,
+                                        )
+                                    );
+                                  }else{
+                                    showConfirmOrder();
+                                  }
 
-                                        },
-                                        color: lightPink,
-                                        child: Text("ORDER NOW",style: TextStyle(
-                                            color: Colors.white,fontWeight: FontWeight.bold
-                                        ),),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 15,),
-                                ],
+                                  // showConfirmOrder();
+
+                                },
+                                color: lightPink,
+                                child: Text("ORDER NOW",style: TextStyle(
+                                    color: Colors.white,fontWeight: FontWeight.bold
+                                ),),
                               ),
                             ),
-                          ],
-                        ),
-                 ),
-               ),
-            ],
-          ),
+                          ),
+                          SizedBox(height: 15,),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

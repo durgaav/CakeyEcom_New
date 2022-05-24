@@ -83,112 +83,117 @@ class _NotificationsState extends State<Notifications> {
         child: Container(
           child: i==0?
           ListView.builder(
-                itemCount: 10,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (count,index){
-                  return Shimmer.fromColors(
-                    baseColor:Colors.grey,
-                    highlightColor: Colors.grey[300]!,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 70,
-                            width: 70,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(width: 10,),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 260,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: Colors.grey
-                                ),
-                              ),
-                              SizedBox(height: 10,),
-                              Container(
-                                width: 120,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: Colors.grey
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                }
-            ):
-          ListView.builder(
-              itemCount: 3,
+              itemCount: 10,
               shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context , index) {
-                  return Container(
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (count,index){
+                return Shimmer.fromColors(
+                  baseColor:Colors.grey,
+                  highlightColor: Colors.grey[300]!,
+                  child: Container(
                     padding: EdgeInsets.all(10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: 55,
-                          width: 55,
+                          height: 70,
+                          width: 70,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.grey,
                           ),
-                          child: Icon(Icons.notifications_none,size: 45,),
                         ),
                         SizedBox(width: 10,),
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 270,
-                              child: Text('Hi your chocolate cup cakes are arriving '
-                                  'today stay connected and get latest notifications',
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.black54,fontFamily: "Poppins",fontSize: 13
-                              ),
+                              width: 260,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.grey
                               ),
                             ),
-                            SizedBox(width: 10,),
+                            SizedBox(height: 10,),
                             Container(
-                              width: 270,
-                              child:
-                                // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                Text('${dateTime[index]}',
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: darkBlue,
-                                    fontFamily: "Poppins",fontSize: 14,fontWeight: FontWeight.bold
-                                ),
+                              width: 120,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.grey
                               ),
                             )
                           ],
                         )
                       ],
                     ),
-                  );
-                }
-            ),
+                  ),
+                );
+              }
+          ):
+          ListView.builder(
+              itemCount: 3,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context , index) {
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 55,
+                        width: 55,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey,
+                        ),
+                        child: Icon(Icons.notifications_none,size: 45,),
+                      ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                // width: 270,
+                                child: Text('Hi your chocolate cup cakes are arriving '
+                                    'today stay connected and get latest notifications',
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Colors.black54,fontFamily: "Poppins",fontSize: 13
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10,),
+                              Container(
+                                // width: 270,
+                                child:
+                                // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
+                                Text('${dateTime[index]}',
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: darkBlue,
+                                      fontFamily: "Poppins",fontSize: 14,fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              }
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -239,5 +244,6 @@ String simplyFormat({required DateTime time, bool dateOnly = false}) {
   // If you only want year, month, and date
   return "${mon[0]['month']} ${day}nd $year";
 }
+
 
 

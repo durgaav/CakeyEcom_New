@@ -29,7 +29,7 @@ class CakeDetails extends StatefulWidget {
 
 class _CakeDetailsState extends State<CakeDetails> {
 
-  List shapes , flavour , articals;
+  List shapes , flavour, articals;
   _CakeDetailsState(this.shapes, this.flavour , this.articals);
 
   //region VARIABLES
@@ -70,6 +70,17 @@ class _CakeDetailsState extends State<CakeDetails> {
   List topings = [];
   var weight = [];
   List nearestVendors = [];
+
+  List themeCakes = [
+    {"Name":'Sinchan Theme Cake',"Price":"550"},
+    {"Name":'Doremon Theme Cake',"Price":"700"},
+    {"Name":'Dora Theme Cake',"Price":"1000"},
+    {"Name":'Panda Theme Cake',"Price":"1500"},
+    {"Name":'Ben 10 Theme Cake',"Price":"3000"},
+    {"Name":'Love Theme Cake',"Price":"600"},
+    {"Name":'Others',"Price":"Depends On Theme Type"},
+  ];
+  int selectedThemeCake = 0;
 
   List<bool> selwIndex = [];
   List<bool> toppingsVal = [];
@@ -113,20 +124,21 @@ class _CakeDetailsState extends State<CakeDetails> {
   String userName = '';
   String userPhone = '';
   String userID = '';
+  String userModID = '';
   String userAddress = '';
 
   //For orders
   String deliverDate = 'Not yet select';
   String deliverSession = 'Not yet select';
   //Doubt flav
-  String fixedFlavour = '';
+  String fixedFlavour = 'Default Flavour';
   var fixedFlavList = [];
   //
 
   //Shape
   var myShapeIndex = 0;
   String fixedShape = '';
-  String fixedWeight = '0.0';
+  String fixedWeight = '0.0kg';
   String cakeMsg = '';
   String specialReq = '';
   String fixedAddress = '';
@@ -200,63 +212,124 @@ class _CakeDetailsState extends State<CakeDetails> {
         ),
         context: context,
         builder: (BuildContext context) {
-          return Container(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 8,
-                ),
-                //Title text...
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'THEMES',
-                      style: TextStyle(
-                          color: darkBlue,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins"),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                          width: 35,
-                          height: 35,
-                          decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.circular(10)),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.close_outlined,
-                            color: lightPink,
-                          )),
-                    ),
-                  ],
-                ),
-                Container(
-                  height: 45,
-                  width: 120,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    color: lightPink,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "ADD",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins"),
-                    ),
+          return StatefulBuilder(
+              builder: (c,void Function(void Function()) setState){
+                return Container(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 8,
+                      ),
+                      //Title text...
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'THEMES',
+                            style: TextStyle(
+                                color: darkBlue,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Poppins"),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.circular(10)),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.close_outlined,
+                                  color: lightPink,
+                                )),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        height: 0.5,
+                        color: Color(0xff333333),
+                      ),
+                      Expanded(child: Container(
+                        child: ListView.builder(
+                            itemCount: themeCakes.length,
+                            shrinkWrap: true,
+                            itemBuilder: (c, i){
+                              return GestureDetector(
+                                 onTap: ()=>setState((){
+                                   selectedThemeCake = i;
+                                }),
+                                child: Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      selectedThemeCake!=i?
+                                      Icon(Icons.radio_button_unchecked , color: Colors.black,):
+                                      Icon(Icons.check_circle_outlined , color: Colors.green,),
+                                      SizedBox(width: 6,),
+                                      Expanded(child:Text.rich(
+                                        TextSpan(
+                                          text: "${themeCakes[i]['Name']} - ",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.grey[500],
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:'Additional Rs.${themeCakes[i]['Price']}',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                  color: Colors.black,
+                                                  fontFamily: "Poppins",
+                                                  // fontWeight: FontWeight.bold
+                                              ),
+                                            )
+                                          ]
+                                        )
+                                      ))
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                        ),
+                      )),
+                      //button for add
+                      Container(
+                        height: 45,
+                        width: 120,
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: lightPink,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "ADD",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Poppins"),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
+                );
+             }
           );
         });
   }
@@ -474,16 +547,19 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   setState((){
                                     if(multiFlavChecs[index]==false){
                                       multiFlavChecs[index] = true;
-                                      if(temp.contains(flavour[index]['Name'])){
+                                      if(temp.contains(flavour[index])){
 
                                       }else{
-                                        temp.add(flavour[index]['Name']);
+                                        temp.add(flavour[index]);
                                       }
                                     }else{
-                                      temp.removeWhere((element) => element==flavour[index]['Name']);
+                                      temp.removeWhere((element) => element==flavour[index]);
                                       multiFlavChecs[index] = false;
                                     }
                                   });
+
+                                  print(temp.toString());
+
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(8),
@@ -494,10 +570,21 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         Icon(Icons.check_circle_rounded,color:Colors.green, size: 28,),
                                         SizedBox(width:8),
                                         Expanded(child: Container(
-                                          child:Text("${flavour[index]['Name']}",
-                                              style: TextStyle(
-                                                  fontFamily: "Poppins", color: Colors.grey,
-                                                  fontWeight: FontWeight.bold)),
+                                          child:Text.rich(
+                                              TextSpan(
+                                                  text:"${flavour[index]['Name']} - ",
+                                                  style: TextStyle(
+                                                      fontFamily: "Poppins", color: Colors.grey,
+                                                      fontWeight: FontWeight.bold),
+                                                children:[
+                                                  TextSpan(
+                                                      text:"Additional Rs.${flavour[index]['Price']}/kg",
+                                                      style: TextStyle(
+                                                          fontFamily: "Poppins", color: Colors.black,)
+                                                  )
+                                                ]
+                                              ),
+                                          )
                                         ))
                                    ])
                                 ),
@@ -670,7 +757,11 @@ class _CakeDetailsState extends State<CakeDetails> {
   void saveFixedFlav(List list) {
     setState((){
       fixedFlavList = list;
-      fixedFlavour = list[0];
+      if(fixedFlavList.isEmpty){
+        fixedFlavour = "Default Flavour";
+      }else{
+        fixedFlavour = "${fixedFlavList.length} Selected";
+      }
     });
   }
 
@@ -877,7 +968,7 @@ class _CakeDetailsState extends State<CakeDetails> {
     );
   }
   
-  //Order confirmation dialog
+  //Order confirmation dialog**************use lesss*********
   void showOrderConfirmSheet(){
 
     int count = counts;
@@ -1437,60 +1528,76 @@ class _CakeDetailsState extends State<CakeDetails> {
     showDialog(
         barrierDismissible: true,
         context: context,
-        builder: (context){
+        builder: (context) {
           return Align(
             alignment: Alignment.topCenter,
             child: Container(
+              width: double.infinity,
               height: 90,
               decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border.all(color: lightPink,width: 1.5,style: BorderStyle.solid),
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14),
+                  border: Border.all(
+                      color: lightPink, width: 1.5, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(14),
                     bottomRight: Radius.circular(14),
-                  )
-              ),
+                  )),
               padding: EdgeInsets.all(5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      width: 50,
-                      height: 50,
+                      width: 45,
+                      height: 45,
                       decoration: BoxDecoration(
                           color: Colors.amber,
-                          borderRadius: BorderRadius.circular(10)
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                       alignment: Alignment.center,
-                      child: Icon(Icons.volume_up_rounded,color: darkBlue,)
+                      child: Icon(
+                        Icons.volume_up_rounded,
+                        color: darkBlue,
+                        size: 30,
+                      )),
+                  SizedBox(
+                    width: 7,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        child: Text('Complete Your Profile & Easy To Take\nYour Order',
+                        child: Text(
+                          'Complete Your Profile & Easy To Take\nYour Order',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
-                          style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins",fontSize: 12,decoration: TextDecoration.none),
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins",
+                              fontSize: 12,
+                              decoration: TextDecoration.none),
                         ),
                       ),
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Container(
                         height: 25,
                         width: 80,
                         child: RaisedButton(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)
-                          ),
-                          color:lightPink,
-                          onPressed: (){
+                              borderRadius: BorderRadius.circular(25)),
+                          color: lightPink,
+                          onPressed: () {
                             Navigator.of(context).push(
                               PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => Profile(
-                                  defindex: 0,
-                                ),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                    Profile(
+                                      defindex: 0,
+                                    ),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
                                   const begin = Offset(1.0, 0.0);
                                   const end = Offset.zero;
                                   const curve = Curves.ease;
@@ -1509,32 +1616,41 @@ class _CakeDetailsState extends State<CakeDetails> {
                               ),
                             );
                           },
-                          child: Text('PROFILE',
-                            style: TextStyle(color:Colors.white,fontFamily: "Poppins",fontSize: 10),
+                          child: Text(
+                            'PROFILE',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Poppins",
+                                fontSize: 10),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: ()=>Navigator.pop(context),
-                    child: Container(
-                        width: 35,
-                        height: 35,
-                        decoration: BoxDecoration(
-                            color: Colors.black12,
-                            borderRadius: BorderRadius.circular(10)
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.close_outlined,color: darkBlue,)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                            width: 35,
+                            height: 35,
+                            decoration: BoxDecoration(
+                                color: Colors.black12,
+                                borderRadius: BorderRadius.circular(10)),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.close_outlined,
+                              color: darkBlue,
+                            )),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //endregion
@@ -1592,6 +1708,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       cakeEggorEgless = prefs.getString('cakeEggOrEggless') ?? 'Unknown';
       cakeName = prefs.getString('cakeNames') ?? 'Unknown';
       cakeId = prefs.getString('cakeId') ?? '0';
+      cakeModId = prefs.getString('cakesmodId')??'no';
       cakePrice = prefs.getString('cakePrice') ?? '0';
       cakeDescription = prefs.getString('cakeDescription') ?? 'No descriptions.';
       cakeType = prefs.getString('cakeType') ?? 'None';
@@ -1602,11 +1719,13 @@ class _CakeDetailsState extends State<CakeDetails> {
       //user
       userPhone = prefs.getString("phoneNumber")??"";
       userID = prefs.getString("userID")??"";
+      userModID = prefs.getString("userModId")??"";
       userName = prefs.getString("userName")??"";
       userAddress = prefs.getString('userAddress')??'None';
       newRegUser = prefs.getBool('newRegUser')??false;
 
       //vendors
+      vendorModID = prefs.getString('vendorsmodID')??'no';
       // vendorAddress = prefs.getString('') ?? 'Unknown';
       // vendorMobileNum = prefs.getString('vendorMobile') ?? '0000000000';
       // vendorID = prefs.getString('vendorID') ?? 'Unknown';
@@ -1619,103 +1738,107 @@ class _CakeDetailsState extends State<CakeDetails> {
 
   //***load prefs to ORDER.....***
   Future<void> loadOrderPreference() async{
+
     var prefs = await SharedPreferences.getInstance();
 
-    String fixflavour = '';
-    String fixshape = '';
-    String fixweight = '';
+    //region Remove Prefs
+
+    print('*****removing....');
+
+    prefs.remove('orderCakeID');
+    prefs.remove('orderCakeModID');
+    prefs.remove('orderCakeName');
+    prefs.remove('orderCakeDescription');
+    prefs.remove('orderCakeType');
+    prefs.remove('orderCakeImages');
+    prefs.remove('orderCakeEggOrEggless');
+    prefs.remove('orderCakePrice');
+
+    // prefs.remove('orderCakeFlavour',fixflavour.split("-").first.toString());
+
+    prefs.remove('orderCakeShape');
+    prefs.remove('orderCakeWeight');
+    prefs.remove('orderCakeMessage');
+    prefs.remove('orderCakeRequest');
+
+    prefs.remove('orderCakeWeight');
+
+    //vendor..
+    prefs.remove('orderCakeVendorId');
+    prefs.remove('orderCakeVendorModId');
+    prefs.remove('orderCakeVendorName');
+    prefs.remove('orderCakeVendorNum');
+    prefs.remove('orderCakeVendorAddress');
+
+    //user...
+    prefs.remove('orderCakeUserName');
+    prefs.remove('orderCakeUserID');
+    prefs.remove('orderCakeUserModID');
+    prefs.remove('orderCakeUserNum');
+    prefs.remove('orderCakeDeliverAddress');
+    prefs.remove('orderCakeDeliverDate');
+    prefs.remove('orderCakeDeliverSession');
+    prefs.remove('orderCakeDeliveryInformation');
+
+    // prefs.remove('orderCakeArticle',fixedArticle);
+
+
+    //for delivery...
+    prefs.remove('orderCakeItemCount');
+    prefs.remove('orderCakeTotalAmt');
+    prefs.remove('orderCakeDeliverAmt');
+    prefs.remove('orderCakeDiscount');
+    prefs.remove('orderCakeTaxes');
+    prefs.remove('orderCakePaymentType');
+    prefs.remove('orderCakePaymentStatus');
+    prefs.remove('orderCakePaymentExtra');
+
+    print('.....removed****');
+
+
+      //endregion
+
+    print(fixedFlavList);
+    double flavCharge = 0.0;
+
+    setState((){
+      if(fixedFlavList.isEmpty){
+        fixedFlavList = [
+          {
+            "Name":"Default Flavour",
+            "Price":"0"
+          }
+        ];
+      }else{
+        fixedFlavList = fixedFlavList.toSet().toList();
+      }
+
+      if(customweightCtrl.text.isEmpty){
+        fixedWeight = "1kg";
+      }else{
+        fixedWeight = "${customweightCtrl.text}kg";
+      }
+
+    });
+
+
+
+
     print('Loading....');
 
-    if(fixedFlavour.isEmpty){
-      setState(() {
-        if(flavour.isNotEmpty){
-          fixflavour = flavour[0].toString();
-        }else{
-          fixflavour = 'None';
-        }
-      });
-    }else{
-      setState(() {
-        fixflavour = fixedFlavour;
-      });
-    }
-
-    if(fixedShape.isEmpty){
-      setState(() {
-        if(shapes.isNotEmpty){
-          fixshape = shapes[0].toString();
-        }else{
-          fixshape = 'None';
-        }
-      });
-    }else{
-      setState(() {
-        fixshape = fixedShape;
-      });
-    }
-
-    if(fixedWeight.isEmpty){
-      setState(() {
-        if(weight.isNotEmpty){
-          fixweight = weight[0].toString();
-        }else{
-          fixweight = 'None';
-        }
-      });
-    }else{
-      setState(() {
-        fixweight = fixedWeight;
-      });
-    }
-
-    if(iamYourVendor == true){
-
-      setState(() {
-        vendorID = '$myVendorId';
-        vendorName = '$myVendorName';
-        vendorMobileNum = '$vendorPhone';
-        vendorAddress = '$vendorAddress';
-
-        print(vendorAddress);
-      });
-
-    }else{
-      setState(() {
-
-        if(selVendorIndex==-1){
-          selVendorIndex = 0;
-        }else{
-          selVendorIndex = selVendorIndex;
-        }
-
-        var adrss =
-            nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
-                nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
-                nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
-                nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
-
-
-        vendorID = nearestVendors[selVendorIndex]['_id'].toString();
-        vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
-        vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
-        vendorAddress = adrss;
-
-      });
-    }
-
-      //Common keyword ***' order '****
-
-      //Cake...
       prefs.setString('orderCakeID', cakeId);
+      prefs.setString('orderCakeModID', cakeModId);
       prefs.setString('orderCakeName', cakeName);
       prefs.setString('orderCakeDescription', cakeDescription);
       prefs.setString('orderCakeType', cakeType);
       prefs.setString('orderCakeImages', cakeImages[0].toString());
       prefs.setString('orderCakeEggOrEggless',cakeEggorEgless);
-      prefs.setString('orderCakePrice',cakePrice);
-      prefs.setString('orderCakeFlavour',fixflavour.split("-").first.toString());
-      prefs.setString('orderCakeShape',fixshape);
-      prefs.setString('orderCakeWeight',fixweight);
+      prefs.setString('orderCakePrice',cakePrice.replaceAll(new RegExp(r'[^0-9]'), ''));
+
+      // prefs.setString('orderCakeFlavour',fixflavour.split("-").first.toString());
+
+      prefs.setString('orderCakeShape',fixedShape.isEmpty?"${shapes[0]}":'$fixedShape');
+      prefs.setString('orderCakeWeight',fixedWeight=="0.0"?'${weight[0]}':"$fixedWeight");
 
       if(messageCtrl.text.isNotEmpty){
         prefs.setString('orderCakeMessage',messageCtrl.text.toString());
@@ -1734,6 +1857,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
       //vendor..
       prefs.setString('orderCakeVendorId',vendorID);
+      prefs.setString('orderCakeVendorModId',vendorModID);
       prefs.setString('orderCakeVendorName',vendorName);
       prefs.setString('orderCakeVendorNum',vendorMobileNum);
       prefs.setString('orderCakeVendorAddress',vendorAddress);
@@ -1741,39 +1865,61 @@ class _CakeDetailsState extends State<CakeDetails> {
       //user...
       prefs.setString('orderCakeUserName',userName);
       prefs.setString('orderCakeUserID',userID);
+      prefs.setString('orderCakeUserModID',userModID);
       prefs.setString('orderCakeUserNum',userPhone);
       prefs.setString('orderCakeDeliverAddress',userAddress);
       prefs.setString('orderCakeDeliverDate',deliverDate);
       prefs.setString('orderCakeDeliverSession',deliverSession);
-
       prefs.setString('orderCakeDeliveryInformation',fixedDelliverMethod);
-      prefs.setString('orderCakeArticle',fixedArticle)??'none';
+
+      // prefs.setString('orderCakeArticle',fixedArticle);
 
 
       //for delivery...
-      prefs.setInt('orderCakeItemCount',itemCount);
+      prefs.setInt('orderCakeItemCount',counts);
       prefs.setInt('orderCakeTotalAmt',totalAmount);
-      prefs.setInt('orderCakeDeliverAmt',deliveryCharge);
+      prefs.setInt('orderCakeDeliverAmt',fixedDelliverMethod=="Pickup"?0:50);
       prefs.setInt('orderCakeDiscount',discounts);
       prefs.setInt('orderCakeTaxes',taxes);
       prefs.setString('orderCakePaymentType','none');
       prefs.setString('orderCakePaymentStatus','none');
-      prefs.setInt('orderCakeCounts',counts);
 
-      //API List post(ARRAY)...
-      if(fixedToppings.isEmpty){
-        prefs.setStringList('orderCakeTopings',['None']);
+
+      print(fixedWeight);
+
+      if(fixedFlavList.isNotEmpty){
+        for(int i=0;i<fixedFlavList.length;i++){
+          setState((){
+            flavCharge = double.parse(fixedWeight.replaceAll(new RegExp(r'[^0-9]'), ""))
+                *(flavCharge + double.parse('${fixedFlavList[i]['Price']}'));
+          });
+        }
+
+        print(double.parse(fixedWeight.replaceAll(new RegExp(r'[^0-9]'), "")));
+        print('flav charge :  $flavCharge');
+
+
+      if(flavCharge==0.0&&articleExtraCharge==0){
+        prefs.setString('orderCakePaymentExtra',"0.0");
       }else{
-        prefs.setStringList('orderCakeTopings',fixedToppings);
+        prefs.setString('orderCakePaymentExtra',"${(flavCharge+articleExtraCharge)}");
       }
 
 
-    Navigator.pop(context);
+
+
+      }
+
+
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation,
             secondaryAnimation) =>
-            CheckOut(),
+            OrderConfirm(
+              flav: fixedFlavList,
+              artic: [{"Name":'$fixedArticle',"Price":'$articleExtraCharge'}].toList()
+            ),
+
         transitionsBuilder: (context, animation,
             secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
@@ -1974,6 +2120,11 @@ class _CakeDetailsState extends State<CakeDetails> {
     // setState((){
     //   deliverSession = session();
     // });
+
+    setState((){
+      flavour.insert(0, {"Name":"Default Flavour" , "Price":"0"});
+    });
+
     super.initState();
   }
 
@@ -2415,13 +2566,15 @@ class _CakeDetailsState extends State<CakeDetails> {
                             collapseOnTextTap: true,
                             style: TextStyle(
                                 color: Colors.grey, fontFamily: "Poppins"),
-                          )),
+                          )
+                      ),
 
                       Container(
                           margin: EdgeInsets.symmetric(horizontal: 15),
                           child: Divider(
                             color: Colors.pink[100],
-                          )),
+                          )
+                      ),
 
                       //Flavours and shapes
                       SingleChildScrollView(
@@ -2446,11 +2599,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         SizedBox(
                                           height: 2,
                                         ),
-                                        fixedFlavour.isEmpty
-                                            ? Text(
-                                          flavour.isEmpty
-                                              ? 'None'
-                                              : '${flavour[0]['Name'].toString()}',
+                                        fixedFlavList.isEmpty
+                                            ? Text('Default Flavour',
                                           style: TextStyle(
                                               fontFamily: "Poppins",
                                               color: darkBlue,
@@ -2569,16 +2719,17 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   'Flavours',
                                   style: TextStyle(fontFamily: "Poppins"),
                                 ),
-                                fixedFlavour.isNotEmpty
+                                fixedFlavour!=""
                                     ? GestureDetector(
                                   onTap: () {
                                     setState(() {
                                       fixedFlavour = "";
                                       fixedFlavList.clear();
+                                      multiFlavChecs.clear();
                                       temp.clear();
                                     });
                                   },
-                                  child: Container(
+                                    child: Container(
                                     width: 80,
                                     alignment: Alignment.center,
                                     margin: EdgeInsets.only(right: 90),
@@ -2589,8 +2740,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       BorderRadius.circular(15),
                                       color: lightPink,
                                     ),
-                                    child: Wrap(
-                                      children: [
+                                    child:
                                         Text(
                                           '${fixedFlavour}',
                                           maxLines: 1,
@@ -2600,8 +2750,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                               fontSize: 10,
                                               color: Colors.white),
                                         ),
-                                      ],
-                                    ),
+
                                   ),
                                 )
                                     : Container(),
@@ -2679,7 +2828,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       ],
                                     ),
                                   ),
-                                ) : Container(),
+                                ) :
+                                Container(),
                                 fixedShape.isEmpty
                                     ? GestureDetector(
                                   onTap: () {
@@ -2703,7 +2853,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                                       color: darkBlue,
                                     ),
                                   ),
-                                ): CircleAvatar(
+                                ):
+                                CircleAvatar(
                                     radius: 15,
                                     backgroundColor: Colors.green,
                                     child: Icon(
@@ -2797,54 +2948,33 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     margin: EdgeInsets.symmetric(horizontal: 10),
                                     child: TextField(
                                       keyboardType: TextInputType.number,
-                                      textInputAction: TextInputAction.go,
+                                      textInputAction: TextInputAction.next,
                                       controller: customweightCtrl,
                                       style:TextStyle(fontFamily: 'Poppins' ,
                                           fontSize: 13
                                       ),
-                                      onSubmitted: (String text){
-
-                                        setState((){
-
-                                          print(text);
-                                          print(double.parse(fixedWeight.replaceAll('kg','')).toString()
-                                              + " Double");
-
-                                          if(text.isNotEmpty){
-
-                                            setState((){
-                                              if(weightIndex!=-1){
-                                                weightIndex = -1;
-                                                fixedWeight = text;
-                                              }
-                                            });
-
-                                          }else{
-                                            weightIndex = 0;
-                                            fixedWeight = weight[0].toString();
-                                          }
-
-                                        });
-
-                                      },
                                       onChanged: (String text){
+
                                         setState((){
+
                                           if(text.isNotEmpty){
-
-                                            setState((){
-                                              if(weightIndex!=-1){
-                                                weightIndex = -1;
-                                                fixedWeight = text;
+                                            if(weightIndex!=-1){
+                                              weightIndex = -1;
+                                              try{
+                                                print(double.parse(customweightCtrl.text));
+                                              }catch(e){
+                                                print(e);
                                               }
-                                            });
-
+                                            }
                                           }else{
                                             weightIndex = 0;
-                                            fixedWeight = weight[0].toString();
                                           }
-
                                         });
+
+
+
                                       },
+
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.all(0.0),
                                         isDense: true,
@@ -3394,7 +3524,9 @@ class _CakeDetailsState extends State<CakeDetails> {
                           children: [
 
                             //below 5 kg ui
-                            double.parse(fixedWeight.replaceAll('kg',''))<5.0?
+                            // double.parse(fixedWeight.replaceAll('kg',''))<5.0||
+                            customweightCtrl.text.isEmpty||double.parse(customweightCtrl.text)<5.0&&
+                           double.parse(fixedWeight.replaceAll("kg", ""))<5.0?
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -3670,18 +3802,14 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                                               setState((){
                                                 selVendorIndex = index;
-                                                adrss =
-                                                    nearestVendors[selVendorIndex]['Address']['Street'].toString() + "," +
-                                                        nearestVendors[selVendorIndex]['Address']['City'].toString() + "," +
-                                                        nearestVendors[selVendorIndex]['Address']['District'].toString() + "," +
-                                                        nearestVendors[selVendorIndex]['Address']['Pincode'].toString();
 
 
-                                                vendorID = nearestVendors[selVendorIndex]['_id'].toString();
-                                                vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
-                                                vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
-                                                vendorAddress = adrss;
 
+                                                //
+                                                // vendorID = nearestVendors[selVendorIndex]['_id'].toString();
+                                                // vendorName = nearestVendors[selVendorIndex]['VendorName'].toString();
+                                                // vendorMobileNum = nearestVendors[selVendorIndex]['PhoneNumber'].toString();
+                                                // vendorAddress = adrss;
 
                                                 context.read<ContextData>().addMyVendor(true);
                                                 context.read<ContextData>().setMyVendors(
@@ -3710,17 +3838,44 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                     element['Title'].toString().toLowerCase().
                                                     contains(cakeName.toString().toLowerCase())).toList();
 
+                                                adrss =
+                                                    artTempList[0]['VendorAddress']['Street'].toString() + "," +
+                                                        artTempList[0]['VendorAddress']['City'].toString() + "," +
+                                                        artTempList[0]['VendorAddress']['District'].toString() + "," +
+                                                        artTempList[0]['VendorAddress']['Pincode'].toString();
+
+                                                // print(artTempList[0]['VendorAddress']);
 
                                                 cakeImages = artTempList[0]['Images'].toList();
+                                                cakeId = artTempList[0]['_id'].toString();
+                                                cakeType = artTempList[0]['TypeOfCake'].toString();
+                                                cakeModId = artTempList[0]['Id'].toString();
                                                 weight = artTempList[0]['WeightList'].toList();
                                                 // cakeRatings = artTempList[index]['Images'].toList();
                                                 cakeEggorEgless = artTempList[0]['EggOrEggless'].toString();
                                                 cakeName = artTempList[0]['Title'].toString();
                                                 cakePrice = artTempList[0]['Price'].toString();
                                                 cakeDescription = artTempList[0]['Description'].toString();
-                                                flavour = artTempList[0]['FlavourList'].toList();
+                                                flavour = artTempList[0]['FlavourList'].toList()+[
+                                                  {
+                                                    "Name":'Default Flavour',
+                                                    "Price":'0'
+                                                  }
+                                                ];
                                                 shapes = artTempList[0]['ShapeList'].toList();
                                                 articals = artTempList[0]['ArticleList'].toList();
+
+                                                vendorID = artTempList[0]['VendorID'].toString();
+                                                vendorModID = artTempList[0]['Vendor_ID'].toString();
+                                                vendorName = artTempList[0]['VendorName'].toString();
+                                                vendorAddress = adrss;
+                                                vendorMobileNum = artTempList[0]['VendorPhoneNumber'].toString();
+
+
+                                                // print(vendorID);
+                                                // print(vendorModID);
+                                                // print(cakeId);
+                                                // print(cakeModId);
 
                                                 // myScrollCtrl.jumpTo(myScrollCtrl.position.minScrollExtent);
 
@@ -3940,93 +4095,35 @@ class _CakeDetailsState extends State<CakeDetails> {
 
                                     FocusScope.of(context).unfocus();
 
-                                    // if(newRegUser==true){
-                                    //   showDpUpdtaeDialog();
-                                    // }
-                                    // else{
-                                    //   if(fixedWeight.isEmpty&&deliverDate=="00-00-0000"&&fixedDelliverMethod.isEmpty){
-                                    //     ScaffoldMessenger.of(context).showSnackBar(
-                                    //         SnackBar(
-                                    //           content: Text('Please select cake weight ,delivery date ,Pickup or delivery!'),
-                                    //           behavior: SnackBarBehavior.floating,
-                                    //         )
-                                    //     );
-                                    //   }else if(fixedWeight.isEmpty){
-                                    //     print('Please select fixedWeight.');
-                                    //     ScaffoldMessenger.of(context).showSnackBar(
-                                    //       SnackBar(content: Text('Please select cake weight!'),
-                                    //         behavior: SnackBarBehavior.floating,)
-                                    //     );
-                                    //   }else if(deliverDate.isEmpty || deliverDate=="00-00-0000"){
-                                    //     print('Please select deliverDate.');
-                                    //     ScaffoldMessenger.of(context).showSnackBar(
-                                    //         SnackBar(content: Text('Please select delivery date'),
-                                    //           behavior: SnackBarBehavior.floating,)
-                                    //     );
-                                    //   }else if(fixedDelliverMethod.isEmpty){
-                                    //     ScaffoldMessenger.of(context).showSnackBar(
-                                    //         SnackBar(content: Text('Please select deliver type'),
-                                    //           behavior: SnackBarBehavior.floating,
-                                    //         )
-                                    //     );
-                                    //   }else if(messageCtrl.text.isEmpty){
-                                    //     setState(() {
-                                    //       msgError = true;
-                                    //     });
-                                    //     ScaffoldMessenger.of(context).showSnackBar(
-                                    //         SnackBar(content: Text('Please type cake message'),
-                                    //           behavior: SnackBarBehavior.floating,
-                                    //         )
-                                    //     );
-                                    //   }
-                                    //
-                                    //   //If ok go to Confirm sheet
-                                    //   if(fixedWeight.isNotEmpty&&deliverDate.isNotEmpty&&deliverDate!="00-00-0000"
-                                    //       &&deliverSession.isNotEmpty&&fixedDelliverMethod.isNotEmpty&&
-                                    //       messageCtrl.text.isNotEmpty
-                                    //   ){
-                                    //     setState(() {
-                                    //       FocusScope.of(context).unfocus();
-                                    //       msgError = false;
-                                    //     });
-                                    //     // showOrderConfirmSheet();
-                                    //     Navigator.of(context).push(
-                                    //       PageRouteBuilder(
-                                    //         pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(),
-                                    //         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    //           const begin = Offset(1.0, 0.0);
-                                    //           const end = Offset.zero;
-                                    //           const curve = Curves.ease;
-                                    //
-                                    //           final tween = Tween(begin: begin, end: end);
-                                    //           final curvedAnimation = CurvedAnimation(
-                                    //             parent: animation,
-                                    //             curve: curve,
-                                    //           );
-                                    //
-                                    //           return SlideTransition(
-                                    //             position: tween.animate(curvedAnimation),
-                                    //             child: child,
-                                    //           );
-                                    //         },
-                                    //       ),
-                                    //     );
-                                    //   }
-                                    // }
-                                    //
-                                    //
-                                    // print(fixedArticle);
+                                    if(newRegUser==true){
+                                      showDpUpdtaeDialog();
+                                    }
+                                    else{
 
-                                    print(cakeName);
-                                    print(fixedFlavList);
-                                    print(counts*int.parse(cakePrice,onError: (e)=>0));
-                                    print(fixedShape);
+                                      if(fixedWeight=='0.0'||fixedDelliverMethod==""||
+                                          deliverDate.toLowerCase()=="not yet select"||
+                                          deliverSession.toLowerCase()=="not yet select"){
 
-                                    print(fixedArticle);
-                                    print(articleExtraCharge);
-                                    print(fixedWeight + " "+selectedDropWeight);
-                                    print(fixedDelliverMethod);
-                                    print(cakeDiscounts);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
+                                              behavior: SnackBarBehavior.floating,
+                                              // backgroundColor: Colors.red[300],
+                                              duration: Duration(minutes: 1),
+                                              action: SnackBarAction(
+                                                textColor: Colors.red,
+                                                onPressed: (){
+                                                },
+                                                label: 'Close',
+                                              ),
+                                            )
+                                        );
+
+                                      }else{
+                                        loadOrderPreference();
+                                      }
+
+                                    }
 
 
                                   },

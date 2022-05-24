@@ -112,6 +112,10 @@ class _CakeTypesState extends State<CakeTypes> {
   //Fil toping
   List<bool> topingCheck = [];
   List fixedFilterTopping = [];
+  //Filter caketype
+  List filterTypeList=["Birthday","Wedding","Theme Cake","Normal Cake"];
+  List selectedFilter=[];
+  List cakeTypeList =[];
 
   //Shapes showing...
   List<bool> filterShapesCheck = [];
@@ -249,22 +253,22 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ),
                                   SizedBox(height: 4,),
                                   Container(
-                                    padding: EdgeInsets.all(5),
-                                    child:Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children:[
-                                        Text('Start : Rs.${rangeValues.start.toInt()}', style: TextStyle(
-                                          fontFamily: "Poppins" ,
-                                          fontSize: 13 ,
-                                          color: Colors.green,
-                                        ),),
-                                        Text('End : Rs.${rangeValues.end.toInt()}', style: TextStyle(
-                                          fontFamily: "Poppins" ,
-                                          fontSize: 13 ,color: Colors.red,
+                                      padding: EdgeInsets.all(5),
+                                      child:Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children:[
+                                            Text('Start : Rs.${rangeValues.start.toInt()}', style: TextStyle(
+                                              fontFamily: "Poppins" ,
+                                              fontSize: 13 ,
+                                              color: Colors.green,
+                                            ),),
+                                            Text('End : Rs.${rangeValues.end.toInt()}', style: TextStyle(
+                                              fontFamily: "Poppins" ,
+                                              fontSize: 13 ,color: Colors.red,
 
-                                        ),),
-                                      ]
-                                    )
+                                            ),),
+                                          ]
+                                      )
                                   ),
                                   SizedBox(height: 4,),
                                   Container(
@@ -317,25 +321,25 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   Row(
                                                     children: [
                                                       Checkbox(
-                                                          shape: CircleBorder(),
-                                                          activeColor: Colors.white,
-                                                          fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
-                                                          value: flavsCheck[index],
-                                                          onChanged: (bool? check){
-                                                            setState((){
-                                                              if(flavsCheck[index]==false){
-                                                                flavsCheck[index]=true;
-                                                                if(fixedFilterFlav.contains(flavsCheck[index])){
+                                                        shape: CircleBorder(),
+                                                        activeColor: Colors.white,
+                                                        fillColor: MaterialStateProperty.resolveWith((states) => Colors.green),
+                                                        value: flavsCheck[index],
+                                                        onChanged: (bool? check){
+                                                          setState((){
+                                                            if(flavsCheck[index]==false){
+                                                              flavsCheck[index]=true;
+                                                              if(fixedFilterFlav.contains(flavsCheck[index])){
 
-                                                                }else{
-                                                                  fixedFilterFlav.add(flavsCheck[index]);
-                                                                }
                                                               }else{
-                                                                fixedFilterFlav.remove(flavsCheck[index]);
-                                                                flavsCheck[index]=false;
+                                                                fixedFilterFlav.add(flavsCheck[index]);
                                                               }
-                                                            });
-                                                          },
+                                                            }else{
+                                                              fixedFilterFlav.remove(flavsCheck[index]);
+                                                              flavsCheck[index]=false;
+                                                            }
+                                                          });
+                                                        },
                                                       ),
                                                       Text(filterCakesFlavList[index][0].toUpperCase()+
                                                           filterCakesFlavList[index].toString().substring(1).toLowerCase(),style: TextStyle(
@@ -611,9 +615,9 @@ class _CakeTypesState extends State<CakeTypes> {
                                   fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
                               GestureDetector(
                                 onTap: () =>
-                                  setState(() {
-                                   clearTheSearch();
-                                  }),
+                                    setState(() {
+                                      clearTheSearch();
+                                    }),
                                 child: Container(
                                     width: 35,
                                     height: 35,
@@ -819,23 +823,56 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                           SizedBox(height: 5,),
                           //types of cakes btn...
-                          Wrap(
-                            runSpacing: 5.0,
-                            spacing: 5.0,
-                            children: [
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('Normal cakes',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('Basic Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                              OutlinedButton(
-                                onPressed: (){},
-                                child: Text('Fully Customize cake',style: TextStyle(fontSize: 12,color: darkBlue,fontFamily: "Poppins"),),
-                              ),
-                            ],
+                          Container(
+                            height: 100,
+                            child: ListView.builder(
+                                itemCount: 1,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return
+                                    Wrap(
+                                      children:
+                                      filterTypeList.map(
+                                            (item) {
+                                          bool isSelected = false;
+                                          if (selectedFilter!.contains(item)) {
+                                            isSelected = true;
+                                          }
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState((){
+                                                if (!selectedFilter.contains(item)) {
+                                                  if (selectedFilter.length < 5) {
+                                                    selectedFilter.add(item);
+                                                    print('is selected item...  $isSelected');
+                                                    print(' selected index $selectedFilter');
+                                                  }
+                                                } else {
+                                                  print('is selected item...  $isSelected');
+                                                  selectedFilter
+                                                      .removeWhere((element) => element == item);
+                                                  print(' selected index $selectedFilter');
+                                                }
+                                              });
+                                            },
+                                            child: Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 5, vertical: 4),
+                                                child: Container(
+                                                  height: 30,
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 5, horizontal: 12),
+                                                  decoration: BoxDecoration(
+                                                      color: isSelected?lightPink:Colors.white,
+                                                      borderRadius: BorderRadius.circular(5),
+                                                      border: Border.all(width: 1,color: isSelected?lightPink:Colors.grey)),
+                                                  child: Text(item, style: TextStyle(fontSize: 14,color:isSelected?Colors.white:darkBlue,fontFamily: "Poppins"),),
+                                                )),
+                                          );
+                                        },
+                                      ).toList(),
+                                    );
+                                }),
                           ),
 
                           SizedBox(height: 10,),
@@ -853,9 +890,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                   setState((){
                                     Navigator.pop(context);
                                     searchByGivenFilter(
-                                        cakeCategoryCtrl.text, 
-                                        cakeSubCategoryCtrl.text, 
-                                        cakeVendorCtrl.text
+                                        cakeCategoryCtrl.text,
+                                        cakeSubCategoryCtrl.text,
+                                        cakeVendorCtrl.text,
+                                        selectedFilter
                                     );
                                   });
 
@@ -882,13 +920,13 @@ class _CakeTypesState extends State<CakeTypes> {
   void showShapesSheet(){
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25)
+            borderRadius: BorderRadius.circular(25)
         ),
         context: context,
         builder: (context){
           return StatefulBuilder(
             builder: (BuildContext context, void Function(void Function()) setState) {
-               return Container(
+              return Container(
                 padding: EdgeInsets.all(10),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1129,10 +1167,13 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
   //search by filters
-  void searchByGivenFilter(String category, String subCategory , String vendorName){
+  void searchByGivenFilter(String category, String subCategory , String vendorName, List filterCType){
 
     List a=[] , b =[], c=[];
-    
+    cakeTypeList=[];
+
+    searchControl.text= '$searchCakeCate $searchCakeSubType $searchCakeVendor ${selectedFilter.toString().replaceAll("[", "").replaceAll("]", "")}';
+
     setState((){
 
       if(category.isNotEmpty){
@@ -1156,19 +1197,28 @@ class _CakeTypesState extends State<CakeTypes> {
               .contains(vendorName.toLowerCase())).toList();
           activeSearch = true;
         });
-
-
         print('end of Filter..');
-
+      }
+      if(filterCType.isNotEmpty){
+        print('active search $activeSearch');
+        for(int i=0;i<cakeSearchList.length;i++){
+          print(i);
+          if(cakeSearchList[i]['TypeOfCake'].isNotEmpty){
+            for(int j = 0 ; j<filterCType.length;j++){
+              print(j);
+              if(cakeSearchList[i]['TypeOfCake'].contains(filterCType[j])){
+                cakeTypeList.add(cakeSearchList[i]);
+                print(filterCType);
+              }
+            }
+          }
+        }
+        print('neww type of cakes...............   $cakeTypeList');
       }
 
-      cakeSearchList = a + b+ c;
+      cakeSearchList = a + b+ c + cakeTypeList.toList();
       cakeSearchList = cakeSearchList.toSet().toList();
-
     });
-
-
-
   }
 
   //load prefss...
@@ -1339,11 +1389,11 @@ class _CakeTypesState extends State<CakeTypes> {
       final result = await InternetAddress.lookup('www.google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+            SnackBar(
               content: Text('You are online...!'),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
-          )
+            )
         );
         setState(() {
           networkMsg = "Network connected";
@@ -1479,7 +1529,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString('vendorName', cakeSearchList[index]['VendorName'].toString());
     prefs.setString('vendorMobile', cakeSearchList[index]['VendorPhoneNumber'].toString());
 
-       Navigator.of(context).push(
+    Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
             cakeSearchList[index]['ShapeList'].toList(),cakeSearchList[index]['FlavourList'].toList(),
@@ -1651,241 +1701,134 @@ class _CakeTypesState extends State<CakeTypes> {
 
     List a = [] , b = [] , c = [] ,d = [];
 
-      setState(() {
-        //all are empty
-        if(priceStart.isEmpty&&priceEnd.isEmpty&&flavours.isEmpty&&shapes.isEmpty&&topings.isEmpty){
-          Navigator.pop(context);
-          isFilterisOn = false;
+    setState(() {
+      //all are empty
+      if(priceStart.isEmpty&&priceEnd.isEmpty&&flavours.isEmpty&&shapes.isEmpty&&topings.isEmpty){
+        Navigator.pop(context);
+        isFilterisOn = false;
+      }
+      else{
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Filters Applied.'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        //price values ok
+        if(priceStart.isNotEmpty||priceEnd.isNotEmpty)
+        {
+          print("price range is not empty");
+          setState(() {
+            for (int i = 0; i < eggOrEgglesList.length; i++) {
+              d = eggOrEgglesList.where((element) =>
+              int.parse(element['Price'], onError: (e) => 0) >=
+                  double.parse(priceRangeStart, (e) => 0).toInt() &&
+                  int.parse(element['Price']) <=
+                      double.parse(priceRangeEnd, (e) => 0).toInt()
+              ).toList();
+
+              isFilterisOn = true;
+            }
+          });
         }
-        else{
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Filters Applied.'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          //price values ok
-          if(priceStart.isNotEmpty||priceEnd.isNotEmpty)
-          {
-            print("price range is not empty");
-            setState(() {
-              for (int i = 0; i < eggOrEgglesList.length; i++) {
-                d = eggOrEgglesList.where((element) =>
-                int.parse(element['Price'], onError: (e) => 0) >=
-                    double.parse(priceRangeStart, (e) => 0).toInt() &&
-                    int.parse(element['Price']) <=
-                        double.parse(priceRangeEnd, (e) => 0).toInt()
-                ).toList();
 
-                isFilterisOn = true;
-              }
-            });
-          }
-
-          //flav list ok
-          if(flavours.isNotEmpty){
-            print('flavours ok !');
+        //flav list ok
+        if(flavours.isNotEmpty){
+          print('flavours ok !');
 
 
-            for(int i=0;i<eggOrEgglesList.length;i++){
+          for(int i=0;i<eggOrEgglesList.length;i++){
 
 
 
-                if(eggOrEgglesList[i]['FlavourList']!=null && eggOrEgglesList[i]['FlavourList'].isNotEmpty){
+            if(eggOrEgglesList[i]['FlavourList']!=null && eggOrEgglesList[i]['FlavourList'].isNotEmpty){
 
-                  print('Okey List : $i');
+              print('Okey List : $i');
 
-                  for(int j = 0 ; j<eggOrEgglesList[i]['FlavourList'].length;j++){
+              for(int j = 0 ; j<eggOrEgglesList[i]['FlavourList'].length;j++){
 
-                    if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
+                if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
 
-                      print('Iam not null : $j');
+                  print('Iam not null : $j');
 
-                      for(int k = 0;k<flavours.length;k++){
+                  for(int k = 0;k<flavours.length;k++){
 
-                        if(eggOrEgglesList[i]['FlavourList'][j]['Name'].toString().toLowerCase()
+                    if(eggOrEgglesList[i]['FlavourList'][j]['Name'].toString().toLowerCase()
                         .contains(flavours[k].toString().toLowerCase())
-                        ){
-                          print('Name is exists! $k $j');
+                    ){
+                      print('Name is exists! $k $j');
 
-                          setState((){
-                            a.add(eggOrEgglesList[i]);
-                            isFilterisOn=true;
-                          });
+                      setState((){
+                        a.add(eggOrEgglesList[i]);
+                        isFilterisOn=true;
+                      });
 
-                        }else {
-                          print('Name Not exists! $k $j');
-                        }
-
-                      }
-
-                    }else{
-                      print('Iam null : $j');
+                    }else {
+                      print('Name Not exists! $k $j');
                     }
 
                   }
 
-
                 }else{
-
-                  print('Not ok List : $i');
-
+                  print('Iam null : $j');
                 }
 
+              }
 
+
+            }else{
+
+              print('Not ok List : $i');
 
             }
 
-            // try{
-            //   setState(() {
-            //     for(int i = 0 ;i < eggOrEgglesList.length;i++){
-            //       if(eggOrEgglesList[i]['FlavourList'].isNotEmpty && eggOrEgglesList[i]['FlavourList']!=null){
-            //
-            //         for(int j=0;j<eggOrEgglesList[i]['FlavourList'].length;j++){
-            //
-            //           if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
-            //
-            //             print(eggOrEgglesList[i]['FlavourList'][j]['Name']);
-            //
-            //             // for(int k = 0; k<flavours.length;k++){
-            //             //   a = eggOrEgglesList[i]['FlavourList'].where((e)=>e['Name'].toString().toLowerCase()
-            //             //   .contains(flavours[k].toString().toLowerCase())
-            //             //   ).toList();
-            //             // }
-            //
-            //           }
-            //
-            //         }
-            //
-            //       }else{
-            //         print('Iam a empty index $i');
-            //       }
-            //     }
-            //
-            //     a = a.toSet().toList();
-            //
-            //     isFilterisOn=true;
-            //
-            //   });
-            // }catch(e){
-            //   print(e);
-            // }
+
 
           }
 
-          //shapes list ok
-          if(shapes.isNotEmpty){
-            print('shapes okk!');
-
-            setState(() {
-              for(int i=0;i<eggOrEgglesList.length;i++){
-
-                if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-                  print("${eggOrEgglesList[i]['ShapeList']} : $i");
-                  print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
-
-                  for(int j=0;j<shapes.length;j++){
-                    if(eggOrEgglesList[i]['ShapeList'].toList().contains(
-                        shapes[j][0].toString().toUpperCase()+shapes[j].toString().substring(1).toLowerCase()
-                    )){
-                      myShapesFilter.add(eggOrEgglesList[i]);
-                    }
-                  }
-                }
-
-              }
-              isFilterisOn=true;
-            });
-
-          }
-
-          //topings list ok
-          if(topings.isNotEmpty){
-            print('topings ok');
-
-            setState(() {
-
-              for(int i=0;i<eggOrEgglesList.length;i++){
-                if(eggOrEgglesList[i]['CakeToppings'].isNotEmpty){
-                  for(int j = 0 ; j<topings.length;j++){
-                    if(eggOrEgglesList[i]['CakeToppings'].contains(topings[j])){
-                      c.add(eggOrEgglesList[i]);
-                    }
-                  }
-                }else{
-
-                }
-              }
-              isFilterisOn=true;
-            });
-          }
-
-
-          myFilterList = a+b+c+d;
-          filteredListByUser = myFilterList + myShapesFilter;
-          filteredListByUser = filteredListByUser.toSet().toList();
-          filteredListByUser = filteredListByUser.reversed.toList();
+          // try{
+          //   setState(() {
+          //     for(int i = 0 ;i < eggOrEgglesList.length;i++){
+          //       if(eggOrEgglesList[i]['FlavourList'].isNotEmpty && eggOrEgglesList[i]['FlavourList']!=null){
+          //
+          //         for(int j=0;j<eggOrEgglesList[i]['FlavourList'].length;j++){
+          //
+          //           if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
+          //
+          //             print(eggOrEgglesList[i]['FlavourList'][j]['Name']);
+          //
+          //             // for(int k = 0; k<flavours.length;k++){
+          //             //   a = eggOrEgglesList[i]['FlavourList'].where((e)=>e['Name'].toString().toLowerCase()
+          //             //   .contains(flavours[k].toString().toLowerCase())
+          //             //   ).toList();
+          //             // }
+          //
+          //           }
+          //
+          //         }
+          //
+          //       }else{
+          //         print('Iam a empty index $i');
+          //       }
+          //     }
+          //
+          //     a = a.toSet().toList();
+          //
+          //     isFilterisOn=true;
+          //
+          //   });
+          // }catch(e){
+          //   print(e);
+          // }
 
         }
 
-      });
+        //shapes list ok
+        if(shapes.isNotEmpty){
+          print('shapes okk!');
 
-  }
-
-  //Clear all applied filters...
-  void clearAllFilters(){
-
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Filters removed.'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      setState((){
-        //Filterd notify text
-        isFilterisOn = false;
-
-        myFilterList = [];
-
-        //price range = 0
-        priceRangeStart = "";
-        priceRangeEnd = '';
-        rangeValues = RangeValues(0,2500);
-
-        //fixed lists
-        fixedFilterFlav = [];
-        fixedFilterShapes = [];
-        fixedFilterTopping = [];
-
-        //Check boxs
-        flavsCheck = [];
-        shapesCheck = [];
-        topingCheck = [];
-
-        filteredListByUser = myFilterList + myShapesFilter;
-        filteredListByUser = filteredListByUser.toSet().toList();
-        filteredListByUser = filteredListByUser.reversed.toList();
-
-      });
-
-  }
-
-  //applying shape only filter
-  void applyFilterByShape(List shapes){
-
-    print(shapes);
-
-      setState(() {
-        if(shapes.isEmpty){
-          Navigator.pop(context);
-          shapeOnlyFilter = false;
-        }
-        else{
-          myShapesFilter.clear();
           setState(() {
             for(int i=0;i<eggOrEgglesList.length;i++){
 
@@ -1900,55 +1843,162 @@ class _CakeTypesState extends State<CakeTypes> {
                     myShapesFilter.add(eggOrEgglesList[i]);
                   }
                 }
-
               }
 
             }
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Shapes Applied.'),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-            shapeOnlyFilter=true;
-            Navigator.pop(context);
+            isFilterisOn=true;
           });
 
-
-          filteredListByUser = myFilterList+ myShapesFilter;
-          filteredListByUser = filteredListByUser.toSet().toList();
-          filteredListByUser = filteredListByUser.reversed.toList();
         }
 
-      });
+        //topings list ok
+        if(topings.isNotEmpty){
+          print('topings ok');
+
+          setState(() {
+
+            for(int i=0;i<eggOrEgglesList.length;i++){
+              if(eggOrEgglesList[i]['CakeToppings'].isNotEmpty){
+                for(int j = 0 ; j<topings.length;j++){
+                  if(eggOrEgglesList[i]['CakeToppings'].contains(topings[j])){
+                    c.add(eggOrEgglesList[i]);
+                  }
+                }
+              }else{
+
+              }
+            }
+            isFilterisOn=true;
+          });
+        }
+
+
+        myFilterList = a+b+c+d;
+        filteredListByUser = myFilterList + myShapesFilter;
+        filteredListByUser = filteredListByUser.toSet().toList();
+        filteredListByUser = filteredListByUser.reversed.toList();
+
+      }
+
+    });
+
+  }
+
+  //Clear all applied filters...
+  void clearAllFilters(){
+
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Filters removed.'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    setState((){
+      //Filterd notify text
+      isFilterisOn = false;
+
+      myFilterList = [];
+
+      //price range = 0
+      priceRangeStart = "";
+      priceRangeEnd = '';
+      rangeValues = RangeValues(0,2500);
+
+      //fixed lists
+      fixedFilterFlav = [];
+      fixedFilterShapes = [];
+      fixedFilterTopping = [];
+
+      //Check boxs
+      flavsCheck = [];
+      shapesCheck = [];
+      topingCheck = [];
+
+      filteredListByUser = myFilterList + myShapesFilter;
+      filteredListByUser = filteredListByUser.toSet().toList();
+      filteredListByUser = filteredListByUser.reversed.toList();
+
+    });
+
+  }
+
+  //applying shape only filter
+  void applyFilterByShape(List shapes){
+
+    print(shapes);
+
+    setState(() {
+      if(shapes.isEmpty){
+        Navigator.pop(context);
+        shapeOnlyFilter = false;
+      }
+      else{
+        myShapesFilter.clear();
+        setState(() {
+          for(int i=0;i<eggOrEgglesList.length;i++){
+
+            if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
+              print("${eggOrEgglesList[i]['ShapeList']} : $i");
+              print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
+
+              for(int j=0;j<shapes.length;j++){
+                if(eggOrEgglesList[i]['ShapeList'].toList().contains(
+                    shapes[j][0].toString().toUpperCase()+shapes[j].toString().substring(1).toLowerCase()
+                )){
+                  myShapesFilter.add(eggOrEgglesList[i]);
+                }
+              }
+
+            }
+
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Shapes Applied.'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          shapeOnlyFilter=true;
+          Navigator.pop(context);
+        });
+
+
+        filteredListByUser = myFilterList+ myShapesFilter;
+        filteredListByUser = filteredListByUser.toSet().toList();
+        filteredListByUser = filteredListByUser.reversed.toList();
+      }
+
+    });
 
 
   }
 
   //Clr shapes filter..
   void clearShapesFilter(){
-      setState(() {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Shapes removed!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+    setState(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shapes removed!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
 
-        myShapesFilter=[];
-        filterShapesCheck = [];
-        filterShapes = [];
-        shapeOnlyFilter = false;
+      myShapesFilter=[];
+      filterShapesCheck = [];
+      filterShapes = [];
+      shapeOnlyFilter = false;
 
 
-        filteredListByUser = myFilterList + myShapesFilter;
-        filteredListByUser = filteredListByUser.toSet().toList();
-        filteredListByUser = filteredListByUser.reversed.toList();
+      filteredListByUser = myFilterList + myShapesFilter;
+      filteredListByUser = filteredListByUser.toSet().toList();
+      filteredListByUser = filteredListByUser.reversed.toList();
 
-        Navigator.pop(context);
-      });
+      Navigator.pop(context);
+    });
 
   }
 
@@ -2000,28 +2050,28 @@ class _CakeTypesState extends State<CakeTypes> {
     mySelVendors = context.watch<ContextData>().getMyVendorsList();
 
     //search & filters controlls
-      if(egglesSwitch == true){
-        setState(() {
-          eggOrEgglesList = cakesList.where((element) =>
-              element['EggOrEggless'].toString().toLowerCase().contains("Eggless".toLowerCase())).toList();
+    if(egglesSwitch == true){
+      setState(() {
+        eggOrEgglesList = cakesList.where((element) =>
+            element['EggOrEggless'].toString().toLowerCase().contains("Eggless".toLowerCase())).toList();
 
-          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+        cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+            == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
-        });
-      }
-      else if(egglesSwitch == false){
-        setState(() {
-          eggOrEgglesList = cakesList.where((element) =>
-              element['EggOrEggless'].toString().toLowerCase()=="egg"||
-              element['EggOrEggless'].toString().toLowerCase()=="eggadded"
-          ).toList();
+      });
+    }
+    else if(egglesSwitch == false){
+      setState(() {
+        eggOrEgglesList = cakesList.where((element) =>
+        element['EggOrEggless'].toString().toLowerCase()=="egg"||
+            element['EggOrEggless'].toString().toLowerCase()=="eggadded"
+        ).toList();
 
-          cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
-              == cakesTypes[currentIndex].toString().toLowerCase()).toList();
+        cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+            == cakesTypes[currentIndex].toString().toLowerCase()).toList();
 
-        });
-      }
+      });
+    }
 
     if(isFilterisOn ==true || shapeOnlyFilter == true || searchModeis == true){
       setState(() {
@@ -2067,14 +2117,14 @@ class _CakeTypesState extends State<CakeTypes> {
 
         // set search by filters
 
-        if(cakeVendorCtrl.text.isNotEmpty || cakeCategoryCtrl.text.isNotEmpty|| cakeSubCategoryCtrl.text.isNotEmpty){
+        if(cakeVendorCtrl.text.isNotEmpty || cakeCategoryCtrl.text.isNotEmpty|| cakeSubCategoryCtrl.text.isNotEmpty ||selectedFilter.isNotEmpty){
 
           setState((){
 
             categorySearch = [];
             subCategorySearch = [];
             vendorBasedSearch = [];
-
+            cakeTypeList=[];
             activeSearch = true;
 
             if(cakeCategoryCtrl.text.isNotEmpty){
@@ -2092,6 +2142,23 @@ class _CakeTypesState extends State<CakeTypes> {
                   .contains(cakeVendorCtrl.text.toLowerCase())).toList();
             }
 
+            if (selectedFilter.isNotEmpty) {
+              print('Entered to Filter..');
+              for(int i=0;i<eggOrEgglesList.length;i++){
+                print(i);
+                if(eggOrEgglesList[i]['TypeOfCake'].isNotEmpty){
+                  for(int j = 0 ; j<selectedFilter.length;j++){
+                    print(j);
+                    if(eggOrEgglesList[i]['TypeOfCake'].contains(selectedFilter[j])){
+                      cakeTypeList.add(eggOrEgglesList[i]);
+                      print(selectedFilter);
+                    }
+                  }
+                }
+              }
+              print('end new Filter..');
+            }
+
             // cakeSearchList.clear();
 
             print(categorySearch.length);
@@ -2099,7 +2166,7 @@ class _CakeTypesState extends State<CakeTypes> {
             print(vendorBasedSearch.length);
 
             cakeSearchList = categorySearch.toList()
-                + subCategorySearch.toList() + vendorBasedSearch.toList();
+                + subCategorySearch.toList() + vendorBasedSearch.toList()+cakeTypeList.toList();
             cakeSearchList = cakeSearchList.toSet().toList();
 
 
@@ -2137,54 +2204,54 @@ class _CakeTypesState extends State<CakeTypes> {
         return false;
       },
       child: Scaffold(
-          bottomSheet:!_show?BottomSheet(
-            onClosing: () {
-            },
-            builder: (BuildContext context) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(15),
-                    height: 100,
-                    color: Colors.white,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: Colors.red[100]
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('DO YOU WANT A THEME CAKE?',style: TextStyle(
-                              color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins
-                          ),),
-                          Icon(Icons.cake,color: lightPink,size: 50,)
-                        ],
-                      ),
+        bottomSheet:!_show?BottomSheet(
+          onClosing: () {
+          },
+          builder: (BuildContext context) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(15),
+                  height: 100,
+                  color: Colors.white,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: Colors.red[100]
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text('DO YOU WANT A THEME CAKE?',style: TextStyle(
+                            color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins
+                        ),),
+                        Icon(Icons.cake,color: lightPink,size: 50,)
+                      ],
                     ),
                   ),
-                  Positioned(
-                    left: width*0.86,
-                    top: -6,
-                    child: IconButton(
-                        onPressed: (){
-                          setState(() {
-                            _show = false;
-                          });
-                        },
-                        icon: Icon(Icons.cancel_rounded,color: Colors.red,size: 30,)
-                    ),
-                  )
-                ],
-              );
-            },
-          ):null,
-          resizeToAvoidBottomInset: false,
-          key: _scaffoldKey,
-          body:Container(
+                ),
+                Positioned(
+                  left: width*0.86,
+                  top: -6,
+                  child: IconButton(
+                      onPressed: (){
+                        setState(() {
+                          _show = false;
+                        });
+                      },
+                      icon: Icon(Icons.cancel_rounded,color: Colors.red,size: 30,)
+                  ),
+                )
+              ],
+            );
+          },
+        ):null,
+        resizeToAvoidBottomInset: false,
+        key: _scaffoldKey,
+        body:Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
               image: DecorationImage(
@@ -2192,7 +2259,7 @@ class _CakeTypesState extends State<CakeTypes> {
               )),
           child: RefreshIndicator(
             onRefresh : () async{
-                loadPrefs();
+              loadPrefs();
             },
             child: SingleChildScrollView(
               child:Column(
@@ -2254,7 +2321,7 @@ class _CakeTypesState extends State<CakeTypes> {
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               fontFamily: "Poppins"
-                            ),
+                          ),
                         ),
                       ),
                       Container(
@@ -2283,24 +2350,24 @@ class _CakeTypesState extends State<CakeTypes> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
-                                  children: [
-                                    Container(
-                                      child: Text(mySelVendors[0]['VendorName'],style: TextStyle(
-                                          color: darkBlue,fontFamily:"Poppins",
-                                          fontSize: 18,fontWeight: FontWeight.bold
-                                      ),),
-                                    ),
-
-                                    Container(
-                                        child:Image(
-                                          height: 30,
-                                          width: 30,
-                                          image: AssetImage('assets/images/smilyfood.png'),
-                                        )
-                                    )
-
-                                  ],
+                              children: [
+                                Container(
+                                  child: Text(mySelVendors[0]['VendorName'],style: TextStyle(
+                                      color: darkBlue,fontFamily:"Poppins",
+                                      fontSize: 18,fontWeight: FontWeight.bold
+                                  ),),
                                 ),
+
+                                Container(
+                                    child:Image(
+                                      height: 30,
+                                      width: 30,
+                                      image: AssetImage('assets/images/smilyfood.png'),
+                                    )
+                                )
+
+                              ],
+                            ),
                             Container(
                               width: 100,
                               child: Row(
@@ -2379,6 +2446,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                     setState(() {
                                       searchCakesText = '';
                                       searchControl.text = '';
+                                      cakeCategoryCtrl.text='';
+                                      cakeSubCategoryCtrl.text='';
+                                      cakeVendorCtrl.text='';
+                                      selectedFilter=[];
                                     });
                                   },
                                   icon: Icon(Icons.close),
@@ -2535,7 +2606,7 @@ class _CakeTypesState extends State<CakeTypes> {
                   ),
 
 
-              //Cake cate types
+                  //Cake cate types
                   cakesTypes.length==0?
                   Container(
                       height: height * 0.08,
@@ -2828,337 +2899,339 @@ class _CakeTypesState extends State<CakeTypes> {
                   Visibility(
                     visible: isFiltered?false:true,
                     child:Column(
-                        children: [
-                          StaggeredGridView.countBuilder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.all(8.0),
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 5,
-                            crossAxisSpacing: 7,
-                            itemCount: cakeSearchList.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return
-                                index==0?
-                                GestureDetector(
-                                  onTap: (){
-                                    sendDetailsToScreen(index);
-                                  },
-                                  child: Column(
-                                    children: [
-                                      SizedBox(height: 10,),
-                                      Text('Found',style: TextStyle(
-                                          color: darkBlue,fontSize: 16,fontFamily: "Poppins"
-                                      )),
-                                      Text(cakeSearchList.length.toString()+" items",style: TextStyle(
-                                          color: darkBlue,fontWeight: FontWeight.bold,
-                                          fontSize: 20,fontFamily: "Poppins"
-                                      )),
-                                      SizedBox(height: 5,),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 10),
-                                        padding:EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(14),
-                                          color: Colors.white,
-                                          boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
-                                        ),
-                                        child:Column(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 50,
-                                              backgroundImage:
-                                              cakeSearchList[index]['Images']==null
-                                                  ||cakeSearchList[index]['Images'].isEmpty?
-                                              NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
-                                              NetworkImage(cakeSearchList[index]['Images'][0].toString()),
-                                            ),
-                                            SizedBox(height: 8,),
-                                            Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
-                                                cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()
-                                                }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
-                                            )),
-                                            SizedBox(height: 8,),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text('₹ ${cakeSearchList[index]['Price']}',style: TextStyle(
-                                                    color: lightPink,fontWeight: FontWeight.bold,fontSize: 14,
+                      children: [
+                        StaggeredGridView.countBuilder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.all(8.0),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 5,
+                          crossAxisSpacing: 7,
+                          itemCount: cakeSearchList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return
+                              index==0?
+                              GestureDetector(
+                                onTap: (){
+                                  sendDetailsToScreen(index);
+                                },
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 10,),
+                                    Text('Found',style: TextStyle(
+                                        color: darkBlue,fontSize: 16,fontFamily: "Poppins"
+                                    )),
+                                    Text(cakeSearchList.length.toString()+" items",style: TextStyle(
+                                        color: darkBlue,fontWeight: FontWeight.bold,
+                                        fontSize: 20,fontFamily: "Poppins"
+                                    )),
+                                    SizedBox(height: 5,),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      padding:EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.white,
+                                        boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
+                                      ),
+                                      child:Column(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage:
+                                            cakeSearchList[index]['Images']==null
+                                                ||cakeSearchList[index]['Images'].isEmpty?
+                                            NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
+                                            NetworkImage(cakeSearchList[index]['Images'][0].toString()),
+                                          ),
+                                          SizedBox(height: 8,),
+                                          Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
+                                              cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()
+                                          }",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                              color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
+                                          )),
+                                          SizedBox(height: 8,),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('₹ ${cakeSearchList[index]['Price']}',style: TextStyle(
+                                                  color: lightPink,fontWeight: FontWeight.bold,fontSize: 14,
                                                   fontFamily: "Poppins"
-                                                )),
-                                                Container(
-                                                  padding: EdgeInsets.all(4),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.grey.withOpacity(0.5),
-                                                      borderRadius: BorderRadius.circular(8)
-                                                  ),
-                                                  child: Text(cakeSearchList[index]['WeightList'].isEmpty?'NF':
-                                                  cakeSearchList[index]['WeightList'].length>1?
-                                                  '${cakeSearchList[index]['WeightList'][0].toString().split(',').first}':
-                                                  '${cakeSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
-                                                      ,style: TextStyle(
-                                                          color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
-                                                      )),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ):
-                                GestureDetector(
-                                  onTap: (){
-                                    sendDetailsToScreen(index);
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(top: 10),
-                                        padding:EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(14),
-                                          color: Colors.white,
-                                          boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
-                                        ),
-                                        child:Column(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 50,
-                                              backgroundImage:
-                                              cakeSearchList[index]['Images'].isEmpty?
-                                              NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
-                                              NetworkImage(cakeSearchList[index]['Images'][0].toString()),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
-                                                cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
-                                                color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
-                                            )),
-                                            SizedBox(height: 8,),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text('₹ ${cakeSearchList[index]['Price']}',style: TextStyle(
-                                                    color: lightPink,fontWeight: FontWeight.bold,fontSize: 14,
-                                                    fontFamily: "Poppins"
-                                                )),
-                                                Container(
-                                                  padding: EdgeInsets.all(4),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.grey.withOpacity(0.5),
-                                                      borderRadius: BorderRadius.circular(8)
-                                                  ),
-                                                  child: Text(cakeSearchList[index]['WeightList'].isEmpty?'NF':
-                                                  cakeSearchList[index]['WeightList'].length>1?
-                                                  '${cakeSearchList[index]['WeightList'][0].toString().split(',').first}':
-                                                  '${cakeSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
-                                                      ,style: TextStyle(
-                                                          color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
-                                                      )),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                );
-                            },
-                            staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                                              )),
+                                              Container(
+                                                padding: EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey.withOpacity(0.5),
+                                                    borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                child: Text(cakeSearchList[index]['WeightList'].isEmpty?'NF':
+                                                cakeSearchList[index]['WeightList'].length>1?
+                                                '${cakeSearchList[index]['WeightList'][0].toString().split(',').first}':
+                                                '${cakeSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
+                                                    ,style: TextStyle(
+                                                        color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                                                    )),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ):
+                              GestureDetector(
+                                onTap: (){
+                                  sendDetailsToScreen(index);
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      padding:EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.white,
+                                        boxShadow: [BoxShadow(blurRadius: 10, color:Colors.black12, spreadRadius: 0)],
+                                      ),
+                                      child:Column(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage:
+                                            cakeSearchList[index]['Images'].isEmpty?
+                                            NetworkImage("https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg"):
+                                            NetworkImage(cakeSearchList[index]['Images'][0].toString()),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text("${cakeSearchList[index]['Title'][0].toString().toUpperCase()+
+                                              cakeSearchList[index]['Title'].toString().substring(1).toLowerCase()}",maxLines: 2,overflow:TextOverflow.ellipsis,style: TextStyle(
+                                              color: darkBlue,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: "Poppins"
+                                          )),
+                                          SizedBox(height: 8,),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('₹ ${cakeSearchList[index]['Price']}',style: TextStyle(
+                                                  color: lightPink,fontWeight: FontWeight.bold,fontSize: 14,
+                                                  fontFamily: "Poppins"
+                                              )),
+                                              Container(
+                                                padding: EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey.withOpacity(0.5),
+                                                    borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                child: Text(cakeSearchList[index]['WeightList'].isEmpty?'NF':
+                                                cakeSearchList[index]['WeightList'].length>1?
+                                                '${cakeSearchList[index]['WeightList'][0].toString().split(',').first}':
+                                                '${cakeSearchList[index]['WeightList'][0].toString().split(',').first+" +"}'
+                                                    ,style: TextStyle(
+                                                        color: Colors.black,fontWeight: FontWeight.bold,fontSize: 12
+                                                    )),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                          },
+                          staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                        ),
+                        Visibility(
+                          visible: isNetworkError?false:true,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(cakeSearchList.length>0?'Load completed.':'No results found.',style: TextStyle(
+                                fontFamily: "Poppins",fontWeight: FontWeight.bold
+                            ),),
                           ),
-                          Visibility(
-                            visible: isNetworkError?false:true,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text(cakeSearchList.length>0?'Load completed.':'No results found.',style: TextStyle(
-                                  fontFamily: "Poppins",fontWeight: FontWeight.bold
-                              ),),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                   ):
                   // cakeSearchList.isNotEmpty?
-                  ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount:cakeSearchList.length,
-                      itemBuilder: (c , i){
-                        return Container(
-                          margin: EdgeInsets.only(left: 15 , right: 15 , top: 5 , bottom: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.grey[400]!,
-                              width:0.5
-                            )
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //header text (name , stars)
-                              Container(
-                                padding:EdgeInsets.only(top: 4, bottom: 4 , left :10 ,right:10),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15),
-                                      ),
-                                      color: Colors.grey[300]
-                                  ),
-                                child:Row(
-                                  children:[
-                                    Container(
-                                      width:cakeSearchList[i]['VendorName'].toString().length>25?
-                                      130:60,
-                                      child: Text('${cakeSearchList[i]['VendorName']}', style:TextStyle(
-                                        color:Colors.black ,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily:'Poppins',
-                                        fontSize:13
-                                      ) , maxLines: 1,overflow: TextOverflow.ellipsis,),
-                                    ) ,
-                                    Row(
-                                      children: [
-                                        RatingBar.builder(
-                                          initialRating: 4.1,
-                                          minRating: 1,
-                                          direction: Axis.horizontal,
-                                          allowHalfRating: true,
-                                          itemCount: 5,
-                                          itemSize: 14,
-                                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                                          itemBuilder: (context, _) => Icon(
-                                            Icons.star,
-                                            color: Colors.amber,
-                                          ),
-                                          onRatingUpdate: (rating) {
-                                            print(rating);
-                                          },
-                                        ),
-                                        Text(' 4.5',style: TextStyle(
-                                            color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 12,fontFamily: poppins
-                                        ),)
-                                      ],
-                                    ),
-                                    Expanded(
-                                      child:Container(
-                                        alignment: Alignment.centerRight,
-                                        child:InkWell(
-                                          onTap:(){
-                                            sendDetailsToScreen(i);
-                                          },
-                                          child: Container(
-                                              alignment: Alignment.center,
-                                              height:25,
-                                              width:25,
-                                              decoration: BoxDecoration(
-                                                  shape:BoxShape.circle,
-                                                  color: Colors.white
-                                              ),
-                                              child: Icon(Icons.arrow_forward_ios_sharp , color:lightPink,size: 15,)
-                                          ),
-                                        )
-                                      )
-                                    )
-                                  ]
+                  Container(
+                    child:(cakeSearchList.length == 0)?Text("No Similar datas found",style: TextStyle(fontFamily: "Poppins",fontWeight: FontWeight.bold),): ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount:cakeSearchList.length,
+                        itemBuilder: (c , i){
+                          return Container(
+                            margin: EdgeInsets.only(left: 15 , right: 15 , top: 5 , bottom: 5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: Colors.grey[400]!,
+                                    width:0.5
                                 )
-                              ),
-                              //body (image , cake name)
-                              InkWell(
-                                splashColor: Colors.red[100],
-                                onTap:(){
-                                  sendDetailsToScreen(i);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(8),
-                                  child:Row(
-                                    children:[
-                                      cakeSearchList[i]['Images'].isEmpty||cakeSearchList[i]['Images'][0]==''?
-                                      Container(
-                                        height:85,
-                                        width:85,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
-                                            color: Colors.pink[100],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //header text (name , stars)
+                                Container(
+                                    padding:EdgeInsets.only(top: 4, bottom: 4 , left :10 ,right:10),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15),
+                                          topRight: Radius.circular(15),
                                         ),
-                                        child: Icon(Icons.cake_outlined , size: 50 , color:lightPink,),
-                                      ):
-                                      Container(
-                                        height:85,
-                                        width:85,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15),
-                                          color: Colors.blue,
-                                          image:DecorationImage(
-                                            image: NetworkImage(cakeSearchList[i]['Images'][0]),
-                                            fit:BoxFit.cover
-                                          )
-                                        ),
-                                      ),
-                                      SizedBox(width:8),
-                                      Expanded(
-                                        child:Container(
-                                          child:Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children:[
-                                              Container(
-                                                // width:120,
-                                                child: Text('${cakeSearchList[i]['Title']}', style:TextStyle(
-                                                    color:darkBlue,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily:'Poppins',
-                                                    fontSize:12
-                                                ) , maxLines: 2,overflow: TextOverflow.ellipsis,),
-                                              ) ,
-                                              SizedBox(height:5),
-                                              Container(
-                                              // width:120,
-                                              child: Text('Price Rs.${cakeSearchList[i]['Price']}/Kg Min Quantity 1 Kg Customization Available', style:TextStyle(
-                                                  color:Colors.grey,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily:'Poppins',
-                                                  fontSize:10
-                                              ) , maxLines:2,overflow: TextOverflow.ellipsis,
+                                        color: Colors.grey[300]
+                                    ),
+                                    child:Row(
+                                        children:[
+                                          Container(
+                                            width:cakeSearchList[i]['VendorName'].toString().length>25?
+                                            130:60,
+                                            child: Text('${cakeSearchList[i]['VendorName']}', style:TextStyle(
+                                                color:Colors.black ,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily:'Poppins',
+                                                fontSize:13
+                                            ) , maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          ) ,
+                                          Row(
+                                            children: [
+                                              RatingBar.builder(
+                                                initialRating: 4.1,
+                                                minRating: 1,
+                                                direction: Axis.horizontal,
+                                                allowHalfRating: true,
+                                                itemCount: 5,
+                                                itemSize: 14,
+                                                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                itemBuilder: (context, _) => Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                                onRatingUpdate: (rating) {
+                                                  print(rating);
+                                                },
                                               ),
-                                             ) ,
-                                              SizedBox(height:5),
-                                              Container(
-                                                height:0.5,
-                                                color:Color(0xffdddddd)
-                                              ),
-                                              SizedBox(height:5),
-                                             Container(
-                                              // width:120,
-                                              child: Text(cakeSearchList[i]['DeliveryCharge']=="0"||
-                                                  cakeSearchList[i]['DeliveryCharge']=="null"||cakeSearchList[i]['DeliveryCharge']==null?
-                                              'DELIVERY FREE':'Delivery Charge Rs.${cakeSearchList[i]['DeliveryCharge']}', style:TextStyle(
-                                                  color:Colors.orange,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily:'Poppins',
-                                                  fontSize:10
-                                              ) , maxLines:1,overflow: TextOverflow.ellipsis,),
-                                            ) ,
-                                            ]
+                                              Text(' 4.5',style: TextStyle(
+                                                  color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 12,fontFamily: poppins
+                                              ),)
+                                            ],
+                                          ),
+                                          Expanded(
+                                              child:Container(
+                                                  alignment: Alignment.centerRight,
+                                                  child:InkWell(
+                                                    onTap:(){
+                                                      sendDetailsToScreen(i);
+                                                    },
+                                                    child: Container(
+                                                        alignment: Alignment.center,
+                                                        height:25,
+                                                        width:25,
+                                                        decoration: BoxDecoration(
+                                                            shape:BoxShape.circle,
+                                                            color: Colors.white
+                                                        ),
+                                                        child: Icon(Icons.arrow_forward_ios_sharp , color:lightPink,size: 15,)
+                                                    ),
+                                                  )
+                                              )
                                           )
-                                        )
-                                      )
-                                    ]
-                                  )
+                                        ]
+                                    )
                                 ),
-                              )
-                            ],
-                          ),
-                        );
-                      }
+                                //body (image , cake name)
+                                InkWell(
+                                  splashColor: Colors.red[100],
+                                  onTap:(){
+                                    sendDetailsToScreen(i);
+                                  },
+                                  child: Container(
+                                      padding: EdgeInsets.all(8),
+                                      child:Row(
+                                          children:[
+                                            cakeSearchList[i]['Images'].isEmpty||cakeSearchList[i]['Images'][0]==''?
+                                            Container(
+                                              height:85,
+                                              width:85,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(15),
+                                                color: Colors.pink[100],
+                                              ),
+                                              child: Icon(Icons.cake_outlined , size: 50 , color:lightPink,),
+                                            ):
+                                            Container(
+                                              height:85,
+                                              width:85,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(15),
+                                                  color: Colors.blue,
+                                                  image:DecorationImage(
+                                                      image: NetworkImage(cakeSearchList[i]['Images'][0]),
+                                                      fit:BoxFit.cover
+                                                  )
+                                              ),
+                                            ),
+                                            SizedBox(width:8),
+                                            Expanded(
+                                                child:Container(
+                                                    child:Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children:[
+                                                          Container(
+                                                            // width:120,
+                                                            child: Text('${cakeSearchList[i]['Title']}', style:TextStyle(
+                                                                color:darkBlue,
+                                                                fontWeight: FontWeight.bold,
+                                                                fontFamily:'Poppins',
+                                                                fontSize:12
+                                                            ) , maxLines: 2,overflow: TextOverflow.ellipsis,),
+                                                          ) ,
+                                                          SizedBox(height:5),
+                                                          Container(
+                                                            // width:120,
+                                                            child: Text('Price Rs.${cakeSearchList[i]['Price']}/Kg Min Quantity 1 Kg Customization Available', style:TextStyle(
+                                                                color:Colors.grey,
+                                                                fontWeight: FontWeight.bold,
+                                                                fontFamily:'Poppins',
+                                                                fontSize:10
+                                                            ) , maxLines:2,overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ) ,
+                                                          SizedBox(height:5),
+                                                          Container(
+                                                              height:0.5,
+                                                              color:Color(0xffdddddd)
+                                                          ),
+                                                          SizedBox(height:5),
+                                                          Container(
+                                                            // width:120,
+                                                            child: Text(cakeSearchList[i]['DeliveryCharge']=="0"||
+                                                                cakeSearchList[i]['DeliveryCharge']=="null"||cakeSearchList[i]['DeliveryCharge']==null?
+                                                            'DELIVERY FREE':'Delivery Charge Rs.${cakeSearchList[i]['DeliveryCharge']}', style:TextStyle(
+                                                                color:Colors.orange,
+                                                                fontWeight: FontWeight.bold,
+                                                                fontFamily:'Poppins',
+                                                                fontSize:10
+                                                            ) , maxLines:1,overflow: TextOverflow.ellipsis,),
+                                                          ) ,
+                                                        ]
+                                                    )
+                                                )
+                                            )
+                                          ]
+                                      )
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }
+                    ),
                   )
                   // Padding(
                   //   padding: const EdgeInsets.all(25.0),
@@ -3175,8 +3248,10 @@ class _CakeTypesState extends State<CakeTypes> {
             ),
           ),
         ),
-        ),
+      ),
     );
   }
 }
+
+
 

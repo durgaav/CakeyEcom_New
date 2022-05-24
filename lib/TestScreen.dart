@@ -64,7 +64,7 @@ class _TestScreenState extends State<TestScreen> {
             IndexedStack(
               index: 1,
               children: [
-                CheckOut(),
+                CheckOut([],[]),
                 Profile(defindex: 0),
               ],
             ),
