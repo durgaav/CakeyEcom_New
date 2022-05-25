@@ -35,31 +35,31 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Color darkBlue =  Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
 
-   //for tabs...
-   late TabController tabControl ;
-   //for expand the tiles..
-   List<bool> isExpands = [];
-   List recentOrders = [];
-   bool notifiOnOrOf = true;
-   bool isLoading = true;
+  //for tabs...
+  late TabController tabControl ;
+  //for expand the tiles..
+  List<bool> isExpands = [];
+  List recentOrders = [];
+  bool notifiOnOrOf = true;
+  bool isLoading = true;
 
-   //Phone number
-   String phoneNumber = "";
+  //Phone number
+  String phoneNumber = "";
 
-   //file
-   File file = new File("");
+  //file
+  File file = new File("");
 
-   //users details
-   String userID = "";
-   String userAddress = "";
-   String userProfileUrl = "";
-   String userName = "";
+  //users details
+  String userID = "";
+  String userAddress = "";
+  String userProfileUrl = "";
+  String userName = "";
 
-   //Edit text Controllers...
-   var userNameCtrl = new TextEditingController();
-   var userAddrCtrl = new TextEditingController();
+  //Edit text Controllers...
+  var userNameCtrl = new TextEditingController();
+  var userAddrCtrl = new TextEditingController();
 
-   //On start activity..
+  //On start activity..
   @override
   void initState() {
     // TODO: implement initState
@@ -189,7 +189,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             fetchProfileByPhn();
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
+              SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
           );
         }
         else {
@@ -302,7 +302,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           context.read<ContextData>().setProfileUrl(userProfileUrl);
           userName = body[0]['UserName'].toString();
           prefs.setString('userID', userID);
-          prefs.setString('userModId', body[0]['Id'].toString());
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
           context.read<ContextData>().setUserName(userName);
@@ -380,21 +379,21 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
                 ),
                 child: file.path.isEmpty?CircleAvatar(
-                  radius: 47,
-                  backgroundColor: Colors.white,
-                  child: userProfileUrl!="null"?CircleAvatar(
-                    radius: 45,
-                    backgroundImage: NetworkImage("$userProfileUrl"),
-                  ):CircleAvatar(
-                    radius: 45,
-                    backgroundImage: AssetImage("assets/images/user.png"),
-                  )
+                    radius: 47,
+                    backgroundColor: Colors.white,
+                    child: userProfileUrl!="null"?CircleAvatar(
+                      radius: 45,
+                      backgroundImage: NetworkImage("$userProfileUrl"),
+                    ):CircleAvatar(
+                      radius: 45,
+                      backgroundImage: AssetImage("assets/images/user.png"),
+                    )
                 ):CircleAvatar(
                   radius: 47,
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
-                    radius: 45,
-                    backgroundImage: FileImage(file)
+                      radius: 45,
+                      backgroundImage: FileImage(file)
                   ),
                 ),
               ),
@@ -438,7 +437,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               maxLines: 1,
               keyboardType: TextInputType.text,
               style: TextStyle(
-                  fontFamily: "Poppins" ,
+                fontFamily: "Poppins" ,
               ),
               decoration: const InputDecoration(
                 hintText: "Type Name",
@@ -457,7 +456,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             SizedBox(height: 10,),
             TextField(
               style: TextStyle(
-                  fontFamily: "Poppins" ,
+                fontFamily: "Poppins" ,
               ),
               enabled: false,
               controller: TextEditingController(text: phoneNumber),
@@ -481,14 +480,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             SizedBox(height: 10,),
             TextField(
               style: TextStyle(
-                  fontFamily: "Poppins" ,
+                fontFamily: "Poppins" ,
               ),
               controller: userAddrCtrl,
               maxLines: 4,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                  hintText: "Type Address",
-                  border: OutlineInputBorder(),
+                hintText: "Type Address",
+                border: OutlineInputBorder(),
 
               ),
             ),
@@ -500,24 +499,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           child: TextButton(
               onPressed: (){},
               child: Text('add new address',style: TextStyle(
-                color:Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
+                  color:Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
               ),)
           ),
         ),
         Container(
           alignment: Alignment.centerLeft,
           child: RaisedButton(
-              onPressed: (){
-                FocusScope.of(context).unfocus();
-                updateProfile();
-                },
-              color: darkBlue,
-              shape: RoundedRectangleBorder(
+            onPressed: (){
+              FocusScope.of(context).unfocus();
+              updateProfile();
+            },
+            color: darkBlue,
+            shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20)
-              ),
-              child: const Text('SAVE',style: const TextStyle(
+            ),
+            child: const Text('SAVE',style: const TextStyle(
                 color: Colors.white
-              ),),
+            ),),
           ),
         ),
 
@@ -536,8 +535,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               height: 45,
               width: 45,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(5)
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(5)
               ),
               child: Icon(
                 Icons.notifications_outlined,color: darkBlue,
@@ -575,8 +574,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               height: 45,
               width: 45,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(5)
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(5)
               ),
               child: Icon(
                 Icons.logout_outlined,color: lightPink,
@@ -591,344 +590,343 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget OrdersView(){
     return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         isLoading?
         Center(child: CircularProgressIndicator(),):
-        recentOrders.length>0?
-        ListView.builder(
-              itemCount: recentOrders.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index){
-                isExpands.add(false);
-                return Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap:(){
-                            setState(() {
-                              if(isExpands[index]==false){
-                                isExpands[index]=true;
-                              }else{
-                                isExpands[index]=false;
-                              }
-                            });
-                          },
-                          child: Container(
-                              child:Row(
+        recentOrders.length>0?ListView.builder(
+            itemCount: recentOrders.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index){
+              isExpands.add(false);
+              return Container(
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                child: Column(
+                  children: [
+                    InkWell(
+                      onTap:(){
+                        setState(() {
+                          if(isExpands[index]==false){
+                            isExpands[index]=true;
+                          }else{
+                            isExpands[index]=false;
+                          }
+                        });
+                      },
+                      child: Container(
+                          child:Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                        image: NetworkImage('${recentOrders[index]['Images']}'),
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                              ),
+                              const SizedBox(width: 10,),
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    width: 100,
-                                    height: 100,
+                                    padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: DecorationImage(
-                                          image: NetworkImage('${recentOrders[index]['Images']}'),
-                                          fit: BoxFit.cover
-                                        )
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.black26
+                                    ),
+                                    child:Text('ID ${recentOrders[index]['_id']}',style: const TextStyle(
+                                        fontSize: 10,fontFamily: "Poppins",color: Colors.black
+                                    ),),
+                                  ),
+                                  Container(
+                                    width: 200,
+                                    child:Text("${recentOrders[index]['Title']}",style: const TextStyle(
+                                        fontSize: 13,fontFamily: "Poppins",
+                                        color: Colors.black,fontWeight: FontWeight.bold
+                                    ),overflow: TextOverflow.ellipsis,),
+                                  ),
+                                  Container(
+                                    width:200,
+                                    child:Text("${recentOrders[index]['Description']}"
+                                      ,style: const TextStyle(
+                                          fontSize: 12,fontFamily: "Poppins",
+                                          color: Colors.black26
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const SizedBox(width: 10,),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(3),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20),
-                                          color: Colors.black26
-                                        ),
-                                        child:Text('ID ${recentOrders[index]['_id']}',style: const TextStyle(
-                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black
-                                        ),),
-                                      ),
-                                      Container(
-                                        width: 200,
-                                        child:Text("${recentOrders[index]['Title']}",style: const TextStyle(
-                                            fontSize: 13,fontFamily: "Poppins",
-                                            color: Colors.black,fontWeight: FontWeight.bold
-                                        ),overflow: TextOverflow.ellipsis,),
-                                      ),
-                                      Container(
-                                        width:200,
-                                        child:Text("${recentOrders[index]['Description']}"
-                                          ,style: const TextStyle(
-                                            fontSize: 12,fontFamily: "Poppins",
-                                            color: Colors.black26
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 3,),
-                                      Container(
-                                        width: MediaQuery.of(context).size.width*0.58,
-                                        child: Row(
+                                  const SizedBox(height: 3,),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width*0.58,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("₹ ${recentOrders[index]['Price']}",style: TextStyle(color: lightPink,
+                                            fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
+                                        recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                                        Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text("₹ ${recentOrders[index]['Price']}",style: TextStyle(color: lightPink,
-                                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
-                                            recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                            Row(
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
-                                                        fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                    const Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
-                                                  ],
-                                                ),
-                                                Text("${recentOrders[index]['Status_Updated_On']
-                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
-                                                    fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
+                                                Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                    fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                                const Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
                                               ],
-                                            ):
-                                            Text("${recentOrders[index]['Status']}",style: TextStyle(
-                                                color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                    =='cancelled'?Colors.red:Colors.blueAccent,
-                                             fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                            ),
+                                            Text("${recentOrders[index]['Status_Updated_On']
+                                                .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                           ],
-                                        ),
-                                      )
-                                    ],
+                                        ):
+                                        Text("${recentOrders[index]['Status']}",style: TextStyle(
+                                            color:recentOrders[index]['Status'].toString().toLowerCase()
+                                                =='cancelled'?Colors.red:Colors.blueAccent,
+                                            fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                      ],
+                                    ),
                                   )
                                 ],
                               )
-                            ),
-                        ),
-                        SizedBox(height: 10,),
-                        Visibility(
-                          visible:isExpands[index],
-                          child: AnimatedContainer(
-                            duration: const Duration(seconds: 3),
-                            curve: Curves.elasticInOut,
-                            decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.only(
+                            ],
+                          )
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    Visibility(
+                      visible:isExpands[index],
+                      child: AnimatedContainer(
+                        duration: const Duration(seconds: 3),
+                        curve: Curves.elasticInOut,
+                        decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.only(
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10)
-                              )
-                            ),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  title: const Text('Vendor',style: const TextStyle(
-                                    fontSize: 11,fontFamily: "Poppins"
-                                  ),),
-                                  subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
-                                      fontSize: 14,fontFamily: "Poppins",
-                                    fontWeight: FontWeight.bold,color: Colors.black
-                                  ),),
-                                  trailing: Container(
-                                    width: 100,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        InkWell(
-                                          onTap: (){
-                                            print('phone..');
-                                          },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            height: 35,
-                                            width: 35,
-                                            decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.white
-                                            ),
-                                            child:const Icon(Icons.phone,color: Colors.blueAccent,),
-                                          ),
+                            )
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: const Text('Vendor',style: const TextStyle(
+                                  fontSize: 11,fontFamily: "Poppins"
+                              ),),
+                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                                  fontSize: 14,fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,color: Colors.black
+                              ),),
+                              trailing: Container(
+                                width: 100,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    InkWell(
+                                      onTap: (){
+                                        print('phone..');
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
                                         ),
-                                        const SizedBox(width: 10,),
-                                        InkWell(
-                                          onTap: (){
-                                            print('whatsapp');
-                                        },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            height: 35,
-                                            width: 35,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.white
-                                            ),
-                                            child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
-                                          ),
-                                        ),
-                                      ],
+                                        child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.only(left: 15,bottom: 10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Cake Type',style: TextStyle(
-                                          fontSize: 11,fontFamily: "Poppins"
-                                      ),),
-                                      Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
-                                          fontSize: 14,fontFamily: "Poppins",
-                                          fontWeight: FontWeight.bold,color: Colors.black
-                                      ),),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(left: 10,right: 10),
-                                  color: Colors.black26,
-                                  height: 1,
-                                ),
-                                const SizedBox(height: 15,),
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(width: 8,),
-                                      const Icon(
-                                        Icons.location_on,
-                                        color: Colors.red,
+                                    const SizedBox(width: 10,),
+                                    InkWell(
+                                      onTap: (){
+                                        print('whatsapp');
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
+                                        ),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
                                       ),
-                                      const SizedBox(width: 8,),
-                                      Container(
-                                          width: 260,
-                                          child:Text(
-                                              "${recentOrders[index]['DeliveryAddress']}",
-                                              style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.black54,
-                                                fontSize: 13
-                                              ),
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(height: 15,),
-                                Container(
-                                  margin: const EdgeInsets.only(left: 10,right: 10),
-                                  color: Colors.black26,
-                                  height: 1,
+                                    ),
+                                  ],
                                 ),
-
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('Item Total',style: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black54,
-                                      ),),
-                                     Text('₹${recentOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                    ],
-                                  ),
+                              ),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 15,bottom: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Cake Type',style: TextStyle(
+                                      fontSize: 11,fontFamily: "Poppins"
+                                  ),),
+                                  Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
+                                      fontSize: 14,fontFamily: "Poppins",
+                                      fontWeight: FontWeight.bold,color: Colors.black
+                                  ),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            const SizedBox(height: 15,),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(width: 8,),
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
                                 ),
+                                const SizedBox(width: 8,),
                                 Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('Delivery charge',style: const TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black54,
-                                      ),),
-                                      Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('Discounts',style: const TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black54,
-                                      ),),
-                                      Text('${recentOrders[index]['Discount']} %',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('Taxes',style: const TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black54,
-                                      ),),
-                                      Text('0 %',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                    ],
-                                  ),
-                                ),
-
-                                Container(
-                                  margin: const EdgeInsets.only(left: 10,right: 10),
-                                  color: Colors.black26,
-                                  height: 1,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('Bill Total',style: TextStyle(
+                                    width: 260,
+                                    child:Text(
+                                      "${recentOrders[index]['DeliveryAddress']}",
+                                      style: TextStyle(
                                           fontFamily: "Poppins",
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold
-                                      ),),
-                                      Text('₹${recentOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black54,
-                                      ),),
-                                    ],
-                                  ),
+                                          color: Colors.black54,
+                                          fontSize: 13
+                                      ),
+                                    )
                                 ),
                               ],
                             ),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-              }
-          ):
-        Center(
+                            const SizedBox(height: 15,),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Item Total',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${recentOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Delivery charge',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('${recentOrders[index]['Discount']} %',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Taxes',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('0 %',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Bill Total',style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold
+                                  ),),
+                                  Text('₹${recentOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+        )
+            :Center(
           child: Column(
             children: [
               Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
               Text('No orders found!' , style: TextStyle(
-                color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
+                  color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
               ),),
             ],
           ),
@@ -945,111 +943,225 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     checkInternet();
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        elevation: 0,
-        leading:Container(
-          margin: const EdgeInsets.all(10),
-          child: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10)),
-                alignment: Alignment.center,
-                height: 20,
-                width: 20,
-                child: Icon(
-                  Icons.chevron_left,
-                  color: lightPink,
-                  size: 35,
-                )),
-          ),
-        ),
-        backgroundColor: lightGrey,
-        title: Text(
-          'PROFILE',
-          style: TextStyle(
-            color: darkBlue,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-          onPressed: (){
-            setState(() {
-              fetchProfileByPhn();
-            });
-          },
-          icon: Icon(Icons.refresh),
-          color: darkBlue,
-          ),
-          Stack(
-            alignment: Alignment.center,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(50),
+        child: Container(
+          padding: EdgeInsets.only(left: 15,top:25,right: 10),
+          color: lightGrey,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.ease;
-
-                        final tween = Tween(begin: begin, end: end);
-                        final curvedAnimation = CurvedAnimation(
-                          parent: animation,
-                          curve: curve,
-                        );
-                        return SlideTransition(
-                          position: tween.animate(curvedAnimation),
-                          child: child,
-                        );
+              Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 10,bottom: 15),
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.pop(context);
                       },
+                      child: Container(
+                        height: 30,
+                        decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(7)
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
+                      ),
                     ),
-                  );
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  height: 35,
-                  width: 35,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Icon(
-                    Icons.notifications_none,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Text(
+                      'PROFILE',
+                      style: TextStyle(
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold,fontSize: 17
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: (){
+                      setState(() {
+                        fetchProfileByPhn();
+                      });
+                    },
+                    icon: Icon(Icons.refresh),
                     color: darkBlue,
-                    size: 30,
                   ),
-                ),
-              ),
-              const Positioned(
-                left: 20,
-                top: 18,
-                child: const CircleAvatar(
-                  radius: 4.5,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: 3.5,
-                    backgroundColor: Colors.red,
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(top: 10,bottom: 10),
+                        child: InkWell(
+                          onTap: (){
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.ease;
+
+                                  final tween = Tween(begin: begin, end: end);
+                                  final curvedAnimation = CurvedAnimation(
+                                    parent: animation,
+                                    curve: curve,
+                                  );
+                                  return SlideTransition(
+                                    position: tween.animate(curvedAnimation),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 30,
+                            padding: EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(7)
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon( Icons.notifications_none,size: 27,color: darkBlue,),
+                          ),
+                        ),
+                      ),
+                      const Positioned(
+                        left: 17,
+                        top: 17,
+                        child: const CircleAvatar(
+                          radius: 3.5,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 2.7,
+                            backgroundColor: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
+                  // const SizedBox(
+                  //   width: 2,
+                  // )
+                ],
+              )
             ],
           ),
-          const SizedBox(
-            width: 10,
-          )
-        ],
+        ),
       ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   leading:Container(
+      //     margin: const EdgeInsets.all(10),
+      //     child: InkWell(
+      //       onTap: () {
+      //         Navigator.pop(context);
+      //       },
+      //       child: Container(
+      //           decoration: BoxDecoration(
+      //               color: Colors.grey[300],
+      //               borderRadius: BorderRadius.circular(10)),
+      //           alignment: Alignment.center,
+      //           height: 20,
+      //           width: 20,
+      //           child: Icon(
+      //             Icons.chevron_left,
+      //             color: lightPink,
+      //             size: 35,
+      //           )),
+      //     ),
+      //   ),
+      //   backgroundColor: lightGrey,
+      //   title: Text(
+      //     'PROFILE',
+      //     style: TextStyle(
+      //       color: darkBlue,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //     onPressed: (){
+      //       setState(() {
+      //         fetchProfileByPhn();
+      //       });
+      //     },
+      //     icon: Icon(Icons.refresh),
+      //     color: darkBlue,
+      //     ),
+      //     Stack(
+      //       alignment: Alignment.center,
+      //       children: [
+      //         InkWell(
+      //           onTap: () {
+      //             Navigator.of(context).push(
+      //               PageRouteBuilder(
+      //                 pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+      //                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      //                   const begin = Offset(1.0, 0.0);
+      //                   const end = Offset.zero;
+      //                   const curve = Curves.ease;
+      //
+      //                   final tween = Tween(begin: begin, end: end);
+      //                   final curvedAnimation = CurvedAnimation(
+      //                     parent: animation,
+      //                     curve: curve,
+      //                   );
+      //                   return SlideTransition(
+      //                     position: tween.animate(curvedAnimation),
+      //                     child: child,
+      //                   );
+      //                 },
+      //               ),
+      //             );
+      //           },
+      //           child: Container(
+      //             alignment: Alignment.center,
+      //             height: 35,
+      //             width: 35,
+      //             decoration: BoxDecoration(
+      //                 color: Colors.grey[300],
+      //                 borderRadius: BorderRadius.circular(8)),
+      //             child: Icon(
+      //               Icons.notifications_none,
+      //               color: darkBlue,
+      //               size: 30,
+      //             ),
+      //           ),
+      //         ),
+      //         const Positioned(
+      //           left: 20,
+      //           top: 18,
+      //           child: const CircleAvatar(
+      //             radius: 4.5,
+      //             backgroundColor: Colors.white,
+      //             child: CircleAvatar(
+      //               radius: 3.5,
+      //               backgroundColor: Colors.red,
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     const SizedBox(
+      //       width: 10,
+      //     )
+      //   ],
+      // ),
       body: Container(
         margin: const EdgeInsets.all(10),
+        padding: EdgeInsets.only(top: 5),
         child: Column(
           children: [
             Container(
-              height: 50,
+              height: 45,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.black54,width: 1),
@@ -1082,16 +1194,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             ),
             Expanded(
               child: TabBarView(
-                   controller: tabControl,
-                    children: [
-                      SingleChildScrollView(
-                          child: ProfileView()
+                  controller: tabControl,
+                  children: [
+                    SingleChildScrollView(
+                        child: ProfileView()
+                    ),
+                    Center(
+                      child: SingleChildScrollView(
+                          child: OrdersView()
                       ),
-                      SingleChildScrollView(
-                            child: OrdersView()
-                      ),
-                    ]
-                ),
+                    ),
+                  ]
+              ),
 
             )
           ],
@@ -1100,3 +1214,4 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 }
+

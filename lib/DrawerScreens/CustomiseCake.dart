@@ -928,7 +928,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       }
 
       if(flavour.isNotEmpty){
-        flavTempList.add(flavour);
+        flavTempList.add({"Name":flavour, "Price":'0'});
       }
 
       // fixedCakeArticle = article;
@@ -947,12 +947,50 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //Load Order Preferences...
   Future<void> confirmOrder() async{
 
+    var tempList = [];
+
     setState((){
       if(fixedFlavList.isEmpty){
-        fixedFlavList = ["Vanilla"];
+        fixedFlavList = [jsonEncode({"Name":"Vanilla","Price":"0"})];
       }else{
-        fixedFlavList = fixedFlavList + flavTempList;
+        fixedFlavList = fixedFlavList+flavTempList;
+
+        for(int i = 0;i<fixedFlavList.length;i++){
+          tempList.add(jsonEncode(fixedFlavList[i]));
+        }
+
+        tempList = tempList.toSet().toList();
       }
+
+      print(tempList);
+      print(fixedWeight);
+
+
+      print(json.encode({
+        'TypeOfCake': '$fixedCategory',
+        'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+        'Flavour': tempList.toString(),
+        'Shape': '$fixedShape',
+        'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
+        '{"Name":"$fixedCakeArticle","Price":"0"}',
+        'Weight': '${fixedWeight}kg',
+        'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+        'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
+        'DeliveryAddress': '$deliverAddress',
+        'DeliveryDate': '$fixedDate',
+        'DeliverySession': '$fixedSession',
+        'DeliveryInformation': '$fixedDelliverMethod',
+        'VendorID': '$vendorID',
+        'VendorName': '$vendorName',
+        'VendorPhoneNumber': '$vendorPhone',
+        'VendorAddress': '$vendorAddress',
+        'Vendor_ID':'$vendorModId',
+        "User_ID":"$userModId",
+        'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
+        'UserID': '$userID',
+        'UserName': '$userName',
+        'UserPhoneNumber': '$userPhone'
+      }));
 
     });
 
@@ -961,29 +999,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     //below 5 kg it will work...
     if(int.parse(fixedWeight , onError: (e)=>0) < 5){
 
+      print("below 5");
+      print(file.path);
+
       try{
 
         //user not select the file
         if(file.path.isEmpty){
-
 
           var request = http.MultipartRequest('POST',
               Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
-          for (String item in fixedFlavList) {
-            request.files.add(http.MultipartFile.fromString('Flavour', item));
-          }
-
-
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            'Flavour': '$fixedFlavList',
-            // 'Flavour':{},
+            'Flavour': tempList.toString(),
             'Shape': '$fixedShape',
-            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
+             '{"Name":"$fixedCakeArticle","Price":"0"}',
             'Weight': '${fixedWeight}kg',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
             'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
@@ -997,6 +1032,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             'VendorAddress': '$vendorAddress',
             'Vendor_ID':'$vendorModId',
             "User_ID":"$userModId",
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
             'UserID': '$userID',
             'UserName': '$userName',
             'UserPhoneNumber': '$userPhone'
@@ -1035,39 +1071,36 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
         }else{
 
+          print("abv 5");
+
           var request = http.MultipartRequest('POST',
               Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
-          for (String item in fixedFlavList) {
-            request.files.add(http.MultipartFile.fromString('Flavour', item));
-          }
-
-
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            'Flavour': '$fixedFlavList',
-            // 'Flavour':{},
+            'Flavour': '$tempList',
             'Shape': '$fixedShape',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
+              '{"Name":"$fixedCakeArticle","Price":"0"}',
             'Weight': '${fixedWeight}kg',
             'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
             'DeliveryAddress': '$deliverAddress',
             'DeliveryDate': '$fixedDate',
             'DeliverySession': '$fixedSession',
             'DeliveryInformation': '$fixedDelliverMethod',
-            'VendorID': '$vendorID',
             'VendorName': '$vendorName',
             'VendorPhoneNumber': '$vendorPhone',
             'VendorAddress': '$vendorAddress',
             'Vendor_ID':'$vendorModId',
             "User_ID":"$userModId",
-            'UserID': '$userID',
             'UserName': '$userName',
-            'UserPhoneNumber': '$userPhone'
+            'UserPhoneNumber': '$userPhone',
+            'VendorID': '$vendorID',
+            'UserID': '$userID',
           });
 
           request.files.add(await http.MultipartFile.fromPath(
@@ -1129,30 +1162,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
-          // for (String item in fixedFlavList) {
-          //   request.files.add(http.MultipartFile.fromString('Flavour', item));
-          // }
-
-
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            'Flavour': '$fixedFlavList',
-            // 'Flavour':{},
+            'Flavour': '$tempList',
             'Shape': '$fixedShape',
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
+            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
+            '{"Name":"$fixedCakeArticle","Price":"0"}',
             'Weight': '${fixedWeight}kg',
             'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
             'DeliveryAddress': '$deliverAddress',
             'DeliveryDate': '$fixedDate',
             'DeliverySession': '$fixedSession',
             'DeliveryInformation': '$fixedDelliverMethod',
-            // 'VendorID': '$vendorID',
-            // 'VendorName': '$vendorName',
-            // 'VendorPhoneNumber': '$vendorPhone',
-            // 'VendorAddress': '$vendorAddress',
-            // 'Vendor_ID':'$vendorModId',
+            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
             "User_ID":"$userModId",
             'UserID': '$userID',
             'UserName': '$userName',
@@ -1205,22 +1228,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
             'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
-            'Flavour': '$fixedFlavList',
-            // 'Flavour':{},
+            'Flavour': '$tempList',
             'Shape': '$fixedShape',
+            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
+            '{"Name":"$fixedCakeArticle","Price":"0"}',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'Article': fixedCakeArticle.isEmpty?'None':'$fixedCakeArticle',
             'Weight': '${fixedWeight}kg',
             'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
             'DeliveryAddress': '$deliverAddress',
             'DeliveryDate': '$fixedDate',
             'DeliverySession': '$fixedSession',
             'DeliveryInformation': '$fixedDelliverMethod',
-            // 'VendorID': '$vendorID',
-            // 'VendorName': '$vendorName',
-            // 'VendorPhoneNumber': '$vendorPhone',
-            // 'VendorAddress': '$vendorAddress',
-            // 'Vendor_ID':'$vendorModId',
             "User_ID":"$userModId",
             'UserID': '$userID',
             'User_ID':'$userModId',
@@ -1773,11 +1791,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         if(fixedFlavList.contains(flavourList[index].toString())){
                                                           print('exists...');
                                                         }else{
-                                                          fixedFlavList.add(flavourList[index].toString());
+                                                          fixedFlavList.add({
+                                                            "Name": flavourList[index]
+                                                                .toString(),
+                                                            "Price": "0"
+                                                          });
                                                         }
                                                       }else{
                                                         fixedFlavChecks[index] = false;
-                                                        fixedFlavList.removeWhere((element) => element==flavourList[index].toString());
+                                                        fixedFlavList.removeWhere((element) => element['Name']==flavourList[index].toString());
                                                       }
 
                                                     });
@@ -1839,7 +1861,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   child: ActionChip(
                                                       label:Row(
                                                         children: [
-                                                          Text(flavTempList[i]),
+                                                          Text(flavTempList[i]['Name']),
                                                           SizedBox(width: 4,),
                                                           Icon(Icons.close , size: 20,)
                                                         ],
@@ -1847,7 +1869,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       onPressed: (){
                                                         setState((){
                                                           if(flavTempList.contains(flavTempList[i])){
-                                                            flavTempList.removeWhere((element) => element==flavTempList[i]);
+                                                            flavTempList.removeWhere((element) => element['Name']==flavTempList[i]['Name']);
                                                           }else{
                                                             print('Nope...');
                                                           }
@@ -3139,17 +3161,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 ),
                                 onPressed: (){
 
-                                  // if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
-                                  //     fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-                                  //
-                                  //   ScaffoldMessenger.of(context).showSnackBar(
-                                  //       SnackBar(
-                                  //         content: Text('Plase Select Weight / Deliver Info / Date & Session'),
-                                  //         behavior: SnackBarBehavior.floating,
-                                  //       )
-                                  //   );
-                                  //
-                                  // }else
+                                  if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
+                                      fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Plase Select Weight / Deliver Info / Date & Session'),
+                                          behavior: SnackBarBehavior.floating,
+                                        )
+                                    );
+
+                                  }else
                                   if(fixedWeight.isEmpty){
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
@@ -3174,6 +3196,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   }else{
                                     showConfirmOrder();
                                   }
+
+                                  print(fixedFlavList);
+                                  print(flavTempList);
 
                                   // showConfirmOrder();
 

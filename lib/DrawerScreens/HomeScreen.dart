@@ -1101,8 +1101,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     placemarks = await geocode.placemarkFromCoordinates(lat!, long!);
 
-    List<geocode.Location> latLong = await geocode
-        .locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
+    // List<geocode.Location> latLong = await geocode
+    //     .locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
 
     geocode.Placemark place = placemarks[0];
 
