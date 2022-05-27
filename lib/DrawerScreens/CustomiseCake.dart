@@ -17,6 +17,8 @@ import '../ContextData.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 
+import '../screens/AddressScreen.dart';
+
 
 class CustomiseCake extends StatefulWidget {
   const CustomiseCake({Key? key}) : super(key: key);
@@ -104,6 +106,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var weightCtrl = new TextEditingController();
   String cakeMessage = '';
   String cakeRequest = "";
+  String authToken = "";
 
   //main variables
   bool egglesSwitch = true;
@@ -111,7 +114,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String userCurLocation = 'Searching...';
 
   var weight = [
-    1, 1.5 , 2 , 2.5 , 3 , 4 , 5 , 5.5, 6 , 7,
+    // 1, 1.5 , 2 , 2.5 , 3 , 4 , 5 , 5.5, 6 , 7,
   ];
 
   var cakeTowers = ["2","3","5","8"];
@@ -637,7 +640,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //region Functions
 
-
   Future<void> removeMyVendorPref() async{
 
     var pref = await SharedPreferences.getInstance();
@@ -681,6 +683,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userName = pref.getString('userName')??'Not Found';
       deliverAddress = pref.getString('userAddress')??'Not Found';
       userPhone = pref.getString('phoneNumber')??'Not Found';
+      authToken= pref.getString('authToken')??'null';
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
@@ -688,6 +691,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     getFlavsList();
     getArticleList();
     getVendorsList();
+    getWeightList();
 
     // prefs.setString('userID', userID);
     // prefs.setString('userAddress', userAddress);
@@ -735,7 +739,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
+        // Android's shouldShowRequestPermissionRListtionale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
         print('Location permissions are denied');
@@ -770,7 +774,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the flavous fom collection
   Future<void> getFlavsList() async{
 
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'));
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'),
+        headers: {"Authorization":"$authToken"}
+    );
 
     if(res.statusCode==200){
       setState((){
@@ -790,14 +796,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the shapes fom collection
   Future<void> getShapesList() async{
     
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/shape/list'));
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/shape/list'),
+        headers: {"Authorization":"$authToken"}
+    );
 
     if(res.statusCode==200){
       setState((){
         shapesList = jsonDecode(res.body);
 
         shapesList.insert(shapesList.indexWhere((element) => element==shapesList.last)+1, {"Name":"Others"});
-
 
       });
     }else{
@@ -809,7 +816,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the article fom collection
   Future<void> getArticleList() async{
 
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/article/list'));
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/article/list'),
+        headers: {"Authorization":"$authToken"}
+    );
 
     if(res.statusCode==200){
       setState((){
@@ -828,14 +837,30 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //geting the weight fom collection
   Future<void> getWeightList() async{
-
+    print('weight...');
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/weight/list'),
+        headers: {"Authorization":"$authToken"}
+    );
+    if(res.statusCode==200){
+      setState((){
+        List myList = jsonDecode(res.body);
+        print(myList);
+        for(int i=0;i<myList.length;i++){
+          weight.add(myList[i]['Weight']);
+        }
+      });
+    }else{
+      print(res.statusCode);
+    }
   }
 
   //get the vendors....
   Future<void> getVendorsList() async{
     showAlertDialog();
     try{
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          headers: {"Authorization":"$authToken"}
+      );
       if(res.statusCode==200){
         setState(() {
           List vendorsList = jsonDecode(res.body);
@@ -885,7 +910,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       // User canceled the picker
     }
   }
-
 
   //save if not enter others
   void saveNotOther(){
@@ -968,7 +992,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
       print(json.encode({
         'TypeOfCake': '$fixedCategory',
-        'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+        'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
         'Flavour': tempList.toString(),
         'Shape': '$fixedShape',
         'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
@@ -1014,7 +1038,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
             'Flavour': tempList.toString(),
             'Shape': '$fixedShape',
             'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
@@ -1080,7 +1104,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
             'Flavour': '$tempList',
             'Shape': '$fixedShape',
             'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
@@ -1164,7 +1188,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
             'Flavour': '$tempList',
             'Shape': '$fixedShape',
             'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
@@ -1227,7 +1251,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
           request.fields.addAll({
             'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': !egglesSwitch?'Egg':'Eggless',
+            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
             'Flavour': '$tempList',
             'Shape': '$fixedShape',
             'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
@@ -1297,6 +1321,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   }
 
+  //post the others to API
+  Future<void> sendOtherToApi() async{
+
+  }
+
   //endregion
 
   @override
@@ -1307,34 +1336,24 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     });
     // session();
-    // setState((){
-    //   fixedSession = session();
-    // });
+    setState((){
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
+    });
+
     super.initState();
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    Future.delayed(Duration.zero , () async{
-      removeMyVendorPref();
-    });
-    super.dispose();
-  }
-
-  // void vendorLoad(){
-  //   selFromVenList = ;
-  //   if(selFromVenList==1){
-  //     loadSelVendorDetails();
-  //   }else{
-  //     return null;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    if(context.watch<ContextData>().getAddress().isNotEmpty){
+      deliverAddress = context.watch<ContextData>().getAddress();
+    }else{
+      deliverAddress = deliverAddress;
+    }
     selFromVenList = context.watch<ContextData>().getAddedMyVendor();
     mySelectdVendors = context.watch<ContextData>().getMyVendorsList();
 
@@ -1527,7 +1546,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             ),
             //Main widgets....
             Container(
-              height: MediaQuery.of(context).size.height*0.8,
+              height: MediaQuery.of(context).size.height*0.82,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1987,7 +2006,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                   child:
                                   Text(
-                                    '${weight[index]} Kg',
+                                    '${weight[index]}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontFamily: "Poppins",
@@ -2370,7 +2389,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               DateTime? SelDate = await showDatePicker(
                                 context: context,
                                 initialDate: DateTime.now(),
-                                lastDate: DateTime(2050),
+                                lastDate: DateTime(2100),
                                 firstDate: DateTime.now()
                                     .subtract(Duration(days: 0)),
                               );
@@ -2606,7 +2625,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       alignment: Alignment.centerLeft,
                       child: TextButton(
                           onPressed: (){
-                            showAddAddressAlert();
+                            // showAddAddressAlert();
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen()));
                           },
                           child: const Text('add new address',style: const TextStyle(
                               color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
@@ -3166,41 +3186,48 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Plase Select Weight / Deliver Info / Date & Session'),
+                                          content: Text('Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
                                           behavior: SnackBarBehavior.floating,
+                                          // backgroundColor: Colors.red[300],
+                                          duration: Duration(minutes: 1),
+                                          action: SnackBarAction(
+                                            textColor: Colors.red,
+                                            onPressed: (){
+                                            },
+                                            label: 'Close',
+                                          ),
                                         )
                                     );
 
-                                  }else
-                                  if(fixedWeight.isEmpty){
+                                  }
+                                  else if(selVendorIndex==-1){
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Plase Select Weight!'),
+                                          content: Text('Please Select : Vendor!'),
                                           behavior: SnackBarBehavior.floating,
+                                          // backgroundColor: Colors.red[300],
+                                          // duration: Duration(minutes: 1),
+                                          action: SnackBarAction(
+                                            textColor: Colors.red,
+                                            onPressed: (){
+                                            },
+                                            label: 'Close',
+                                          ),
                                         )
                                     );
-                                  }else if(fixedDelliverMethod.isEmpty){
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Plase Select Deliver Information!'),
-                                          behavior: SnackBarBehavior.floating,
-                                        )
-                                    );
-                                  }else if(fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Plase Select Deliver Date / Session'),
-                                          behavior: SnackBarBehavior.floating,
-                                        )
-                                    );
-                                  }else{
+
+                                  }
+                                  else{
                                     showConfirmOrder();
                                   }
 
-                                  print(fixedFlavList);
-                                  print(flavTempList);
+                                  // nearestVendors[0].addEntries([
+                                  //   MapEntry('latitude', "000.000"),
+                                  //   MapEntry('longitude', "111.000"),
+                                  // ]);
 
-                                  // showConfirmOrder();
+                                  // print(nearestVendors[0]);
 
                                 },
                                 color: lightPink,

@@ -33,6 +33,7 @@ class _VendorsListState extends State<VendorsList> {
   String userCurLocation = 'Searching...';
   String userMainLocation = '';
   String searchLocation = '';
+  String authToken = "";
 
   String currentValue='';
 
@@ -96,6 +97,7 @@ class _VendorsListState extends State<VendorsList> {
       iamFromCustom = pref.getBool('iamFromCustomise')??false;
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
+      authToken = pref.getString("authToken")?? 'no auth';
       getVendorsList();
     });
   }
@@ -107,7 +109,9 @@ class _VendorsListState extends State<VendorsList> {
 
     try{
 
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          headers: {"Authorization":"$authToken"}
+      );
 
       if(res.statusCode==200){
 
@@ -497,7 +501,8 @@ class _VendorsListState extends State<VendorsList> {
                 width: 10,
               ),
             ],
-          ): AppBar(toolbarHeight: 0.0,),
+          ):
+          AppBar(toolbarHeight: 0.0,),
 
           body: SingleChildScrollView(
             child: Column(
@@ -1364,7 +1369,7 @@ class _VendorsListState extends State<VendorsList> {
                                                                     color:Colors.green,
                                                                     shape: BoxShape.circle
                                                                 ),
-                                                                child:Icon(Icons.done_sharp , color:Colors.white , size: 14,)
+                                                                child:Icon(Icons.done_sharp , color:Colors.white , size: 12,)
                                                             )
                                                                 : TextButton(
                                                               onPressed: () async{

@@ -14,11 +14,13 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
 import '../DrawerScreens/Notifications.dart';
+import 'AddressScreen.dart';
 import 'Profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:expandable_text/expandable_text.dart';
 
 class CakeDetails extends StatefulWidget {
+
   // const CakeDetails({Key? key}) : super(key: key);
   List shapes , flavour ,articals;
   CakeDetails(this.shapes, this.flavour,this.articals);
@@ -118,6 +120,7 @@ class _CakeDetailsState extends State<CakeDetails> {
   String cakeDeliverCharge = '';
   String cakeDiscounts = '';
   String userMainLocation = '';
+  String authToken = '';
 
   //User PROFILE
   String profileUrl = "";
@@ -1695,6 +1698,7 @@ class _CakeDetailsState extends State<CakeDetails> {
       vendorAddress = prefs.getString('singleVendorAddress')??'null';
       myVendorEgg = prefs.getString('myVendorEggs')??'null';
       iamYourVendor = prefs.getBool('iamYourVendor')??false;
+      authToken = prefs.getString("authToken")?? 'no auth';
 
       //Lists
       cakeImages = prefs.getStringList('cakeImages') ?? [];
@@ -1785,6 +1789,7 @@ class _CakeDetailsState extends State<CakeDetails> {
 
     //for delivery...
     prefs.remove('orderCakeItemCount');
+    prefs.remove('orderFromCustom');
     prefs.remove('orderCakeTotalAmt');
     prefs.remove('orderCakeDeliverAmt');
     prefs.remove('orderCakeDiscount');
@@ -1827,6 +1832,7 @@ class _CakeDetailsState extends State<CakeDetails> {
     print('Loading....');
 
       prefs.setString('orderCakeID', cakeId);
+      prefs.setString('orderFromCustom', "no");
       prefs.setString('orderCakeModID', cakeModId);
       prefs.setString('orderCakeName', cakeName);
       prefs.setString('orderCakeDescription', cakeDescription);
@@ -2005,7 +2011,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   Future<void> getVendorsList() async{
     print("begin...");
 
-    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+    var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+        headers: {"Authorization":"$authToken"}
+    );
 
     if(res.statusCode==200){
       // getCakesList();
@@ -2049,7 +2057,9 @@ class _CakeDetailsState extends State<CakeDetails> {
   //getAllcakes List
   Future<void> getCakesList() async{
     showAlertDialog();
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/cake/list'));
+    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
+        headers: {"Authorization":"$authToken"}
+    );
 
     if(res.statusCode==200){
       setState((){
@@ -2110,7 +2120,39 @@ class _CakeDetailsState extends State<CakeDetails> {
     return list;
   }
 
+  Future<void> removeMyVendorPref() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    pref.remove('myVendorId');
+    pref.remove('myVendorName');
+    pref.remove('myVendorPhone');
+    pref.remove('myVendorDesc');
+    pref.remove('myVendorProfile');
+    pref.remove('myVendorDeliverChrg');
+    pref.remove('iamYourVendor');
+    pref.remove('iamFromCustomise');
+
+    //remove homescreen caketypes
+    pref.remove('homeCakeType');
+    pref.remove('homeCTindex');
+    pref.remove('isHomeCake');
+
+  }
+
   //endregion
+
+
+  // @override
+  // void dispose() {
+  //   // TODO: implement dispose
+  //   Future.delayed(Duration.zero , () async{
+  //     removeMyVendorPref();
+  //   });
+  //   context.read<ContextData>().setMyVendors([]);
+  //   context.read<ContextData>().addMyVendor(false);
+  //   super.dispose();
+  // }
 
   @override
   void initState() {
@@ -2120,9 +2162,10 @@ class _CakeDetailsState extends State<CakeDetails> {
     // setState((){
     //   deliverSession = session();
     // });
-
     setState((){
       flavour.insert(0, {"Name":"Default Flavour" , "Price":"0"});
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
     });
 
     super.initState();
@@ -2133,6 +2176,11 @@ class _CakeDetailsState extends State<CakeDetails> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     iamYourVendor = context.watch<ContextData>().getAddedMyVendor();
     mySelVendors = context.watch<ContextData>().getMyVendorsList();
+    if(context.watch<ContextData>().getAddress().isNotEmpty){
+      userAddress = context.watch<ContextData>().getAddress();
+    }else{
+      userAddress =userAddress;
+    }
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
@@ -3271,7 +3319,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                   DateTime? SelDate = await showDatePicker(
                                     context: context,
                                     initialDate: DateTime.now(),
-                                    lastDate: DateTime(2050),
+                                    lastDate: DateTime(2100),
                                     firstDate: DateTime.now()
                                         .subtract(Duration(days: 0)),
                                   );
@@ -3484,7 +3532,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                         child: Text(
                           ' Address',
                           style: TextStyle(
-                              fontFamily: poppins, color: darkBlue),
+                              fontFamily: poppins, color: darkBlue
+                          ),
                         ),
                       ),
                       ListTile(
@@ -3504,7 +3553,8 @@ class _CakeDetailsState extends State<CakeDetails> {
                         alignment: Alignment.centerLeft,
                         child: TextButton(
                             onPressed: () {
-                              showAddAddressAlert();
+                              // showAddAddressAlert();
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen()));
                             },
                             child: const Text(
                               'add new address',

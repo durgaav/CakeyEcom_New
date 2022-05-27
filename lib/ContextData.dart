@@ -9,6 +9,7 @@ class ContextData extends ChangeNotifier {
   int currentIndex = 0;
   List myVendorList = [];
   bool isMyVendorAdded = false;
+  String address = "";
 
   void setProfileUrl(String url){
     profileUrl = url;
@@ -44,5 +45,12 @@ class ContextData extends ChangeNotifier {
   }
 
   List getMyVendorsList()=>myVendorList;
+
+  void setAddress(String adrs){
+    address = adrs;
+    notifyListeners();
+  }
+
+  String getAddress()=>address;
 
 }

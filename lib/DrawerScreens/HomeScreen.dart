@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //Strings
   String poppins = "Poppins";
   String phoneNumber = '';
+  String authToken = '';
   String networkMsg = "";
   String searchText = '';
 
@@ -117,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   //latt and long and maps
-  double lat = 0.0;
-  double long = 0.0;
+  double latude = 0.0;
+  double longtude = 0.0;
   List<geocode.Placemark> placemarks = [];
 
   late bool _serviceEnabled;
@@ -959,6 +960,10 @@ class _HomeScreenState extends State<HomeScreen> {
       profileRemainder = prefs.getBool("profileUpdated") ?? false;
       phoneNumber = prefs.getString("phoneNumber") ?? "";
       newRegUser = prefs.getBool("newRegUser") ?? false;
+      authToken = prefs.getString("authToken") ?? 'no auth';
+
+      print(authToken);
+
       fetchProfileByPhn();
       timerTrigger();
     });
@@ -985,7 +990,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       http.Response response = await http
           .get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
-          "${int.parse(phoneNumber)}"));
+          "${int.parse(phoneNumber)}"),
+          headers: {"Authorization":"$authToken"}
+      );
       if (response.statusCode == 200) {
         // Navigator.pop(context);
         setState(() {
@@ -1109,6 +1116,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // print(placemarks);
 
     setState(() {
+      latude = lat;
+      longtude = long;
       if (place.subLocality.toString().isEmpty) {
         userLocalityAdr = '${place.locality}';
       } else {
@@ -1144,7 +1153,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       http.Response response = await http
-          .get(Uri.parse("https://cakey-database.vercel.app/api/cake/list"));
+          .get(Uri.parse("https://cakey-database.vercel.app/api/cake/list"),
+          headers: {"Authorization":"$authToken"}
+      );
       if (response.statusCode == 200) {
         setState(() {
           isNetworkError = false;
@@ -1217,19 +1228,31 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       ordersLoading = true;
     });
+
     try {
       http.Response response = await http.get(Uri.parse(
-          "https://cakey-database.vercel.app/api/order/listbyuserid/$userID"));
+          "https://cakey-database.vercel.app/api/order/listbyuserid/$userID"),
+          headers: {"Authorization":"$authToken"}
+      );
       if (response.statusCode == 200) {
-        setState(() {
-          isNetworkError = false;
-          ordersLoading = false;
-          recentOrders = jsonDecode(response.body);
-          recentOrders = recentOrders.reversed.toList();
-        });
+
+
+        if(response.contentLength!>50){
+          setState(() {
+            isNetworkError = false;
+            ordersLoading = false;
+            recentOrders = jsonDecode(response.body);
+            recentOrders = recentOrders.reversed.toList();
+          });
+        }else{
+          setState((){
+            recentOrders = [];
+          });
+        }
+
       } else {
         setState(() {
-          isNetworkError = true;
+          // isNetworkError = true;
           ordersLoading = false;
         });
       }
@@ -1279,41 +1302,56 @@ class _HomeScreenState extends State<HomeScreen> {
     List myList = vendorsList;
     List newlist = [];
 
-    for (var i = 0; i < myList.length; i++) {
-      try {
-        if (myList[i]['Address'] != null &&
-            myList[i]['Address']['FullAddress'] != null) {
-          print('My index : $i');
-          location.add(await geocode
-              .locationFromAddress(myList[i]['Address']['FullAddress']));
 
-          newlist
-              .add(myList[i].toString() + {'lat': 00, "long": 000}.toString());
+    try{
+      for (var i = 0; i < myList.length; i++) {
+        try {
+          if (myList[i]['Address'] != null &&
+              myList[i]['Address']['FullAddress'] != null) {
+            location.add(await geocode
+                .locationFromAddress(myList[i]['Address']['FullAddress']));
+
+            myList[i].addEntries([
+              MapEntry('lat', location[i][0].latitude),
+              MapEntry('long', location[i][0].longitude),
+            ]);
+          }
+        } catch (e) {
+          print(e);
         }
-      } catch (e) {
-        print(e);
       }
+
+    }catch(e){
+      print(e);
     }
 
-    // +{'lat': 00, "long": 000}
 
-    print(newlist);
+    // print(myList[0]);
+    // print(location[0]);
+    // print(location[0][0].latitude);
+    // print(location[0][0].longitude);
 
-    // print(location);
 
-    // print(location.length);
-    // for(int i = 0;i<location.length;i++){
-    //
-    //   for(int j = 0 ; j<location[i].length;j++){
-    //
-    //     print("$i of lat : ${location[i][j].latitude} & Long :  ${location[i][j].longitude}");
-    //
-    //
-    //     print('Distance of nearest vendors : ${calculateDistance
-    //       (location[i][j].latitude, location[i][j].longitude, _userLocation!.latitude, _userLocation!.longitude).toInt()}');
-    //
-    //   }
-    // }
+
+
+    for(int i = 0 ;i<myList.length;i++){
+
+      try{
+        print("***st***");
+        print(latude);
+        print(longtude);
+        print(myList[i]['lat']);
+        print(myList[i]['long']);
+        print(myList[i]['Address']['FullAddress']);
+        print(calculateDistance(latude, longtude, myList[i]['lat'], myList[i]['long']).toStringAsFixed(2));
+        // print(calculateDistance(latude, longtude, 11.1526, 77.2109).toStringAsFixed(2));
+        print("***end***");
+      }catch(e){
+        print(e);
+      }
+
+    }
+
   }
 
   //Get vendors list
@@ -1324,7 +1362,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       var res = await http
-          .get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"));
+          .get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          headers: {"Authorization":"$authToken"}
+      );
 
       if (res.statusCode == 200) {
         setState(() {
@@ -1350,6 +1390,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           filteredByEggList = filteredByEggList.toSet().toList();
           filteredByEggList = filteredByEggList.reversed.toList();
+
+
+          getNearbyLoc();
+
         });
       } else {
         print(res.statusCode);
@@ -1688,7 +1732,7 @@ class _HomeScreenState extends State<HomeScreen> {
             !activeSearch
                 ? Container(
               color: lightGrey,
-              height: height * 0.72,
+              height: height * 0.73,
               child: RefreshIndicator(
                 onRefresh: () async {
                   setState(() {
@@ -2180,7 +2224,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             fontSize: 15,
                                             color: darkBlue,
                                             fontWeight:
-                                            FontWeight.bold),
+                                            FontWeight.bold
+                                        ),
                                       ),
                                       InkWell(
                                         onTap: () async {
@@ -2330,6 +2375,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 Alignment
                                                     .topCenter,
                                                 children: [
+                                                  recentOrders[index]['Images']==null||
+                                                  recentOrders[index]['Images'].toString().isEmpty?
                                                   Container(
                                                     width: width /
                                                         2.2,
@@ -2338,7 +2385,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     decoration: BoxDecoration(
                                                         borderRadius:
                                                         BorderRadius.circular(15),
-                                                        image: DecorationImage(fit: BoxFit.cover, image: NetworkImage('${recentOrders[index]['Images']}'))),
+                                                        image: DecorationImage(fit: BoxFit.cover,
+                                                            image: AssetImage("assets/images/chefdoll.jpg"))
+                                                    ),
+                                                  ):
+                                                  Container(
+                                                    width: width /
+                                                        2.2,
+                                                    height:
+                                                    135,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                        BorderRadius.circular(15),
+                                                        image: DecorationImage(fit: BoxFit.cover,
+                                                            image: NetworkImage('${recentOrders[index]['Images']}'))),
                                                   ),
                                                   Positioned(
                                                     top: 85,
@@ -2364,7 +2424,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 child: Container(
                                                                   width: 120,
                                                                   child: Text(
-                                                                    '${recentOrders[index]['Title']}',
+                                                                    recentOrders[index]['Title']!=null?
+                                                                    '${recentOrders[index]['Title']}':"My Customized Cake",
                                                                     style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
                                                                     maxLines: 1,
                                                                     overflow: TextOverflow.ellipsis,
@@ -2457,7 +2518,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               15),
                                         ),
                                       ],
-                                    )),
+                                    )
+                                ),
                               ],
                             ),
                           ),

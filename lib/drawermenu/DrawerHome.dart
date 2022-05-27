@@ -695,7 +695,7 @@ class _DrawerHomeState extends State<DrawerHome> {
             ),
           ),
         ),
-        // AppBar(
+         // AppBar(
         //   leading:
         //   InkWell(
         //     onTap: () {

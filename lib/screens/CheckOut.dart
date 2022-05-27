@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:expandable_text/expandable_text.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../DrawerScreens/Notifications.dart';
@@ -52,6 +51,7 @@ class _CheckOutState extends State<CheckOut> {
   String cakeArticle = '';
   String deliverType = '';
   String extraCharges = '0';
+  String orderFromCustom = 'no';
 
   List<String> toppings = [];
 
@@ -222,6 +222,7 @@ class _CheckOutState extends State<CheckOut> {
       cakePrice = prefs.getString('orderCakePrice')??'';
       cakeModId = prefs.getString('orderCakeModID')??'';
       cakeType = prefs.getString('orderCakeType')??'';
+      orderFromCustom = prefs.getString('orderFromCustom')??'';
 
       //user orderCakeDeliverAddress
       userAddress = prefs.getString('orderCakeDeliverAddress')??'';
@@ -298,47 +299,106 @@ class _CheckOutState extends State<CheckOut> {
 
     print("Extra crg : $extraCharge");
 
-    setState((){
+    if(orderFromCustom!='yes'){
+      setState((){
 
-      priceAfterDiscount = cakesOrginalPrice-(cakesOrginalPrice*discount/100).toInt();
+        priceAfterDiscount = cakesOrginalPrice-(cakesOrginalPrice*discount/100).toInt();
 
-      print('Price After dis : $priceAfterDiscount');
+        print('Price After dis : $priceAfterDiscount');
 
-      discountedPrice = cakesOrginalPrice - priceAfterDiscount;
+        discountedPrice = cakesOrginalPrice - priceAfterDiscount;
 
-      print('Price After dis : $discountedPrice');
+        print('Price After dis : $discountedPrice');
 
-      totalTax = ((priceAfterDiscount*taxes)/100).toInt();
+        totalTax = ((priceAfterDiscount*taxes)/100).toInt();
 
-      gstAmt = (totalTax/2);
-      sgstAmt = totalTax/2;
+        gstAmt = (totalTax/2);
+        sgstAmt = totalTax/2;
 
-      itemTotal = (counts*priceAfterDiscount)+double.parse(extraCharges);
-      bilTotal = (itemTotal+deliveryCharge+gstAmt+sgstAmt+extraCharge).toInt();
+        itemTotal = (counts*priceAfterDiscount)+double.parse(extraCharges);
+        bilTotal = (itemTotal+deliveryCharge+gstAmt+sgstAmt+extraCharge).toInt();
 
-      print("item tot : $itemTotal");
-      print("Del chrg : $deliveryCharge");
-      print("item discount : $discountedPrice");
-      print("item gst : $gstAmt");
-      print("item sgst : $sgstAmt");
-      print("item bil tot : $bilTotal");
-
-
-      discountPrice = discountedPrice;
-      itemsTotal = itemTotal.toInt();
-      gstPrice = gstAmt;
-      sgstPrice = sgstAmt;
+        print("item tot : $itemTotal");
+        print("Del chrg : $deliveryCharge");
+        print("item discount : $discountedPrice");
+        print("item gst : $gstAmt");
+        print("item sgst : $sgstAmt");
+        print("item bil tot : $bilTotal");
 
 
-      // sgstAmt = ((priceAfterDiscount*12)/100).toInt();
 
-    });
+        discountPrice = discountedPrice;
+        itemsTotal = itemTotal.toInt();
+        gstPrice = gstAmt;
+        sgstPrice = sgstAmt;
+
+
+        // sgstAmt = ((priceAfterDiscount*12)/100).toInt();
+
+      });
+    }else{
+
+      setState((){
+        discountPrice = discount;
+        gstPrice = (taxes/2).toDouble();
+        sgstPrice = (taxes/2).toDouble();
+      });
+
+    }
 
     print(priceAfterDiscount);
     print(discountedPrice);
 
 
   }
+
+
+  Future<void> confirmCustomOrder() async{
+    showAlertDialog();
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST',
+        Uri.parse('https://cakey-database.vercel.app/api/customize/cake/order/new/$cakeID'));
+    request.body = json.encode({
+      "PaymentType": "$paymentType",
+      "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
+      "DeliveryCharge": "$deliveryCharge",
+      "Total": "$bilTotal"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      // print();
+
+      if(jsonDecode(await response.stream.bytesToString())['message']=="Order Placed Successfully"){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Order Posted!'),
+            behavior: SnackBarBehavior.floating
+        ));
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+            content: Text(await response.stream.bytesToString()),
+            behavior: SnackBarBehavior.floating
+        ));
+      }
+
+    }
+    else {
+      Navigator.pop(context);
+      print(response.reasonPhrase);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(response.reasonPhrase.toString()),
+          behavior: SnackBarBehavior.floating
+      ));
+    }
+
+  }
+
 
   //confirm order
   Future<void> confirmOrder() async {
@@ -677,8 +737,9 @@ class _CheckOutState extends State<CheckOut> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
-                              image: NetworkImage("${cakeImage}"),
-                              fit: BoxFit.cover)),
+                              image: AssetImage('assets/images/customcake.png'),
+                              fit: BoxFit.cover)
+                      ),
                     ),
                     SizedBox(
                       width: 5,
@@ -942,7 +1003,8 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${discount} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: orderFromCustom!="yes"?
+                                      Text('${discount} %',style: const TextStyle(fontSize:10.5,),):null
                                   ),
                                   Text('₹ $discountPrice',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -964,7 +1026,8 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: orderFromCustom!="yes"?
+                                      Text('${taxes} %',style: const TextStyle(fontSize:10.5,),):null
                                   ),
                                   Text('₹ ${gstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -986,7 +1049,8 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: orderFromCustom!="yes"?
+                                      Text('${taxes} %',style: const TextStyle(fontSize:10.5,),):null,
                                   ),
                                   Text('₹ ${sgstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -1146,6 +1210,8 @@ class _CheckOutState extends State<CheckOut> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25)),
                     onPressed: () {
+                      orderFromCustom=="yes"?
+                      confirmCustomOrder():
                       confirmOrder();
                     },
                     color: lightPink,

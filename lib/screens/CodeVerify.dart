@@ -270,6 +270,7 @@ class _CodeVerifyState extends State<CodeVerify> {
         //Checking msg....(reg / login)
         if(map['message']=="registered Successfully"){
           prefs.setString("phoneNumber", phonenumber);
+          prefs.setString("authToken", map['token'].toString());
           prefs.setBool("newRegUser", true);
 
          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
@@ -284,6 +285,7 @@ class _CodeVerifyState extends State<CodeVerify> {
         }else if(map['message']=="Login Succeed"){
 
           prefs.setBool("newRegUser", false);
+          prefs.setString("authToken", map['token'].toString());
           prefs.setString("phoneNumber", phonenumber);
 
           Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
