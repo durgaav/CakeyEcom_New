@@ -252,7 +252,7 @@ class _CheckOutState extends State<CheckOut> {
       // toppings = prefs.getStringList('orderCakeTopings')!;
 
       userID = prefs.getString('orderCakeUserID')!;
-      userModId = prefs.getString('userModId')!;
+      userModId = prefs.getString('orderCakeModID')!;
       userName = prefs.getString('orderCakeUserName')!;
       userPhone = prefs.getString('orderCakeUserNum')!;
 
@@ -272,6 +272,8 @@ class _CheckOutState extends State<CheckOut> {
       counts = prefs.getInt('orderCakeItemCount')!;
 
       calculatedCountsAndPrice();
+
+      print(userModId);
 
       // cakeArticle = prefs.getString('orderCakeArticle')!;
 
@@ -299,7 +301,7 @@ class _CheckOutState extends State<CheckOut> {
 
     print("Extra crg : $extraCharge");
 
-    if(orderFromCustom!='yes'){
+    if(orderFromCustom=='no'){
       setState((){
 
         priceAfterDiscount = cakesOrginalPrice-(cakesOrginalPrice*discount/100).toInt();
@@ -337,7 +339,6 @@ class _CheckOutState extends State<CheckOut> {
 
       });
     }else{
-
       setState((){
         discountPrice = discount;
         gstPrice = (taxes/2).toDouble();

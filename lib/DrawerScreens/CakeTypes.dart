@@ -2128,7 +2128,7 @@ class _CakeTypesState extends State<CakeTypes> {
         return false;
       },
       child: Scaffold(
-        bottomSheet:!_show?BottomSheet(
+        bottomSheet:_show?BottomSheet(
           onClosing: () {
           },
           builder: (BuildContext context) {
@@ -2149,10 +2149,41 @@ class _CakeTypesState extends State<CakeTypes> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('DO YOU WANT A THEME CAKE?',style: TextStyle(
-                            color: lightPink,fontWeight: FontWeight.bold,fontFamily: poppins
-                        ),),
-                        Icon(Icons.cake,color: lightPink,size: 50,)
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text : 'DO YOU WANT A ',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16
+                                ),
+                              ),
+                              TextSpan(
+                                text : 'THEME CAKE ',
+                                style: TextStyle(
+                                    color: lightPink,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16
+                                ),
+                              )
+                            ]
+                          )
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              color: Colors.transparent,
+                              height: 70,
+                              width: 70,
+                              child: Image(
+                                image: AssetImage('assets/images/themecake.png'),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

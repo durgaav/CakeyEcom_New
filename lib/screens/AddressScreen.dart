@@ -207,6 +207,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 controller: pinCtrl,
                 keyboardType: TextInputType.phone,
                 maxLines: 1,
+                maxLength: 6,
                 decoration: InputDecoration(
                     hintText: "Pincode.",
                     hintStyle: TextStyle(
@@ -227,7 +228,7 @@ class _AddressScreenState extends State<AddressScreen> {
                       FocusScope.of(context).unfocus();
 
                       if(streetCtrl.text.isEmpty||cityCtrl.text.isEmpty||distCtrl.text.isEmpty||
-                          pinCtrl.text.isEmpty){
+                          pinCtrl.text.isEmpty||pinCtrl.text.length<6){
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

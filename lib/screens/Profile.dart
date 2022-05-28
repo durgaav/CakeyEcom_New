@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/screens/AddressScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,7 +48,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //Phone number
   String phoneNumber = "";
   String authToken = "";
-
   String selectedAdres = '';
 
   //file
@@ -262,7 +262,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           SnackBar(content: Text("Please Check Your Connection!"),backgroundColor:lightPink,)
       );
     }
-
   }
 
   //getting order list...
@@ -281,6 +280,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         print(jsonDecode(response.body));
         setState(() {
           recentOrders = jsonDecode(response.body);
+
+          print(recentOrders[0]);
+
           recentOrders = recentOrders.reversed.toList();
           isLoading = false;
         });
@@ -630,102 +632,111 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget OrdersView(){
     return Column(
-        // mainAxisSize: MainAxisSize.max,
-        // mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          isLoading?
-          Center(child: Column(
-            children: [
-              SizedBox(height: 15,),
-              Text('Loading Please Wait...',style: TextStyle(
+      // mainAxisSize: MainAxisSize.max,
+      // mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        isLoading?
+        Center(child: Column(
+          children: [
+            SizedBox(height: 15,),
+            Text('Loading Please Wait...',style: TextStyle(
                 color: Colors.purple , fontFamily: "Poppins",
                 fontSize: 15
-              ),),
-            ],
-          )):
-          recentOrders.length>0?
-          ListView.builder(
-              itemCount: recentOrders.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index){
-                isExpands.add(false);
-                return Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(15)
-                  ),
-                  child: Column(
-                    children: [
-                      InkWell(
-                        onTap:(){
-                          setState(() {
-                            if(isExpands[index]==false){
-                              isExpands[index]=true;
-                            }else{
-                              isExpands[index]=false;
-                            }
-                          });
-                        },
-                        child: Container(
-                            child:Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                recentOrders[index]["Images"]==null?
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      image: DecorationImage(
-                                          image:AssetImage("assets/images/chefdoll.jpg"),
-                                          fit: BoxFit.cover
-                                      )
-                                  ),
-                                ):
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      image: DecorationImage(
-                                          image: NetworkImage('${recentOrders[index]['Images']}'),
-                                          fit: BoxFit.cover
-                                      )
-                                  ),
+            ),),
+          ],
+        )):
+        recentOrders.length>0?
+        ListView.builder(
+            itemCount: recentOrders.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index){
+              isExpands.add(false);
+              return Container(
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                child: Column(
+                  children: [
+                    InkWell(
+                      onTap:(){
+                        setState(() {
+                          if(isExpands[index]==false){
+                            isExpands[index]=true;
+                          }else{
+                            isExpands[index]=false;
+                          }
+                        });
+                      },
+                      child: Container(
+                          child:Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              recentOrders[index]["Images"]==null?
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                        image:AssetImage("assets/images/chefdoll.jpg"),
+                                        fit: BoxFit.cover
+                                    )
                                 ),
-                                const SizedBox(width: 10,),
-                                Column(
+                              ):
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                        image: NetworkImage('${recentOrders[index]['Images']}'),
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                              ),
+                              const SizedBox(width: 10,),
+                              Expanded(
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20),
-                                          color: Colors.black26
-                                      ),
-                                      child:Text('ID ${recentOrders[index]['Id']}',style: const TextStyle(
-                                          fontSize: 10,fontFamily: "Poppins",color: Colors.black
-                                      ),),
+                                        padding: const EdgeInsets.only(left: 3,right: 3,top: 2,bottom: 2),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Colors.grey[300]
+                                        ),
+                                        child:(recentOrders[index]['Id']!= null)?
+                                        Text('Order Id ${recentOrders[index]['Id']}',style: const TextStyle(
+                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black
+                                        ),):Text('cake id',style: const TextStyle(
+                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black))
                                     ),
+                                    SizedBox(height: 5,),
                                     Container(
                                       width: 200,
-                                      child:Text("${recentOrders[index]['Title']}",style: const TextStyle(
+                                      child:(recentOrders[index]['Title'] != null)?Text("${recentOrders[index]['Title']}",style: const TextStyle(
                                           fontSize: 13,fontFamily: "Poppins",
+                                          color: Colors.black,fontWeight: FontWeight.bold
+                                      ),overflow: TextOverflow.ellipsis,):
+                                      Text("My Customized Cake",style: const TextStyle(
+                                          fontSize: 12,fontFamily: "Poppins",
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,),
                                     ),
                                     Container(
                                       width:200,
-                                      child:Text("${recentOrders[index]['Description']}"
+                                      child:Text("(Shape - ${recentOrders[index]['Shape']}) + "
+                                          "(Flavour - ${recentOrders[index]['Flavour'][0]['Name']})"
                                         ,style: const TextStyle(
-                                            fontSize: 12,fontFamily: "Poppins",
+                                            fontSize:10.5,fontFamily: "Poppins",
                                             color: Colors.black26
                                         ),
                                         maxLines: 2,
@@ -733,271 +744,373 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       ),
                                     ),
                                     const SizedBox(height: 3,),
+
                                     Container(
                                       width: MediaQuery.of(context).size.width*0.58,
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      child:
+                                      Row(
+                                        // crossAxisAlignment: CrossAxisAlignment.start,
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children: [
+                                          ( recentOrders[index]['Price']!= null)?
                                           Text("₹ ${recentOrders[index]['Price']}",style: TextStyle(color: lightPink,
+                                              fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,)
+                                              :Text('₹ 0',style: TextStyle(color: lightPink,
                                               fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
-                                          recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
-                                                      fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                  const Icon(Icons.verified_rounded,color: Colors.green,size: 12,)
-                                                ],
-                                              ),
-                                              Text("${recentOrders[index]['Status_Updated_On']
-                                                  .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
-                                                  fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
-                                            ],
-                                          ):
-                                          Text("${recentOrders[index]['Status']}",style: TextStyle(
-                                              color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                  =='cancelled'?Colors.red:Colors.blueAccent,
-                                              fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+
+                                          Container(
+                                            child:recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                        fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                  ],
+                                                ),
+                                                Text("${recentOrders[index]['Status_Updated_On']
+                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
+                                              ],
+                                            ):
+                                            Text("${recentOrders[index]['Status']}",style: TextStyle(
+                                                color:recentOrders[index]['Status'].toString().toLowerCase()
+                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                                fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
+                                            ),),
+                                          ),
                                         ],
                                       ),
                                     )
                                   ],
-                                )
-                              ],
+                                ),
+                              )
+                            ],
+                          )
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    Visibility(
+                      visible:isExpands[index],
+                      child: AnimatedContainer(
+                        duration: const Duration(seconds: 3),
+                        curve: Curves.elasticInOut,
+                        decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)
                             )
                         ),
-                      ),
-                      SizedBox(height: 10,),
-                      Visibility(
-                        visible:isExpands[index],
-                        child: AnimatedContainer(
-                          duration: const Duration(seconds: 3),
-                          curve: Curves.elasticInOut,
-                          decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10)
-                              )
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                title: const Text('Vendor',style: const TextStyle(
-                                    fontSize: 11,fontFamily: "Poppins"
-                                ),),
-                                subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
-                                    fontSize: 14,fontFamily: "Poppins",
-                                    fontWeight: FontWeight.bold,color: Colors.black
-                                ),),
-                                trailing: Container(
-                                  width: 100,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      InkWell(
-                                        onTap: (){
-                                          print('phone..');
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          height: 35,
-                                          width: 35,
-                                          decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.white
-                                          ),
-                                          child:const Icon(Icons.phone,color: Colors.blueAccent,),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10,),
-                                      InkWell(
-                                        onTap: (){
-                                          print('whatsapp');
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          height: 35,
-                                          width: 35,
-                                          decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.white
-                                          ),
-                                          child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(left: 15,bottom: 10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: const Text('Vendor',style: const TextStyle(
+                                  fontSize: 11,fontFamily: "Poppins"
+                              ),),
+                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                                  fontSize: 14,fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,color: Colors.black
+                              ),),
+                              trailing: Container(
+                                width: 100,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    const Text('Cake Type',style: TextStyle(
-                                        fontSize: 11,fontFamily: "Poppins"
-                                    ),),
-                                    Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
-                                        fontSize: 14,fontFamily: "Poppins",
-                                        fontWeight: FontWeight.bold,color: Colors.black
-                                    ),),
+                                    InkWell(
+                                      onTap: (){
+                                        print('phone..');
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
+                                        ),
+                                        child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    InkWell(
+                                      onTap: (){
+                                        print('whatsapp');
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
+                                        ),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.only(left: 10,right: 10),
-                                color: Colors.black26,
-                                height: 1,
-                              ),
-                              const SizedBox(height: 15,),
-                              Row(
+                            ),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 15,bottom: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(width: 8,),
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(width: 8,),
-                                  Container(
-                                      width: 260,
-                                      child:Text(
-                                        "${recentOrders[index]['DeliveryAddress']}",
-                                        style: TextStyle(
-                                            fontFamily: "Poppins",
-                                            color: Colors.black54,
-                                            fontSize: 13
-                                        ),
-                                      )
-                                  ),
+                                  const Text('Cake Type',style: TextStyle(
+                                      fontSize: 11,fontFamily: "Poppins"
+                                  ),),
+                                  Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
+                                      fontSize: 14,fontFamily: "Poppins",
+                                      fontWeight: FontWeight.bold,color: Colors.black
+                                  ),),
                                 ],
                               ),
-                              const SizedBox(height: 15,),
-                              Container(
-                                margin: const EdgeInsets.only(left: 10,right: 10),
-                                color: Colors.black26,
-                                height: 1,
-                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            const SizedBox(height: 15,),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(width: 8,),
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 8,),
+                                Container(
+                                    width: 260,
+                                    child:Text(
+                                      "${recentOrders[index]['DeliveryAddress']}",
+                                      style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          color: Colors.black54,
+                                          fontSize: 13
+                                      ),
+                                    )
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15,),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
 
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Item Total',style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                    Text('₹${recentOrders[index]['Total']}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                  ],
-                                ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Item Total',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  recentOrders[index]['ExtraCharges']!=null?
+                                  Text('₹${int.parse(recentOrders[index]['Price'].toString())+
+                                      int.parse(recentOrders[index]['ExtraCharges'].toString(),onError: (e)=>0)}'
+                                    ,style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text(""),
+                                ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Delivery charge',style: const TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                    Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                  ],
-                                ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Delivery charge',
+                                    style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Discounts',style: const TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                    Text('${recentOrders[index]['Discount']} %',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                  ],
-                                ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',
+                                    style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${recentOrders[index]['Discount']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Taxes',style: const TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                    Text('0 %',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                  ],
-                                ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Taxes',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${double.parse(recentOrders[index]['Gst'])+
+                                      double.parse(recentOrders[index]['Sgst'])}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
                               ),
+                            ),
 
-                              Container(
-                                margin: const EdgeInsets.only(left: 10,right: 10),
-                                color: Colors.black26,
-                                height: 1,
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Bill Total',style: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold
-                                    ),),
-                                    Text('₹${recentOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Bill Total',style: TextStyle(
                                       fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                  ],
-                                ),
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold
+                                  ),),
+                                  Text('₹${recentOrders[index]['Total']}',style: TextStyle(fontWeight: FontWeight.bold),),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                ],
+                              ),
+                            ),
+                            recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                            TextButton(onPressed: (){
+                              String rate = '1' ;
+                              print('Rate Me');
+                              showDialog(
+                                  context: context,
+                                  builder:(context)=>
+                                  StatefulBuilder(
+                                      builder:(BuildContext context , void Function(void Function()) setState)=>
+                                          AlertDialog(
+                                            title:Center(
+                                              child: Text('Rete Vendor & Cake',style: TextStyle(
+                                                fontFamily: "Poppins",
+                                                fontSize: 15.5,
+                                                fontWeight: FontWeight.bold
+                                              ),),
+                                            ),
+
+                                            content:Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                RatingBar.builder(
+                                                  initialRating: 1.0,
+                                                  minRating: 1,
+                                                  direction: Axis.horizontal,
+                                                  allowHalfRating: true,
+                                                  itemCount: 5,
+                                                  itemSize: 30,
+                                                  itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                  itemBuilder: (context, _) => Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  onRatingUpdate: (rating) {
+                                                    print(rating);
+                                                    setState((){
+                                                      rate = rating.toString();
+                                                    });
+                                                  },
+                                                ),
+                                                SizedBox(height: 15,),
+                                                Text(rate)
+                                              ],
+                                            ),
+                                            actions: [
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child:  Text('Cancel',style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 13.5,
+                                                      color:Colors.pinkAccent
+                                                  ),)
+                                              ),
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    print(rate);
+                                                  },
+                                                  child:  Text('Rate',style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 13.5,
+                                                      color:Colors.green
+                                                  ),)
+                                              ),
+                                            ],
+
+                                          ),
+                                  ),
+                              );
+
+
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.star_border, color: Colors.amber,),
+                                Text(' Rate The Cake',style: TextStyle(
+                                    fontFamily: "Poppins"
+                                ),)
+                              ],
+                            )):
+                            Container(),
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                );
-              }
-          ):
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: 15,),
-                Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
-                Text('No orders found!' , style: TextStyle(
-                    color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
-                ),),
-              ],
-            ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+        ):
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 15,),
+              Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
+              Text('No orders found!' , style: TextStyle(
+                  color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
+              ),),
+            ],
           ),
-        ],
-      );
+        ),
+      ],
+    );
 
   }
   //endregion
@@ -1170,7 +1283,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         child: ProfileView()
                     ),
                     SingleChildScrollView(
-                          child: OrdersView()
+                        child: OrdersView()
                     ),
                   ]
               ),

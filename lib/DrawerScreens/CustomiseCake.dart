@@ -490,6 +490,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           }else{
                             setState((){
                               error = false;
+                              sendOtherToApi("Flavour", otherCtrl.text);
                               saveAllOthers("", "" ,otherCtrl.text.toString() , "");
                             });
                           }
@@ -554,6 +555,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           }else{
                             setState((){
                               error = false;
+                              sendOtherToApi("Shape", otherCtrl.text);
                               saveAllOthers("", otherCtrl.text ,"", "");
                             });
                           }
@@ -605,34 +607,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               ),
             ],
           ),
-      // CupertinoAlertDialog(
-      //   title: Row(
-      //     children: [
-      //       Text('Confirm This Order' , style: TextStyle(
-      //           color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
-      //           fontWeight: FontWeight.bold
-      //       ),),
-      //     ],
-      //   ),
-      //   content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
-      //       color:lightPink , fontSize: 13 , fontFamily: "Poppins"
-      //   ),),
-      //   actions: [
-      //     FlatButton(
-      //         onPressed: (){
-      //           Navigator.pop(context);
-      //         },
-      //         child: Text('Cancel')
-      //     ),
-      //     FlatButton(
-      //         onPressed: (){
-      //           Navigator.pop(context);
-      //           confirmOrder();
-      //         },
-      //         child: Text('Order Now')
-      //     ),
-      //   ],
-      // )
     );
   }
 
@@ -688,10 +662,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
     getShapesList();
+    getWeightList();
     getFlavsList();
     getArticleList();
     getVendorsList();
-    getWeightList();
 
     // prefs.setString('userID', userID);
     // prefs.setString('userAddress', userAddress);
@@ -782,10 +756,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       setState((){
         List myList = jsonDecode(res.body);
 
-        for(int i=0;i<myList.length;i++){
-          flavourList.add(myList[i]['Name']);
+        if(myList.isNotEmpty){
+          for(int i=0;i<myList.length;i++){
+            flavourList.add(myList[i]['Name']);
+          }
+          flavourList.insert(flavourList.indexWhere((element) => element==flavourList.last)+1, "Others");
+        }else{
+          flavourList = ["Vanilla" , "Chocolate" , "Strawberry" , "Others"];
         }
-        flavourList.insert(flavourList.indexWhere((element) => element==flavourList.last)+1, "Others");
+
       });
     }else{
       print(res.statusCode);
@@ -801,12 +780,28 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     );
 
     if(res.statusCode==200){
-      setState((){
-        shapesList = jsonDecode(res.body);
+      List myList = jsonDecode(res.body);
 
-        shapesList.insert(shapesList.indexWhere((element) => element==shapesList.last)+1, {"Name":"Others"});
+      if(myList.isNotEmpty){
+        setState((){
 
-      });
+          shapesList = myList;
+          shapesList.insert(myList.indexWhere((element) => element==myList.last)+1, {"Name":"Others"});
+
+        });
+      }else{
+        setState((){
+          shapesList = [
+            {"Name":"Round"},
+            {"Name":"Square"},
+            {"Name":"Heart"},
+            {"Name":"Others"},
+          ];
+        });
+      }
+
+
+
     }else{
       print(res.statusCode);
     }
@@ -821,13 +816,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     );
 
     if(res.statusCode==200){
+      List myList = jsonDecode(res.body);
       setState((){
-        List myList = jsonDecode(res.body);
 
-        for(int i=0;i<myList.length;i++){
-          articals.add(myList[i]['Name']);
+        if(myList.isNotEmpty){
+          for(int i=0;i<myList.length;i++){
+            articals.add(myList[i]['Name']);
+          }
+          articals.insert(0, "Others");
+        }else{
+          articals = ["Happy Birthday","Welcome Home" , "I Love You" , "Others"];
         }
-        articals.insert(articals.indexWhere((element) => element==articals.last)+1, "Others");
+
+
       });
     }else{
       print(res.statusCode);
@@ -844,10 +845,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     if(res.statusCode==200){
       setState((){
         List myList = jsonDecode(res.body);
-        print(myList);
-        for(int i=0;i<myList.length;i++){
-          weight.add(myList[i]['Weight']);
+
+        if(myList.isNotEmpty){
+          for(int i=0;i<myList.length;i++){
+            weight.add(myList[i]['Weight']);
+          }
+        }else{
+          weight = ["1kg","2kg","3kg" , "4kg", "5kg" , "6kg"];
         }
+
       });
     }else{
       print(res.statusCode);
@@ -997,7 +1003,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         'Shape': '$fixedShape',
         'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
         '{"Name":"$fixedCakeArticle","Price":"0"}',
-        'Weight': '${fixedWeight}kg',
+        'Weight': '${fixedWeight}',
         'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
         'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
         'DeliveryAddress': '$deliverAddress',
@@ -1322,7 +1328,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   //post the others to API
-  Future<void> sendOtherToApi() async{
+  Future<void> sendOtherToApi(String obj , String value) async{
+    print(obj);
+    print(value);
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/${obj.toLowerCase()}/new'));
+    request.body = json.encode({
+      obj: value
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
 
   }
 
@@ -1330,17 +1355,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   @override
   void initState() {
+
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       loadPrefs();
-
-    });
-    // session();
-    setState((){
       context.read<ContextData>().setMyVendors([]);
       context.read<ContextData>().addMyVendor(false);
     });
-
+    // session();
     super.initState();
   }
 
@@ -1378,142 +1400,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     });
 
     return Scaffold(
-      // appBar: AppBar(
-      //   leading:Container(
-      //     margin: const EdgeInsets.all(10),
-      //     child: InkWell(
-      //       onTap: () {
-      //         Navigator.pop(context);
-      //       },
-      //       child: Container(
-      //           decoration: BoxDecoration(
-      //               color: Colors.black26,
-      //               borderRadius: BorderRadius.circular(10)),
-      //           alignment: Alignment.center,
-      //           height: 20,
-      //           width: 20,
-      //           child: Icon(
-      //             Icons.chevron_left,
-      //             color: lightPink,
-      //             size: 35,
-      //           )),
-      //     ),
-      //   ),
-      //   title: Text('FULLY CUSTOMIZATION',
-      //       style: TextStyle(
-      //           color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
-      //   elevation: 0.0,
-      //   backgroundColor: lightGrey,
-      //   actions: [
-      //     Stack(
-      //       alignment: Alignment.center,
-      //       children: [
-      //         InkWell(
-      //           onTap: (){
-      //             Navigator.of(context).push(
-      //               PageRouteBuilder(
-      //                 pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-      //                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      //                   const begin = Offset(1.0, 0.0);
-      //                   const end = Offset.zero;
-      //                   const curve = Curves.ease;
-      //
-      //                   final tween = Tween(begin: begin, end: end);
-      //                   final curvedAnimation = CurvedAnimation(
-      //                     parent: animation,
-      //                     curve: curve,
-      //                   );
-      //                   return SlideTransition(
-      //                     position: tween.animate(curvedAnimation),
-      //                     child: child,
-      //                   );
-      //                 },
-      //               ),
-      //             );
-      //           },
-      //           child: Container(
-      //             padding: EdgeInsets.all(3),
-      //             decoration: BoxDecoration(
-      //                 color: Colors.black26,
-      //                 borderRadius: BorderRadius.circular(8)),
-      //             child: Icon(
-      //               Icons.notifications_none,
-      //               color: darkBlue,
-      //             ),
-      //           ),
-      //         ),
-      //         Positioned(
-      //           left: 15,
-      //           top: 18,
-      //           child: CircleAvatar(
-      //             radius: 4.5,
-      //             backgroundColor: Colors.white,
-      //             child: CircleAvatar(
-      //               radius: 3.5,
-      //               backgroundColor: Colors.red,
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //     Container(
-      //       decoration: BoxDecoration(
-      //         color: Colors.white,
-      //         shape: BoxShape.circle,
-      //         boxShadow: [
-      //           BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)
-      //         ],
-      //       ),
-      //       child: InkWell(
-      //         onTap: () {
-      //           print('hello surya....');
-      //           Navigator.of(context).push(
-      //             PageRouteBuilder(
-      //               pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-      //               transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      //                 const begin = Offset(1.0, 0.0);
-      //                 const end = Offset.zero;
-      //                 const curve = Curves.ease;
-      //
-      //                 final tween = Tween(begin: begin, end: end);
-      //                 final curvedAnimation = CurvedAnimation(
-      //                   parent: animation,
-      //                   curve: curve,
-      //                 );
-      //
-      //                 return SlideTransition(
-      //                   position: tween.animate(curvedAnimation),
-      //                   child: child,
-      //                 );
-      //               },
-      //             ),
-      //           );
-      //         },
-      //         child: profileUrl!="null"?CircleAvatar(
-      //           radius: 17.5,
-      //           backgroundColor: Colors.white,
-      //           child: CircleAvatar(
-      //               radius: 16,
-      //               backgroundImage:NetworkImage("$profileUrl")
-      //           ),
-      //         ):CircleAvatar(
-      //           radius: 17.5,
-      //           backgroundColor: Colors.white,
-      //           child: CircleAvatar(
-      //               radius: 16,
-      //               backgroundImage:AssetImage("assets/images/user.png")
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //   ],
-      // ),
+
       resizeToAvoidBottomInset: false,
       body:SingleChildScrollView(
         child: Column(
@@ -2046,10 +1933,23 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     fontSize: 13
                                 ),
                                 onChanged: (String text){
-                                  setState((){
-                                    isFixedWeight = -1;
-                                    fixedWeight = text;
-                                  });
+
+                                  if(text.isNotEmpty){
+                                    setState((){
+                                      isFixedWeight = -1;
+                                      fixedWeight = text+"kg";
+                                    });
+                                  }else{
+                                    isFixedWeight = 0;
+                                    fixedWeight = weight[0];
+                                  }
+
+
+                                },
+                                onSubmitted:(String text){
+                                  if(text.isNotEmpty){
+                                    sendOtherToApi("Weight", text+"kg");
+                                  }
                                 },
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(0.0),
@@ -2174,7 +2074,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 child:ListView.builder(
                                   shrinkWrap : true,
                                   physics : NeverScrollableScrollPhysics(),
-                                  itemCount:articals.length,
+                                  itemCount:articals.length < 5?articals.length:5,
                                   itemBuilder: (context , index){
                                     return InkWell(
                                       onTap:(){
@@ -2266,6 +2166,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         articGroupVal = -1;
                                                         fixedCakeArticle=text;
                                                       });
+                                                    },
+                                                    onSubmitted: (String text){
+                                                      if(text.isNotEmpty){
+                                                        sendOtherToApi("Article", text);
+                                                      }
                                                     },
                                                     decoration: InputDecoration(
                                                       hintText: 'Type here..',
@@ -2703,7 +2608,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          double.parse(fixedWeight)<5.0?
+                          double.parse(fixedWeight.replaceAll("kg", ''))<5.5?
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

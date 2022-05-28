@@ -24,7 +24,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-
   @override
   State<MyApp> createState() => _MyAppState();
 }

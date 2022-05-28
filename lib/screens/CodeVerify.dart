@@ -269,9 +269,11 @@ class _CodeVerifyState extends State<CodeVerify> {
         print(jsonDecode(response.body));
         //Checking msg....(reg / login)
         if(map['message']=="registered Successfully"){
+
+          prefs.setBool("newRegUser", true);
           prefs.setString("phoneNumber", phonenumber);
           prefs.setString("authToken", map['token'].toString());
-          prefs.setBool("newRegUser", true);
+
 
          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
 

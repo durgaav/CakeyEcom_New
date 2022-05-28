@@ -38,9 +38,13 @@ class _NotificationsState extends State<Notifications> {
   int pageViewCurIndex = 0;
 
   String authToken = "";
+  bool isLoading = true;
 
   Future<void> notifyData() async {
     MainList.clear();
+    setState((){
+      isLoading = true;
+    });
     try {
       var res = await http.get(Uri.parse(
           "https://cakey-database.vercel.app/api/users/notification/$userId"),headers: {"Authorization":"$authToken"});
@@ -51,14 +55,24 @@ class _NotificationsState extends State<Notifications> {
           List b = jsonDecode(res.body)['OrdersList'];
 
           MainList = a.where((element) => element['Notification'].toString().toLowerCase()!='new').toList()+ b.toList();
-          print(MainList);
-          print(MainList.length);
+          isLoading = false;
+        });
+      }else{
+        setState((){
+          isLoading = true;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Something Went Wrong.'))
+          );
         });
       }
     } catch (e) {
       print(e);
-      print('list data not be accepted');
-      print(userId);
+      setState((){
+        isLoading = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Check your connection!'),behavior: SnackBarBehavior.floating,)
+        );
+      });
     }
   }
 
@@ -119,7 +133,7 @@ class _NotificationsState extends State<Notifications> {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title:  Text(MainList[index]['_id'],style: TextStyle(fontFamily: "Poppins")),
+        title:  Text("Order Info",style: TextStyle(fontFamily: "Poppins")),
         content: Container(
           // height: MediaQuery.of(context).size.height*0.50,
           child: Column(
@@ -318,7 +332,7 @@ class _NotificationsState extends State<Notifications> {
           TextButton(
             onPressed: (){
               print('move data to next screen');
-              // sendDetailstoScreen(index);
+              sendDetailstoScreen(index);
             },
             child: const Text('PAY NOW'),
           ),
@@ -327,14 +341,13 @@ class _NotificationsState extends State<Notifications> {
     );
   }
 
-
   Future<void> CustomListPopup(index) async{
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title:  Text('Order Info',style: TextStyle(fontFamily: "Poppins")),
         content: Container(
-          height: MediaQuery.of(context).size.height*0.34,
+          // height: MediaQuery.of(context).size.height*0.34,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,7 +487,7 @@ class _NotificationsState extends State<Notifications> {
       builder: (BuildContext context) => AlertDialog(
         title:  Text('Order Info',style: TextStyle(fontFamily: "Poppins")),
         content: Container(
-          height: MediaQuery.of(context).size.height*0.4,
+          // height: MediaQuery.of(context).size.height*0.4,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -784,15 +797,7 @@ class _NotificationsState extends State<Notifications> {
     });
     // Full date and time
     final result1 = simplyFormat(time: currentTime);
-    print(result1);
 
-    Timer(Duration(seconds: 5), () async {
-      setState(() {
-        i = 1;
-      });
-    });
-
-    // Date only
   }
 
   @override
@@ -850,14 +855,14 @@ class _NotificationsState extends State<Notifications> {
           },
           child: SingleChildScrollView(
               child: Container(
-                  child: i == 0
+                  child:isLoading
                       ? ListView.builder(
                       itemCount: 10,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (count, index) {
                         return Shimmer.fromColors(
-                          baseColor: Colors.grey,
+                          baseColor: Colors.grey[400]!,
                           highlightColor: Colors.grey[300]!,
                           child: Container(
                             padding: EdgeInsets.all(10),
@@ -869,7 +874,7 @@ class _NotificationsState extends State<Notifications> {
                                   width: 70,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.grey,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 SizedBox(
@@ -893,8 +898,8 @@ class _NotificationsState extends State<Notifications> {
                                           height: 10,
                                         ),
                                         Container(
-                                          // width: 120,
-                                          height: 20,
+                                          width: 130,
+                                          height: 15,
                                           decoration: BoxDecoration(
                                               borderRadius:
                                               BorderRadius.circular(15),
@@ -1012,20 +1017,26 @@ class _NotificationsState extends State<Notifications> {
                                         ),
                                         Container(
                                           // width: 270,
-                                          child:
-                                          // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                          Text(
-                                            MainList[index]
-                                            ['Created_On'],
-                                            maxLines: 3,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                color: darkBlue,
-                                                fontFamily: "Poppins",
-                                                fontSize: 14,
-                                                fontWeight:
-                                                FontWeight.bold),
-                                          ),
+                                            child:
+                                            // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
+                                            ( MainList[index]['Created_On'] != null )?Text(
+                                              MainList[index]
+                                              ['Created_On'],
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 14,
+                                                  fontWeight:
+                                                  FontWeight.bold),
+                                            ):Text("Time doesn't specified",overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                    FontWeight.bold))
                                         )
                                       ],
                                     ),
@@ -1037,9 +1048,18 @@ class _NotificationsState extends State<Notifications> {
                         );
                       })
                       : Container(
-                    margin: EdgeInsets.only(top:10),
-                    child: Center(
-                      child: Text('Loading Please wait....'),
+                          margin: EdgeInsets.only(top:25),
+                          child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.notifications_active_outlined,size: 35,),
+                              Text(' No Notifications!',style: TextStyle(
+                                  color: lightPink,fontFamily: "Poppins",
+                                  fontSize: 18,fontWeight: FontWeight.bold
+                              ),),
+                            ],
+                          )
                     ),
                   ))),
         ));
@@ -1092,6 +1112,3 @@ String simplyFormat({required DateTime time, bool dateOnly = false}) {
   // If you only want year, month, and date
   return "${mon[0]['month']} ${day}nd $year";
 }
-
-
-
