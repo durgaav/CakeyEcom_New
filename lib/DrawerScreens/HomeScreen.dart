@@ -98,6 +98,17 @@ class _HomeScreenState extends State<HomeScreen> {
   List filterTypeList=["Birthday","Wedding","Theme Cake","Normal Cake"];
   List selectedFilter=[];
 
+  List adsSlogans = [
+    "Christmas cake",
+    "Rainbow Blasts",
+    "Happy Birthday"
+  ];
+  List adsImages = [
+    "https://png.pngtree.com/background/20210714/original/pngtree-marry-christmas-background-with-cake-picture-image_1229140.jpg",
+    "https://t4.ftcdn.net/jpg/03/98/87/59/360_F_398875973_mt8RQRetLLhlQEI2n4Tayxo07cXnhhoK.jpg",
+    "https://www.meme-arsenal.com/memes/980f4a38ccbd4c71c6a2236bea5f49cc.jpg"
+  ];
+
 
 //search all type
   List cakeSearchList = [];
@@ -155,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    print(cakesTypes[index]['FlavourList'][0]['Name']);
+
 
     //getting cake flavs
     if (cakesTypes[index]['FlavourList'].isNotEmpty) {
@@ -311,7 +322,8 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-              topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+              topRight: Radius.circular(20), topLeft: Radius.circular(20)
+          ),
         ),
         context: context,
         isScrollControlled: true,
@@ -569,14 +581,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       //                       //     setState(() {
                       //                       //       selectCakeType.add(item);
                       //                       //     });
-                      //                       //     print(selectCakeType);
+                      //                       //
                       //                       //   }
                       //                       // } else {
                       //                       //   setState(() {
                       //                       //     selectCakeType
                       //                       //         .removeWhere((element) => element == item);
                       //                       //   });
-                      //                       //   print(selectCakeType);
+                      //                       //
                       //                       // }
                       //                     },
                       //                     child: Container(
@@ -629,14 +641,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             if (!selectedFilter.contains(item)) {
                                               if (selectedFilter.length < 5) {
                                                 selectedFilter.add(item);
-                                                print('is selected item...  $isSelected');
-                                                print(' selected index $selectedFilter');
+
                                               }
                                             } else {
-                                              print('is selected item...  $isSelected');
                                               selectedFilter
                                                   .removeWhere((element) => element == item);
-                                              print(' selected index $selectedFilter');
                                             }
                                           });
                                         },
@@ -854,27 +863,20 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       else if(filterCType.isNotEmpty){
         isFiltered=true;
-        print('active search $activeSearch');
+
         for(int i=0;i<cakesList.length;i++){
-          print(i);
           if(cakesList[i]['TypeOfCake'].isNotEmpty){
             for(int j = 0 ; j<filterCType.length;j++){
-              print(j);
               if(cakesList[i]['TypeOfCake'].contains(filterCType[j])){
                 cakeTypeList.add(cakesList[i]);
-                print(filterCType);
               }
             }
           }
         }
-        // print('active search $activeSearch');
-        // print(filterCType);
         // cakeTypeList=cakesList.where((element) => element['TypeOfCake'].toString().toLowerCase().contains(filterCType.toString().toLowerCase())).toList();
-        print('neww type of cakes...............   $cakeTypeList');
       }
       if (category.isNotEmpty) {
         isFiltered = true;
-        print('active search $activeSearch');
         categoryList = cakesList
             .where((element) => element['Category']
             .toString()
@@ -884,7 +886,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (subCategory.isNotEmpty) {
-        print(activeSearch);
         isFiltered = true;
         activeSearch = true;
         subCategoryList = cakesList
@@ -893,33 +894,25 @@ class _HomeScreenState extends State<HomeScreen> {
             .toLowerCase()
             .contains(subCategory.toLowerCase()))
             .toList();
-        // print(subCategoryList);
       }
 
 
       if (vendorName.isNotEmpty) {
-        print('Entered to Filter..');
         isFiltered = true;
         setState(() {
-          print(activeSearch);
           activeSearch = true;
-          print(activeSearch);
           vendorNameList = cakesList
               .where((element) => element['VendorName']
               .toString()
               .toLowerCase()
               .contains(vendorName.toLowerCase()))
               .toList();
-          // print(vendorNameList);
         });
-
-        print('end of Filter..');
 
         cakesTypes = categoryList.toList() +
             subCategoryList.toList() +
             vendorNameList.toList()+cakeTypeList.toList();
         cakesTypes = cakesTypes.toSet().toList();
-        print(cakesTypes);
       }
     });
   }
@@ -957,15 +950,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadPrefs() async {
     var prefs = await SharedPreferences.getInstance();
     setState(() {
+      authToken = prefs.getString("authToken") ?? 'no auth';
       profileRemainder = prefs.getBool("profileUpdated") ?? false;
       phoneNumber = prefs.getString("phoneNumber") ?? "";
       newRegUser = prefs.getBool("newRegUser") ?? false;
-      authToken = prefs.getString("authToken") ?? 'no auth';
-
-      print(authToken);
 
       fetchProfileByPhn();
-      timerTrigger();
     });
   }
 
@@ -978,7 +968,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     } else {
-      print("New reg user $newRegUser");
+
     }
   }
 
@@ -996,13 +986,21 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         // Navigator.pop(context);
         setState(() {
+
           List body = jsonDecode(response.body);
+
+
 
           userID = body[0]['_id'].toString();
           userAddress = body[0]['Address'].toString();
           userProfileUrl = body[0]['ProfileImage'].toString();
           context.read<ContextData>().setProfileUrl(userProfileUrl);
           userName = body[0]['UserName'].toString();
+
+          if(userName=="null"||userName==null||userAddress=="null"||
+              userAddress==null){
+            prefs.setBool('newRegUser', true);
+           }
 
           prefs.setString('userID', userID);
           prefs.setString('userAddress', userAddress);
@@ -1014,6 +1012,7 @@ class _HomeScreenState extends State<HomeScreen> {
           getOrderList();
           getVendorsList();
           Navigator.pop(context);
+          timerTrigger();
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1039,7 +1038,7 @@ class _HomeScreenState extends State<HomeScreen> {
         isNetworkError = true;
         networkMsg = "Check Your Connection!";
       });
-      print(e);
+
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Check Your Connection! try again'),
@@ -1160,25 +1159,21 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           isNetworkError = false;
           cakesList = jsonDecode(response.body);
-          print("My res : ${jsonDecode(response.body)}");
+
           cakesList = cakesList.reversed.toList();
 
           for(int i=0;i<cakesList.length;i++){
-            print(i);
-            print('cake type list.....');
             // print(searchCakeType[i]['TypeOfCake']);
             // rangeValuesList.add(int.parse(cakesList[i]['Price']));
             searchCakeType.add(cakesList[i]['TypeOfCake']);
           }
 
-          print('cake type list...  $searchCakeType');
           searchCakeType = searchCakeType.toSet().toList();
           searchCakeType =searchCakeType.reversed.toList();
           searchCakeType.insert(0, "Customize your cake");
           isAllLoading = false;
         });
       } else {
-        print(response.statusCode);
         setState(() {
           isNetworkError = true;
           networkMsg = "Server error! try again latter";
@@ -1206,7 +1201,6 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           networkMsg = "Network connected";
         });
-        print('connected');
       }
     } on SocketException catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1214,7 +1208,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ));
-      print('not connected');
+
       setState(() {
         networkMsg = "No Internet! Connect & tap here";
       });
@@ -1236,7 +1230,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (response.statusCode == 200) {
 
-
         if(response.contentLength!>50){
           setState(() {
             isNetworkError = false;
@@ -1247,6 +1240,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }else{
           setState((){
             recentOrders = [];
+            ordersLoading = false;
           });
         }
 
@@ -1325,30 +1319,21 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
 
-
-    // print(myList[0]);
-    // print(location[0]);
-    // print(location[0][0].latitude);
-    // print(location[0][0].longitude);
-
-
-
-
     for(int i = 0 ;i<myList.length;i++){
 
-      try{
-        print("***st***");
-        print(latude);
-        print(longtude);
-        print(myList[i]['lat']);
-        print(myList[i]['long']);
-        print(myList[i]['Address']['FullAddress']);
-        print(calculateDistance(latude, longtude, myList[i]['lat'], myList[i]['long']).toStringAsFixed(2));
-        // print(calculateDistance(latude, longtude, 11.1526, 77.2109).toStringAsFixed(2));
-        print("***end***");
-      }catch(e){
-        print(e);
-      }
+      // try{
+      //   print("***st***");
+      //   print(latude);
+      //   print(longtude);
+      //   print(myList[i]['lat']);
+      //   print(myList[i]['long']);
+      //   print(myList[i]['Address']['FullAddress']);
+      //   print(calculateDistance(latude, longtude, myList[i]['lat'], myList[i]['long']).toStringAsFixed(2));
+      //   // print(calculateDistance(latude, longtude, 11.1526, 77.2109).toStringAsFixed(2));
+      //   print("***end***");
+      // }catch(e){
+      //   print(e);
+      // }
 
     }
 
@@ -1357,8 +1342,6 @@ class _HomeScreenState extends State<HomeScreen> {
   //Get vendors list
   Future<void> getVendorsList() async {
     filteredByEggList.clear();
-
-    print(userMainLocation);
 
     try {
       var res = await http
@@ -1378,7 +1361,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     .toString()
                     .toLowerCase()
                     .contains(userMainLocation.toLowerCase())) {
-              print('found .... $i');
               setState(() {
                 filteredByEggList.add(vendorsList[i]);
               });
@@ -1420,7 +1402,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    print(isFiltered);
+
     // Changing locations
     // myLocation.onLocationChanged.listen((LocationData currentLocation) {
     //   // Use current location
@@ -1434,9 +1416,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (searchText.isNotEmpty) {
       setState(() {
-        print(isFiltered);
         isFiltered = true;
-        print('is filter data....  $isFiltered');
         activeSearch = true;
       });
     } else {
@@ -1449,7 +1429,6 @@ class _HomeScreenState extends State<HomeScreen> {
       subCategoryList = [];
       vendorNameList = [];
       cakeTypeList=[];
-      print(isFiltered);
       if (searchText.isNotEmpty) {
         setState(() {
           cakesTypes = cakesList
@@ -1459,7 +1438,7 @@ class _HomeScreenState extends State<HomeScreen> {
               .contains(searchText.toLowerCase()))
               .toList();
           cakesTypes = cakesTypes.toList();
-          print('new data................... $cakesTypes');
+
         });
       }
       if (cakeCategoryCtrl.text.isNotEmpty ||
@@ -1469,49 +1448,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
         if (selectedFilter.isNotEmpty) {
-          print('Entered to Filter..');
+
 
           setState(() {
             isFiltered = true;
-            // print(activeSearch);
             activeSearch = true;
             for(int i=0;i<cakesList.length;i++){
-              print(i);
+
               if(cakesList[i]['TypeOfCake'].isNotEmpty){
                 for(int j = 0 ; j<selectedFilter.length;j++){
-                  print(j);
+
                   if(cakesList[i]['TypeOfCake'].contains(selectedFilter[j])){
                     cakeTypeList.add(cakesList[i]);
-                    print(selectedFilter);
+
                   }
                 }
               }
             }          });
 
-          print('end new Filter..');
         }
 
         if (cakeCategoryCtrl.text.isNotEmpty) {
-          print('Entered to Filter..');
+
 
           setState(() {
             isFiltered = true;
-            // print(activeSearch);
+
             activeSearch = true;
-            // print(activeSearch);
+
             categoryList = cakesList
                 .where((element) => element['Category']
                 .toString()
                 .toLowerCase()
                 .contains(cakeCategoryCtrl.text.toString().toLowerCase()))
                 .toList();
-            // print(vendorNameList);
+
           });
 
-          print('end of Filter..');
         }
         if (cakeSubCategoryCtrl.text.isNotEmpty) {
-          print('Entered to Filter..');
 
           setState(() {
             isFiltered = true;
@@ -1528,11 +1503,10 @@ class _HomeScreenState extends State<HomeScreen> {
             // print(vendorNameList);
           });
 
-          print('end of Filter..');
         }
 
         if (cakeVendorCtrl.text.isNotEmpty) {
-          print('Entered to Filter..');
+
 
           setState(() {
             isFiltered = true;
@@ -1548,16 +1522,14 @@ class _HomeScreenState extends State<HomeScreen> {
             // print(vendorNameList);
           });
 
-          print('end of Filter..');
         }
         cakesTypes = categoryList.toList() +
             subCategoryList.toList() +
             vendorNameList.toList()+cakeTypeList.toList();
         cakesTypes = cakesTypes.toSet().toList();
-        print(cakesTypes);
+
       }
 
-      print('sucesssss.....');
     } else {
       setState(() {
         activeSearch = false;
@@ -1933,9 +1905,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           BorderRadius.circular(
                                               22),
                                           image: DecorationImage(
-                                              image: NetworkImage(
-                                                  'https://media.istockphoto.com/photos/birthday-cake-with-pink-candles-picture-id918219026?k=20&m=918219026&s=612x612&w=0&h=8vOP575w7k7rTY289BojCUENfmlrAdmkjjNCb8uC4zc='),
-                                              fit: BoxFit.cover)),
+                                              image: NetworkImage(adsImages[i]),
+                                              fit: BoxFit.cover)
+                                      ),
                                       child: Padding(
                                         padding:
                                         const EdgeInsets.only(
@@ -1948,7 +1920,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 .start,
                                             children: [
                                               Text(
-                                                'HAPPY',
+                                                '${adsSlogans[i].toString().split(' ').first.toUpperCase()}',
                                                 style: TextStyle(
                                                     color: Colors
                                                         .white,
@@ -1957,21 +1929,56 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .bold,
                                                     fontSize: 25,
                                                     fontFamily:
-                                                    'Poppins'),
+                                                    'Poppins',
+                                                  // shadows: [
+                                                  //   Shadow( // bottomLeft
+                                                  //       offset: Offset(-1.5, -1.5),
+                                                  //       color: Colors.black54
+                                                  //   ),
+                                                  //   Shadow( // bottomRight
+                                                  //       offset: Offset(1.5, -1.5),
+                                                  //       color: Colors.black54
+                                                  //   ),
+                                                  //   Shadow( // topRight
+                                                  //       offset: Offset(1.5, 1.5),
+                                                  //       color: Colors.black54
+                                                  //   ),
+                                                  //   Shadow( // topLeft
+                                                  //       offset: Offset(-1.5, 1.5),
+                                                  //       color: Colors.black54
+                                                  //   ),
+                                                  // ]
+                                                ),
                                               ),
                                               Text(
-                                                i == 0
-                                                    ? 'CHRISTMAS'
-                                                    : 'BIRTHDAY',
+                                                "${adsSlogans[i].toString().split(' ')[1].toUpperCase()}",
                                                 style: TextStyle(
-                                                    color: Colors
-                                                        .deepOrange,
+                                                    color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
                                                     fontWeight:
                                                     FontWeight
                                                         .bold,
                                                     fontSize: 25,
                                                     fontFamily:
-                                                    'Poppins'),
+                                                    'Poppins',
+                                                    // shadows: [
+                                                    //   Shadow( // bottomLeft
+                                                    //       offset: Offset(-1.5, -1.5),
+                                                    //       color: Colors.black54
+                                                    //   ),
+                                                    //   Shadow( // bottomRight
+                                                    //       offset: Offset(1.5, -1.5),
+                                                    //       color: Colors.black54
+                                                    //   ),
+                                                    //   Shadow( // topRight
+                                                    //       offset: Offset(1.5, 1.5),
+                                                    //       color: Colors.black54
+                                                    //   ),
+                                                    //   Shadow( // topLeft
+                                                    //       offset: Offset(-1.5, 1.5),
+                                                    //       color: Colors.black54
+                                                    //   ),
+                                                    // ]
+                                                ),
                                               ),
                                             ]),
                                       ),
@@ -2943,7 +2950,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             color: Colors.amber,
                                           ),
                                       onRatingUpdate: (rating) {
-                                        print(rating);
+
                                       },
                                     ),
                                     Text(

@@ -1,4 +1,5 @@
 import 'package:cakey/ContextData.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -39,6 +40,35 @@ class _AddressScreenState extends State<AddressScreen> {
       addressList = pr.getStringList('addressList')!;
     });
 
+  }
+
+  void showLoader(){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
   }
 
   //Fetching user's current location...Lat Long
@@ -127,29 +157,23 @@ class _AddressScreenState extends State<AddressScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async{
-
-          setState((){
-            loading = true;
-          });
+          showLoader();
 
           Position position = await _getGeoLocationPosition();
           List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
           Placemark place = placemarks[1];
-          print(placemarks);
+          print(place);
           // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
 
           setState(()  {
-            streetCtrl = new TextEditingController(text: place.street);
-            cityCtrl = new TextEditingController(text: place.subLocality.toString()+", "+place.subAdministrativeArea.toString());
-            distCtrl = new TextEditingController(text: place.subAdministrativeArea);
+            streetCtrl = new TextEditingController(text: place.street.toString()+", "+place.subLocality.toString()+", ");
+            cityCtrl = new TextEditingController(text: place.locality.toString()+","+place.subAdministrativeArea.toString()+",");
+            distCtrl = new TextEditingController(text: place.administrativeArea.toString()+", ");
             pinCtrl = new TextEditingController(text: place.postalCode);
           });
 
-          setState((){
-            loading = false;
-          });
-
+          Navigator.pop(context);
         },
         child: Icon(
           Icons.my_location_outlined,
@@ -247,7 +271,7 @@ class _AddressScreenState extends State<AddressScreen> {
                         });
 
                         setState(() {
-                          addressList.add("${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}");
+                          addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
                           pr.setStringList('addressList', addressList);
                           loadPref();
                         });
@@ -333,6 +357,7 @@ class _AddressScreenState extends State<AddressScreen> {
                                 splashColor: Colors.red,
                                 onPressed: () async{
                                   print('Hi iam delete');
+
 
                                   var pr = await SharedPreferences.getInstance();
 

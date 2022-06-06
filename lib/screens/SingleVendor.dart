@@ -157,6 +157,7 @@ class _SingleVendorState extends State<SingleVendor> {
     pref.setString('myVendorAddress', deliverCharge);
     pref.setString('myVendorEggs', vendorEggOrEggless);
     pref.setBool('iamYourVendor', true);
+    pref.setBool('vendorCakeMode',true);
 
 
     context.read<ContextData>().addMyVendor(true);

@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../DrawerScreens/Notifications.dart';
 
 class CheckOut extends StatefulWidget {
@@ -31,6 +35,7 @@ class _CheckOutState extends State<CheckOut> {
 
   String paymentType = "UPI";
   bool isExpand = false;
+  var paymentIndex = 0;
 
   //Strings
   String cakeName = '';
@@ -380,6 +385,10 @@ class _CheckOutState extends State<CheckOut> {
             content: Text('Order Posted!'),
             behavior: SnackBarBehavior.floating
         ));
+
+        NotificationService().showNotifications("Order Placed", "Your Customized Cake Ordered.Thank You!");
+
+
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -468,20 +477,21 @@ class _CheckOutState extends State<CheckOut> {
 
           if(json.decode(await response.stream.bytesToString())['statusCode'].toString()=="200"){
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Order Posted!'),
+                content: Text('Order Placed!'),
                 behavior: SnackBarBehavior.floating
             ));
+
+            Navigator.pop(context);
+
+            NotificationService().showNotifications("Order Placed", "Your $cakeName Ordered.Thank You!");
+
+            showOrderCompleteSheet();
           }else{
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text('Unable to Place Your Order'),
                 behavior: SnackBarBehavior.floating
             ));
           }
-
-          Navigator.pop(context);
-
-          showOrderCompleteSheet();
-
 
         } else {
           print(response.reasonPhrase);
@@ -548,20 +558,20 @@ class _CheckOutState extends State<CheckOut> {
 
           if(json.decode(await response.stream.bytesToString())['statusCode'].toString()=="200"){
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Order Posted!'),
+                content: Text('Order Placed!'),
                 behavior: SnackBarBehavior.floating
             ));
+            Navigator.pop(context);
+            NotificationService().showNotifications("Order Placed", "Your $cakeName Ordered.Thank You!");
+            showOrderCompleteSheet();
           }else{
+            Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text('Unable to Place Your Order'),
                 behavior: SnackBarBehavior.floating
             ));
           }
 
-
-
-          Navigator.pop(context);
-          showOrderCompleteSheet();
         } else {
           print(response.reasonPhrase);
 
@@ -591,47 +601,6 @@ class _CheckOutState extends State<CheckOut> {
 
   @override
   Widget build(BuildContext context) {
-
-
-    print(json.encode({
-      "CakeID": cakeID,
-      "Cake_ID": cakeModId,
-      "Title": cakeName,
-      "Description": cakeDesc,
-      "TypeOfCake": cakeType,
-      "Images": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Price": cakePrice.toString(),
-      "Flavour": flavs,
-      "Shape": shape,
-      "Theme": "Ben 10",
-      "Article": artic[0],
-      "MessageOnTheCake": cakeMessage,
-      "SpecialRequest": cakeSplReq,
-      "Weight": weight,
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "ItemCount": counts,
-      "Discount": discount.toString(),
-      "Total": bilTotal.toString(),
-      "DeliveryCharge": deliveryCharge.toString(),
-      // 'VendorID': vendorID,
-      // 'Vendor_ID': vendorModId,
-      // 'VendorName': vendorName,
-      // 'VendorPhoneNumber': vendorMobile,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid',
-      "DeliveryInformation": deliverType,
-      // "Above5KG":double.parse(weight.replaceAll(new RegExp(r'[^0-9]'), ""))>5.0?'y':'n',
-      "Gst": gstPrice.toString(),
-      "Sgst": sgstPrice.toString(),
-      "ExtraCharges": extraCharges.toString(),
-    }));
 
     return Scaffold(
         appBar: AppBar(
@@ -732,6 +701,7 @@ class _CheckOutState extends State<CheckOut> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    cakeImage.isEmpty||!cakeImage.startsWith("http")?
                     Container(
                       height: 90,
                       width: 75,
@@ -741,50 +711,62 @@ class _CheckOutState extends State<CheckOut> {
                               image: AssetImage('assets/images/customcake.png'),
                               fit: BoxFit.cover)
                       ),
+                    ):
+                    Container(
+                      height: 90,
+                      width: 75,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          image: DecorationImage(
+                              image: NetworkImage('$cakeImage'),
+                              fit: BoxFit.cover)
+                      ),
                     ),
                     SizedBox(
                       width: 5,
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 210,
-                          child: Text(
-                            '${cakeName}',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          width: 210,
-                          child:Text('(Flavour - ${flavs[0]['Name']}) + (Shape - ${shape})',style: TextStyle(
-                              fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                          ),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          '₹ ${cakePrice}',
-                          style: TextStyle(
-                              fontSize: 17,
-                              color: lightPink,
-                              fontWeight: FontWeight.bold
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ],
-                    )
+                    Expanded(
+                        child: Column(
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Text('${cakeName} (Rs.$cakePrice) × $counts',style: TextStyle(
+                                      fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
+                                  ),overflow: TextOverflow.ellipsis,maxLines: 10,),
+                                ),
+                                SizedBox(height: 5,),
+                                Text('(Flavour - ${flavs[0]['Name']}) + (Shape - ${shape}) + '
+                                    '(Article - ${artic[0]['Name']}) = Rs.$extraCharges',style: TextStyle(
+                                    fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                                Wrap(
+                                  children: [
+                                    for(var i in flavs)
+                                      Text("(Flavour - ${i['Name']} Price - Rs.${i['Price']})",style: TextStyle(
+                                          fontSize:10.5,fontFamily: "Poppins",
+                                          color: Colors.black26
+                                      ),),
+
+                                    Text(" = Rs.$extraCharges",style: TextStyle(
+                                        fontSize:10.5,fontFamily: "Poppins",
+                                        color: Colors.black26
+                                    ),)
+
+                                  ],
+                                ),
+                                Text('₹ ${counts * int.parse(cakePrice) + double.parse(extraCharges)}',style: TextStyle(
+                                    fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
+                                    fontFamily: "Poppins"
+                                ),
+                                  overflow: TextOverflow.ellipsis,maxLines: 2,
+                                ),
+                              ],
+                            )
+                          ],
+                        ))
                   ],
                 ),
                 SizedBox(
@@ -804,8 +786,8 @@ class _CheckOutState extends State<CheckOut> {
                           style: const TextStyle(
                               fontSize: 11, fontFamily: "Poppins"),
                         ),
-                        subtitle: Text(
-                          '${vendorName}',
+                        subtitle: Text(double.parse(weight.replaceAll("kg", ""))<6.0?
+                          '${vendorName}':'Premium Vendor',
                           style: TextStyle(
                               fontSize: 14,
                               fontFamily: "Poppins",
@@ -818,8 +800,13 @@ class _CheckOutState extends State<CheckOut> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               InkWell(
-                                onTap: () {
+                                onTap: () async{
                                   print('phone..');
+                                  try{
+                                    await launchUrl(Uri.parse("tel://$vendorMobile"));
+                                  }catch(e){
+                                    print('uri er : $e');
+                                  }
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -838,8 +825,28 @@ class _CheckOutState extends State<CheckOut> {
                                 width: 10,
                               ),
                               InkWell(
-                                onTap: () {
+                                onTap: () async{
                                   print('whatsapp');
+                                  String whatsapp = vendorMobile;
+                                  var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
+                                  var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
+                                  if(Platform.isIOS){
+                                    // for iOS phone only
+                                    if( await canLaunch(whatappURL_ios)){
+                                      await launch(whatappURL_ios, forceSafariVC: false);
+                                    }else{
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: new Text("whatsapp no installed")));
+                                    }
+                                  }else{
+                                    // android , web
+                                    if( await canLaunch(whatsappURl_android)){
+                                      await launch(whatsappURl_android);
+                                    }else{
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: new Text("whatsapp no installed")));
+                                    }
+                                  }
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -876,7 +883,8 @@ class _CheckOutState extends State<CheckOut> {
                                   fontSize: 14,
                                   fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black),
+                                  color: Colors.black
+                              ),
                             ),
                           ],
                         ),
@@ -1085,12 +1093,14 @@ class _CheckOutState extends State<CheckOut> {
 
 
                 ExpansionTile(
+                  maintainState: true,
+                  initiallyExpanded: isExpand,
                   title: Text(
                     'Payment type',
                     style: TextStyle(
-                        color: Colors.black26,
+                        color: Colors.grey[400],
                         fontFamily: "Poppins",
-                        fontSize: 12),
+                        fontSize: 13),
                   ),
                   subtitle: Text(
                     '$paymentType',
@@ -1100,13 +1110,27 @@ class _CheckOutState extends State<CheckOut> {
                         fontSize: 14,
                         fontWeight: FontWeight.bold),
                   ),
+                  trailing: Container(
+                    alignment: Alignment.center,
+                    height: 25,
+                    width: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.red[100],
+                      shape: BoxShape.circle ,
+                    ),
+                    child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                  ),
                   children: [
                     ListTile(
                       onTap: () {
                         setState(() {
                           paymentType = "UPI";
+                          paymentIndex = 0;
                         });
                       },
+                      leading: paymentIndex!=0?
+                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                      Icon(Icons.check_circle , color: Colors.green,),
                       title: Text(
                         'UPI',
                         style: TextStyle(
@@ -1120,8 +1144,12 @@ class _CheckOutState extends State<CheckOut> {
                       onTap: () {
                         setState(() {
                           paymentType = "Cash on delivery";
+                          paymentIndex = 1;
                         });
                       },
+                      leading: paymentIndex!=1?
+                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                      Icon(Icons.check_circle , color: Colors.green,),
                       title: Text(
                         'Cash On Delivery',
                         style: TextStyle(
@@ -1135,8 +1163,12 @@ class _CheckOutState extends State<CheckOut> {
                       onTap: () {
                         setState(() {
                           paymentType = "Credit Card";
+                          paymentIndex = 2;
                         });
                       },
+                      leading: paymentIndex!=2?
+                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                      Icon(Icons.check_circle , color: Colors.green,),
                       title: Text(
                         'Credit Card',
                         style: TextStyle(
@@ -1148,57 +1180,140 @@ class _CheckOutState extends State<CheckOut> {
                     ),
                   ],
                 ),
+                Container(
+                  margin: EdgeInsets.only(top: 3,bottom: 3),
+                  color: lightPink,
+                  height: 0.3,
+                ),
                 paymentType == "Credit Card"
                     ? Container(
                   padding: EdgeInsets.all(10),
                   margin: EdgeInsets.only(top: 10),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.black12),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[200]),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text("Name on card" , style: TextStyle(
+                        fontFamily: "Poppins",color: Colors.black54
+                      ),),
                       TextField(
+                        style: TextStyle(
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold,
+                        ),
                         decoration: InputDecoration(
-                            label: Text('Name on card'),
-                            hintText: "Name on card",
-                            prefixIcon: Icon(Icons.account_circle)),
+                            hintText: "Type Name Here",
+                            hintStyle: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 13.5
+                            ),
+                            prefixIcon: Icon(Icons.account_circle,color: Colors.grey[400])),
                       ),
+                      SizedBox(height: 7,),
+                      Text("Card number" , style: TextStyle(
+                          fontFamily: "Poppins",color: Colors.black54
+                      ),),
                       TextField(
+                        style: TextStyle(
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        inputFormatters: [
+                          MaskedTextInputFormatter(
+                            mask: 'xxxx-xxxx-xxxx-xxxx',
+                            separator: "-"
+                          )
+                        ],
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                            label: Text('Card number'),
                             hintText: "Card number",
-                            prefixIcon: Icon(Icons.credit_card_outlined)),
+                            hintStyle: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 13.5
+                            ),
+                            prefixIcon: Icon(Icons.credit_card_outlined,color: Colors.grey[400],)),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+                      SizedBox(height: 10,),
+
+                      GridView(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisExtent: 80,
+                          crossAxisSpacing: 5,
+                          // mainAxisSpacing: 5
+                        ),
                         children: [
                           Container(
-                            width: 130,
-                            child: TextField(
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                label: Text('Card Expiry'),
-                                hintText: "Card Expiry",
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Card expiry" , style: TextStyle(
+                                    fontFamily: "Poppins",color: Colors.black54
+                                ),),
+                                TextField(
+                                  style: TextStyle(
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  inputFormatters: [
+                                    CardExpirationFormatter()
+                                  ],
+                                  maxLength: 7,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    hintText: "MM/YYYY",
+                                    hintStyle: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 13.5
+                                    ),
+                                    counterText: ""
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Container(
-                            width: 130,
-                            child: TextField(
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                label: Text('CVV'),
-                                hintText: "CVV",
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("CVV" , style: TextStyle(
+                                    fontFamily: "Poppins",color: Colors.black54
+                                ),),
+                                TextField(
+                                  style: TextStyle(
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  obscureText: true,
+                                  obscuringCharacter: "*",
+                                  maxLength: 3,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                    hintText: "CVV",
+                                    hintStyle: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 13.5
+                                    ),
+                                    counterText: "",
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      )
+                      ),
+
                     ],
                   ),
                 )
                     : Container(),
+
                 SizedBox(
                   height: 15,
                 ),
@@ -1230,3 +1345,57 @@ class _CheckOutState extends State<CheckOut> {
   }
 }
 
+class CardExpirationFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final newValueString = newValue.text;
+    String valueToReturn = '';
+
+    for (int i = 0; i < newValueString.length; i++) {
+      if (newValueString[i] != '/') valueToReturn += newValueString[i];
+      var nonZeroIndex = i + 1;
+      final contains = valueToReturn.contains(RegExp(r'\/'));
+      if (nonZeroIndex % 2 == 0 &&
+          nonZeroIndex != newValueString.length &&
+          !(contains)) {
+        valueToReturn += '/';
+      }
+    }
+    return newValue.copyWith(
+      text: valueToReturn,
+      selection: TextSelection.fromPosition(
+        TextPosition(offset: valueToReturn.length),
+      ),
+    );
+  }
+}
+
+
+class MaskedTextInputFormatter extends TextInputFormatter {
+  final String mask;
+  final String separator;
+
+  MaskedTextInputFormatter({
+    required this.mask,
+    required this.separator,
+  }) { assert(mask != null); assert (separator != null); }
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if(newValue.text.length > 0) {
+      if(newValue.text.length > oldValue.text.length) {
+        if(newValue.text.length > mask.length) return oldValue;
+        if(newValue.text.length < mask.length && mask[newValue.text.length - 1] == separator) {
+          return TextEditingValue(
+            text: '${oldValue.text}$separator${newValue.text.substring(newValue.text.length-1)}',
+            selection: TextSelection.collapsed(
+              offset: newValue.selection.end + 1,
+            ),
+          );
+        }
+      }
+    }
+    return newValue;
+  }
+}

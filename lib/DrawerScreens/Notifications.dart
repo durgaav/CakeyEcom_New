@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -15,10 +16,28 @@ class Notifications extends StatefulWidget {
 }
 
 class _NotificationsState extends State<Notifications> {
+
   //Colors
   Color lightGrey = const Color(0xffF5F5F5);
   Color darkBlue = const Color(0xffF213959);
   Color lightPink = const Color(0xffFE8416D);
+
+  var dateTime = DateTime.now();
+
+  var months = [
+    {"num":"01","mon":'Jan'},
+    {"num":"02","mon":'Feb'},
+    {"num":"03","mon":'Mar'},
+    {"num":"04","mon":'Apr'},
+    {"num":"05","mon":'May'},
+    {"num":"06","mon":'Jun'},
+    {"num":"07","mon":'Jul'},
+    {"num":"08","mon":'Aug'},
+    {"num":"09","mon":'Sep'},
+    {"num":"10","mon":'Oct'},
+    {"num":"11","mon":'Nav'},
+    {"num":"12","mon":'Dec'},
+  ];
 
   DateTime currentTime = DateTime.now();
   var result2 = '';
@@ -28,7 +47,7 @@ class _NotificationsState extends State<Notifications> {
   // String data = 'new';
   List OrderList = [];
   List CustomizeList = [];
-  List MainList=[];
+  List mainList=[];
   List ImageList=[];
   var fixedFlavList = [];
 
@@ -40,8 +59,44 @@ class _NotificationsState extends State<Notifications> {
   String authToken = "";
   bool isLoading = true;
 
+  //Default loader dialog
+  void showAlertDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(
+                    height: 13,
+                  ),
+                  Text(
+                    'Please Wait...',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   Future<void> notifyData() async {
-    MainList.clear();
+    List statusOn = [];
+    List createOn = [];
+    mainList.clear();
     setState((){
       isLoading = true;
     });
@@ -54,14 +109,32 @@ class _NotificationsState extends State<Notifications> {
           List a = jsonDecode(res.body)['CustomizeCakesList'];
           List b = jsonDecode(res.body)['OrdersList'];
 
-          MainList = a.where((element) => element['Notification'].toString().toLowerCase()!='new').toList()+ b.toList();
+          mainList = a.where((element) => element['Notification'].toString().toLowerCase()!='new').toList()+ b.toList();
+
+          // for(int i = 0 ;i < mainList.length;i++){
+          //
+          //   if(mainList[i]['Status_Updated_On']!=null&&dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+          //       dateTime.year.toString()==mainList[i]['Status_Updated_On'].toString().split(" ").first ){
+          //     statusOn.add(mainList[i]);
+          //   }
+          //
+          //   if(mainList[i]['Status_Updated_On']!=null&&dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+          //       dateTime.year.toString()==mainList[i]['Created_On'].toString().split(" ").first ){
+          //     statusOn.add(mainList[i]);
+          //   }
+          //
+          // }
+          // statusOn = statusOn.toSet().toList();
+          mainList = statusOn+mainList.reversed.toList();
+          mainList = mainList.toSet().toList();
+          // mainList = mainList.reversed.toList();
           isLoading = false;
         });
       }else{
         setState((){
           isLoading = true;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Something Went Wrong.'))
+            SnackBar(content: Text('Error Occurred!'))
           );
         });
       }
@@ -198,7 +271,7 @@ class _NotificationsState extends State<Notifications> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: NetworkImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0jLPYNyRkX-mTp_5xlc0UbtIAlCOE8WJt3g&usqp=CAU")
+                            image: AssetImage("assets/images/customcake.png")
                         )
                     ),
                   ),
@@ -209,7 +282,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Date',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -220,7 +293,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Time',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
 
@@ -232,7 +305,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Date',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -243,7 +316,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Weight',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -254,9 +327,9 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Price',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (MainList[index]['Price']==null)?Text('NAN'):Text('Rs. '+ MainList[index]['Price'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['Price']==null)?Text('NAN'):Text('Rs. '+ mainList[index]['Price'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
 
-                  // Text('Rs. '+ MainList[index]['Price'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  // Text('Rs. '+ mainList[index]['Price'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -267,9 +340,9 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Discount',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (MainList[index]['ExtraCharges']==null)?Text('NAN'):Text('Rs. '+ MainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['ExtraCharges']==null)?Text('NAN'):Text('Rs. '+ mainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
 
-                  // Text('Rs. '+ MainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  // Text('Rs. '+ mainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -280,9 +353,9 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('GST',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (MainList[index]['Gst']==null)?Text('NAN'):Text('Rs. '+ MainList[index]['Gst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['Gst']==null)?Text('NAN'):Text('Rs. '+ mainList[index]['Gst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
 
-                  // Text('Rs. '+ MainList[index]['Gst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  // Text('Rs. '+ mainList[index]['Gst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -293,7 +366,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('SGST',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (MainList[index]['Sgst']== null)?Text('NAN'):Text('Rs. '+ MainList[index]['Sgst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['Sgst']== null)?Text('NAN'):Text('Rs. '+ mainList[index]['Sgst'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               Row(
@@ -301,7 +374,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Extra Charges',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text('Rs. '+ MainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text('Rs. '+ mainList[index]['ExtraCharges'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -320,9 +393,9 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Total',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (MainList[index]['Total']== null)?Text('NAN'):Text('Rs. '+ MainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['Total']== null)?Text('NAN'):Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
 
-                  // Text('Rs. '+ MainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  // Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
             ],
@@ -331,7 +404,6 @@ class _NotificationsState extends State<Notifications> {
         actions: <Widget>[
           TextButton(
             onPressed: (){
-              print('move data to next screen');
               sendDetailstoScreen(index);
             },
             child: const Text('PAY NOW'),
@@ -421,7 +493,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Date',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -432,7 +504,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Time',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -443,7 +515,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Mode',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryInformation'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryInformation'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -454,7 +526,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Status',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['Status'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['Status'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -465,7 +537,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Weight',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
             ],
@@ -496,10 +568,10 @@ class _NotificationsState extends State<Notifications> {
               Container(
                 padding: EdgeInsets.only(bottom: 10),
                 child: Center(
-                    child: (MainList[index]['Images']!=null)?CircleAvatar(
+                    child: (mainList[index]['Images']!=null)?CircleAvatar(
                         radius: 50,
                         backgroundImage:
-                        NetworkImage(MainList[index]['Images'].toString())
+                        NetworkImage(mainList[index]['Images'].toString())
                     )
                         :CircleAvatar(
                       radius: 50,
@@ -512,7 +584,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Date',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -523,7 +595,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Time',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -534,7 +606,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Delivery Mode',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['DeliveryInformation'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['DeliveryInformation'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -545,7 +617,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Status',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['Status'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['Status'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -556,7 +628,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Weight',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -567,7 +639,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Payment Type',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text(MainList[index]['PaymentType'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text(mainList[index]['PaymentType'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
               SizedBox(
@@ -578,14 +650,24 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Total Price',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  Text('Rs. '+ MainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
+
+
 
             ],
           ),
         ),
         actions: <Widget>[
+          mainList[index]['Status'].toString().toLowerCase()=="new"?
+          TextButton(
+            onPressed: (){
+              //cancel order
+              cancelOrder(mainList[index]['_id'],mainList[index]['UserID'] ,mainList[index]['Title'] );
+            },
+            child: const Text('Cancel Order'),
+          ):Text(""),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
@@ -677,66 +759,66 @@ class _NotificationsState extends State<Notifications> {
 
       prefs.setString('orderCakeID', cakeId[index]);
       prefs.setString('orderFromCustom', "yes");
-      prefs.setString('orderCakeModID', MainList[index]['Id'].toString());
+      prefs.setString('orderCakeModID', mainList[index]['Id'].toString());
       prefs.setString('orderCakeName', 'My Customized Cake');
       // prefs.setString('orderCakeDescription', cakeDescription);
       prefs.setString(
-          'orderCakeType', MainList[index]['TypeOfCake'].toString()
+          'orderCakeType', mainList[index]['TypeOfCake'].toString()
       );
       // prefs.setString('orderCakeImages', ImageList[0].toString());
       prefs.setString(
-          'orderCakeEggOrEggless', MainList[index]['EggOrEggless'].toString()
+          'orderCakeEggOrEggless', mainList[index]['EggOrEggless'].toString()
       );
-      prefs.setString('orderCakePrice',MainList[index]['Price']);
+      prefs.setString('orderCakePrice',mainList[index]['Price']);
 
-      // prefs.setString('orderCakeFlavour',MainList[index]['EggOrEggless'].split("-").first.toString());
+      // prefs.setString('orderCakeFlavour',mainList[index]['EggOrEggless'].split("-").first.toString());
 
-      prefs.setString('orderCakeShape',MainList[index]['Shape'].toString());
-      prefs.setString('orderCakeWeight',MainList[index]['Weight'].toString());
+      prefs.setString('orderCakeShape',mainList[index]['Shape'].toString());
+      prefs.setString('orderCakeWeight',mainList[index]['Weight'].toString());
 
-      if(MainList[index]['MessageOnTheCake'].toString().isNotEmpty){
-        prefs.setString('orderCakeMessage',MainList[index]['MessageOnTheCake'].toString());
+      if(mainList[index]['MessageOnTheCake'].toString().isNotEmpty){
+        prefs.setString('orderCakeMessage',mainList[index]['MessageOnTheCake'].toString());
       }else{
         prefs.setString('orderCakeMessage','No message');
       }
 
-      if(MainList[index]['SpecialRequest'].toString().isNotEmpty){
-        prefs.setString('orderCakeRequest',MainList[index]['SpecialRequest'].toString());
+      if(mainList[index]['SpecialRequest'].toString().isNotEmpty){
+        prefs.setString('orderCakeRequest',mainList[index]['SpecialRequest'].toString());
       }else{
         prefs.setString('orderCakeRequest','No special requests');
       }
 
 
-      // prefs.setString('orderCakeWeight', MainList[index]['Weight'].toString());
+      // prefs.setString('orderCakeWeight', mainList[index]['Weight'].toString());
 
       //vendor..
-      prefs.setString('orderCakeVendorId', MainList[index]['VendorID'].toString());
-      prefs.setString('orderCakeVendorModId', MainList[index]['Vendor_ID '].toString());
-      prefs.setString('orderCakeVendorName', MainList[index]['VendorName'].toString());
-      prefs.setString('orderCakeVendorNum', MainList[index]['VendorPhoneNumber'].toString());
-      prefs.setString('orderCakeVendorAddress', MainList[index]['VendorAddress'].toString());
+      prefs.setString('orderCakeVendorId', mainList[index]['VendorID'].toString());
+      prefs.setString('orderCakeVendorModId', mainList[index]['Vendor_ID '].toString());
+      prefs.setString('orderCakeVendorName', mainList[index]['VendorName'].toString());
+      prefs.setString('orderCakeVendorNum', mainList[index]['VendorPhoneNumber'].toString());
+      prefs.setString('orderCakeVendorAddress', mainList[index]['VendorAddress'].toString());
 
       //user...
-      prefs.setString('orderCakeUserName', MainList[index]['UserName'].toString());
-      prefs.setString('orderCakeUserID', MainList[index]['UserID'].toString());
-      prefs.setString('userModId', MainList[index]['User_ID'].toString());
-      prefs.setString('orderCakeUserNum', MainList[index]['UserPhoneNumber'].toString());
-      prefs.setString('orderCakeDeliverAddress', MainList[index]['DeliveryAddress'].toString());
-      prefs.setString('orderCakeDeliverDate', MainList[index]['DeliveryDate'].toString());
-      prefs.setString('orderCakeDeliverSession', MainList[index]['DeliverySession'].toString());
-      prefs.setString('orderCakeDeliveryInformation', MainList[index]['DeliveryInformation'].toString());
+      prefs.setString('orderCakeUserName', mainList[index]['UserName'].toString());
+      prefs.setString('orderCakeUserID', mainList[index]['UserID'].toString());
+      prefs.setString('userModId', mainList[index]['User_ID'].toString());
+      prefs.setString('orderCakeUserNum', mainList[index]['UserPhoneNumber'].toString());
+      prefs.setString('orderCakeDeliverAddress', mainList[index]['DeliveryAddress'].toString());
+      prefs.setString('orderCakeDeliverDate', mainList[index]['DeliveryDate'].toString());
+      prefs.setString('orderCakeDeliverSession', mainList[index]['DeliverySession'].toString());
+      prefs.setString('orderCakeDeliveryInformation', mainList[index]['DeliveryInformation'].toString());
 
       // prefs.setString('orderCakeArticle',fixedArticle);
 
 
       //for delivery...
       prefs.setInt('orderCakeItemCount', 1);
-      // prefs.setInt('orderCakePrice', int.parse(MainList[index]['Price'].toString()));
-      prefs.setInt('orderCakeTotalAmt', int.parse(MainList[index]['Total'].toString()));
-      prefs.setString('orderCakePaymentExtra', MainList[index]['ExtraCharges'].toString());
+      // prefs.setInt('orderCakePrice', int.parse(mainList[index]['Price'].toString()));
+      prefs.setInt('orderCakeTotalAmt', int.parse(mainList[index]['Total'].toString()));
+      prefs.setString('orderCakePaymentExtra', mainList[index]['ExtraCharges'].toString());
       // prefs.setInt('orderCakeDeliverAmt',fixedDelliverMethod=="Pickup"?0:50);
-      prefs.setInt('orderCakeDiscount', MainList[index]['Discount']);
-      prefs.setInt('orderCakeTaxes',int.parse(MainList[index]['Sgst'])+int.parse(MainList[index]['Sgst']));
+      prefs.setInt('orderCakeDiscount', mainList[index]['Discount']);
+      prefs.setInt('orderCakeTaxes',int.parse(mainList[index]['Sgst'])+int.parse(mainList[index]['Sgst']));
       prefs.setString('orderCakePaymentType', 'none');
       prefs.setString('orderCakePaymentStatus', 'none');
 
@@ -765,16 +847,16 @@ class _NotificationsState extends State<Notifications> {
       // }
     });
 
-    print(int.parse(MainList[index]['Sgst'])+int.parse(MainList[index]['Sgst']));
+    print(int.parse(mainList[index]['Sgst'])+int.parse(mainList[index]['Sgst']));
 
-    // prefs.setString('orderCakeVendorNum', MainList[index]['VendorPhoneNumber'].toString());
+    // prefs.setString('orderCakeVendorNum', mainList[index]['VendorPhoneNumber'].toString());
 
     Navigator.push(context, MaterialPageRoute(builder: (context)=> CheckOut(
-        MainList[index]['Flavour'].toList(),
+        mainList[index]['Flavour'].toList(),
         [
           {
-            "Name": MainList[index]['Article']['Name'].toString(),
-            "Price": MainList[index]['Article']['Price'].toString(),
+            "Name": mainList[index]['Article']['Name'].toString(),
+            "Price": mainList[index]['Article']['Price'].toString(),
           }
         ]
     ),));
@@ -782,6 +864,286 @@ class _NotificationsState extends State<Notifications> {
 
   }
 
+  void showTheDetailsBottomSheet(int index){
+    showModalBottomSheet(
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(15),
+          topRight: Radius.circular(15))
+        ),
+        builder: (context){
+          return Container(
+            padding: EdgeInsets.all(7),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  child: Row(
+                    children: [
+                      Text('Order Details', style: TextStyle(
+                          fontFamily: "Poppins",fontSize: 16,
+                          color: darkBlue,fontWeight: FontWeight.bold
+                      ),),
+                      Expanded
+                        (child: Align(
+                        alignment: Alignment.centerRight,
+                          child: IconButton(
+                            onPressed: ()=>Navigator.pop(context),
+                            icon: Icon(Icons.close,color: darkBlue,)
+                      ),
+                        ))
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 5, bottom: 9),
+                  width: double.infinity,
+                  height: 0.8,
+                  color: darkBlue,
+                ),
+                Expanded(child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      //image cake
+                      Row(
+                        children: [
+                          Container(
+                            height: 65,
+                            width: 65,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(mainList[index]['Images'])
+                              )
+                            ),
+                          ),
+                          SizedBox(width: 6,),
+                          Expanded(
+                           child:Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               Row(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+                                   Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(mainList[index]['Title'],style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold
+                                      ),),
+                                      SizedBox(height: 6,),
+                                      Text("Rs.${mainList[index]['Total']}",style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          color:lightPink,
+                                          fontWeight: FontWeight.bold
+                                      ),),
+                                    ],
+                          ),
+                                   Expanded(
+                                     child: Align(
+                                       alignment: Alignment.topRight,
+                                       child: Text("ID : ${mainList[index]['Cake_ID']}",style: TextStyle(
+                                         fontFamily: "Poppins" , fontSize: 13
+                                       ),),
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ],
+                           )
+                          )
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Row(
+                            children: [
+                              Text("Type Of Cake ",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  "${mainList[index]["TypeOfCake"]}",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: lightPink
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              Text("Vendor Name ",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  "${mainList[index]["VendorName"]}",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: lightPink
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              Text("Mixed With ",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  "${mainList[index]["EggOrEggless"]}",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: lightPink
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              Text("Payment",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  "${mainList[index]["PaymentStatus"]}",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: mainList[index]["PaymentStatus"].toString().toLowerCase()=="paid"
+                                          ?Colors.green:Colors.red
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              Text("Flavours",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      for(var i in mainList[index]["Flavour"])
+                                        TextSpan(
+                                          text: " ${i['Name']}",
+                                          style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              color:lightPink
+                                          ),
+                                        )
+                                    ]
+                                  )
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              Text("shape",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Expanded(child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  "${mainList[index]["Shape"]}",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color:lightPink
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )),
+                RaisedButton(onPressed: (){})
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  Future<void> cancelOrder(String id , String byId, String title) async{
+    Navigator.pop(context);
+    showAlertDialog();
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/order/updatestatus/$id'));
+    request.body = json.encode({
+      "Status": "Cancelled",
+      "Status_Updated_By": "$byId"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Order is canceled!'))
+      );
+      setState((){
+        notifyData();
+      });
+      NotificationService().showNotifications("Order Cancelled", "Your $title order is cancelled.");
+      Navigator.pop(context);
+    }
+    else {
+      print(response.reasonPhrase);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error Occurred!'))
+      );
+      Navigator.pop(context);
+    }
+  }
 
   @override
   void initState() {
@@ -797,7 +1159,6 @@ class _NotificationsState extends State<Notifications> {
     });
     // Full date and time
     final result1 = simplyFormat(time: currentTime);
-
   }
 
   @override
@@ -807,46 +1168,45 @@ class _NotificationsState extends State<Notifications> {
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
-          child: Container(
-            color: lightGrey,
-            padding: EdgeInsets.only(left: 15, top: 25, right: 10),
-            child: Row(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 10, bottom: 15),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      height: 30,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(7)),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.chevron_left,
-                        size: 30,
-                        color: lightPink,
+          child:SafeArea(
+            child: Container(
+              padding: EdgeInsets.only(left: 15),
+              height: 50,
+              color:lightGrey,
+              child:Row(
+                children: [
+                  Container(
+                    // margin: const EdgeInsets.only(top: 10,bottom: 15),
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: 30,
+                        decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(7)
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(left: 15),
-                  child: Text(
-                    'NOTIFICATION',
-                    style: TextStyle(
-                        color: darkBlue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17),
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Text(
+                      'NOTIFICATION',
+                      style: TextStyle(
+                          color: darkBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          )
         ),
-
         body: RefreshIndicator(
           onRefresh: () async {
             setState(() {
@@ -914,58 +1274,87 @@ class _NotificationsState extends State<Notifications> {
                           ),
                         );
                       })
-                      : (MainList.length != 0)
+                      : (mainList.length > 0)
                       ? ListView.builder(
-                      itemCount: MainList.length,
+                      itemCount: mainList.length,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: (){
-                            print(MainList[index]['Notification']);
-                            if(MainList[index]['Notification']!=null) {
-                              if (MainList[index]['Notification'] == 'seen') {
-                                setState(() {
-                                  CustomListPopup(index);
-                                  // print(ImageList);
-                                });
-                              }else  if(MainList[index]['Notification']=='unseen'){
-                                setState(() {
-                                  PriceInfo(index);
-                                  cakeId = MainList[index]['_id'];
-                                  print(cakeId);
-                                  // print(ImageList);
-                                  updateStatus(index);
-                                });
-                              }
-                            }else {
-                              setState(() {
-                                // mainIndex = MainList;
-                                // if(mainIndex[index] == MainList[index]){
-                                OrderListPopup(index);
-                                // viewstate = true;
-                                // print(mainIndex);
-                                // print(index);
-                                // print(viewstate);
-                                // }
-                              });
-                            }
+
+
+
+                            // print(mainList[index]['Notification']);
+                            // if(mainList[index]['Notification']!=null)
+                            // {
+                            //   if (mainList[index]['Notification'] == 'seen') {
+                            //     setState(() {
+                            //       CustomListPopup(index);
+                            //       // print(ImageList);
+                            //     });
+                            //   }else  if(mainList[index]['Notification']=='unseen'){
+                            //     setState(() {
+                            //       PriceInfo(index);
+                            //       cakeId = mainList[index]['_id'];
+                            //       print(cakeId);
+                            //       // print(ImageList);
+                            //       updateStatus(index);
+                            //     });
+                            //   }
+                            // }
+                            // else {
+                            //   setState(() {
+                            //     // mainIndex = mainList;
+                            //     // if(mainIndex[index] == mainList[index]){
+                            //     OrderListPopup(index);
+                            //     // viewstate = true;
+                            //     // print(mainIndex);
+                            //     // print(index);
+                            //     // print(viewstate);
+                            //     // }
+                            //   });
+                            // }
+                            // showTheDetailsBottomSheet(index);
+
+                            print("*******Start******");
+                            print(mainList[index]['Status_Updated_On']);
+                            print(mainList[index]['Created_On']);
+                            print(mainList[index]['Created_On'].toString().split(" ")[1]);
+                            print(hourFormater(DateTime.now().hour.toString()+":"+DateTime.now().minute.toString()));
+                            print("*******End******");
+
                           },
                           child: Container(
                             padding: EdgeInsets.all(15),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                mainList[index]['Images']==null||
+                                mainList[index]['Images'].toString().isEmpty||
+                                !mainList[index]['Images'].toString().startsWith("http")?
                                 Container(
                                   height: 55,
                                   width: 55,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.grey,
+                                    color: Colors.grey[300],
                                   ),
                                   child: Icon(
-                                    Icons.notifications_none,
-                                    size: 45,color: Colors.black87,
+                                    Icons.image_outlined,
+                                    size: 35,color:Colors.grey,
+                                  ),
+                                ):
+                                Container(
+                                  height: 55,
+                                  width: 55,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[350],
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(mainList[index]['Images'].toString()),
+                                    ),
                                   ),
                                 ),
                                 SizedBox(
@@ -980,63 +1369,157 @@ class _NotificationsState extends State<Notifications> {
                                         Container(
                                           // width: 270,
                                             child:
-                                            ((MainList[index]['Notification']=='unseen')?Text(
-                                              'Hi ' + MainList[index]['UserName'] + " your Chocolate cake's Price and more info"
-                                                  " has been sended by admin kindly check "
-                                                  'and pay your bill.',
+                                            ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
+                                            Text(
+                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} delivered on "
+                                                  "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop and enjoy.",
                                               maxLines: 3,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                   color: Colors.black,
                                                   fontFamily: "Poppins",
-                                                  fontSize: 13,fontWeight: FontWeight.bold),
-                                            ):(MainList[index]['Notification']=='seen')?
+                                                  fontSize: 13,
+                                              ),
+                                            ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
                                             Text(
-                                              'Hi ' + MainList[index]['UserName'] + ' your Customized Chocolate layer cake Order has been placed successfully.',
+                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
+                                                  "is being prepared and it will be delivered soon , thank you.",
                                               maxLines: 3,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                  color:Colors.black38,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13,fontWeight: FontWeight.bold),
-                                            ):
-                                            (MainList[index]['Notification'] == null)?Text(
-                                              'Hi '+ MainList[index]['UserName']  + ' your Order chocolate cake order has been placed successfully.',
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                // color:(viewstate==false)?Colors.black:Colors.black45,
                                                   color:Colors.black,
                                                   fontFamily: "Poppins",
-                                                  fontSize: 13,fontWeight: FontWeight.bold),
-                                            ):Text('durgadevi')
+                                                  fontSize: 13,
+                                              ),
+                                            ):
+                                            (mainList[index]['Status'].toString().toLowerCase()=='new')?
+                                            Text(
+                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
+                                                  "order is placed.We will notify status soon as possible",
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color:Colors.black,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 13
+                                              ),
+                                            ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
+                                            Text(
+                                              "Hi ${mainList[index]['UserName']} your Customised Cake "
+                                                  "details are sent to admin/vendor.we will notify status soon as possible",
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color:Colors.black,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 13
+                                              ),
+                                            ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
+                                            Text(
+                                              "Hi ${mainList[index]['UserName']} your Customised Cake is ordered.We will notify status soon as possible",
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color:Colors.black,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 13
+                                              ),
+                                            ):Text(
+                                              "Hi ${mainList[index]['UserName']} Your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']}"
+                                                  " order is cancelled.Thank You.",
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color:Colors.black,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 13
+                                              ),
+                                            )
                                             )
                                         ),
                                         SizedBox(
                                           width: 10,
                                         ),
+                                        mainList[index]['Status_Updated_On']!=null?
                                         Container(
                                           // width: 270,
                                             child:
                                             // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                            ( MainList[index]['Created_On'] != null )?Text(
-                                              MainList[index]
-                                              ['Created_On'],
+                                            ( mainList[index]['Status_Updated_On'] != null)&&
+                                                dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+                                                    dateTime.year.toString()==mainList[index]['Status_Updated_On'].toString().split(" ").first ?
+                                            Text("Today",overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                    FontWeight.bold
+                                                )):
+                                            DateTime.now().day.toString().length==2&&
+                                                DateTime.now().day.toString()==mainList[index]['Status_Updated_On'].toString().split("-").first?
+                                            Text("Today",overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                    FontWeight.bold
+                                                )):
+                                            Text("${months[months.indexWhere((element) => element['num']==
+                                                mainList[index]['Status_Updated_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Status_Updated_On'].toString().split('-').first} "
+                                                "${mainList[index]['Status_Updated_On'].toString().replaceAll(" ", "").
+                                            split("-").last.substring(0,4)}",
                                               maxLines: 3,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                   color: darkBlue,
                                                   fontFamily: "Poppins",
-                                                  fontSize: 14,
+                                                  fontSize: 12.5,
                                                   fontWeight:
-                                                  FontWeight.bold),
-                                            ):Text("Time doesn't specified",overflow: TextOverflow.ellipsis,
+                                                  FontWeight.bold
+                                              ),
+                                            )
+                                        ):
+                                        Container(
+                                          // width: 270,
+                                            child:
+                                            // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
+                                            ( mainList[index]['Created_On'] != null)&&
+                                                dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+                                                    dateTime.year.toString()==mainList[index]['Created_On'].toString().split(" ").first ?
+                                            Text("Today",overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                     color: darkBlue,
                                                     fontFamily: "Poppins",
-                                                    fontSize: 14,
+                                                    fontSize: 12.5,
                                                     fontWeight:
-                                                    FontWeight.bold))
+                                                    FontWeight.bold
+                                                )):
+                                            DateTime.now().day.toString().length==2&&
+                                                DateTime.now().day.toString()==mainList[index]['Created_On'].toString().split("-").first?
+                                            Text("Today",overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                    FontWeight.bold
+                                                )):
+                                             Text("${months[months.indexWhere((element) => element['num']==
+                                                  mainList[index]['Created_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Created_On'].toString().split('-').first} "
+                                                  "${mainList[index]['Created_On'].toString().replaceAll(" ", "").
+                                              split("-").last.substring(0,4)}",
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 12.5,
+                                                  fontWeight:
+                                                  FontWeight.bold
+                                              ),
+                                            )
                                         )
                                       ],
                                     ),
@@ -1061,7 +1544,9 @@ class _NotificationsState extends State<Notifications> {
                             ],
                           )
                     ),
-                  ))),
+                  )
+              )
+          ),
         ));
   }
 }
@@ -1111,4 +1596,32 @@ String simplyFormat({required DateTime time, bool dateOnly = false}) {
 
   // If you only want year, month, and date
   return "${mon[0]['month']} ${day}nd $year";
+}
+
+String hourFormater(String time) {
+  int h = int.parse(time
+      .split(":")
+      .first);
+  int m = int.parse(time
+      .split(":")
+      .last
+      .split(" ")
+      .first);
+  String send = "";
+  if (h > 12) {
+    var temp = h - 12;
+    send =
+        "0$temp:${m
+            .toString()
+            .length == 1 ? "0" + m.toString() : m.toString()} " +
+            "PM";
+  } else {
+    send =
+        "$h:${m
+            .toString()
+            .length == 1 ? "0" + m.toString() : m.toString()}  " +
+            "AM";
+  }
+
+  return send;
 }

@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/Profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
 
 
 class TestScreen extends StatefulWidget {
@@ -31,113 +34,190 @@ class _TestScreenState extends State<TestScreen> {
   var closed = false;
   var droped = false;
 
+  double opacity = 1.0;
+
+  static const List<String> _kOptions = <String>[
+    'aardvark',
+    'bobcat',
+    'chameleon',
+  ];
+
+  List suggest = [];
+
+  var sugg = new TextEditingController();
+
+  Future<void> suggestions(String typing) async {
+    print(typing);
+    suggest.clear();
+    var res = await http.get(Uri.
+    parse(
+        'https://nominatim.openstreetmap.org/?addressdetails=1&q=$typing&format=json&limit=10'));
+
+    if(res.statusCode==200){
+      setState((){
+        print(res.body);
+        List myList = jsonDecode(res.body);
+        print(myList.toSet());
+
+        for(int i = 0 ; i < myList.length;i++){
+          suggest.add(myList[i]['display_name'].toString());
+        }
+
+      });
+    }else{
+      print(res.statusCode);
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.add),
-      //   onPressed: (){
-      //     setState(() {
-      //       if(closed==false){
-      //         closed = true;
-      //         height = 0.0;
-      //       }else{
-      //         closed = false;
-      //         height = 50.0;
-      //       }
-      //     });
-      //   },
-      // ),
+      
       appBar: AppBar(
         title: Text(
           'Test Screen'
         ),
       ),
       body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+        
+        child:Column(
           children: [
-
-            IndexedStack(
-              index: 1,
-              children: [
-                CheckOut([],[]),
-                Profile(defindex: 0),
-              ],
+            AnimatedOpacity(
+              opacity: 0.5,
+              duration: Duration(seconds: 3),
+              child: Container(
+                margin: EdgeInsets.all(10),
+                height: 150,
+                color: Colors.grey[350],
+              ),
             ),
+            RaisedButton(onPressed: (){
+              setState((){
 
-            // AnimatedContainer(
-            //     height: height,
-            //     margin: EdgeInsets.all(10),
-            //     duration: Duration(seconds: 1),
-            //     color:Colors.yellow,
-            //     curve: Curves.easeInOutCubicEmphasized,
-            //     child: Text('Hi broo how are you')
-            // ),
-
-            // Container(
-            //   margin: EdgeInsets.all(10),
-            //   padding: EdgeInsets.all(10),
-            //   decoration: BoxDecoration(
-            //     color: Colors.indigo,
-            //     borderRadius: BorderRadius.circular(20)
-            //   ),
-            //   child: Row(
-            //     children: [
-            //       Draggable(
-            //           data: "Ok",
-            //           axis: Axis.horizontal,
-            //           child: Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,),
-            //           feedback: Icon(Icons.arrow_forward_ios_rounded,color: Colors.white70,)
-            //       ),
-            //
-            //       SizedBox(width: 10,) ,
-            //
-            //       Shimmer.fromColors(
-            //         highlightColor: Colors.grey[400]!,
-            //         baseColor: Colors.white,
-            //         child: Text('Swipe To Navigate' , style: TextStyle(
-            //           color: Colors.white ,fontFamily: "Poppins" , fontSize: 20 ,
-            //           fontWeight: FontWeight.bold
-            //         ),),
-            //       ),
-            //
-            //       SizedBox(width: 10,) ,
-            //
-            //       Expanded(
-            //         child: Align(
-            //           alignment: Alignment.centerRight,
-            //           child: Container(
-            //
-            //             child: DragTarget(
-            //                 builder: (BuildContext context , List<dynamic> start , List<dynamic> end){
-            //                   return Icon(Icons.lock_open,color:Colors.white);
-            //                 } ,
-            //               onAccept: (data){
-            //                   Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
-            //                   print(data);
-            //                   setState(() {
-            //                     droped = true;
-            //                   });
-            //               },
-            //               onWillAccept: (data){
-            //                   return data == "Ok";
-            //               },
-            //             ),
-            //           ),
-            //         ),
-            //       )
-            //
-            //     ],
-            //   ),
-            // )
-
+              });
+            })
           ],
         ),
+
       ),
+      // body: Container(
+      //   child: SingleChildScrollView(
+      //     child: Column(
+      //       mainAxisAlignment: MainAxisAlignment.end,
+      //       crossAxisAlignment: CrossAxisAlignment.center,
+      //       mainAxisSize: MainAxisSize.min,
+      //       children: [
+      //
+      //         TextField(
+      //           controller: sugg,
+      //           decoration: InputDecoration(
+      //             hintText: "Search here..."
+      //           ),
+      //           onSubmitted:(String text){
+      //               suggestions(text);
+      //           },
+      //           onEditingComplete: (){
+      //             suggestions(sugg.text);
+      //           },
+      //         ),
+      //
+      //         SizedBox(height: 10,),
+      //
+      //         suggest.length>0?
+      //         Container(
+      //           height: 450,
+      //           child: ListView.builder(
+      //             shrinkWrap: true,
+      //             itemCount: suggest.length,
+      //             itemBuilder: (c , i){
+      //               return Padding(
+      //                 padding: const EdgeInsets.all(15.0),
+      //                 child: Text("${suggest[i]}"),
+      //               );
+      //             },
+      //           ),
+      //         ):Text('No suggestion.')
+      //
+      //         // IndexedStack(
+      //         //   index: 1,
+      //         //   children: [
+      //         //     CheckOut([],[]),
+      //         //     Profile(defindex: 0),
+      //         //   ],
+      //         // ),
+      //         //
+      //         // // AnimatedContainer(
+      //         // //     height: height,
+      //         // //     margin: EdgeInsets.all(10),
+      //         // //     duration: Duration(seconds: 1),
+      //         // //     color:Colors.yellow,
+      //         // //     curve: Curves.easeInOutCubicEmphasized,
+      //         // //     child: Text('Hi broo how are you')
+      //         // // ),
+      //         //
+      //         // // Container(
+      //         // //   margin: EdgeInsets.all(10),
+      //         // //   padding: EdgeInsets.all(10),
+      //         // //   decoration: BoxDecoration(
+      //         // //     color: Colors.indigo,
+      //         // //     borderRadius: BorderRadius.circular(20)
+      //         // //   ),
+      //         // //   child: Row(
+      //         // //     children: [
+      //         // //       Draggable(
+      //         // //           data: "Ok",
+      //         // //           axis: Axis.horizontal,
+      //         // //           child: Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,),
+      //         // //           feedback: Icon(Icons.arrow_forward_ios_rounded,color: Colors.white70,)
+      //         // //       ),
+      //         // //
+      //         // //       SizedBox(width: 10,) ,
+      //         // //
+      //         // //       Shimmer.fromColors(
+      //         // //         highlightColor: Colors.grey[400]!,
+      //         // //         baseColor: Colors.white,
+      //         // //         child: Text('Swipe To Navigate' , style: TextStyle(
+      //         // //           color: Colors.white ,fontFamily: "Poppins" , fontSize: 20 ,
+      //         // //           fontWeight: FontWeight.bold
+      //         // //         ),),
+      //         // //       ),
+      //         // //
+      //         // //       SizedBox(width: 10,) ,
+      //         // //
+      //         // //       Expanded(
+      //         // //         child: Align(
+      //         // //           alignment: Alignment.centerRight,
+      //         // //           child: Container(
+      //         // //
+      //         // //             child: DragTarget(
+      //         // //                 builder: (BuildContext context , List<dynamic> start , List<dynamic> end){
+      //         // //                   return Icon(Icons.lock_open,color:Colors.white);
+      //         // //                 } ,
+      //         // //               onAccept: (data){
+      //         // //                   Navigator.push(context, MaterialPageRoute(builder: (context)=>DrawerHome()));
+      //         // //                   print(data);
+      //         // //                   setState(() {
+      //         // //                     droped = true;
+      //         // //                   });
+      //         // //               },
+      //         // //               onWillAccept: (data){
+      //         // //                   return data == "Ok";
+      //         // //               },
+      //         // //             ),
+      //         // //           ),
+      //         // //         ),
+      //         // //       )
+      //         // //
+      //         // //     ],
+      //         // //   ),
+      //         // // )
+      //
+      //       ],
+      //     ),
+      //   ),
+      // ),
     );
   }
 }

@@ -756,14 +756,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 if (!selectedFilter.contains(item)) {
                                                   if (selectedFilter.length < 5) {
                                                     selectedFilter.add(item);
-                                                    print('is selected item...  $isSelected');
-                                                    print(' selected index $selectedFilter');
                                                   }
                                                 } else {
-                                                  print('is selected item...  $isSelected');
                                                   selectedFilter
                                                       .removeWhere((element) => element == item);
-                                                  print(' selected index $selectedFilter');
+
                                                 }
                                               });
                                             },
@@ -1077,7 +1074,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //region Functions
 
-
   //search by filters
   void searchByGivenFilter(String category, String subCategory , String vendorName, List filterCType){
 
@@ -1102,30 +1098,28 @@ class _CakeTypesState extends State<CakeTypes> {
 
       if(vendorName.isNotEmpty){
 
-        print('Entered to Filter..');
-
         setState((){
           c = eggOrEgglesList.where((element) => element['VendorName'].toString().toLowerCase()
               .contains(vendorName.toLowerCase())).toList();
           activeSearch = true;
         });
-        print('end of Filter..');
+
       }
       if(filterCType.isNotEmpty){
-        print('active search $activeSearch');
+
         for(int i=0;i<cakeSearchList.length;i++){
-          print(i);
+
           if(cakeSearchList[i]['TypeOfCake'].isNotEmpty){
             for(int j = 0 ; j<filterCType.length;j++){
-              print(j);
+
               if(cakeSearchList[i]['TypeOfCake'].contains(filterCType[j])){
                 cakeTypeList.add(cakeSearchList[i]);
-                print(filterCType);
+
               }
             }
           }
         }
-        print('neww type of cakes...............   $cakeTypeList');
+
       }
 
       cakeSearchList = a + b+ c + cakeTypeList.toList();
@@ -1137,16 +1131,27 @@ class _CakeTypesState extends State<CakeTypes> {
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
+      authToken = pref.getString("authToken")?? 'no auth';
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       myVendorId = pref.getString('myVendorId')??'Not Found';
       vendorName = pref.getString('myVendorName')??'Un Name';
       homeCakeType = pref.getString('homeCakeType')??'null';
       homeCTindex = pref.getInt('homeCTindex')??0;
-      authToken = pref.getString("authToken")?? 'no auth';
       isHomeCakeType = pref.getBool('isHomeCake')??false;
       vendorPhone = pref.getString('myVendorPhone')??'0000000000';
       iamYourVendor = pref.getBool('iamYourVendor')??false;
       navFromHome = pref.getBool('naveToHome')??false;
+
+      if(iamYourVendor==true){
+        mySelVendors = [
+          {
+            "VendorName":vendorName
+          }
+        ];
+      }else{
+
+      }
+
       getCakeList();
     });
   }
@@ -1166,12 +1171,13 @@ class _CakeTypesState extends State<CakeTypes> {
       );
       if(response.statusCode==200){
 
-        print(response.contentLength);
-
         //
         if(response.contentLength!<50){
           setState((){
             networkMsg = "No Cakes Found!";
+            rangeValuesList = [100 , 200];
+            rangeValues = new RangeValues(0.0,
+                rangeValuesList.reduce(max).toDouble());
           });
           fetchFlavours();
           fetchShapes();
@@ -1184,7 +1190,7 @@ class _CakeTypesState extends State<CakeTypes> {
             // cakesList = cakesList.reversed.toList();
 
             for(int i=0;i<cakesList.length;i++){
-              print(cakesList[i]['TypeOfCake']);
+
               rangeValuesList.add(int.parse(cakesList[i]['Price']));
               cakesTypes.add(cakesList[i]['TypeOfCake']);
             }
@@ -1199,26 +1205,23 @@ class _CakeTypesState extends State<CakeTypes> {
           });
           
 
-          print(rangeValuesList);
+
           rangeValuesList = rangeValuesList.toSet().toList();
-          print(rangeValuesList.reduce(max));
-          print(rangeValuesList.reduce(min));
+
 
           setState((){
             rangeValues = new RangeValues(0.0,
                 rangeValuesList.reduce(max).toDouble());
           });
 
-
         }
-        
 
       }
       else{
         setState(() {
           isNetworkError = true;
           networkMsg = "Error Code : ${response.statusCode} ${response.reasonPhrase}";
-          print(response.body);
+
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
                 backgroundColor: Colors.amber,
@@ -1234,7 +1237,7 @@ class _CakeTypesState extends State<CakeTypes> {
         Navigator.pop(context);
       }
     }catch(error){
-      print('error : $error');
+
       setState(() {
         isNetworkError = true;
         networkMsg = "Check Your Connection!";
@@ -1264,7 +1267,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
     if(res.statusCode==200){
 
-      print(jsonDecode(res.body));
       List fl = jsonDecode(res.body);
 
       for(int i =0 ; i<fl.length;i++){
@@ -1281,6 +1283,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
+  //get shapes from api
   Future<void> fetchShapes() async{
 
     var res = await http.get(
@@ -1290,7 +1293,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
     if(res.statusCode==200){
 
-      print(jsonDecode(res.body));
       List fl = jsonDecode(res.body);
 
       for(int i =0 ; i<fl.length;i++){
@@ -1366,8 +1368,6 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeImgs = [];
       });
     }
-
-    print(cakeSearchList[index]['FlavourList'][0]['Name']);
 
     //getting cake flavs
     if(cakeSearchList[index]['FlavourList'].isNotEmpty){
@@ -1508,8 +1508,6 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
-    print(filterCakesSearchList[index]['FlavourList'][0]['Name']);
-
     //getting cake flavs
     if(filterCakesSearchList[index]['FlavourList'].isNotEmpty){
       setState(() {
@@ -1643,7 +1641,6 @@ class _CakeTypesState extends State<CakeTypes> {
         //price values ok
         if(priceStart.isNotEmpty||priceEnd.isNotEmpty)
         {
-          print("price range is not empty");
           setState(() {
             for (int i = 0; i < eggOrEgglesList.length; i++) {
               d = eggOrEgglesList.where((element) =>
@@ -1660,7 +1657,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
         //flav list ok
         if(flavours.isNotEmpty){
-          print('flavours ok !');
+
 
 
           for(int i=0;i<eggOrEgglesList.length;i++){
@@ -1669,20 +1666,20 @@ class _CakeTypesState extends State<CakeTypes> {
 
             if(eggOrEgglesList[i]['FlavourList']!=null && eggOrEgglesList[i]['FlavourList'].isNotEmpty){
 
-              print('Okey List : $i');
+
 
               for(int j = 0 ; j<eggOrEgglesList[i]['FlavourList'].length;j++){
 
                 if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
 
-                  print('Iam not null : $j');
+
 
                   for(int k = 0;k<flavours.length;k++){
 
                     if(eggOrEgglesList[i]['FlavourList'][j]['Name'].toString().toLowerCase()
                         .contains(flavours[k].toString().toLowerCase())
                     ){
-                      print('Name is exists! $k $j');
+
 
                       setState((){
                         a.add(eggOrEgglesList[i]);
@@ -1690,13 +1687,13 @@ class _CakeTypesState extends State<CakeTypes> {
                       });
 
                     }else {
-                      print('Name Not exists! $k $j');
+
                     }
 
                   }
 
                 }else{
-                  print('Iam null : $j');
+
                 }
 
               }
@@ -1704,7 +1701,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
             }else{
 
-              print('Not ok List : $i');
 
             }
 
@@ -1721,7 +1717,7 @@ class _CakeTypesState extends State<CakeTypes> {
           //
           //           if(eggOrEgglesList[i]['FlavourList'][j]['Name']!=null){
           //
-          //             print(eggOrEgglesList[i]['FlavourList'][j]['Name']);
+          //
           //
           //             // for(int k = 0; k<flavours.length;k++){
           //             //   a = eggOrEgglesList[i]['FlavourList'].where((e)=>e['Name'].toString().toLowerCase()
@@ -1734,7 +1730,7 @@ class _CakeTypesState extends State<CakeTypes> {
           //         }
           //
           //       }else{
-          //         print('Iam a empty index $i');
+          //
           //       }
           //     }
           //
@@ -1744,21 +1740,17 @@ class _CakeTypesState extends State<CakeTypes> {
           //
           //   });
           // }catch(e){
-          //   print(e);
+
           // }
 
         }
 
         //shapes list ok
         if(shapes.isNotEmpty){
-          print('shapes okk!');
-
           setState(() {
             for(int i=0;i<eggOrEgglesList.length;i++){
 
               if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-                print("${eggOrEgglesList[i]['ShapeList']} : $i");
-                print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
 
                 for(int j=0;j<shapes.length;j++){
                   if(eggOrEgglesList[i]['ShapeList'].toList().contains(
@@ -1777,7 +1769,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
         //topings list ok
         if(topings.isNotEmpty){
-          print('topings ok');
 
           setState(() {
 
@@ -1851,8 +1842,6 @@ class _CakeTypesState extends State<CakeTypes> {
   //applying shape only filter
   void applyFilterByShape(List shapes){
 
-    print(shapes);
-
     setState(() {
       if(shapes.isEmpty){
         Navigator.pop(context);
@@ -1864,8 +1853,6 @@ class _CakeTypesState extends State<CakeTypes> {
           for(int i=0;i<eggOrEgglesList.length;i++){
 
             if(eggOrEgglesList[i]['ShapeList'].isNotEmpty){
-              print("${eggOrEgglesList[i]['ShapeList']} : $i");
-              print("${eggOrEgglesList[i]['ShapeList'].toList().length} : $i");
 
               for(int j=0;j<shapes.length;j++){
                 if(eggOrEgglesList[i]['ShapeList'].toList().contains(
@@ -1954,13 +1941,15 @@ class _CakeTypesState extends State<CakeTypes> {
     super.initState();
   }
 
-
   @override
   void dispose() {
     Future.delayed(Duration.zero , () async{
       var pr = await SharedPreferences.getInstance();
       pr.remove('iamYourVendor');
+      pr.remove('vendorCakeMode');
       pr.remove('naveToHome');
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
     });
     super.dispose();
   }
@@ -1971,13 +1960,14 @@ class _CakeTypesState extends State<CakeTypes> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    mySelVendors = context.watch<ContextData>().getMyVendorsList();
+    // mySelVendors = context.watch<ContextData>().getMyVendorsList();
 
     //search & filters controlls
+
     if(egglesSwitch == true){
       setState(() {
         eggOrEgglesList = cakesList.where((element) =>
-            element['EggOrEggless'].toString().toLowerCase().contains("Eggless".toLowerCase())).toList();
+            element['EggOrEggless'].toString().toLowerCase().contains("eggless")).toList();
 
         cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
             == cakesTypes[currentIndex].toString().toLowerCase()).toList();
@@ -2067,27 +2057,23 @@ class _CakeTypesState extends State<CakeTypes> {
             }
 
             if (selectedFilter.isNotEmpty) {
-              print('Entered to Filter..');
+
               for(int i=0;i<eggOrEgglesList.length;i++){
-                print(i);
+
                 if(eggOrEgglesList[i]['TypeOfCake'].isNotEmpty){
                   for(int j = 0 ; j<selectedFilter.length;j++){
-                    print(j);
+
                     if(eggOrEgglesList[i]['TypeOfCake'].contains(selectedFilter[j])){
                       cakeTypeList.add(eggOrEgglesList[i]);
-                      print(selectedFilter);
+
                     }
                   }
                 }
               }
-              print('end new Filter..');
+
             }
 
             // cakeSearchList.clear();
-
-            print(categorySearch.length);
-            print(subCategorySearch.length);
-            print(vendorBasedSearch.length);
 
             cakeSearchList = categorySearch.toList()
                 + subCategorySearch.toList() + vendorBasedSearch.toList()+cakeTypeList.toList();
@@ -2116,16 +2102,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
     return WillPopScope(
       onWillPop: () async{
-        // var myPre = await SharedPreferences.getInstance();
-        // if(navFromHome == true){
-        //   setState((){
-        //     context.read<ContextData>().setCurrentIndex(0);
-        //   });
-        // }
-        // iamYourVendor?
-        // context.read<ContextData>().setCurrentIndex(3):
-        // context.read<ContextData>().setCurrentIndex(0);
-        return false;
+
+        return true;
       },
       child: Scaffold(
         bottomSheet:_show?BottomSheet(
@@ -2331,7 +2309,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   children: [
                                     InkWell(
                                       onTap: (){
-                                        print('phone.. $vendorPhone');
+
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -2347,7 +2325,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: (){
-                                        print('whatsapp : $vendorPhone');
+
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -3068,7 +3046,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                     color: Colors.amber,
                                                   ),
                                                   onRatingUpdate: (rating) {
-                                                    print(rating);
+
                                                   },
                                                 ),
                                                 Text(' 4.5',style: TextStyle(

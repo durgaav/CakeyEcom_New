@@ -498,16 +498,31 @@ class _DrawerHomeState extends State<DrawerHome> {
     selectedIndex = context.watch<ContextData>().getCurrentIndex();
     return WillPopScope(
       onWillPop: () async{
-        // showExitDialog();
+
+        // HomeScreen(),
+        // CakeTypes(),
+        // CustomiseCake(),
+        // VendorsList(),
+        // SingleVendor(),
+
+        var pref = await SharedPreferences.getInstance();
 
         switch(selectedIndex){
           case 0:
             showExitDialog();
             break;
           case 1:
+            // context.read<ContextData>().setCurrentIndex(0);
+            if(pref.getBool('iamYourVendor')==true){
+              context.read<ContextData>().setCurrentIndex(3);
+            }else{
+              context.read<ContextData>().setCurrentIndex(0);
+            }
+            break;
+          case 2:
             context.read<ContextData>().setCurrentIndex(0);
             break;
-          case 1:
+          case 3:
             context.read<ContextData>().setCurrentIndex(0);
             break;
           case 4:
@@ -521,335 +536,181 @@ class _DrawerHomeState extends State<DrawerHome> {
         drawer: DrawerContainer(),
         key: _scaffoldKey,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50), // Set this height
-          child: Container(
-            // margin: EdgeInsets.only(top: 15),
-            padding: EdgeInsets.only(left: 15,top:25,right: 10),
-            // height: 70,
-            color: lightGrey,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        FocusScope.of(context).unfocus();
-                        _scaffoldKey.currentState!.openDrawer();
-                      },
-                      child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 5.2,
-                                  backgroundColor: darkBlue,
-                                ),
-                                SizedBox(width: 3,),
-                                CircleAvatar(
-                                  radius: 5.2,
-                                  backgroundColor: darkBlue,
-                                ),
-                              ],
+          preferredSize: Size.fromHeight(50),
+          child: SafeArea(
+            child: Container(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              color: lightGrey,
+              height: 50,
+              child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              _scaffoldKey.currentState!.openDrawer();
+                            },
+                            child: Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 5.2,
+                                        backgroundColor: darkBlue,
+                                      ),
+                                      SizedBox(width: 3,),
+                                      CircleAvatar(
+                                        radius: 5.2,
+                                        backgroundColor: darkBlue,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 3,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                          radius: 5.2,
+                                          backgroundColor: darkBlue
+                                      ),
+                                      SizedBox(width: 3,),
+                                      CircleAvatar(
+                                        radius: 5.2,
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            SizedBox(height: 3,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                    radius: 5.2,
-                                    backgroundColor: darkBlue
-                                ),
-                                SizedBox(width: 3,),
-                                CircleAvatar(
-                                  radius: 5.2,
-                                  backgroundColor: Colors.red,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: 15,),
+                          Text(titleText[selectedIndex],
+                              style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins,
+                                  fontSize: 16
+                              )),
+                        ],
                       ),
-                    ),
-                    SizedBox(width: 15,),
-                    Text(titleText[selectedIndex],
-                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins,
-                            fontSize: 16
-                        )),
-                  ],
-                ),
 
-                Row(
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
+                      Row(
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                        const begin = Offset(1.0, 0.0);
+                                        const end = Offset.zero;
+                                        const curve = Curves.ease;
 
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
+                                        final tween = Tween(begin: begin, end: end);
+                                        final curvedAnimation = CurvedAnimation(
+                                          parent: animation,
+                                          curve: curve,
+                                        );
+                                        return SlideTransition(
+                                          position: tween.animate(curvedAnimation),
+                                          child: child,
+                                        );
+                                      },
+                                    ),
                                   );
                                 },
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(6)),
+                                  child: Icon(
+                                    Icons.notifications_none,
+                                    color: darkBlue,
+                                    size: 22,
+                                  ),
+                                ),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(3),
+                              Positioned(
+                                left: 15,
+                                top: 6,
+                                child: CircleAvatar(
+                                  radius: 3.7,
+                                  backgroundColor: Colors.white,
+                                  child: CircleAvatar(
+                                    radius: 2.7,
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 10,),
+                          Container(
                             decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Icon(
-                              Icons.notifications_none,
-                              color: darkBlue,
-                              size: 22,
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
                             ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 15,
-                          top: 6,
-                          child: CircleAvatar(
-                            radius: 3.7,
-                            backgroundColor: Colors.white,
-                            child: CircleAvatar(
-                              radius: 2.7,
-                              backgroundColor: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: 10,),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
-                      ),
-                      child: InkWell(
-                        onTap: (){
+                            child: InkWell(
+                              onTap: (){
 
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.ease;
+                                Navigator.of(context).push(
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      const begin = Offset(1.0, 0.0);
+                                      const end = Offset.zero;
+                                      const curve = Curves.ease;
 
-                                final tween = Tween(begin: begin, end: end);
-                                final curvedAnimation = CurvedAnimation(
-                                  parent: animation,
-                                  curve: curve,
-                                );
+                                      final tween = Tween(begin: begin, end: end);
+                                      final curvedAnimation = CurvedAnimation(
+                                        parent: animation,
+                                        curve: curve,
+                                      );
 
-                                return SlideTransition(
-                                  position: tween.animate(curvedAnimation),
-                                  child: child,
+                                      return SlideTransition(
+                                        position: tween.animate(curvedAnimation),
+                                        child: child,
+                                      );
+                                    },
+                                  ),
                                 );
                               },
+                              child: profileUrl!="null"?CircleAvatar(
+                                radius: 14.7,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundImage:NetworkImage("$profileUrl")
+                                ),
+                              ):CircleAvatar(
+                                radius: 14.7,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundImage:AssetImage("assets/images/user.png")
+                                ),
+                              ),
                             ),
-                          );
-                        },
-                        child: profileUrl!="null"?CircleAvatar(
-                          radius: 14.7,
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                              radius: 13,
-                              backgroundImage:NetworkImage("$profileUrl")
                           ),
-                        ):CircleAvatar(
-                          radius: 14.7,
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                              radius: 13,
-                              backgroundImage:AssetImage("assets/images/user.png")
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                        ],
+                      )
 
 
-              ],
+                    ],
+                  ),
             ),
           ),
         ),
-         // AppBar(
-        //   leading:
-        //   InkWell(
-        //     onTap: () {
-        //       FocusScope.of(context).unfocus();
-        //       _scaffoldKey.currentState!.openDrawer();
-        //     },
-        //     child: Container(
-        //       child: Column(
-        //         mainAxisAlignment: MainAxisAlignment.center,
-        //         children: [
-        //           Row(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             children: [
-        //               CircleAvatar(
-        //                 radius: 5.5,
-        //                 backgroundColor: darkBlue,
-        //               ),
-        //               SizedBox(width: 3,),
-        //               CircleAvatar(
-        //                 radius: 5.5,
-        //                 backgroundColor: darkBlue,
-        //               ),
-        //             ],
-        //           ),
-        //           SizedBox(height: 3,),
-        //           Row(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             children: [
-        //               CircleAvatar(
-        //                 radius: 5.5,
-        //                 backgroundColor: darkBlue,
-        //               ),
-        //               SizedBox(width: 3,),
-        //               CircleAvatar(
-        //                 radius: 5.5,
-        //                 backgroundColor: Colors.red,
-        //               ),
-        //             ],
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //   ),
-        //   title: Text(titleText[selectedIndex],
-        //       style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins,
-        //           fontSize: 15
-        //       )),
-        //   elevation: 0.0,
-        //   backgroundColor:lightGrey,
-        //   actions: [
-        //     Stack(
-        //       alignment: Alignment.center,
-        //       children: [
-        //         InkWell(
-        //           onTap: () {
-        //             Navigator.of(context).push(
-        //               PageRouteBuilder(
-        //                 pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-        //                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        //                   const begin = Offset(1.0, 0.0);
-        //                   const end = Offset.zero;
-        //                   const curve = Curves.ease;
-        //
-        //                   final tween = Tween(begin: begin, end: end);
-        //                   final curvedAnimation = CurvedAnimation(
-        //                     parent: animation,
-        //                     curve: curve,
-        //                   );
-        //                   return SlideTransition(
-        //                     position: tween.animate(curvedAnimation),
-        //                     child: child,
-        //                   );
-        //                 },
-        //               ),
-        //             );
-        //           },
-        //           child: Container(
-        //             padding: EdgeInsets.all(3.5),
-        //             decoration: BoxDecoration(
-        //                 color: Colors.grey[300],
-        //                 borderRadius: BorderRadius.circular(6)),
-        //             child: Icon(
-        //               Icons.notifications_none,
-        //               color: darkBlue,
-        //               size: 22,
-        //             ),
-        //           ),
-        //         ),
-        //         Positioned(
-        //           left: 15,
-        //           top: 20,
-        //           child: CircleAvatar(
-        //             radius: 3.7,
-        //             backgroundColor: Colors.white,
-        //             child: CircleAvatar(
-        //               radius: 2.7,
-        //               backgroundColor: Colors.red,
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //     SizedBox(width: 10,),
-        //     Container(
-        //       decoration: BoxDecoration(
-        //         color: Colors.white,
-        //         shape: BoxShape.circle,
-        //         boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
-        //       ),
-        //       child: InkWell(
-        //         onTap: (){
-        //
-        //           Navigator.of(context).push(
-        //             PageRouteBuilder(
-        //               pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-        //               transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        //                 const begin = Offset(1.0, 0.0);
-        //                 const end = Offset.zero;
-        //                 const curve = Curves.ease;
-        //
-        //                 final tween = Tween(begin: begin, end: end);
-        //                 final curvedAnimation = CurvedAnimation(
-        //                   parent: animation,
-        //                   curve: curve,
-        //                 );
-        //
-        //                 return SlideTransition(
-        //                   position: tween.animate(curvedAnimation),
-        //                   child: child,
-        //                 );
-        //               },
-        //             ),
-        //           );
-        //         },
-        //         child: profileUrl!="null"?CircleAvatar(
-        //           radius: 14.7,
-        //           backgroundColor: Colors.white,
-        //           child: CircleAvatar(
-        //               radius: 13,
-        //               backgroundImage:NetworkImage("$profileUrl")
-        //           ),
-        //         ):CircleAvatar(
-        //           radius: 14.7,
-        //           backgroundColor: Colors.white,
-        //           child: CircleAvatar(
-        //               radius: 13,
-        //               backgroundImage:AssetImage("assets/images/user.png")
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //     SizedBox(width: 10,),
-        //   ],
-        // ),
         body: DrawerScreens[selectedIndex],
       ),
     );

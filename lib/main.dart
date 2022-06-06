@@ -1,6 +1,8 @@
 // @dart=2.9
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/TestScreen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart';
 import 'package:cakey/screens/SplashScreen.dart';
 import 'package:provider/provider.dart';
@@ -8,9 +10,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'Notification/Notification.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -20,12 +22,22 @@ Future<void> main() async {
 
   await Firebase.initializeApp();
 
+  await NotificationService().init(); //
+  // await NotificationService().requestIOSPermissions();
+
+  FirebaseMessaging.onBackgroundMessage(_messageHandler);
+
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
+}
+
+Future<void> _messageHandler(RemoteMessage message) async {
+  print('background message ${message.notification.body}');
+  // NotificationService().showNotifications();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -37,6 +49,8 @@ class _MyAppState extends State<MyApp> {
    PermissionStatus _permissionGranted;
    LocationData _userLocation ;
   Location myLocation = Location();
+
+  FirebaseMessaging messaging = null;
 
   Future<void> addPrem() async{
     // Check if location service is enable
@@ -63,6 +77,21 @@ class _MyAppState extends State<MyApp> {
     addPrem();
     // TODO: implement initState
     super.initState();
+    messaging = FirebaseMessaging.instance;
+    messaging.getToken().then((value){
+      print("token : $value");
+    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message recieved");
+      print(event.notification.body);
+      NotificationService().showNotifications(event.notification.title.toString() ,
+          event.notification.body.toString() );
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print('Message clicked!');
+    });
+
   }
 
   @override

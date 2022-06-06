@@ -1,4 +1,6 @@
-import 'dart:convert';
+import 'dart:io';
+
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
@@ -445,29 +447,45 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           )
                       ),
                     ),
-                    Expanded(child: Column(
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: Column(
                       children: [
-                        SizedBox(width: 5,),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 210,
-                              child: Text('${cakeName}',style: TextStyle(
+                              child: Text('${cakeName} (Rs.$cakePrice) × $counts',style: TextStyle(
                                   fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
-                              ),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                              ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Container(
-                              width: 210,
-                              child: Text('(Flavour - ${flav[0]['Name']}) + (Shape - ${shape})',style: TextStyle(
+                            Text('(Shape - ${shape}) + '
+                                  '(Article - ${artic[0]['Name']} Price - Rs.${artic[0]['Price']}) + ',style: TextStyle(
                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                              ),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                            // SizedBox(height: 5,),
+                            Wrap(
+                              children: [
+                                for(var i in flav)
+                                  Text("(Flavour - ${i['Name']} Price - Rs.${i['Price']})",style: TextStyle(
+                                      fontSize:10.5,fontFamily: "Poppins",
+                                      color: Colors.black26
+                                  ),),
+
+                                Text(" = Rs.$extraCharges",style: TextStyle(
+                                    fontSize:10.5,fontFamily: "Poppins",
+                                    color: Colors.black26
+                                ),)
+
+                              ],
                             ),
-                            SizedBox(height: 5,),
-                            Text('₹ ${cakePrice}',style: TextStyle(
-                                fontSize: 17,color: lightPink,fontWeight: FontWeight.bold
+                            Text('₹ ${counts * int.parse(cakePrice) + double.parse(extraCharges)}',style: TextStyle(
+                                fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
+                                fontFamily: "Poppins"
                             ),
                               overflow: TextOverflow.ellipsis,maxLines: 2,
                             ),
@@ -491,7 +509,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                         title: const Text('Vendor',style: const TextStyle(
                             fontSize: 11,fontFamily: "Poppins"
                         ),),
-                        subtitle: Text('${vendorName}',style: TextStyle(
+                        subtitle: Text(double.parse(weight.replaceAll("kg", ""))<6.0?
+                        '${vendorName}':'Premium Vendor',style: TextStyle(
                             fontSize: 14,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),
@@ -501,8 +520,13 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               InkWell(
-                                onTap: (){
+                                onTap: () async{
                                   print('phone..');
+                                  try{
+                                    await launchUrl(Uri.parse("tel://$vendorMobile"));
+                                  }catch(e){
+                                    print('uri er : $e');
+                                  }
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -517,8 +541,28 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               ),
                               const SizedBox(width: 10,),
                               InkWell(
-                                onTap: (){
-                                  print('whatsapp');
+                                onTap: () async{
+                                    print('whatsapp');
+                                    String whatsapp = vendorMobile;
+                                    var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
+                                    var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
+                                    if(Platform.isIOS){
+                                      // for iOS phone only
+                                      if( await canLaunch(whatappURL_ios)){
+                                        await launch(whatappURL_ios, forceSafariVC: false);
+                                      }else{
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: new Text("whatsapp no installed")));
+                                      }
+                                    }else{
+                                      // android , web
+                                      if( await canLaunch(whatsappURl_android)){
+                                        await launch(whatsappURl_android);
+                                      }else{
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: new Text("whatsapp no installed")));
+                                      }
+                                    }
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -726,7 +770,6 @@ class _OrderConfirmState extends State<OrderConfirm> {
                     ),
                     onPressed: () async{
                       // calculatedCountsAndPrice();
-
                       Navigator.push(context, MaterialPageRoute(builder:(contex)=>CheckOut(artic.toList() , flav.toList())));
                     },
                     color: lightPink,

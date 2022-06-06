@@ -173,13 +173,14 @@ class _VendorsListState extends State<VendorsList> {
 
     pref.setString('myVendorId', locationBySearch[index]['_id']);
     pref.setBool('iamYourVendor', true);
-    // pref.setString('myVendorName', locationBySearch[index]['VendorName']);
-    // pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'No Description');
-    // pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
-    // pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
-    // pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
-    // pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
-    // pref.setString('myVendorAddress',address??'null');
+    pref.setString('myVendorName', locationBySearch[index]['VendorName']);
+    pref.setString('myVendorPhone', locationBySearch[index]['PhoneNumber']??'No Description');
+    pref.setString('myVendorDesc', locationBySearch[index]['Description']??'No Description');
+    pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
+    pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
+    pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
+    pref.setString('myVendorAddress',address??'null');
+    pref.setBool('vendorCakeMode',true);
 
     context.read<ContextData>().addMyVendor(true);
     context.read<ContextData>().setMyVendors(
@@ -599,7 +600,32 @@ class _VendorsListState extends State<VendorsList> {
                                   physics: NeverScrollableScrollPhysics(),
                                   itemBuilder: (context,index){
                                     return GestureDetector(
-                                      onTap: ()=>sendDataToScreen(index),
+                                      onTap: (){
+                                        if(iamFromCustom==true){
+                                          context.read<ContextData>().addMyVendor(true);
+                                          context.read<ContextData>().setMyVendors(
+                                              [
+                                                {
+                                                  "VendorId":locationBySearch[index]['_id'],
+                                                  "VendorModId":locationBySearch[index]['Id'],
+                                                  "VendorName":locationBySearch[index]['VendorName'],
+                                                  "VendorDesc":locationBySearch[index]['Description'],
+                                                  "VendorProfile":locationBySearch[index]['ProfileImage'],
+                                                  "VendorPhone":locationBySearch[index]['PhoneNumber1'],
+                                                  "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
+                                                  "VendorEgg":locationBySearch[index]['EggOrEggless'],
+                                                  "VendorAddress":locationBySearch[index]['Address']['FullAddress'],
+                                                }
+                                              ]);
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
+                                              ['VendorName']}'))
+                                          );
+                                        }else{
+                                          sendDataToScreen(index);
+                                        }
+                                      },
                                       child: Card(
                                         margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
                                         shape: RoundedRectangleBorder(
@@ -691,7 +717,34 @@ class _VendorsListState extends State<VendorsList> {
                                                               ],
                                                             ),
                                                             InkWell(
-                                                              onTap: ()=>sendDataToScreen(index),
+                                                              onTap: (){
+                                                                if(iamFromCustom==true){
+
+                                                                  context.read<ContextData>().addMyVendor(true);
+                                                                  context.read<ContextData>().setMyVendors(
+                                                                      [
+                                                                        {
+                                                                          "VendorId":locationBySearch[index]['_id'],
+                                                                          "VendorModId":locationBySearch[index]['Id'],
+                                                                          "VendorName":locationBySearch[index]['VendorName'],
+                                                                          "VendorDesc":locationBySearch[index]['Description'],
+                                                                          "VendorProfile":locationBySearch[index]['ProfileImage'],
+                                                                          "VendorPhone":locationBySearch[index]['PhoneNumber1'],
+                                                                          "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
+                                                                          "VendorEgg":locationBySearch[index]['EggOrEggless'],
+                                                                          "VendorAddress":locationBySearch[index]['Address']['FullAddress'],
+                                                                        }
+                                                                      ]);
+
+                                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                                      SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
+                                                                      ['VendorName']}'))
+                                                                  );
+
+                                                                }else{
+                                                                  sendDataToScreen(index);
+                                                                }
+                                                              },
                                                               child: Container(
                                                                 decoration: BoxDecoration(
                                                                     color: lightGrey,
@@ -826,7 +879,34 @@ class _VendorsListState extends State<VendorsList> {
                                   physics: NeverScrollableScrollPhysics(),
                                   itemBuilder: (context,index){
                                     return GestureDetector(
-                                      onTap: ()=>loadSelVendorDataToCTscreen(index),
+                                      onTap: (){
+                                        if(iamFromCustom==true){
+
+                                          context.read<ContextData>().addMyVendor(true);
+                                          context.read<ContextData>().setMyVendors(
+                                              [
+                                                {
+                                                  "VendorId":locationBySearch[index]['_id'],
+                                                  "VendorModId":locationBySearch[index]['Id'],
+                                                  "VendorName":locationBySearch[index]['VendorName'],
+                                                  "VendorDesc":locationBySearch[index]['Description'],
+                                                  "VendorProfile":locationBySearch[index]['ProfileImage'],
+                                                  "VendorPhone":locationBySearch[index]['PhoneNumber1'],
+                                                  "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
+                                                  "VendorEgg":locationBySearch[index]['EggOrEggless'],
+                                                  "VendorAddress":locationBySearch[index]['Address']['FullAddress'],
+                                                }
+                                              ]);
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
+                                              ['VendorName']}'))
+                                          );
+
+                                        }else{
+                                          loadSelVendorDataToCTscreen(index);
+                                        }
+                                        },
                                       child: Card(
                                         margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
                                         shape: RoundedRectangleBorder(
@@ -960,7 +1040,7 @@ class _VendorsListState extends State<VendorsList> {
                                                                     );
                                                                   }
                                                                   print(locationBySearch[index]['_id']);
-                                                                  // loadSelVendorDataToCTscreen(index);
+                                                                  loadSelVendorDataToCTscreen(index);
                                                                 });
                                                               },
                                                               child:Text('Select',style: TextStyle(

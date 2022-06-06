@@ -266,16 +266,13 @@ class _CodeVerifyState extends State<CodeVerify> {
       //check status code...
       if(response.statusCode==200){
         Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
-        print(jsonDecode(response.body));
+        print(map);
         //Checking msg....(reg / login)
         if(map['message']=="registered Successfully"){
 
-          prefs.setBool("newRegUser", true);
-          prefs.setString("phoneNumber", phonenumber);
-          prefs.setString("authToken", map['token'].toString());
+          onTimeLogin(phonenumber);
 
-
-         Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
+         // Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -284,7 +281,11 @@ class _CodeVerifyState extends State<CodeVerify> {
                 behavior: SnackBarBehavior.floating,
               )
           );
+
+
         }else if(map['message']=="Login Succeed"){
+
+          print(map);
 
           prefs.setBool("newRegUser", false);
           prefs.setString("authToken", map['token'].toString());
@@ -333,8 +334,77 @@ class _CodeVerifyState extends State<CodeVerify> {
       );
     }
 
+
+
     // {statusCode: 200, message: registered Successfully}
     // {"statusCode": 200,"message": "Login Succeed"}
+  }
+
+  //on time logged in...
+  Future<void> onTimeLogin(String phonenumber) async{
+
+    var prefs = await SharedPreferences.getInstance();
+
+    try{
+
+      http.Response response = await http.post(
+        Uri.parse("https://cakey-database.vercel.app/api/userslogin/validate"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(<String , dynamic>{
+          "PhoneNumber": int.parse(phonenumber)
+        }),
+      );
+
+      Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
+      print(map);
+
+
+      if(response.statusCode==200){
+
+        if(map['message']=="Login Succeed"){
+
+          prefs.setBool("newRegUser", true);
+          prefs.setString("phoneNumber", phonenumber);
+          prefs.setString("authToken", map['token'].toString());
+
+          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Login failed!"),
+                backgroundColor: Colors.red,
+              )
+          );
+        }
+
+      }
+
+
+    }catch(e){
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text(" Check your connection!"),
+              ],
+            ),
+            backgroundColor: Colors.red,
+          )
+      );
+
+    }
+
   }
 
   @override
