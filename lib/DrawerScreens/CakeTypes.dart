@@ -747,7 +747,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       filterTypeList.map(
                                             (item) {
                                           bool isSelected = false;
-                                          if (selectedFilter!.contains(item)) {
+                                          if (selectedFilter.contains(item)) {
                                             isSelected = true;
                                           }
                                           return GestureDetector(
@@ -813,6 +813,22 @@ class _CakeTypesState extends State<CakeTypes> {
                               ),
                             ),
                           ),
+
+                          Center(
+                            child: TextButton(
+                              onPressed: (){
+                                //clearing all filters
+                                Navigator.pop(context);
+                                setState(() {
+                                  activeSearchClear();
+                                });
+                              },
+                              child:  Text("CLEAR",style: TextStyle(
+                                  color: lightPink,fontWeight: FontWeight.bold,fontFamily: "Poppins",
+                                  decoration: TextDecoration.underline
+                              ),),
+                            ),
+                          )
 
                         ],
                       ),
@@ -1913,6 +1929,18 @@ class _CakeTypesState extends State<CakeTypes> {
 
   }
 
+
+  void activeSearchClear(){
+    setState((){
+      searchCakesText = '';
+      searchControl.text = '';
+      cakeCategoryCtrl.text='';
+      cakeSubCategoryCtrl.text='';
+      cakeVendorCtrl.text='';
+      selectedFilter=[];
+    });
+  }
+
   //clear the search
   void clearTheSearch(){
     setState(() {
@@ -1934,6 +1962,7 @@ class _CakeTypesState extends State<CakeTypes> {
       loadPrefs();
     });
     setState(() {
+      _show = true;
       for(int i = 0; i<shapesOthersForFilter.length;i++){
         otherShapeCheck.add(false);
       }
@@ -2078,8 +2107,6 @@ class _CakeTypesState extends State<CakeTypes> {
             cakeSearchList = categorySearch.toList()
                 + subCategorySearch.toList() + vendorBasedSearch.toList()+cakeTypeList.toList();
             cakeSearchList = cakeSearchList.toSet().toList();
-
-
           });
         }
         else{
@@ -2100,85 +2127,104 @@ class _CakeTypesState extends State<CakeTypes> {
       }
     }
 
-    return WillPopScope(
-      onWillPop: () async{
-
-        return true;
+    return RefreshIndicator(
+      onRefresh : () async{
+        loadPrefs();
       },
       child: Scaffold(
         bottomSheet:_show?BottomSheet(
           onClosing: () {
+
           },
           builder: (BuildContext context) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(15),
-                  height: 100,
-                  color: Colors.white,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.red[100]
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text : 'DO YOU WANT A ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16
-                                ),
-                              ),
-                              TextSpan(
-                                text : 'THEME CAKE ',
-                                style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.w900,
+            return GestureDetector(
+              onTap: (){
+                print(cakesTypes);
+                setState((){
+                  // selIndex[cakesTypes.indexWhere((element) => element=='Theme Cake')] = true;
+                  // isFiltered = true;
+                  // if(isFilterisOn==true || shapeOnlyFilter==true){
+                  //
+                  //   cakesByType = filteredListByUser.where((element) => element['TypeOfCake'].toString().toLowerCase()
+                  //       == 'theme cake').toList();
+                  //
+                  // }else {
+                  //
+                  //   cakesByType = eggOrEgglesList.where((element) => element['TypeOfCake'].toString().toLowerCase()
+                  //       == 'theme cake').toList();
+                  // }
+                });
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(15),
+                    height: 100,
+                    color: Colors.white,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          color: Colors.red[100]
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text : 'DO YOU WANT A ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
                                     fontSize: 16
+                                  ),
                                 ),
-                              )
-                            ]
-                          )
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Container(
-                              color: Colors.transparent,
-                              height: 70,
-                              width: 70,
-                              child: Image(
-                                image: AssetImage('assets/images/themecake.png'),
+                                TextSpan(
+                                  text : 'THEME CAKE ',
+                                  style: TextStyle(
+                                      color: lightPink,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16
+                                  ),
+                                )
+                              ]
+                            )
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                color: Colors.transparent,
+                                height: 70,
+                                width: 70,
+                                child: Image(
+                                  image: AssetImage('assets/images/themecake.png'),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: width*0.86,
-                  top: -6,
-                  child: IconButton(
-                      onPressed: (){
-                        setState(() {
-                          _show = false;
-                        });
-                      },
-                      icon: Icon(Icons.cancel_rounded,color: Colors.red,size: 30,)
-                  ),
-                )
-              ],
+                  Positioned(
+                    left: width*0.86,
+                    top: -6,
+                    child: IconButton(
+                        onPressed: (){
+                          setState(() {
+                            _show = false;
+                          });
+                        },
+                        icon: Icon(Icons.cancel_rounded,color: Colors.red,size: 30,)
+                    ),
+                  )
+                ],
+              ),
             );
           },
         ):null,
@@ -2192,11 +2238,7 @@ class _CakeTypesState extends State<CakeTypes> {
               )
           ),
           child:SingleChildScrollView(
-              child:RefreshIndicator(
-                onRefresh : () async{
-                  loadPrefs();
-                },
-                child: Column(
+              child:Column(
                   children: [
                     //TEXTs...
                     Container(
@@ -2378,12 +2420,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     onPressed: (){
                                       FocusScope.of(context).unfocus();
                                       setState(() {
-                                        searchCakesText = '';
-                                        searchControl.text = '';
-                                        cakeCategoryCtrl.text='';
-                                        cakeSubCategoryCtrl.text='';
-                                        cakeVendorCtrl.text='';
-                                        selectedFilter=[];
+                                        activeSearchClear();
                                       });
                                     },
                                     icon: Icon(Icons.close),
@@ -2410,7 +2447,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   onPressed: () {
                                     FocusScope.of(context).unfocus();
                                     setState(() {
-                                      _show = true;
+
                                     });
                                     showSearchFilterBottom();
                                   },
@@ -2675,6 +2712,7 @@ class _CakeTypesState extends State<CakeTypes> {
                     ),
 
                     //Filttered cakes
+                    !activeSearch?
                     Visibility(
                       visible:isFiltered,
                       child: Column(
@@ -2827,7 +2865,8 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                         ],
                       ),
-                    ),
+                    ):
+                    Container(),
                     //All cakes...
                     !activeSearch?
                     Visibility(
@@ -2989,7 +3028,12 @@ class _CakeTypesState extends State<CakeTypes> {
                     ):
                     // cakeSearchList.isNotEmpty?
                     Container(
-                      child:(cakeSearchList.length == 0)?Text("No Similar datas found",style: TextStyle(fontFamily: "Poppins",fontWeight: FontWeight.bold),): ListView.builder(
+                      child:(cakeSearchList.length == 0)?
+                      Padding(
+                        padding: const EdgeInsets.only(top:8.0),
+                        child: Text("No Similar data found!",
+                          style: TextStyle(fontFamily: "Poppins",fontWeight: FontWeight.bold,),),
+                      ): ListView.builder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount:cakeSearchList.length,
@@ -3170,7 +3214,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
                   ],
                 ),
-              ),
             ),
         ),
       ),

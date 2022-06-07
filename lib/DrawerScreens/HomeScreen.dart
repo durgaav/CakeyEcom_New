@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List adsImages = [
     "https://png.pngtree.com/background/20210714/original/pngtree-marry-christmas-background-with-cake-picture-image_1229140.jpg",
     "https://t4.ftcdn.net/jpg/03/98/87/59/360_F_398875973_mt8RQRetLLhlQEI2n4Tayxo07cXnhhoK.jpg",
-    "https://www.meme-arsenal.com/memes/980f4a38ccbd4c71c6a2236bea5f49cc.jpg"
+    ""
   ];
 
 
@@ -558,68 +558,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 5,
                       ),
 
-
-                      // Container(
-                      //   height: 200,
-                      //     child: ListView.builder(
-                      //         itemCount: filterTypeList.length,
-                      //         shrinkWrap: true,
-                      //         itemBuilder: (context, index) {
-                      //           return
-                      //             Wrap(
-                      //               children:
-                      //               filterTypeList.map(
-                      //                     (item) {
-                      //                   bool isSelected = false;
-                      //                   // if (selectCakeType.contains(item)) {
-                      //                   //   isSelected = true;
-                      //                   // }
-                      //                   return GestureDetector(
-                      //                     onTap: () {
-                      //                       // if (!selectCakeType.contains(item)) {
-                      //                       //   if (selectCakeType.length < 5) {
-                      //                       //     setState(() {
-                      //                       //       selectCakeType.add(item);
-                      //                       //     });
-                      //                       //
-                      //                       //   }
-                      //                       // } else {
-                      //                       //   setState(() {
-                      //                       //     selectCakeType
-                      //                       //         .removeWhere((element) => element == item);
-                      //                       //   });
-                      //                       //
-                      //                       // }
-                      //                     },
-                      //                     child: Container(
-                      //                         margin: EdgeInsets.symmetric(
-                      //                             horizontal: 5, vertical: 4),
-                      //                         child: Container(
-                      //                           height: 30,
-                      //                           padding: EdgeInsets.symmetric(
-                      //                               vertical: 5, horizontal: 12),
-                      //                           decoration: BoxDecoration(
-                      //                               color:isSelected?lightPink:Colors.white,
-                      //                               borderRadius: BorderRadius.circular(5),
-                      //                               border: Border.all(
-                      //                                   color:isSelected?lightPink:Colors.grey,width: 1)),
-                      //                           child: Text(
-                      //                             item,
-                      //                             style: TextStyle(
-                      //                                 color:
-                      //                                 isSelected ? Colors.white : darkBlue,
-                      //                                 fontSize: 14),
-                      //                           ),
-                      //                         )),
-                      //                   );
-                      //                 },
-                      //               ).toList(),
-                      //             );
-                      //
-                      //         }),
-                      // ),
-
-
                       Container(
                         height: 100,
                         child: ListView.builder(
@@ -699,6 +637,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontFamily: "Poppins"),
                             ),
                           ),
+                        ),
+                      ),
+
+                      Center(
+                        child: TextButton(
+                          onPressed: (){
+                            //clearing all filters
+                            Navigator.pop(context);
+                            setState(() {
+                              activeSearchClear();
+                            });
+                          },
+                          child:  Text("CLEAR",style: TextStyle(
+                              color: lightPink,fontWeight: FontWeight.bold,fontFamily: "Poppins",
+                              decoration: TextDecoration.underline
+                          ),),
                         ),
                       )
                     ],
@@ -921,6 +875,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Functions
 
+
+  //clr
+  void activeSearchClear(){
+    FocusScope.of(context).unfocus();
+    setState(() {
+      mainSearchCtrl.text = "";
+      searchText = "";
+      searchCakeVendor = '';
+      searchCakeSubType = '';
+      searchCakeCate = '';
+      cakeCategoryCtrl.text = '';
+      cakeSubCategoryCtrl.text = '';
+      cakeVendorCtrl.text = '';
+      selectedFilter=[];
+    });
+  }
+
   //send nearest vendor details.
   Future<void> sendNearVendorDataToScreen(int index) async {
     var pref = await SharedPreferences.getInstance();
@@ -1112,7 +1083,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     geocode.Placemark place = placemarks[0];
 
-    // print(placemarks);
+    print(placemarks);
 
     setState(() {
       latude = lat;
@@ -1374,7 +1345,7 @@ class _HomeScreenState extends State<HomeScreen> {
           filteredByEggList = filteredByEggList.reversed.toList();
 
 
-          getNearbyLoc();
+          // getNearbyLoc();
 
         });
       } else {
@@ -1631,18 +1602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               prefixIcon: Icon(Icons.search),
                               suffixIcon: IconButton(
                                 onPressed: () {
-                                  FocusScope.of(context).unfocus();
-                                  setState(() {
-                                    mainSearchCtrl.text = "";
-                                    searchText = "";
-                                    searchCakeVendor = '';
-                                    searchCakeSubType = '';
-                                    searchCakeCate = '';
-                                    cakeCategoryCtrl.text = '';
-                                    cakeSubCategoryCtrl.text = '';
-                                    cakeVendorCtrl.text = '';
-                                    selectedFilter=[];
-                                  });
+                                  activeSearchClear();
                                 },
                                 icon: Icon(Icons.clear_sharp),
                               ),
@@ -1882,6 +1842,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       //List views and orders...
                       Column(
                         children: [
+
+                          //Ads View
                           Container(
                               color: Colors.white,
                               height: 140,
@@ -1894,19 +1856,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Alignment.bottomLeft,
                                       margin: EdgeInsets.all(8),
                                       width: 230,
-                                      decoration: BoxDecoration(
+                                      decoration: adsImages[i]==null||
+                                          adsImages[i].toString().isEmpty?
+                                      BoxDecoration(
                                           border: Border.all(
                                               color: Colors.white,
                                               style:
                                               BorderStyle.solid,
-                                              width: 1.5),
+                                              width: 1.5
+                                          ),
+                                          color: Colors.white,
+                                          // boxShadow: [
+                                          //
+                                          // ],
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              22),
+                                          image: DecorationImage(
+                                              image: AssetImage('assets/images/cakebaner.jpg'),
+                                              fit: BoxFit.cover
+                                          )
+                                      ):
+                                      BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.white,
+                                              style:
+                                              BorderStyle.solid,
+                                              width: 1.5
+                                          ),
                                           color: Colors.white,
                                           borderRadius:
                                           BorderRadius.circular(
                                               22),
                                           image: DecorationImage(
                                               image: NetworkImage(adsImages[i]),
-                                              fit: BoxFit.cover)
+                                              fit: BoxFit.cover
+                                          )
                                       ),
                                       child: Padding(
                                         padding:
@@ -1953,7 +1938,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Text(
                                                 "${adsSlogans[i].toString().split(' ')[1].toUpperCase()}",
                                                 style: TextStyle(
-                                                    color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                                    color: Colors.deepOrangeAccent,
                                                     fontWeight:
                                                     FontWeight
                                                         .bold,

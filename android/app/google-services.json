@@ -1,20 +1,28 @@
 {
   "project_info": {
-    "project_number": "411807857704",
-    "project_id": "cakey-41c9f",
-    "storage_bucket": "cakey-41c9f.appspot.com"
+    "project_number": "538159449771",
+    "project_id": "cakey-352610",
+    "storage_bucket": "cakey-352610.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:411807857704:android:aac0816cf04f6cbf9ac91d",
+        "mobilesdk_app_id": "1:538159449771:android:dfea6f36ac7f94681e19ee",
         "android_client_info": {
           "package_name": "com.example.cakey"
         }
       },
       "oauth_client": [
         {
-          "client_id": "411807857704-njhle6kktjt8tr3473amke6jt1rlk9md.apps.googleusercontent.com",
+          "client_id": "538159449771-d1nhcdfes941d461qa684691o06jpmj5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cakey",
+            "certificate_hash": "713e52671ddd24ab645dafd5d82e59b9c1363cbf"
+          }
+        },
+        {
+          "client_id": "538159449771-k4qrjf3h49vrp616tmhp943ib7so1gjt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.cakey",
@@ -22,28 +30,21 @@
           }
         },
         {
-          "client_id": "411807857704-l4m5j70ckp1q7gdoo8vbvs5c6h71f34g.apps.googleusercontent.com",
+          "client_id": "538159449771-ptc99mj946aupcqn6ml46i8tdothhlo2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDgrFxtzesrMz2MTJHyM5nZzPIKmbzszGo"
+          "current_key": "AIzaSyBSYeqSwMVhEVNxzlfdH9i5ogpqPAvzTas"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "411807857704-l4m5j70ckp1q7gdoo8vbvs5c6h71f34g.apps.googleusercontent.com",
+              "client_id": "538159449771-ptc99mj946aupcqn6ml46i8tdothhlo2.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "411807857704-1n3jhhqc6944b8p0shpf8i1ughrc8e8m.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.cakey"
-              }
             }
           ]
         }

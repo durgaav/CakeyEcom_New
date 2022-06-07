@@ -125,9 +125,10 @@ class _NotificationsState extends State<Notifications> {
           //
           // }
           // statusOn = statusOn.toSet().toList();
-          mainList = statusOn+mainList.reversed.toList();
+
+          mainList = a+b+mainList;
           mainList = mainList.toSet().toList();
-          // mainList = mainList.reversed.toList();
+          mainList = mainList.reversed.toList();
           isLoading = false;
         });
       }else{
