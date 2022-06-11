@@ -674,7 +674,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                   if(val==true){
                     await FirebaseMessaging.instance.getToken().
-                    then((value) => SendMessage(value));
+                    then((value) => print(value));
                   }else{
 
                   }
@@ -1470,39 +1470,39 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
-  Future<void> SendMessage(String? value) async{
-    var headers = {
-      'Authorization': 'Bearer AAAAfUzNhqs:APA91bEsu2OWHUz4U7Y2Y0Z3XpkBN0ePeyLEcBioYQd-UQdcr3pDjXvYfDcZaWrSExv-L-BfKBoAs6h10YMqRwNZZU7wrFmxsg8PvkpTtMw1PZEyxeH8Pd25vcKjEtFhhqriBMKcuIEj',
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
-    request.body = json.encode({
-      "registration_ids": [
-           "$value",
-       "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
-      ],
-      "notification": {
-        "title": "Order Placed",
-        "body": "Your Order Ben 10 Theme Cake Successfully placed.Thank You."
-      },
-      "data": {
-        "msgId": "msg_12342"
-      }
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-  }
+  // Future<void> SendMessage(String? value) async{
+  //   var headers = {
+  //     'Authorization': 'Bearer AAAAfUzNhqs:APA91bEsu2OWHUz4U7Y2Y0Z3XpkBN0ePeyLEcBioYQd-UQdcr3pDjXvYfDcZaWrSExv-L-BfKBoAs6h10YMqRwNZZU7wrFmxsg8PvkpTtMw1PZEyxeH8Pd25vcKjEtFhhqriBMKcuIEj',
+  //     'Content-Type': 'application/json'
+  //   };
+  //   var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+  //   request.body = json.encode({
+  //     "registration_ids": [
+  //          "$value",
+  //      "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
+  //     ],
+  //     "notification": {
+  //       "title": "Order Placed",
+  //       "body": "Your Order Ben 10 Theme Cake Successfully placed.Thank You."
+  //     },
+  //     "data": {
+  //       "msgId": "msg_12342"
+  //     }
+  //   });
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //
+  //   print(response.statusCode);
+  //
+  //   if (response.statusCode == 200) {
+  //     print(await response.stream.bytesToString());
+  //   }
+  //   else {
+  //     print(response.reasonPhrase);
+  //   }
+  //
+  // }
 }
 

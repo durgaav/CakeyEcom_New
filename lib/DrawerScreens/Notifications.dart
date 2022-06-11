@@ -111,20 +111,6 @@ class _NotificationsState extends State<Notifications> {
 
           mainList = a.where((element) => element['Notification'].toString().toLowerCase()!='new').toList()+ b.toList();
 
-          // for(int i = 0 ;i < mainList.length;i++){
-          //
-          //   if(mainList[i]['Status_Updated_On']!=null&&dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
-          //       dateTime.year.toString()==mainList[i]['Status_Updated_On'].toString().split(" ").first ){
-          //     statusOn.add(mainList[i]);
-          //   }
-          //
-          //   if(mainList[i]['Status_Updated_On']!=null&&dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
-          //       dateTime.year.toString()==mainList[i]['Created_On'].toString().split(" ").first ){
-          //     statusOn.add(mainList[i]);
-          //   }
-          //
-          // }
-          // statusOn = statusOn.toSet().toList();
 
           mainList = a+b+mainList;
           mainList = mainList.toSet().toList();
@@ -1284,38 +1270,36 @@ class _NotificationsState extends State<Notifications> {
                         return GestureDetector(
                           onTap: (){
 
-
-
-                            // print(mainList[index]['Notification']);
-                            // if(mainList[index]['Notification']!=null)
-                            // {
-                            //   if (mainList[index]['Notification'] == 'seen') {
-                            //     setState(() {
-                            //       CustomListPopup(index);
-                            //       // print(ImageList);
-                            //     });
-                            //   }else  if(mainList[index]['Notification']=='unseen'){
-                            //     setState(() {
-                            //       PriceInfo(index);
-                            //       cakeId = mainList[index]['_id'];
-                            //       print(cakeId);
-                            //       // print(ImageList);
-                            //       updateStatus(index);
-                            //     });
-                            //   }
-                            // }
-                            // else {
-                            //   setState(() {
-                            //     // mainIndex = mainList;
-                            //     // if(mainIndex[index] == mainList[index]){
-                            //     OrderListPopup(index);
-                            //     // viewstate = true;
-                            //     // print(mainIndex);
-                            //     // print(index);
-                            //     // print(viewstate);
-                            //     // }
-                            //   });
-                            // }
+                            print(mainList[index]['Notification']);
+                            if(mainList[index]['Notification']!=null)
+                            {
+                              if (mainList[index]['Notification'] == 'seen') {
+                                setState(() {
+                                  CustomListPopup(index);
+                                  // print(ImageList);
+                                });
+                              }else  if(mainList[index]['Notification']=='unseen'){
+                                setState(() {
+                                  PriceInfo(index);
+                                  cakeId = mainList[index]['_id'];
+                                  print(cakeId);
+                                  // print(ImageList);
+                                  updateStatus(index);
+                                });
+                              }
+                            }
+                            else {
+                              setState(() {
+                                // mainIndex = mainList;
+                                // if(mainIndex[index] == mainList[index]){
+                                OrderListPopup(index);
+                                // viewstate = true;
+                                // print(mainIndex);
+                                // print(index);
+                                // print(viewstate);
+                                // }
+                              });
+                            }
                             // showTheDetailsBottomSheet(index);
 
                             print("*******Start******");

@@ -1,13 +1,10 @@
 import 'dart:async';
-
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
-
-import '../drawermenu/DrawerHome.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -30,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if(authUser!=null){
         Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => DrawerHome())
+            MaterialPageRoute(builder: (context) => HomeScreen())
         );
       }else{
         Navigator.pushReplacement(

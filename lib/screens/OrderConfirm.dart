@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -168,13 +166,13 @@ class _OrderConfirmState extends State<OrderConfirm> {
                 SizedBox(height: 20,),
                 GestureDetector(
                   onTap: (){
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DrawerHome()
-                        ),
-                        ModalRoute.withName('/DrawerHome')
-                    );
+                    // Navigator.pushAndRemoveUntil(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => DrawerHome()
+                    //     ),
+                    //     ModalRoute.withName('/DrawerHome')
+                    // );
                   },
                   child: Center(
                       child: Text('BACK TO HOME' , style:TextStyle(

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/Notification/Notification.dart';
-import 'package:cakey/drawermenu/DrawerHome.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -186,11 +185,11 @@ class _CheckOutState extends State<CheckOut> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => DrawerHome()),
-                        ModalRoute.withName('/DrawerHome')
-                    );
+                    // Navigator.pushAndRemoveUntil(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => DrawerHome()),
+                    //     ModalRoute.withName('/DrawerHome')
+                    // );
                   },
                   child: Center(
                       child: Text(

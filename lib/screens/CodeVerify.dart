@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cakey/drawermenu/DrawerHome.dart';
+import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,32 +79,6 @@ class _CodeVerifyState extends State<CodeVerify> {
       }
     }
 
-    // if (authCredential.smsCode != null) {
-    //   try{
-    //     UserCredential credential =
-    //     await user!.linkWithCredential(authCredential);
-    //   }on FirebaseAuthException catch(e){
-    //     if(e.code == 'provider-already-linked'){
-    //       await _auth.signInWithCredential(authCredential);
-    //     }
-    //   }
-    //   setState(() {
-    //
-    //   });
-    // }
-
-    // authCredential = PhoneAuthProvider.credential(
-    //     verificationId: verificationId, smsCode: otpControl.text
-    // );
-    //
-    // _auth.signInWithCredential(authCredential);
-    //
-    // if(_auth!=null){
-    //   print('User logged in!');
-    // }else{
-    //   print('Waste of time');
-    // }
-
   }
 
   _onVerificationFailed(FirebaseAuthException exception) async{
@@ -155,21 +129,21 @@ class _CodeVerifyState extends State<CodeVerify> {
     });
 
     // Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        elevation: 20,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        margin: EdgeInsets.all(15),
-        content: Text('Verification time out! '
-            'try to resend code',textAlign: TextAlign.center,style: TextStyle(
-            color: Colors.white,fontWeight: FontWeight.bold
-        ),),
-        backgroundColor: lightPink,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     elevation: 20,
+    //     shape: RoundedRectangleBorder(
+    //       borderRadius: BorderRadius.circular(8),
+    //     ),
+    //     margin: EdgeInsets.all(15),
+    //     content: Text('Verification time out! '
+    //         'try to resend code',textAlign: TextAlign.center,style: TextStyle(
+    //         color: Colors.white,fontWeight: FontWeight.bold
+    //     ),),
+    //     backgroundColor: lightPink,
+    //     behavior: SnackBarBehavior.floating,
+    //   ),
+    // );
     print("time out : $timeout");
     return null;
   }
@@ -184,6 +158,7 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Code verify.........
   Future<void> verify(String verId , String otpCode) async{
+
     print(otpControl.text);
 
     PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -272,7 +247,13 @@ class _CodeVerifyState extends State<CodeVerify> {
 
           onTimeLogin(phonenumber);
 
-         // Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen()
+              ),
+              ModalRoute.withName('/HomeScreen')
+          );
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -291,7 +272,13 @@ class _CodeVerifyState extends State<CodeVerify> {
           prefs.setString("authToken", map['token'].toString());
           prefs.setString("phoneNumber", phonenumber);
 
-          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen()
+              ),
+              ModalRoute.withName('/HomeScreen')
+          );
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -367,7 +354,13 @@ class _CodeVerifyState extends State<CodeVerify> {
           prefs.setString("phoneNumber", phonenumber);
           prefs.setString("authToken", map['token'].toString());
 
-          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>DrawerHome()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen()
+              ),
+              ModalRoute.withName('/HomeScreen')
+          );
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -456,7 +449,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                     ),
                   ),
                   SizedBox(height: 50,),
-                  Text("Don't recieve code?",textAlign: TextAlign.center,
+                  Text("Don't receive code?",textAlign: TextAlign.center,
                   style: TextStyle(fontFamily: "Poppins"),
                   ),
                   TextButton(
