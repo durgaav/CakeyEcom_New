@@ -34,6 +34,7 @@ class _SingleVendorState extends State<SingleVendor> {
   String description = "";
   String vendorID = '';
   String vendorName = 'Un name';
+  String vendorSpecial = 'not provide';
   String vendorPhone = '';
   String vendorLocalAddres = '';
   String deliverCharge = '';
@@ -108,11 +109,12 @@ class _SingleVendorState extends State<SingleVendor> {
       description = pref.getString('singleVendorDesc')??'No Description';
       vendorPhone = pref.getString('singleVendorPhone')??'0000000000';
       deliverCharge = pref.getString('singleVendorDelivery')??'';
+      vendorSpecial = pref.getString('singleVendorSpecial')??'';
       profileImage = pref.getString('singleVendorDpImage')??'';
       vendorLocalAddres = pref.getString('singleVendorAddress')??'';
       vendorEggOrEggless = pref.getString('singleVendorEggs')??'';
 
-      getOrdersByVendorId();
+      // getOrdersByVendorId();
     });
   }
 
@@ -523,7 +525,7 @@ class _SingleVendorState extends State<SingleVendor> {
                     ),
                     SizedBox(height: 10,),
                     //Theme text
-                    Text('${description}',
+                    Text('Speciality ${vendorSpecial.replaceAll("[", "").replaceAll("]", "")}',
                       style: TextStyle(color: darkBlue,
                         fontWeight: FontWeight.bold,),
                       maxLines: 1,
@@ -543,6 +545,8 @@ class _SingleVendorState extends State<SingleVendor> {
                   ],
                 ),
               ),
+
+              /*This is temp hiden Vendors Public Orders*/
 
               //Vendors recent orders....
               // Padding(

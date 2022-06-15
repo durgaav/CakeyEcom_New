@@ -278,37 +278,39 @@ class _VendorsListState extends State<VendorsList> {
 
     //common keyword single****
     pref.setString('singleVendorID', locationBySearch[index]['_id']);
-    pref.setString('singleVendorName', locationBySearch[index]['VendorName']);
+    pref.setString('singleVendorName', locationBySearch[index]['PreferredNameOnTheApp']??
+        '${locationBySearch[index]['VendorName']}');
     pref.setString('singleVendorDesc', locationBySearch[index]['Description']??'No Description');
     pref.setString('singleVendorPhone', locationBySearch[index]['PhoneNumber']??'0000000000');
     pref.setString('singleVendorDpImage', locationBySearch[index]['ProfileImage']??'null');
     pref.setString('singleVendorDelivery', locationBySearch[index]['DeliveryCharge']??'null');
     pref.setString('singleVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
     pref.setString('singleVendorAddress', address??'null');
+    pref.setString('singleVendorSpecial', locationBySearch[index]['YourSpecialityCakes'].toString());
     pref.setString('ventosingleven', 'yes');
 
-    // Navigator.of(context).push(
-    //   PageRouteBuilder(
-    //     pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    //       const begin = Offset(1.0, 0.0);
-    //       const end = Offset.zero;
-    //       const curve = Curves.ease;
-    //
-    //       final tween = Tween(begin: begin, end: end);
-    //       final curvedAnimation = CurvedAnimation(
-    //         parent: animation,
-    //         curve: curve,
-    //       );
-    //       return SlideTransition(
-    //         position: tween.animate(curvedAnimation),
-    //         child: child,
-    //       );
-    //     },
-    //   ),
-    // );
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
 
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleVendor()));
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+      ),
+    );
+
+    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleVendor()));
 
   }
 
@@ -633,6 +635,7 @@ class _VendorsListState extends State<VendorsList> {
 
                 Container(
                   child: (searchLocation.isEmpty)?
+                   /**Search is empty....**/
                   Container(
                     height: height*0.71,
                     child: RefreshIndicator(
@@ -659,6 +662,7 @@ class _VendorsListState extends State<VendorsList> {
                               child: ListView.builder(
                                   itemCount: locationBySearch.length,
                                   shrinkWrap: true,
+                                  reverse: true,
                                   physics: NeverScrollableScrollPhysics(),
                                   itemBuilder: (context,index){
                                     return GestureDetector(
@@ -687,6 +691,9 @@ class _VendorsListState extends State<VendorsList> {
                                         }else{
                                           sendDataToScreen(index);
                                         }
+
+                                        print(locationBySearch[index]['PreferredNameOnTheApp']);
+
                                       },
                                       child: Card(
                                         margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
@@ -743,11 +750,14 @@ class _VendorsListState extends State<VendorsList> {
                                                               children: [
                                                                 Container(
                                                                   // width:width*0.5,
-                                                                  child: Text(locationBySearch[index]['VendorName'].toString().isEmpty||
-                                                                      locationBySearch[index]['VendorName']==null
+                                                                  child: Text(locationBySearch[index]['PreferredNameOnTheApp'].toString().isEmpty||
+                                                                      locationBySearch[index]['PreferredNameOnTheApp']==null
                                                                       ?
-                                                                  'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
+                                                                  '${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
                                                                       locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
+                                                                  }'
+                                                                      :'${locationBySearch[index]['PreferredNameOnTheApp'][0].toString().toUpperCase()+
+                                                                      locationBySearch[index]['PreferredNameOnTheApp'].toString().substring(1).toLowerCase()
                                                                   }'
                                                                     ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                                         color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
@@ -910,7 +920,7 @@ class _VendorsListState extends State<VendorsList> {
                       ),
                     ),
                   ):
-
+                  /**Search text not empt....**/
                   Container(
                     height: height*0.71,
                     child: RefreshIndicator(
@@ -938,6 +948,7 @@ class _VendorsListState extends State<VendorsList> {
                               child: ListView.builder(
                                   itemCount: locationBySearch.length,
                                   shrinkWrap: true,
+                                  reverse: true,
                                   physics: NeverScrollableScrollPhysics(),
                                   itemBuilder: (context,index){
                                     return GestureDetector(

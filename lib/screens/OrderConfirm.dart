@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
@@ -166,13 +167,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                 SizedBox(height: 20,),
                 GestureDetector(
                   onTap: (){
-                    // Navigator.pushAndRemoveUntil(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => DrawerHome()
-                    //     ),
-                    //     ModalRoute.withName('/DrawerHome')
-                    // );
+                    Navigator.pushReplacement(context, new MaterialPageRoute(builder: (c)=>HomeScreen()));
                   },
                   child: Center(
                       child: Text('BACK TO HOME' , style:TextStyle(

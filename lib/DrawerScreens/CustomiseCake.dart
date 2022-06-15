@@ -100,7 +100,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //var weight
   int isFixedWeight = -1;
-  String fixedWeight = '0.0';
+  String fixedWeight = '1.0';
   String fixedDate = 'Not Yet Select';
   String fixedSession = 'Not Yet Select';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
@@ -916,7 +916,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //geting the shapes fom collection
   Future<void> getShapesList() async{
-    
+
     var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/shape/list'),
         headers: {"Authorization":"$authToken"}
     );
@@ -944,7 +944,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }else{
       print(res.statusCode);
     }
-    
+
   }
 
   //geting the article fom collection
@@ -1133,7 +1133,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       }
 
       print(tempList);
+
+      fixedWeight = fixedWeight.toLowerCase().replaceAll("kg", "");
+
       print(fixedWeight);
+
 
 
       print(json.encode({
@@ -2260,7 +2264,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     keyboardType: TextInputType.number,
                                     controller: weightCtrl,
                                     inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.allow(new RegExp('[1-9.]'))
+                                      FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
+                                      // FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')), 
+                                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
                                     ],
                                     style:TextStyle(fontFamily: 'Poppins' ,
                                         fontSize: 13
@@ -2899,17 +2906,58 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     ),
                                   ],
                                 ),
-                                   // setState(() {
+                                   //  setState(() {
                                   //   file = new fil.File('');
-                                  // });
-                                  
+                                  //   });
+
                               ):Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.all(5),
                                 width: MediaQuery.of(context).size.width,
                                 height: 160,
                                 child:Container(
-                                  color: lightPink,
+                                  color: Colors.red[100],
+                                  child:Row(
+                                      children: [
+                                        Container(
+                                          margin:EdgeInsets.all(5),
+                                          width:145,
+                                          decoration: BoxDecoration(
+                                            color:lightGrey,
+                                            borderRadius: BorderRadius.circular(10),
+                                            image:DecorationImage(
+                                                image:FileImage(file),
+                                              fit: BoxFit.cover
+                                            )
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child:Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(file.path.split("/").last,maxLines: 3,style: TextStyle(
+                                                fontFamily: "Poppins"
+                                              ),),
+                                              SizedBox(height:5),
+                                              RaisedButton(
+                                                onPressed:(){
+                                                  setState(() {
+                                                    file = new fil.File('');
+                                                  });
+                                                },
+                                                child:Text('Remove',style: TextStyle(
+                                                    fontFamily: "Poppins",color:Colors.white
+                                                ),),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(15)
+                                                ),  
+                                                color:lightPink
+                                              )
+                                            ],
+                                          )
+                                        ),
+                                      ],
+                                  )
                                 ),
                               ),
                             ),

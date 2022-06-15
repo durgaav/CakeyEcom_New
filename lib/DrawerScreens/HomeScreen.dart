@@ -445,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               hintStyle: TextStyle(
                                   fontFamily: "Poppins", fontSize: 13),
                               prefixIcon:
-                              Icon(Icons.sentiment_very_satisfied_rounded),
+                              Icon(CupertinoIcons.person_alt_circle),
                               border: OutlineInputBorder()),
                         ),
                       ),
@@ -910,6 +910,7 @@ class _HomeScreenState extends State<HomeScreen> {
            }
 
           prefs.setString('userID', userID);
+          prefs.setString('userModId', body[0]['Id'].toString());
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
 
@@ -1704,9 +1705,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 decoration: InputDecoration(
                                     hintText: "Search cake, vendor, etc...",
-                                    hintStyle: TextStyle(fontFamily: poppins,fontSize: 13),
-                                    prefixIcon: Icon(Icons.search),
+                                    hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
+                                    prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
+                                    fillColor: Colors.white,
+                                    filled: true,
                                     border: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1,color: Colors.grey[200]!,style: BorderStyle.solid),
+                                        borderRadius: BorderRadius.circular(8)
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1.5,color: Colors.grey[300]!,style: BorderStyle.solid),
                                         borderRadius: BorderRadius.circular(8)
                                     ),
                                     contentPadding: EdgeInsets.all(5),

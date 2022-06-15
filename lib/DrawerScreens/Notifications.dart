@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -93,48 +95,7 @@ class _NotificationsState extends State<Notifications> {
         });
   }
 
-  Future<void> notifyData() async {
-    List statusOn = [];
-    List createOn = [];
-    mainList.clear();
-    setState((){
-      isLoading = true;
-    });
-    try {
-      var res = await http.get(Uri.parse(
-          "https://cakey-database.vercel.app/api/users/notification/$userId"),headers: {"Authorization":"$authToken"});
-      print(res.statusCode);
-      if (res.statusCode == 200) {
-        setState(() {
-          List a = jsonDecode(res.body)['CustomizeCakesList'];
-          List b = jsonDecode(res.body)['OrdersList'];
-
-          mainList = a.where((element) => element['Notification'].toString().toLowerCase()!='new').toList()+ b.toList();
-
-
-          mainList = a+b+mainList;
-          mainList = mainList.toSet().toList();
-          mainList = mainList.reversed.toList();
-          isLoading = false;
-        });
-      }else{
-        setState((){
-          isLoading = true;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error Occurred!'))
-          );
-        });
-      }
-    } catch (e) {
-      print(e);
-      setState((){
-        isLoading = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Check your connection!'),behavior: SnackBarBehavior.floating,)
-        );
-      });
-    }
-  }
+  
 
   Widget _indicator(bool isActive) {
     return AnimatedContainer(
@@ -176,17 +137,6 @@ class _NotificationsState extends State<Notifications> {
       list.add(i == pageViewCurIndex ? _indicator(true) : _indicator(false));
     }
     return list;
-  }
-
-  Future <void> updateStatus(index) async{
-    try{
-      var url = Uri.parse('https://cakey-database.vercel.app/api/customize/cake/update/notification/${cakeId}');
-      var response = await http.put(url, body: {'Notification':'seen'});
-      print('Response body: ${response.body}');
-      print(cakeId);
-    }catch(e){
-      print(e);
-    }
   }
 
   Future<void> PriceInfo(index) async{
@@ -380,7 +330,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   Text('Total',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
                   Text('-',style: TextStyle(fontFamily: "Poppins"),),
-                  (mainList[index]['Total']== null)?Text('NAN'):Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
+                  (mainList[index]['Total']== null)?Text('N/A'):Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
 
                   // Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
@@ -393,7 +343,7 @@ class _NotificationsState extends State<Notifications> {
             onPressed: (){
               sendDetailstoScreen(index);
             },
-            child: const Text('PAY NOW'),
+            child: const Text('GO TO PAYMENT'),
           ),
         ],
       ),
@@ -555,7 +505,8 @@ class _NotificationsState extends State<Notifications> {
               Container(
                 padding: EdgeInsets.only(bottom: 10),
                 child: Center(
-                    child: (mainList[index]['Images']!=null)?CircleAvatar(
+                    child: (mainList[index]['Images']!=null)?
+                    CircleAvatar(
                         radius: 50,
                         backgroundImage:
                         NetworkImage(mainList[index]['Images'].toString())
@@ -563,6 +514,7 @@ class _NotificationsState extends State<Notifications> {
                         :CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.blue,
+                      backgroundImage: AssetImage('assets/images/customcake.png'),
                     )
                 ),
               ),
@@ -570,7 +522,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Delivery Date',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['DeliveryDate'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -581,7 +533,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Delivery Time',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['DeliverySession'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -592,7 +544,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Delivery Mode',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['DeliveryInformation'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -603,7 +555,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Status',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['Status'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -614,7 +566,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Weight',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['Weight'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -625,7 +577,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Payment Type',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text(mainList[index]['PaymentType'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -636,7 +588,7 @@ class _NotificationsState extends State<Notifications> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Total Price',style: TextStyle(fontFamily: "Poppins",fontSize: 12,fontWeight: FontWeight.bold),),
-                  Text('-',style: TextStyle(fontFamily: "Poppins"),),
+                  // Text('-',style: TextStyle(fontFamily: "Poppins"),),
                   Text('Rs. '+ mainList[index]['Total'],style: TextStyle(fontFamily: "Poppins",fontSize: 12),),
                 ],
               ),
@@ -851,252 +803,663 @@ class _NotificationsState extends State<Notifications> {
 
   }
 
-  void showTheDetailsBottomSheet(int index){
+  //Show normal cake order Details View
+  void showOrderDetailsDialog(int index){
+    print(i);
     showModalBottomSheet(
-        context: context,
+        isScrollControlled: true,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(15),
-          topRight: Radius.circular(15))
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10),
+              topLeft: Radius.circular(10)
+          ),
         ),
-        builder: (context){
-          return Container(
-            padding: EdgeInsets.all(7),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+        context: context,
+        builder: (context)=>StatefulBuilder(
+            builder: (context,  void Function(void Function()) setState)=>
                 Container(
-                  child: Row(
-                    children: [
-                      Text('Order Details', style: TextStyle(
-                          fontFamily: "Poppins",fontSize: 16,
-                          color: darkBlue,fontWeight: FontWeight.bold
-                      ),),
-                      Expanded
-                        (child: Align(
-                        alignment: Alignment.centerRight,
-                          child: IconButton(
-                            onPressed: ()=>Navigator.pop(context),
-                            icon: Icon(Icons.close,color: darkBlue,)
-                      ),
-                        ))
-                    ],
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        topLeft: Radius.circular(10)
+                    ),
+                    color: Colors.grey[300],
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 5, bottom: 9),
-                  width: double.infinity,
-                  height: 0.8,
-                  color: darkBlue,
-                ),
-                Expanded(child: Container(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      //image cake
-                      Row(
-                        children: [
-                          Container(
-                            height: 65,
-                            width: 65,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(mainList[index]['Images'])
-                              )
+                      //cake image..
+                      Container(
+                        child:mainList[i]['Images'].toString().isNotEmpty?
+                         Container(
+                           // height: 85,
+                           // width: 85,
+                           // decoration: BoxDecoration(
+                           //   shape: BoxShape.circle,
+                           //   image: DecorationImage(
+                           //     image: NetworkImage(mainList[i]['Images'].toString()),
+                           //     fit: BoxFit.cover,
+                           //   )
+                           // ),
+                         ):
+                         Container()
+                          // CircleAvatar(
+                          //   backgroundImage:AssetImage("assets/images/customcake.png"),
+                          //   radius: 35,
+                          // )
+                      ),
+                      SizedBox(height: 10,),
+                      //cake ID
+                      Text(mainList[index]['Id'].toString() , style:TextStyle(
+                        fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                      ),),
+
+                      SizedBox(height: 10,),
+                      //Name and Price
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        padding: EdgeInsets.all(8),
+                        child:Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            mainList[index]['Title']!=null?
+                              Text(mainList[index]['Title'].toString() , style:TextStyle(
+                                fontFamily: "Poppins",color: lightPink,fontWeight: FontWeight.bold
+                            ),):
+                            Text("Customize Cake "+mainList[index]['Id'] , style:TextStyle(
+                                fontFamily: "Poppins",color:lightPink,fontWeight: FontWeight.bold
+                            ),),
+                            SizedBox(height: 6,),
+
+                            //item total
+                            Row(
+                              children: [
+                                Text('Item Total', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['Total']==null?'N/A':
+                                  'Rs.${mainList[index]['Total']}', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
                             ),
-                          ),
-                          SizedBox(width: 6,),
-                          Expanded(
-                           child:Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Row(
-                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                 children: [
-                                   Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(mainList[index]['Title'],style: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold
-                                      ),),
-                                      SizedBox(height: 6,),
-                                      Text("Rs.${mainList[index]['Total']}",style: TextStyle(
-                                          fontFamily: "Poppins",
-                                          color:lightPink,
-                                          fontWeight: FontWeight.bold
-                                      ),),
-                                    ],
-                          ),
-                                   Expanded(
-                                     child: Align(
-                                       alignment: Alignment.topRight,
-                                       child: Text("ID : ${mainList[index]['Cake_ID']}",style: TextStyle(
-                                         fontFamily: "Poppins" , fontSize: 13
-                                       ),),
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ],
-                           )
-                          )
-                        ],
+
+                            SizedBox(height: 6,),
+
+                            Row(
+                              children: [
+                                Text('Cake Type', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['TypeOfCake']==null?'N/A':
+                                  '${mainList[index]['TypeOfCake']}', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+                            Row(
+                              children: [
+                                Text('Updated On', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['Created_On']==null?'N/A':
+                                  '${mainList[index]['Created_On']}', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+                            Row(
+                              children: [
+                                Text('Deliver Date', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['DeliveryDate']==null?'N/A':
+                                  '${mainList[index]['DeliveryDate']}', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+                            Row(
+                              children: [
+                                Text('Status', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['Status']==null?'N/A':
+                                  '${mainList[index]['Status']}', style:TextStyle(
+                                      fontFamily: "Poppins",
+                                      color:mainList[index]['Status'].toString().toLowerCase()=="new"?
+                                      Colors.red:
+                                      mainList[index]['Status'].toString().toLowerCase()=="preparing"?
+                                      Colors.blue:
+                                      mainList[index]['Status'].toString().toLowerCase()=="delivered"?
+                                      Colors.green:darkBlue,
+                                      fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Deliver Address', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                SizedBox(width: 4,),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['DeliveryAddress']==null?'N/A':
+                                  '${mainList[index]['DeliveryAddress']}', textAlign: TextAlign.end,style:TextStyle(
+                                      fontFamily: "Poppins",
+                                      color:darkBlue,
+                                      fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Payment Status', style:TextStyle(
+                                    fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                )),
+                                SizedBox(width: 4,),
+                                Expanded(child:Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(mainList[index]['PaymentStatus']==null?'N/A':
+                                  '${mainList[index]['PaymentStatus']}', textAlign: TextAlign.end,style:TextStyle(
+                                      fontFamily: "Poppins",
+                                      color:mainList[index]['PaymentStatus'].toString().toLowerCase()=="paid"?
+                                      Colors.green:Colors.red,
+                                      fontWeight: FontWeight.normal
+                                  )),
+                                ))
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+
+
+                          ],
+                        )
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 10,),
-                          Row(
-                            children: [
-                              Text("Type Of Cake ",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
+
+                      Container(
+                        child:Row(
+                          children: [
+                            // Expanded(child:
+                            //  mainList[index]['PaymentStatus'].toString().toLowerCase()=='cash on delivery'||
+                            //      mainList[index]['PaymentStatus']==null?
+                            //  Container(
+                            //   margin: EdgeInsets.all(5),
+                            //   child: RaisedButton(
+                            //     onPressed: (){
+                            //
+                            //     },
+                            //     child: Text('PAY NOW' , style: TextStyle(
+                            //       color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
+                            //     ),),
+                            //     color: darkBlue,
+                            //     shape: RoundedRectangleBorder(
+                            //       borderRadius: BorderRadius.circular(13)
+                            //     ),
+                            //   ),
+                            // ):
+                            //  Container(
+                            //    margin: EdgeInsets.all(5),
+                            //    child: RaisedButton(
+                            //      onPressed: (){
+                            //
+                            //      },
+                            //      child: Text('CONTACT VENDOR' , style: TextStyle(
+                            //          color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
+                            //      ),),
+                            //      color: darkBlue,
+                            //      shape: RoundedRectangleBorder(
+                            //          borderRadius: BorderRadius.circular(13)
+                            //      ),
+                            //    ),
+                            //  )
+                            // ),
+                            Expanded(child: Container(
+                              margin: EdgeInsets.all(5),
+                              child: RaisedButton(
+                                onPressed: ()=>Navigator.pop(context),
+                                child: Text('CLOSE' , style: TextStyle(
+                                    color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
                                 ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "${mainList[index]["TypeOfCake"]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: lightPink
-                                  ),
+                                color: darkBlue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(13)
                                 ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(height: 5,),
-                          Row(
-                            children: [
-                              Text("Vendor Name ",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
-                                ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "${mainList[index]["VendorName"]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: lightPink
-                                  ),
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(height: 5,),
-                          Row(
-                            children: [
-                              Text("Mixed With ",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
-                                ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "${mainList[index]["EggOrEggless"]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: lightPink
-                                  ),
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(height: 5,),
-                          Row(
-                            children: [
-                              Text("Payment",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
-                                ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "${mainList[index]["PaymentStatus"]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: mainList[index]["PaymentStatus"].toString().toLowerCase()=="paid"
-                                          ?Colors.green:Colors.red
-                                  ),
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(height: 5,),
-                          Row(
-                            children: [
-                              Text("Flavours",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
-                                ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      for(var i in mainList[index]["Flavour"])
-                                        TextSpan(
-                                          text: " ${i['Name']}",
-                                          style: TextStyle(
-                                              fontFamily: "Poppins",
-                                              color:lightPink
-                                          ),
-                                        )
-                                    ]
-                                  )
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(height: 5,),
-                          Row(
-                            children: [
-                              Text("shape",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold
-                                ),),
-                              Expanded(child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "${mainList[index]["Shape"]}",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color:lightPink
-                                  ),
-                                ),
-                              ))
-                            ],
-                          ),
-                        ],
-                      ),
+                              ),
+                            )),
+                          ],
+                        ),
+                      )
+
                     ],
                   ),
-                )),
-                RaisedButton(onPressed: (){})
-              ],
-            ),
-          );
-        }
+                ),
+        )
     );
   }
 
+  //show custom cake order view
+  void showCustomCakeDetailsDialog(int index){
+    var opac = 1.0;
+    var timer = new Timer(Duration(seconds: 2), () {setState((){opac = 1.0;});});
+    timer;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10),
+              topLeft: Radius.circular(10)
+          ),
+        ),
+        context: context,
+        builder: (context)=>StatefulBuilder(
+          builder: (context,  void Function(void Function()) setState)=>
+              AnimatedOpacity(
+                duration: Duration(microseconds: 400),
+                opacity: opac,
+                curve: Curves.ease,
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        topLeft: Radius.circular(10)
+                    ),
+                    color: Colors.pink[300],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      //cake image..
+                      Container(
+                          child:mainList[i]['Images'].toString().isNotEmpty?
+                          Container(
+                            // height: 85,
+                            // width: 85,
+                            // decoration: BoxDecoration(
+                            //   shape: BoxShape.circle,
+                            //   image: DecorationImage(
+                            //     image: NetworkImage(mainList[i]['Images'].toString()),
+                            //     fit: BoxFit.cover,
+                            //   )
+                            // ),
+                          ):
+                          Container()
+                        // CircleAvatar(
+                        //   backgroundImage:AssetImage("assets/images/customcake.png"),
+                        //   radius: 35,
+                        // )
+                      ),
+                      SizedBox(height: 10,),
+                      //cake ID
+                      Text(mainList[index]['Id'].toString() , style:TextStyle(
+                          fontFamily: "Poppins",color: Colors.white,fontWeight: FontWeight.bold
+                      ),),
+
+                      SizedBox(height: 10,),
+                      //Name and Price
+                      Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10)
+                          ),
+                          padding: EdgeInsets.all(8),
+                          child:Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              mainList[index]['Title']!=null?
+                              Text(mainList[index]['Title'].toString() , style:TextStyle(
+                                  fontFamily: "Poppins",color: lightPink,fontWeight: FontWeight.bold
+                              ),):
+                              Text("Customize Cake "+mainList[index]['Id'] , style:TextStyle(
+                                  fontFamily: "Poppins",color:lightPink,fontWeight: FontWeight.bold
+                              ),),
+                              SizedBox(height: 6,),
+
+                              //item total
+                              Row(
+                                children: [
+                                  Text('Item Total', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['Total']==null?'N/A':
+                                    'Rs.${mainList[index]['Total']}', style:TextStyle(
+                                        fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+                              Row(
+                                children: [
+                                  Text('Cake Type', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['TypeOfCake']==null?'N/A':
+                                    '${mainList[index]['TypeOfCake']}', style:TextStyle(
+                                        fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+                              Row(
+                                children: [
+                                  Text('Ordered On', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['Created_On']==null?'N/A':
+                                    '${mainList[index]['Created_On']}', style:TextStyle(
+                                        fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+                              Row(
+                                children: [
+                                  Text('Deliver Date', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['DeliveryDate']==null?'N/A':
+                                    '${mainList[index]['DeliveryDate']}', style:TextStyle(
+                                        fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+                              Row(
+                                children: [
+                                  Text('Status', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['Status']==null?'N/A':
+                                    '${mainList[index]['Status']}', style:TextStyle(
+                                        fontFamily: "Poppins",
+                                        color:mainList[index]['Status'].toString().toLowerCase()=="new"?
+                                        Colors.red:
+                                        mainList[index]['Status'].toString().toLowerCase()=="preparing"?
+                                        Colors.blue:
+                                        mainList[index]['Status'].toString().toLowerCase()=="delivered"?
+                                        Colors.green:darkBlue,
+                                        fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Deliver Address', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  SizedBox(width: 4,),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['DeliveryAddress']==null?'N/A':
+                                    '${mainList[index]['DeliveryAddress']}', textAlign: TextAlign.end,style:TextStyle(
+                                        fontFamily: "Poppins",
+                                        color:darkBlue,
+                                        fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Payment Status', style:TextStyle(
+                                      fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.bold
+                                  )),
+                                  SizedBox(width: 4,),
+                                  Expanded(child:Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(mainList[index]['PaymentStatus']==null?'N/A':
+                                    '${mainList[index]['PaymentStatus']}', textAlign: TextAlign.end,style:TextStyle(
+                                        fontFamily: "Poppins",
+                                        color:mainList[index]['PaymentStatus'].toString().toLowerCase()=="paid"?
+                                        Colors.green:Colors.red,
+                                        fontWeight: FontWeight.normal
+                                    )),
+                                  ))
+                                ],
+                              ),
+
+                              SizedBox(height: 6,),
+
+
+                            ],
+                          )
+                      ),
+
+                      Container(
+                        child:Row(
+                          children: [
+                            Expanded(child:
+                            mainList[index]['PaymentStatus'].toString().toLowerCase()=='cash on delivery'||
+                                mainList[index]['PaymentStatus']==null?
+                            Container(
+                              margin: EdgeInsets.all(5),
+                              child: RaisedButton(
+                                onPressed: (){},
+                                child: Text('PAY NOW' , style: TextStyle(
+                                    color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
+                                ),),
+                                color: darkBlue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(13)
+                                ),
+                              ),
+                            ):
+                            Container(
+                              margin: EdgeInsets.all(5),
+                              child: RaisedButton(
+                                onPressed: (){},
+                                child: Text('CONTACT VENDOR' , style: TextStyle(
+                                    color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
+                                ),),
+                                color: darkBlue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(13)
+                                ),
+                              ),
+                            )
+                            ),
+                            Expanded(child: Container(
+                              margin: EdgeInsets.all(5),
+                              child: RaisedButton(
+                                onPressed: ()=>Navigator.pop(context),
+                                child: Text('CLOSE' , style: TextStyle(
+                                    color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Poppins"
+                                ),),
+                                color: darkBlue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(13)
+                                ),
+                              ),
+                            )),
+                          ],
+                        ),
+                      )
+
+                    ],
+                  ),
+                ),
+              ),
+        )
+    );
+  }
+
+
+  //region Functions
+
+  //get notifications
+  Future<void> fetchNotifications() async {
+    List statusOn = [];
+    List createOn = [];
+    mainList.clear();
+    setState((){
+      isLoading = true;
+    });
+    try {
+      var res = await http.get(Uri.parse(
+          "https://cakey-database.vercel.app/api/users/notification/$userId"),
+          headers: {"Authorization":"$authToken"});
+      print(res.statusCode);
+      if (res.statusCode == 200) {
+        setState(() {
+
+          List a = jsonDecode(res.body)['CustomizeCakesList'];
+          List b = jsonDecode(res.body)['OrdersList'];
+
+          // b.sort((a, b)=>a['Created_On'].toString().compareTo('${dateTime}'));
+
+          // b.sort((a,b){
+          //   if(a['Status_Updated_On']==null){
+          //     return a['Created_On'].toString().compareTo('${dateTime}');
+          //   }else{
+          //     return a['Status_Updated_On'].toString().compareTo('${dateTime}');
+          //   }
+          // });
+
+          mainList = a.toList() + b.reversed.toList();
+
+
+          for(int i=0; i<mainList.length;i++){
+            if(mainList[i]['Status_Updated_On']==null){
+              createOn.add(mainList[i]);
+            }else{
+              statusOn.add(mainList[i]);
+            }
+          }
+
+          print(statusOn.length);
+          print(createOn.length);
+
+          // createOn.sort((a,b)=>a['Created_On'].toString().compareTo("${dateTime}"));
+          // statusOn.sort((a,b)=>a['Status_Updated_On'].toString().compareTo("${dateTime}"));
+
+          mainList = createOn.reversed.toList() + statusOn;
+
+          mainList = mainList.reversed.toList();
+
+
+          for(int i = 0 ; i < mainList.length ; i++){
+            if(mainList[i]['Status_Updated_On']!=null){
+              setState(() {
+                mainList[i]['Created_On'] =  mainList[i]['Status_Updated_On'];
+              });
+            }
+          }
+
+          mainList.sort((a,b)=>a['Created_On'].toString().compareTo(b['Created_On'].toString()));
+          // mainList.sort((a,b)=>a['Status_Updated_On'].toString().compareTo(b['Status_Updated_On'].toString()));
+
+
+          // mainList.sort((a,b)=>a['Created_On'].toString().compareTo("${dateTime}"));
+
+          mainList = mainList.reversed.toList();
+
+          for(int i=0 ; i<mainList.length ; i++){
+            print('create');
+            print(mainList[i]['Created_On']);
+
+            print('update');
+            print(mainList[i]['Status_Updated_On']);
+          }
+
+          isLoading = false;
+          print(mainList.length);
+
+        });
+      }else{
+        setState((){
+          isLoading = true;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error Occurred!'))
+          );
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState((){
+        isLoading = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error Occurred!'),behavior: SnackBarBehavior.floating,)
+        );
+      });
+    }
+  }
+
+  //Order Cancellations
   Future<void> cancelOrder(String id , String byId, String title) async{
     Navigator.pop(context);
     showAlertDialog();
@@ -1118,7 +1481,7 @@ class _NotificationsState extends State<Notifications> {
         SnackBar(content: Text('Order is canceled!'))
       );
       setState((){
-        notifyData();
+        fetchNotifications();
       });
       NotificationService().showNotifications("Order Cancelled", "Your $title order is cancelled.");
       Navigator.pop(context);
@@ -1132,6 +1495,20 @@ class _NotificationsState extends State<Notifications> {
     }
   }
 
+  //Status Updating
+  Future <void> updateStatus(index) async{
+    try{
+      var url = Uri.parse('https://cakey-database.vercel.app/api/customize/cake/update/notification/${cakeId}');
+      var response = await http.put(url, body: {'Notification':'seen'});
+      print('Response body: ${response.body}');
+      print(cakeId);
+    }catch(e){
+      print(e);
+    }
+  }
+
+  //endregion
+
   @override
   void initState() {
     // TODO: implement initState
@@ -1141,7 +1518,7 @@ class _NotificationsState extends State<Notifications> {
       userId = prefs.getString('userID').toString();
       authToken = prefs.getString('authToken').toString();
       // print('user id.....   $userId');
-      notifyData();
+      fetchNotifications();
       // updateStatus();
     });
     // Full date and time
@@ -1152,387 +1529,388 @@ class _NotificationsState extends State<Notifications> {
   Widget build(BuildContext context) {
     result2 = simplyFormat(time: currentTime, dateOnly: true);
     print(result2);
-    return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child:SafeArea(
-            child: Container(
-              padding: EdgeInsets.only(left: 15),
-              height: 50,
-              color:lightGrey,
-              child:Row(
-                children: [
-                  Container(
-                    // margin: const EdgeInsets.only(top: 10,bottom: 15),
-                    child: InkWell(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(7)
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          fetchNotifications();
+        });
+      },
+      child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(50),
+            child:SafeArea(
+              child: Container(
+                padding: EdgeInsets.only(left: 15),
+                height: 50,
+                color:lightGrey,
+                child:Row(
+                  children: [
+                    Container(
+                      // margin: const EdgeInsets.only(top: 10,bottom: 15),
+                      child: InkWell(
+                        onTap: (){
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          height: 30,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(7)
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
                         ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Text(
-                      'NOTIFICATION',
-                      style: TextStyle(
-                          color: darkBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
+                    Container(
+                      margin: EdgeInsets.only(left: 15),
+                      child: Text(
+                        'NOTIFICATION',
+                        style: TextStyle(
+                            color: darkBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          )
-        ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            setState(() {
-              notifyData();
-            });
-          },
-          child: SingleChildScrollView(
-              child: Container(
-                  child:isLoading
-                      ? ListView.builder(
-                      itemCount: 10,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (count, index) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[400]!,
-                          highlightColor: Colors.grey[300]!,
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  height: 70,
-                                  width: 70,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          // width: 260,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius.circular(15),
-                                              color: Colors.grey),
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Container(
-                                          width: 130,
-                                          height: 15,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius.circular(15),
-                                              color: Colors.grey),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      })
-                      : (mainList.length > 0)
-                      ? ListView.builder(
-                      itemCount: mainList.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: (){
-
-                            print(mainList[index]['Notification']);
-                            if(mainList[index]['Notification']!=null)
-                            {
-                              if (mainList[index]['Notification'] == 'seen') {
-                                setState(() {
-                                  CustomListPopup(index);
-                                  // print(ImageList);
-                                });
-                              }else  if(mainList[index]['Notification']=='unseen'){
-                                setState(() {
-                                  PriceInfo(index);
-                                  cakeId = mainList[index]['_id'];
-                                  print(cakeId);
-                                  // print(ImageList);
-                                  updateStatus(index);
-                                });
-                              }
-                            }
-                            else {
-                              setState(() {
-                                // mainIndex = mainList;
-                                // if(mainIndex[index] == mainList[index]){
-                                OrderListPopup(index);
-                                // viewstate = true;
-                                // print(mainIndex);
-                                // print(index);
-                                // print(viewstate);
-                                // }
-                              });
-                            }
-                            // showTheDetailsBottomSheet(index);
-
-                            print("*******Start******");
-                            print(mainList[index]['Status_Updated_On']);
-                            print(mainList[index]['Created_On']);
-                            print(mainList[index]['Created_On'].toString().split(" ")[1]);
-                            print(hourFormater(DateTime.now().hour.toString()+":"+DateTime.now().minute.toString()));
-                            print("*******End******");
-
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(15),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                mainList[index]['Images']==null||
-                                mainList[index]['Images'].toString().isEmpty||
-                                !mainList[index]['Images'].toString().startsWith("http")?
-                                Container(
-                                  height: 55,
-                                  width: 55,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey[300],
-                                  ),
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: 35,color:Colors.grey,
-                                  ),
-                                ):
-                                Container(
-                                  height: 55,
-                                  width: 55,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey[350],
-                                    image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(mainList[index]['Images'].toString()),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          // width: 270,
-                                            child:
-                                            ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
-                                            Text(
-                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} delivered on "
-                                                  "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop and enjoy.",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13,
-                                              ),
-                                            ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
-                                            Text(
-                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
-                                                  "is being prepared and it will be delivered soon , thank you.",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color:Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13,
-                                              ),
-                                            ):
-                                            (mainList[index]['Status'].toString().toLowerCase()=='new')?
-                                            Text(
-                                              "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
-                                                  "order is placed.We will notify status soon as possible",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color:Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13
-                                              ),
-                                            ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
-                                            Text(
-                                              "Hi ${mainList[index]['UserName']} your Customised Cake "
-                                                  "details are sent to admin/vendor.we will notify status soon as possible",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color:Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13
-                                              ),
-                                            ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
-                                            Text(
-                                              "Hi ${mainList[index]['UserName']} your Customised Cake is ordered.We will notify status soon as possible",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color:Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13
-                                              ),
-                                            ):Text(
-                                              "Hi ${mainList[index]['UserName']} Your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']}"
-                                                  " order is cancelled.Thank You.",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color:Colors.black,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 13
-                                              ),
-                                            )
-                                            )
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        mainList[index]['Status_Updated_On']!=null?
-                                        Container(
-                                          // width: 270,
-                                            child:
-                                            // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                            ( mainList[index]['Status_Updated_On'] != null)&&
-                                                dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
-                                                    dateTime.year.toString()==mainList[index]['Status_Updated_On'].toString().split(" ").first ?
-                                            Text("Today",overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    color: darkBlue,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 12.5,
-                                                    fontWeight:
-                                                    FontWeight.bold
-                                                )):
-                                            DateTime.now().day.toString().length==2&&
-                                                DateTime.now().day.toString()==mainList[index]['Status_Updated_On'].toString().split("-").first?
-                                            Text("Today",overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    color: darkBlue,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 12.5,
-                                                    fontWeight:
-                                                    FontWeight.bold
-                                                )):
-                                            Text("${months[months.indexWhere((element) => element['num']==
-                                                mainList[index]['Status_Updated_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Status_Updated_On'].toString().split('-').first} "
-                                                "${mainList[index]['Status_Updated_On'].toString().replaceAll(" ", "").
-                                            split("-").last.substring(0,4)}",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 12.5,
-                                                  fontWeight:
-                                                  FontWeight.bold
-                                              ),
-                                            )
-                                        ):
-                                        Container(
-                                          // width: 270,
-                                            child:
-                                            // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
-                                            ( mainList[index]['Created_On'] != null)&&
-                                                dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
-                                                    dateTime.year.toString()==mainList[index]['Created_On'].toString().split(" ").first ?
-                                            Text("Today",overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    color: darkBlue,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 12.5,
-                                                    fontWeight:
-                                                    FontWeight.bold
-                                                )):
-                                            DateTime.now().day.toString().length==2&&
-                                                DateTime.now().day.toString()==mainList[index]['Created_On'].toString().split("-").first?
-                                            Text("Today",overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    color: darkBlue,
-                                                    fontFamily: "Poppins",
-                                                    fontSize: 12.5,
-                                                    fontWeight:
-                                                    FontWeight.bold
-                                                )):
-                                             Text("${months[months.indexWhere((element) => element['num']==
-                                                  mainList[index]['Created_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Created_On'].toString().split('-').first} "
-                                                  "${mainList[index]['Created_On'].toString().replaceAll(" ", "").
-                                              split("-").last.substring(0,4)}",
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontFamily: "Poppins",
-                                                  fontSize: 12.5,
-                                                  fontWeight:
-                                                  FontWeight.bold
-                                              ),
-                                            )
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      })
-                      : Container(
-                          margin: EdgeInsets.only(top:25),
-                          child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.notifications_active_outlined,size: 35,),
-                              Text(' No Notifications!',style: TextStyle(
-                                  color: lightPink,fontFamily: "Poppins",
-                                  fontSize: 18,fontWeight: FontWeight.bold
-                              ),),
-                            ],
-                          )
-                    ),
-                  )
-              )
+            )
           ),
-        ));
+          body:SingleChildScrollView(
+                child: Container(
+                    height: MediaQuery.of(context).size.height*0.95,
+                    child:isLoading
+                        ? ListView.builder(
+                        itemCount: 10,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (count, index) {
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey[400]!,
+                            highlightColor: Colors.grey[300]!,
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 70,
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            // width: 260,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(15),
+                                                color: Colors.grey),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Container(
+                                            width: 130,
+                                            height: 15,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(15),
+                                                color: Colors.grey),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        })
+                        : (mainList.length > 0)
+                        ? ListView.builder(
+                        itemCount: mainList.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: (){
+                              // //
+                              // // print(mainList[index]['Notification']);
+                              // if(mainList[index]['Notification']!=null)
+                              // {
+                              //   if (mainList[index]['Notification'] == 'seen') {
+                              //     setState(() {
+                              //       CustomListPopup(index);
+                              //     });
+                              //   }else  if(mainList[index]['Notification']=='unseen'){
+                              //     setState(() {
+                              //       PriceInfo(index);
+                              //       cakeId = mainList[index]['_id'];
+                              //       print(cakeId);
+                              //       updateStatus(index);
+                              //     });
+                              //   }
+                              // }
+                              // else {
+                              //   setState(() {
+                              //     OrderListPopup(index);
+                              //   });
+                              // }
+
+                              if(mainList[index]['CustomizeCake']=='n'){
+                                showOrderDetailsDialog(index);
+                              }else if(mainList[index]['CustomizeCake']==null){
+                                showCustomCakeDetailsDialog(index);
+                              }
+
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(15),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  mainList[index]['Images']==null||
+                                  mainList[index]['Images'].toString().isEmpty||
+                                  !mainList[index]['Images'].toString().startsWith("http")?
+                                  Container(
+                                    height: 55,
+                                    width: 55,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey[300],
+                                    ),
+                                    child: Icon(
+                                      CupertinoIcons.photo,
+                                      size: 35,color:Colors.grey,
+                                    ),
+                                  ):
+                                  Container(
+                                    height: 55,
+                                    width: 55,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey[350],
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(mainList[index]['Images'].toString()),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            // width: 270,
+                                              child:
+                                              ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} delivered on "
+                                                    "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop and enjoy.",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13,
+                                                ),
+                                              ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
+                                                    "is being prepared and it will be delivered soon , thank you.",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13,
+                                                ),
+                                              ):
+                                              (mainList[index]['Status'].toString().toLowerCase()=='new')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']} your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']} "
+                                                    "order is placed.We will notify status soon as possible",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                              ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']}, kindly check the invoice details for your Custom Cake "
+                                                    ", Then continue your payment processes.Thank You.",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                              ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']} your Customised Cake is ordered.We will notify status soon as possible",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                              ):(mainList[index]['Status'].toString().toLowerCase()=='assigned')?
+                                              Text(
+                                                "Hi ${mainList[index]['UserName']} Your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']}"
+                                                    "is assigned to Vendor ${mainList[index]['VendorName']}",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                              ):Text(
+                                                "Hi ${mainList[index]['UserName']} Your ${mainList[index]['Title']==null?"Customise cake":mainList[index]['Title']}"
+                                                    "is order cancelled.",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                              )
+                                              )
+                                          ),
+                                          SizedBox(
+                                            height: 7,
+                                          ),
+                                          mainList[index]['Status_Updated_On']!=null?
+                                          Container(
+                                            // width: 270,
+                                              child:
+                                              // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
+                                              ( mainList[index]['Status_Updated_On'] != null)&&
+                                                  dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+                                                      dateTime.year.toString()==mainList[index]['Status_Updated_On'].toString().split(" ").first ?
+                                              Text("Today",overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 12.5,
+                                                      fontWeight:
+                                                      FontWeight.bold
+                                                  )):
+                                              DateTime.now().day.toString().length==2&&
+                                                  DateTime.now().day.toString()==mainList[index]['Status_Updated_On'].toString().split("-").first?
+                                              Text("Today",overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 12.5,
+                                                      fontWeight:
+                                                      FontWeight.bold
+                                                  )):
+                                              Text("${months[months.indexWhere((element) => element['num']==
+                                                  mainList[index]['Status_Updated_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Status_Updated_On'].toString().split('-').first} "
+                                                  "${mainList[index]['Status_Updated_On'].toString().replaceAll(" ", "").
+                                              split("-").last.substring(0,4)}",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                    FontWeight.bold
+                                                ),
+                                              )
+                                          ):
+                                          Container(
+                                            // width: 270,
+                                              child:
+                                              // Text(dateTime[index]==result2?'Today':'${dateTime[index]}',
+                                              ( mainList[index]['Created_On'] != null)&&
+                                                  dateTime.day.toString().padLeft(2,"0")+"-"+dateTime.month.toString().padLeft(2,"0")+"-"+
+                                                      dateTime.year.toString()==mainList[index]['Created_On'].toString().split(" ").first ?
+                                              Text("Today",overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 12.5,
+                                                      fontWeight:
+                                                      FontWeight.bold
+                                                  )):
+                                              DateTime.now().day.toString().length==2&&
+                                                  DateTime.now().day.toString()==mainList[index]['Created_On'].toString().split("-").first?
+                                              Text("Today",overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: darkBlue,
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 12.5,
+                                                      fontWeight:
+                                                      FontWeight.bold
+                                                  )):
+                                               Text("${months[months.indexWhere((element) => element['num']==
+                                                    mainList[index]['Created_On'].toString().split("-")[1])]['mon']} ${mainList[index]['Created_On'].toString().split('-').first} "
+                                                    "${mainList[index]['Created_On'].toString().replaceAll(" ", "").
+                                                split("-").last.substring(0,4)}",
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                    FontWeight.bold
+                                                ),
+                                              )
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        })
+                        : Container(
+                            margin: EdgeInsets.only(top:25),
+                            child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.notifications_active_outlined,size: 35,),
+                                Text(' No Notifications!',style: TextStyle(
+                                    color: lightPink,fontFamily: "Poppins",
+                                    fontSize: 18,fontWeight: FontWeight.bold
+                                ),),
+                              ],
+                            )
+                      ),
+                    )
+                )
+            ),),
+    );
   }
 }
 

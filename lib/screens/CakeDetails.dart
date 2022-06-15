@@ -2713,7 +2713,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                         ),
                                       ),
                                       Text(
-                                        "${(articleExtraCharge + (double.parse(fixedWeight.replaceAll("kg", "")) * addedFlavPrice) + (int.parse(cakePrice, onError: (e) => 0)) * counts)}",
+                                        "${(articleExtraCharge + (double.parse(fixedWeight.toLowerCase().replaceAll("kg", "")) * addedFlavPrice) + (int.parse(cakePrice, onError: (e) => 0)) * counts)}",
                                         style: TextStyle(
                                           color: lightPink,
                                           fontWeight: FontWeight.bold,
@@ -3209,34 +3209,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             fontSize: 13.5,
                                           ),
                                         ),
-                                      )
-                                      //
-                                      // Container(
-                                      //   width: 60,
-                                      //   alignment: Alignment.center,
-                                      //   margin: EdgeInsets.all(5),
-                                      //   decoration: BoxDecoration(
-                                      //       borderRadius: BorderRadius.circular(20),
-                                      //       border: Border.all(
-                                      //         color: lightPink,
-                                      //         width: 1,
-                                      //       ),
-                                      //       color: weightIndex==index
-                                      //           ? Colors.pink
-                                      //           : Colors.white),
-                                      //   child: Text(
-                                      //     weight[index],
-                                      //     style: TextStyle(
-                                      //         fontWeight: FontWeight.bold,
-                                      //         fontSize: 13,
-                                      //         fontFamily: poppins,
-                                      //         color: weightIndex==index
-                                      //             ? Colors.white
-                                      //             : darkBlue
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                      );
+                                      ));
                                 })),
                         Padding(
                           padding: const EdgeInsets.only(left: 15.0, top: 5),
@@ -3270,8 +3243,10 @@ class _CakeDetailsState extends State<CakeDetails> {
                                     style: TextStyle(
                                         fontFamily: 'Poppins', fontSize: 13),
                                     inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.allow(
-                                          new RegExp('[1-9.]'))
+                                      FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
+                                      // FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
                                     ],
                                     onChanged: (String text) {
                                       setState(() {
@@ -3898,7 +3873,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                 double.parse(
                                                         customweightCtrl.text) <
                                                     6.0 ||
-                                                double.parse(fixedWeight
+                                                double.parse(fixedWeight.toLowerCase()
                                                         .replaceAll("kg", "")) <
                                                     6.0
                                             ? Column(
@@ -4863,6 +4838,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                                   "not yet select" ||
                                               deliverSession.toLowerCase() ==
                                                   "not yet select") {
+                                            print(userModID);
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(SnackBar(
                                               content: Text(
@@ -4913,6 +4889,7 @@ class _CakeDetailsState extends State<CakeDetails> {
                                             ));
                                           } else {
                                             loadOrderPreference();
+                                            print(userModID);
                                           }
                                         }
                                       }

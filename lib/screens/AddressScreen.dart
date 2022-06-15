@@ -31,6 +31,10 @@ class _AddressScreenState extends State<AddressScreen> {
   List<String> addressList = [];
 
 
+  Future<void> getAddrs() async{
+
+  }
+
   //load pref
   Future<void> loadPref() async{
 
