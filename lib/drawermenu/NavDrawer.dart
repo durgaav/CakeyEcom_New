@@ -190,7 +190,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   Navigator.pop(context);
                 }else {
                   Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
                 }
               },
               leading: CircleAvatar(
@@ -211,7 +211,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   Navigator.pop(context);
                 }else {
                   Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CakeTypes()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CakeTypes()));
                 }
               },
               leading: CircleAvatar(
@@ -232,7 +232,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   Navigator.pop(context);
                 }else {
                   Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
                 }
               },
               leading: CircleAvatar(
@@ -252,7 +252,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   Navigator.pop(context);
                 }else {
                   Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VendorsList()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => VendorsList()));
                 }
               },
               leading: CircleAvatar(

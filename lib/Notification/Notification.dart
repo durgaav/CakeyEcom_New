@@ -66,7 +66,6 @@ class NotificationService {
       payload: 'Notification Payload',
     );
 
-
   }
 
 }

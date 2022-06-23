@@ -1,5 +1,4 @@
 
-
 import 'package:flutter/foundation.dart';
 
 class ContextData extends ChangeNotifier {
@@ -9,6 +8,7 @@ class ContextData extends ChangeNotifier {
   int currentIndex = 0;
   List myVendorList = [];
   bool isMyVendorAdded = false;
+  bool isUpdated = false;
   String address = "";
 
   void setProfileUrl(String url){
@@ -52,5 +52,12 @@ class ContextData extends ChangeNotifier {
   }
 
   String getAddress()=>address;
+
+  void setProfileUpdated(bool updated){
+    isUpdated = updated;
+    notifyListeners();
+  }
+
+  bool getDpUpdate()=>isUpdated;
 
 }

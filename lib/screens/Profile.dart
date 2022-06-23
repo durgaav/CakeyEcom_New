@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/ContextData.dart';
+import 'package:cakey/Dialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/screens/AddressScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -60,6 +61,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   String userAddress = "";
   String userProfileUrl = "";
   String userName = "";
+  String fbToken = '';
+
+  //date and time
+  int year = 0;
+  int month = 0;
+  int day = 0;
+  int min = 0;
+  int hour = 0;
+  int days = 0;
+  int hours = 0;
+  int minutes = 0;
+  int seconds = 0;
 
   //Edit text Controllers...
   var userNameCtrl = new TextEditingController();
@@ -73,12 +86,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     // TODO: implement initState
     tabControl = new TabController(length: 2,vsync: this,initialIndex: defindex);
     Future.delayed(Duration.zero, () async{
-      var pref = await SharedPreferences.getInstance();
-      setState(() {
-        phoneNumber = pref.get("phoneNumber").toString();
-      });
       loadPrefs();
-      fetchProfileByPhn();
     });
     super.initState();
   }
@@ -98,6 +106,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     setState(() {
       phoneNumber = prefs.getString("phoneNumber") ?? "";
       authToken = prefs.getString("authToken") ?? 'no auth';
+      fetchProfileByPhn();
     });
   }
 
@@ -182,129 +191,160 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //region Functions....
 
   //Update the profile
-  Future<void> updateProfile() async {
+  Future<void> updateProfile([String tokenId=""]) async {
+
+    print(tokenId);
+
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
       //without profile img....
-      if(file.path.isEmpty){
         var request = http.MultipartRequest('PUT',
             Uri.parse(
                 'https://cakey-database.vercel.app/api/users/update/$userID'));
         request.headers['Content-Type'] = 'multipart/form-data';
+
         request.fields.addAll({
-          'UserName': userNameCtrl.text.toString(),
-          'Address': userAddrCtrl.text.toString()
+          'UserName': userNameCtrl.text.isEmpty?"$userName":userNameCtrl.text,
+          'Address': userAddrCtrl.text.isEmpty?"$userAddress":userAddrCtrl.text,
+          'Notification':!notifiOnOrOf?'n':"y",
+          'Notification_Id':'$tokenId'
         });
+
+
+        if(file.path.isNotEmpty){
+          request.files.add(await http.MultipartFile.fromPath(
+              'file', file.path.toString(),
+              filename: Path.basename(file.path),
+              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+          ));
+        }
+
         http.StreamedResponse response = await request.send();
 
         if (response.statusCode == 200) {
+
+          print(await response.stream.bytesToString());
+
           prefs.setBool("newRegUser", false);
           prefs.setString("userName", userName);
+          prefs.setString("userAddress", userAddress);
+
           Navigator.pop(context);
+
+          context.read<ContextData>().setProfileUpdated(true);
 
           setState(() {
             file = new File('');
             fetchProfileByPhn();
           });
+
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
           );
+
         }
         else {
           Navigator.pop(context);
-
+          checkNetwork();
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor: lightPink,)
           );
         }
-      }
-      else{
-        //with profile image....
-
-
-        var request = http.MultipartRequest('PUT',
-            Uri.parse(
-                'https://cakey-database.vercel.app/api/users/update/$userID'));
-        request.headers['Content-Type'] = 'multipart/form-data';
-        request.files.add(await http.MultipartFile.fromPath(
-            'file', file.path.toString(),
-            filename: Path.basename(file.path),
-            contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-        ));
-        request.fields.addAll({
-          'UserName': userNameCtrl.text.toString(),
-          'Address': userAddrCtrl.text.toString()
-        });
-
-        http.StreamedResponse response = await request.send();
-
-        if (response.statusCode == 200) {
-          prefs.setBool("newRegUser", false);
-          prefs.setString("userName", userName);
-          Navigator.pop(context);
-
-          setState(() {
-            fetchProfileByPhn();
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
-          );
-        }
-        else {
-          Navigator.pop(context);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor:lightPink,)
-          );
-        }
-      }
     }catch(error){
       Navigator.pop(context);
       print(error);
+      checkNetwork();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Please Check Your Connection!"),backgroundColor:lightPink,)
+          SnackBar(content: Text("Error Occurred"),backgroundColor:lightPink,)
       );
     }
   }
 
-  //getting order list...
-  Future<void> getOrderList() async{
-
-    setState(() {
-      isLoading = true;
+  //Order Cancellations
+  Future<void> cancelOrder(String id , String byId, String cakeName) async{
+    showAlertDialog();
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/order/updatestatus/$id'));
+    request.body = json.encode({
+      "Status": "Cancelled",
+      "Status_Updated_By": "$byId"
     });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      print(await response.stream.bytesToString());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Order is canceled!'))
+      );
+
+      getOrderList(userID);
+
+      NotificationService().showNotifications("Order Cancelled", "Your $cakeName order is cancelled.");
+      Navigator.pop(context);
+    }
+    else {
+      print(response.reasonPhrase);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error Occurred!'))
+      );
+      Navigator.pop(context);
+    }
+  }
+
+  //getting order list...
+  Future<void> getOrderList(String _id) async{
 
     try{
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$userID"),
+          Uri.parse("https://cakey-database.vercel.app/api/order/listbyuserid/$_id"),
           headers: {"Authorization":"$authToken"}
       );
       if(response.statusCode==200){
         setState(() {
           recentOrders = jsonDecode(response.body);
           recentOrders = recentOrders.reversed.toList();
-          isLoading = false;
         });
+
+        Navigator.pop(context);
       }
       else{
-        setState(() {
-          isLoading = false;
+        setState((){
+          // isLoading = false;
         });
       }
     }catch(error){
-      setState(() {
-        isLoading = false;
+      setState((){
+        // isLoading = false;
       });
     }
   }
+
+  //network check
+  Future<void> checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      NetworkDialog().showNoNetworkAlert(context);
+      print('not connected');
+    }
+  }
+
 
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
-
     try{
       http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
           "${int.parse(phoneNumber)}"),
@@ -318,24 +358,29 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           userID = body[0]['_id'].toString();
           userAddress = body[0]['Address'].toString();
           userProfileUrl = body[0]['ProfileImage'].toString();
+          fbToken = body[0]['Notification_Id'].toString();
           context.read<ContextData>().setProfileUrl(userProfileUrl);
           userName = body[0]['UserName'].toString();
           prefs.setString('userID', userID);
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
           context.read<ContextData>().setUserName(userName);
-
-          getOrderList();
-          Navigator.pop(context);
         });
+
+        getOrderList(userID);
+
+
       }else{
+        checkNetwork();
         Navigator.pop(context);
       }
     }catch(e){
       Navigator.pop(context);
+      checkNetwork();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Check Your Connection! try again'),
+          SnackBar(content: Text('Error Occurred'),
             backgroundColor: Colors.amber,
+            duration: Duration(seconds: 15),
             action: SnackBarAction(
               label: "Retry",
               onPressed:()=>setState(() {
@@ -355,27 +400,15 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       setState(() {
         String path = result.files.single.path.toString();
         file = File(path);
-
       });
     } else {
       // User canceled the picker
     }
   }
 
-  //check the internet con...
-  Future<void> checkInternet() async {
-    try {
-      final result = await InternetAddress.lookup('www.google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-
-      }
-    } on SocketException catch (_) {
-
-    }
-  }
-
   //Rate the cake & Vendor
   Future<void> rateCake(double rate,String cakeId,int index) async{
+
     print(rate);
     print(cakeId);
     print(index);
@@ -397,45 +430,54 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           SnackBar(content: Text('Rating Updated To Cake'))
       );
 
-      rateVendor(rate,
-          recentOrders[index]['VendorID'].toString());
+      // rateVendor(rate,
+      //     recentOrders[index]['VendorID'].toString());
     }
     else {
       print(response.reasonPhrase);
-      rateVendor(rate,
-          recentOrders[index]['VendorID'].toString());
-      
+      // rateVendor(rate,
+      //     recentOrders[index]['VendorID'].toString());
     }
-
   }
 
-  //Rate the cake & Vendor
-  Future<void> rateVendor(double rate,String vendId) async{
-    print(rate);
 
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('PUT',
-        Uri.parse('https://cakey-database.vercel.app/api/vendor/ratings/$vendId'));
-    request.body = json.encode({
-      "Ratings": double.parse(rate.toString())
-    });
-    request.headers.addAll(headers);
+  void showOrderCancelDialog(String ordid , String userId , String cakeName){
+    showDialog(
+        context: context,
+        builder: (context)=>
+            AlertDialog(
+              title: Text("Cancel Order!" , style: TextStyle(
+                color: darkBlue , fontFamily: "Poppins",
+                fontWeight: FontWeight.bold
+              ),),
+              content:Text(
+                "Are you sure? do you want to cancel this order?", style: TextStyle(
+                  color: Colors.black , fontFamily: "Poppins",
+              )
+              ),
+              actions: [
 
-    http.StreamedResponse response = await request.send();
+                FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    cancelOrder(ordid, userId, cakeName);
+                  },
+                  child: Text('Cancel Order', style: TextStyle(
+                    color: Colors.purple , fontFamily: "Poppins",
+                  )),
+                ),
 
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Rating Updated To Vendor'))
-      );
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
+                FlatButton(
+                  onPressed: ()=>Navigator.pop(context),
+                  child: Text('No', style: TextStyle(
+                      color: Colors.purple , fontFamily: "Poppins",
+                  )),
+                ),
+              ],
+            )
+    );
   }
+
 
 
   //Notifications....
@@ -448,8 +490,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Widget ProfileView(){
     userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
-      userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
+      // userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
+      // userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
     });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,9 +571,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               style: TextStyle(
                 fontFamily: "Poppins" ,
               ),
-              decoration: const InputDecoration(
-                hintText: "Type Name",
+              decoration: InputDecoration(
+                hintText: "$userName",
                 border: const OutlineInputBorder(),
+                hintStyle: TextStyle(
+                  fontFamily: "Poppins" ,
+                  color: darkBlue
+                ),
               ),
             ),
             const SizedBox(height: 15,),
@@ -576,9 +622,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               maxLines: 4,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: "Type Address",
+                hintText: "$userAddress",
                 border: OutlineInputBorder(),
-
+                hintStyle: TextStyle(
+                    fontFamily: "Poppins" ,
+                    color: darkBlue
+                ),
               ),
             ),
           ],
@@ -616,18 +665,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           child: RaisedButton(
             onPressed: (){
               FocusScope.of(context).unfocus();
-
-              if(userNameCtrl.text.toLowerCase()=="no name"||
-                  userAddrCtrl.text.toLowerCase()=="no address"||
-                  userNameCtrl.text.isEmpty||
-                  userAddrCtrl.text.isEmpty){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Unable To Update'))
-                );
-              }else{
-                updateProfile();
-              }
-
+              updateProfile();
             },
             color: darkBlue,
             shape: RoundedRectangleBorder(
@@ -674,9 +712,20 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                   if(val==true){
                     await FirebaseMessaging.instance.getToken().
-                    then((value) => print(value));
+                    then((value) => {
+                      setState((){
+                        fbToken = value!;
+                      }),
+                      updateProfile(value!)
+                    });
                   }else{
-
+                    await FirebaseMessaging.instance.getToken().
+                    then((value) => {
+                      setState((){
+                        fbToken = value!;
+                      }),
+                      updateProfile("no token")
+                    });
                   }
 
                   setState(() {
@@ -724,20 +773,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget OrdersView(){
     return Column(
-      // mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.max,
       // mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        isLoading==true?
-        Center(
-          child: Column(
-          children: [
-            SizedBox(height: 15,),
-            Text('Loading Please Wait...',style: TextStyle(
-                color: Colors.purple , fontFamily: "Poppins",
-                fontSize: 15
-            ),),
-          ],
-        )):
         recentOrders.length>0?
         ListView.builder(
             itemCount: recentOrders.length,
@@ -760,6 +798,41 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         setState(() {
                           if(isExpands[index]==false){
                             isExpands[index]=true;
+
+                            //mins calculate
+
+                            print(recentOrders[index]['Created_On'].toString());
+
+                            year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-").last);
+                            month = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-")[1]);
+                            day = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-").first);
+                            hour = int.parse(recentOrders[index]['Created_On'].toString().split(" ")[1]
+                                .split("")[1].split(":").first);
+                            min = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                            [1].split(":").last);
+
+                            DateTime a = DateTime(year,month,day,hour,min);
+
+                            print("a $a");
+
+                            DateTime b = DateTime.now();
+
+                            Duration difference = b.difference(a);
+
+                            print(difference);
+
+                            days = difference.inDays;
+                            hours = difference.inHours % 24;
+                            minutes = difference.inMinutes % 60;
+                            seconds = difference.inSeconds % 60;
+
+                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
+
+                            print("min : $minutes");
+
                           }else{
                             isExpands[index]=false;
                           }
@@ -769,8 +842,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           child:Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              recentOrders[index]["Images"]==null||recentOrders[index]["Images"].toString().isEmpty||
-                                  !recentOrders[index]["Images"].toString().startsWith("http")?
+                              recentOrders[index]["Image"]==null||recentOrders[index]["Image"].toString().isEmpty||
+                                  !recentOrders[index]["Image"].toString().startsWith("http")?
                               Container(
                                 width: 70,
                                 height: 70,
@@ -790,7 +863,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                     image: DecorationImage(
-                                        image: NetworkImage('${recentOrders[index]['Images']}'),
+                                        image: NetworkImage('${recentOrders[index]['Image']}'),
                                         fit: BoxFit.cover
                                     )
                                 ),
@@ -816,13 +889,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     ),
                                     SizedBox(height: 5,),
                                     Container(
-                                      child:(recentOrders[index]['Title'] != null)
-                                          ?Text("${recentOrders[index]['Title']} "
-                                          "(Rs.${recentOrders[index]['Price']}) × ${recentOrders[index]['ItemCount']}",style: const TextStyle(
+                                      child:(recentOrders[index]['CakeName'] != null)
+                                          ?Text("${recentOrders[index]['CakeName']} ",style: const TextStyle(
                                           fontSize: 12.5,fontFamily: "Poppins",
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,maxLines: 4,):
-                                      Text("My Customized Cake",style: const TextStyle(
+                                      Text("My Customise Cake",style: const TextStyle(
                                           fontSize: 12,fontFamily: "Poppins",
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,),
@@ -831,38 +903,37 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       child:Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          recentOrders[index]['CustomizeCake'].toString()=="n"?
                                           Wrap(
                                             children: [
-                                              Text("(Shapes - ${recentOrders[index]['Shape']}), ",style: const TextStyle(
-                                                    fontSize:10.5,fontFamily: "Poppins",
-                                                    color: Colors.black26
-                                                ),
-                                                maxLines: 5,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Text("(Article - ${recentOrders[index]['Article']['Name']} Rs.${recentOrders[index]['Article']['Price']}), "
-                                                ,style: const TextStyle(
-                                                    fontSize:10.5,fontFamily: "Poppins",
-                                                    color: Colors.black26
-                                                ),
-                                                maxLines: 5,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
+                                              Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
+                                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
                                               Text("(Flavours : ",style: TextStyle(
                                                   fontSize:10.5,fontFamily: "Poppins",
-                                                  color: Colors.black26
+                                                  color: Colors.grey[500]
                                               ),),
                                               for(var i in recentOrders[index]['Flavour'])
-                                                Text("${i['Name']} Price - Rs.${i['Price']} x ${recentOrders[index]['Weight']}, ",style: TextStyle(
+                                                Text("${i['Name']})",style: TextStyle(
                                                     fontSize:10.5,fontFamily: "Poppins",
-                                                    color: Colors.black26
+                                                    color:  Colors.grey[500]
                                                 ),),
-
-                                              Text(" = Rs.${recentOrders[index]['ExtraCharges']})",style: TextStyle(
+                                            ],
+                                          ):
+                                          Wrap(
+                                            children: [
+                                              Text('(Shape - Not Found)',style: TextStyle(
+                                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                                              Text("(Flavours : ",style: TextStyle(
                                                   fontSize:10.5,fontFamily: "Poppins",
-                                                  color: Colors.black26
-                                              ),)
-
+                                                  color: Colors.grey[500]
+                                              ),),
+                                              for(var i in recentOrders[index]['Flavour'])
+                                                Text("${i['Name']})",style: TextStyle(
+                                                    fontSize:10.5,fontFamily: "Poppins",
+                                                    color:  Colors.grey[500]
+                                                ),),
                                             ],
                                           )
                                         ],
@@ -877,15 +948,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children: [
-                                          ( recentOrders[index]['Price']!= null)?
-                                          Text("₹ ${(int.parse(recentOrders[index]['Price'].toString()) *
-                                              int.parse(recentOrders[index]['ItemCount'].toString()))+
-                                              double.parse(recentOrders[index]['ExtraCharges'].toString())}",
+                                          Text("₹ ${(
+                                           double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                               (double.parse(recentOrders[index]['Price'].toString())*
+                                                   double.parse(recentOrders[index]['Weight'].toString().
+                                                   toLowerCase().replaceAll("kg", "")))+
+                                                   double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                           )
+                                          ).toStringAsFixed(2)}",
                                               style: TextStyle(color: lightPink,
-                                              fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,)
-                                              :Text('₹ 0',style: TextStyle(color: lightPink,
                                               fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
-
                                           Container(
                                             child:recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                                             Column(
@@ -926,7 +998,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         duration: const Duration(seconds: 3),
                         curve: Curves.elasticInOut,
                         decoration: BoxDecoration(
-                            color: Colors.black12,
+                            color: Colors.grey[200],
                             borderRadius: BorderRadius.only(
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10)
@@ -949,11 +1021,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   children: [
                                     InkWell(
                                       onTap: () async{
-                                        try{
-                                          await launchUrl(Uri.parse("tel://${recentOrders[index]['VendorPhoneNumber']}"));
-                                        }catch(e){
-                                          print('uri er : $e');
-                                        }
+                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2']);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -969,27 +1037,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
-                                        print('whatsapp');
-                                        String whatsapp = recentOrders[index]['VendorPhoneNumber'];
-                                        var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
-                                        var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
-                                        if(Platform.isIOS){
-                                          // for iOS phone only
-                                          if( await canLaunch(whatappURL_ios)){
-                                            await launch(whatappURL_ios, forceSafariVC: false);
-                                          }else{
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: new Text("whatsapp no installed")));
-                                          }
-                                        }else{
-                                          // android , web
-                                          if( await canLaunch(whatsappURl_android)){
-                                            await launch(whatsappURl_android);
-                                          }else{
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: new Text("whatsapp no installed")));
-                                          }
-                                        }
+                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -1006,9 +1054,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                             ),
+                            recentOrders[index]['CustomizeCake'].toString()=="n"?
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.only(left: 15,bottom: 10),
+                              padding: const EdgeInsets.only(left: 15),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1016,19 +1065,81 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   const Text('Cake Type',style: TextStyle(
                                       fontSize: 11,fontFamily: "Poppins"
                                   ),),
-                                  Text('${recentOrders[index]['TypeOfCake']}',style: TextStyle(
+                                  Text('${recentOrders[index]['CakeType']}',style: TextStyle(
+                                      fontSize: 14,fontFamily: "Poppins",
+                                      fontWeight: FontWeight.bold,color: Colors.black
+                                  ),),
+                                ],
+                              ),
+                            ):
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Cake Type',style: TextStyle(
+                                      fontSize: 11,fontFamily: "Poppins"
+                                  ),),
+                                  Text('Customized Cake',style: TextStyle(
                                       fontSize: 14,fontFamily: "Poppins",
                                       fontWeight: FontWeight.bold,color: Colors.black
                                   ),),
                                 ],
                               ),
                             ),
+
+                            SizedBox(height: 10,),
+
+                            recentOrders[index]['Status']!="Cancelled"
+                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                            Container(
+                              padding: EdgeInsets.only(left: 15,right: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Cancel Order In ${5-minutes} Mins",
+                                    style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13
+                                    ),),
+                                  OutlinedButton(
+                                      onPressed: (){
+
+                                        showOrderCancelDialog(
+                                          recentOrders[index]['_id'],
+                                          recentOrders[index]['UserID'],
+                                          recentOrders[index]['CakeName'],
+                                        );
+
+                                      },
+                                      child: Text("Cancel Order",style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          fontSize: 12
+                                      ),),
+                                    style: ButtonStyle(
+                                      backgroundColor: MaterialStateProperty.all(
+                                        Colors.transparent
+                                      ),
+                                      side: MaterialStateProperty.all(
+                                        BorderSide(width: 0.5,color: Colors.white)
+                                      )
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ):Container(),
+
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
                               color: Colors.black26,
                               height: 1,
                             ),
+
                             const SizedBox(height: 15,),
+
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1041,7 +1152,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 Container(
                                     width: 260,
                                     child:Text(
-                                      "${recentOrders[index]['DeliveryAddress']}",
+                                      "${recentOrders[index]['DeliveryAddress'].toString().trim()}",
                                       style: TextStyle(
                                           fontFamily: "Poppins",
                                           color: Colors.black54,
@@ -1069,9 +1180,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     color: Colors.black54,
                                   ),),
                                   recentOrders[index]['ExtraCharges']!=null?
-                                  Text("₹${(int.parse(recentOrders[index]['Price'].toString()) *
-                                      int.parse(recentOrders[index]['ItemCount'].toString()))+
-                                      double.parse(recentOrders[index]['ExtraCharges'].toString())}"
+                                  Text("₹${(
+                                      double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                          (double.parse(recentOrders[index]['Price'].toString())*
+                                              double.parse(recentOrders[index]['Weight'].toString().
+                                              toLowerCase().replaceAll("kg", "")))+
+                                              double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                      )
+                                  ).toStringAsFixed(2)}"
                                     ,style: const TextStyle(fontWeight: FontWeight.bold),):
                                   Text(""),
                                 ],
@@ -1088,7 +1204,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${recentOrders[index]['DeliveryCharge']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1103,7 +1219,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${recentOrders[index]['Discount']}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1117,7 +1233,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Gst'])}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1131,7 +1247,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Sgst'])}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1151,13 +1267,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold
                                   ),),
-                                  Text('₹${((int.parse(recentOrders[index]['Price'].toString())*
-                                      int.parse(recentOrders[index]['ItemCount'].toString()))
-                                      +double.parse(recentOrders[index]['ExtraCharges'].toString())
-                                     +double.parse(recentOrders[index]['Gst'].toString())+
-                                      double.parse(recentOrders[index]['Sgst'].toString())+
-                                      double.parse(recentOrders[index]['DeliveryCharge'].toString()))-
-                                      double.parse(recentOrders[index]['Discount'].toString())}',
+                                  Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -1270,8 +1380,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               );
             }
         ):
-        Center(
-          child: Column(
+        Column(
+            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 15,),
@@ -1280,7 +1390,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
               ),),
             ],
-          ),
         ),
       ],
     );
@@ -1470,39 +1579,39 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
-  // Future<void> SendMessage(String? value) async{
-  //   var headers = {
-  //     'Authorization': 'Bearer AAAAfUzNhqs:APA91bEsu2OWHUz4U7Y2Y0Z3XpkBN0ePeyLEcBioYQd-UQdcr3pDjXvYfDcZaWrSExv-L-BfKBoAs6h10YMqRwNZZU7wrFmxsg8PvkpTtMw1PZEyxeH8Pd25vcKjEtFhhqriBMKcuIEj',
-  //     'Content-Type': 'application/json'
-  //   };
-  //   var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
-  //   request.body = json.encode({
-  //     "registration_ids": [
-  //          "$value",
-  //      "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
-  //     ],
-  //     "notification": {
-  //       "title": "Order Placed",
-  //       "body": "Your Order Ben 10 Theme Cake Successfully placed.Thank You."
-  //     },
-  //     "data": {
-  //       "msgId": "msg_12342"
-  //     }
-  //   });
-  //   request.headers.addAll(headers);
-  //
-  //   http.StreamedResponse response = await request.send();
-  //
-  //
-  //   print(response.statusCode);
-  //
-  //   if (response.statusCode == 200) {
-  //     print(await response.stream.bytesToString());
-  //   }
-  //   else {
-  //     print(response.reasonPhrase);
-  //   }
-  //
-  // }
+  Future<void> SendMessage(String? value) async{
+    var headers = {
+      'Authorization': 'Bearer AAAAfUzNhqs:APA91bEsu2OWHUz4U7Y2Y0Z3XpkBN0ePeyLEcBioYQd-UQdcr3pDjXvYfDcZaWrSExv-L-BfKBoAs6h10YMqRwNZZU7wrFmxsg8PvkpTtMw1PZEyxeH8Pd25vcKjEtFhhqriBMKcuIEj',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+    request.body = json.encode({
+      "registration_ids": [
+           "$value",
+       "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
+      ],
+      "notification": {
+        "title": "Order Placed",
+        "body": "Your Order Ben 10 Theme Cake Successfully placed.Thank You."
+      },
+      "data": {
+        "msgId": "msg_12342"
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
 }
 

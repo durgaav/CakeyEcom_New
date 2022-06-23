@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Dialogs.dart';
 
 //Code Verify screen.....
 class CodeVerify extends StatefulWidget {
@@ -30,21 +31,31 @@ class _CodeVerifyState extends State<CodeVerify> {
   Color lightPink = Color(0xffFE8416D);
   int token = 0 ;
 
+  bool connected = false;
+
   //region Sending code to number......
   Future<void> verifyPhoneCode() async{
     showAlertDialog();
-    await _auth.verifyPhoneNumber(
+
+    try{
+      await _auth.verifyPhoneNumber(
         phoneNumber: phonenumber,
         verificationCompleted: _onVerificationCompleted,
         verificationFailed: _onVerificationFailed,
         codeSent: _onCodeSent,
         codeAutoRetrievalTimeout: _onCodeTimeout,
-    );
+      );
+    }catch(e){
+      checkNetwork();
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error Occurred"),backgroundColor:lightPink,)
+      );
+    }
+
+
   }
 
   _onVerificationCompleted(PhoneAuthCredential authCredential) async {
-
-    if(Platform.isAndroid){
 
       print('Auth code : ${authCredential.smsCode}');
       
@@ -55,11 +66,15 @@ class _CodeVerifyState extends State<CodeVerify> {
       if(authCredential.smsCode != null){
         await _auth.signInWithCredential(authCredential).then((value){
 
+          print(value);
+
           setState(() {
             addUsertoDb();
           });
 
         }).catchError((error){
+          checkNetwork();
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               elevation: 20,
@@ -77,7 +92,7 @@ class _CodeVerifyState extends State<CodeVerify> {
 
         });
       }
-    }
+
 
   }
 
@@ -86,7 +101,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     // Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Something went wrong!"),
+          content: Text("$exception"),
           backgroundColor: Colors.red,
         )
     );
@@ -123,27 +138,9 @@ class _CodeVerifyState extends State<CodeVerify> {
   }
 
   _onCodeTimeout(String timeout) async{
-
     setState(() {
       verificationId = timeout;
     });
-
-    // Navigator.pop(context);
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     elevation: 20,
-    //     shape: RoundedRectangleBorder(
-    //       borderRadius: BorderRadius.circular(8),
-    //     ),
-    //     margin: EdgeInsets.all(15),
-    //     content: Text('Verification time out! '
-    //         'try to resend code',textAlign: TextAlign.center,style: TextStyle(
-    //         color: Colors.white,fontWeight: FontWeight.bold
-    //     ),),
-    //     backgroundColor: lightPink,
-    //     behavior: SnackBarBehavior.floating,
-    //   ),
-    // );
     print("time out : $timeout");
     return null;
   }
@@ -158,6 +155,8 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Code verify.........
   Future<void> verify(String verId , String otpCode) async{
+
+
 
     print(otpControl.text);
 
@@ -174,7 +173,7 @@ class _CodeVerifyState extends State<CodeVerify> {
       });
 
     }).catchError((error){
-
+      // Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           elevation: 20,
@@ -313,7 +312,7 @@ class _CodeVerifyState extends State<CodeVerify> {
             content: Row(
               children: [
                 Icon(Icons.wifi_outlined,color: Colors.white,),
-                Text(" Check your connection!"),
+                Text(error.toString()),
               ],
             ),
             backgroundColor: Colors.red,
@@ -344,7 +343,6 @@ class _CodeVerifyState extends State<CodeVerify> {
 
       Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
       print(map);
-
 
       if(response.statusCode==200){
 
@@ -381,7 +379,6 @@ class _CodeVerifyState extends State<CodeVerify> {
 
       }
 
-
     }catch(e){
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -389,7 +386,7 @@ class _CodeVerifyState extends State<CodeVerify> {
             content: Row(
               children: [
                 Icon(Icons.wifi_outlined,color: Colors.white,),
-                Text(" Check your connection!"),
+                Text("$e"),
               ],
             ),
             backgroundColor: Colors.red,
@@ -400,11 +397,24 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   }
 
+  //network check
+  void checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      NetworkDialog().showNoNetworkAlert(context);
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration.zero,() async{
+    Future.delayed(Duration.zero , () async{
       verifyPhoneCode();
     });
   }

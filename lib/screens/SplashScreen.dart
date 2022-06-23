@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
+import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/WelcomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if(authUser!=null){
         Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen())
+            MaterialPageRoute(builder: (context) =>HomeScreen())
         );
       }else{
         Navigator.pushReplacement(

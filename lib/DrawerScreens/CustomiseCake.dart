@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' as fil;
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http ;
@@ -17,10 +18,12 @@ import 'package:dotted_border/dotted_border.dart';
 import '../ContextData.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
-
+import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../screens/AddressScreen.dart';
 import '../screens/Profile.dart';
+import '../screens/SingleVendor.dart';
+import 'HomeScreen.dart';
 import 'Notifications.dart';
 
 
@@ -45,18 +48,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   DateTime? currentBackPressTime;
   //shapes
   var shapesList = [];
-  // var shapesList = ["Round","Square","Heart","Any Shape" , "Others"];
+
   var shapeGrpValue = 0;
 
-  //flavour
-  // var flavourList = [
-  //   "Vanilla",
-  //   "Chocolate" ,
-  //   "Strawberry",
-  //   "Black Forest",
-  //   "Red Velvet",
-  //   "Others",
-  // ];
   var flavourList = [];
 
   var flavGrpValue = 0;
@@ -65,16 +59,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var cakeArticles = ["Default" , 'Cake Article','Cake Article','Cake Art'];
   var artGrpValue = 0;
   String fixedCakeArticle = '';
+  String tempCakeName = '';
 
   //Articles
-  var articals = [
-    // {"article":'Happy Birthday',"price":'100'},
-    // {"article":'Butterflies',"price":'85'},
-    // {"article":'Sweet Heart',"price":'150'},
-    // {"article":'Welcome Home',"price":'70'},
-    // {"article":'I Love You',"price":'70'},
-    // {"article":'Others',"price":'70'},
-  ];
+  var articals = [];
   int articGroupVal = -1;
 
   int selVendorIndex = 0;
@@ -105,7 +93,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String fixedSession = 'Not Yet Select';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
   String selectedDropWeight = "Kg";
-  String fixedDelliverMethod = "";
+  String fixedDelliverMethod = "Not Yet Select";
 
   //cake text ctrls
   var msgCtrl = new TextEditingController();
@@ -149,6 +137,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String myVendorDelCharge = 'null';
   String myVendorPhone = 'null';
   String myVendorDesc = 'null';
+
   bool iamYourVendor = false;
 
   //file
@@ -164,6 +153,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String vendorAddress = '';
   String vendorPhone = '';
   String vendorModId = '';
+  String vendorPhone1 = "";
+  String vendorPhone2 = "";
 
   //Current user details
   String userID ='';
@@ -174,6 +165,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var cateListScrollCtrl = new ScrollController();
 
   bool newRegUser = false;
+  bool nearVendorClicked = false;
 
   //endregion
 
@@ -209,7 +201,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       height: 45,
                       decoration: BoxDecoration(
                           color: Colors.amber,
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10)
+                      ),
                       alignment: Alignment.center,
                       child: Icon(
                         Icons.volume_up_rounded,
@@ -712,6 +705,42 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   }
 
+
+  void showCakeNameEdit(){
+    var myCtrl = new TextEditingController(text: "My Customized Cake");
+    showDialog(
+        context: context,
+        builder: (c)=>
+            StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState){
+                  return AlertDialog(
+                    title: Text("Cake Name"),
+                    content: Container(
+                      child: TextField(
+                        controller: myCtrl,
+                        decoration: InputDecoration(
+                          hintText: 'Cake Name'
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      FlatButton(
+                          onPressed: (){
+                            Navigator.pop(context);
+                            setState((){
+                              tempCakeName = myCtrl.text;
+                            });
+                            showConfirmOrder();
+                          },
+                          child: Text("Order")
+                      )
+                    ],
+                  );
+                }
+            )
+    );
+  }
+
   //Confirm order
   void showConfirmOrder(){
     showDialog(
@@ -742,7 +771,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               FlatButton(
                   onPressed: (){
                     Navigator.pop(context);
-                    confirmOrder();
+                    confirmOrder(tempCakeName);
                   },
                   child: Text('Order Now')
               ),
@@ -1010,26 +1039,25 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       if(res.statusCode==200){
         setState(() {
           List vendorsList = jsonDecode(res.body);
-
           for(int i = 0; i<vendorsList.length;i++){
-            if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
-                vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){
+            /*if(vendorsList[i]['Address']!=null&&vendorsList[i]['Address']['City']!=null&&
+                vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){*/
               print('found .... $i');
               setState(() {
                 nearestVendors.add(vendorsList[i]);
               });
-            }
           }
-
           Navigator.pop(context);
         });
       }else{
+        checkNetwork();
         Navigator.pop(context);
       }
     }on Exception catch(e){
+      checkNetwork();
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Check Your Connection! try again'),
+          SnackBar(content: Text('Error Occurred'),
             backgroundColor: Colors.amber,
             action: SnackBarAction(
               label: "Retry",
@@ -1041,6 +1069,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       );
     }
 
+  }
+
+  //network check
+  Future<void> checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      NetworkDialog().showNoNetworkAlert(context);
+      print('not connected');
+    }
   }
 
   //File piker for upload image
@@ -1090,7 +1131,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
           fixedCategory = category;
         }
-
       }
 
       if(shape.isNotEmpty){
@@ -1115,173 +1155,108 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   //Load Order Preferences...
-  Future<void> confirmOrder() async{
+  Future<void> confirmOrder([String ckName = "My Customized Cake"]) async{
+
+    showAlertDialog();
 
     var tempList = [];
 
     setState((){
       if(fixedFlavList.isEmpty){
-        fixedFlavList = [jsonEncode({"Name":"Vanilla","Price":"0"})];
+        fixedFlavList = [{"Name":"Vanilla","Price":"0"}];
       }else{
         fixedFlavList = fixedFlavList+flavTempList;
 
         for(int i = 0;i<fixedFlavList.length;i++){
-          tempList.add(jsonEncode(fixedFlavList[i]));
+          tempList.add(fixedFlavList[i]);
         }
 
         tempList = tempList.toSet().toList();
       }
 
-      print(tempList);
+      if(fixedShape.isEmpty){
+        fixedShape = "Vanilla";
+      }
 
       fixedWeight = fixedWeight.toLowerCase().replaceAll("kg", "");
 
       print(fixedWeight);
 
-
-
-      print(json.encode({
-        'TypeOfCake': '$fixedCategory',
-        'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-        'Flavour': tempList.toString(),
-        'Shape': '$fixedShape',
-        'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
-        '{"Name":"$fixedCakeArticle","Price":"0"}',
-        'Weight': '${fixedWeight}',
-        'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-        'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
-        'DeliveryAddress': '$deliverAddress',
-        'DeliveryDate': '$fixedDate',
-        'DeliverySession': '$fixedSession',
-        'DeliveryInformation': '$fixedDelliverMethod',
-        'VendorID': '$vendorID',
-        'VendorName': '$vendorName',
-        'VendorPhoneNumber': '$vendorPhone',
-        'VendorAddress': '$vendorAddress',
-        'Vendor_ID':'$vendorModId',
-        "User_ID":"$userModId",
-        'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-        'UserID': '$userID',
-        'UserName': '$userName',
-        'UserPhoneNumber': '$userPhone'
-      }));
+      print(vendorID);
 
     });
 
-    showAlertDialog();
-
-    //below 5 kg it will work...
-    if(double.parse(fixedWeight.replaceAll("kg", "")) < 6.0){
-
-      print("below 5");
-      print(file.path);
+    //below 5 kg it work...
 
       try{
 
-        //user not select the file
-        if(file.path.isEmpty){
-
           var request = http.MultipartRequest('POST',
               Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
           request.fields.addAll({
-            'TypeOfCake': '$fixedCategory',
+            'CakeType': '$fixedCategory',
+            'CakeName':"$ckName",
             'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-            'Flavour': tempList.toString(),
+            'Flavour': jsonEncode(tempList),
             'Shape': '$fixedShape',
-            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
-             '{"Name":"$fixedCakeArticle","Price":"0"}',
             'Weight': '${fixedWeight}kg',
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
             'DeliveryAddress': '$deliverAddress',
             'DeliveryDate': '$fixedDate',
             'DeliverySession': '$fixedSession',
             'DeliveryInformation': '$fixedDelliverMethod',
-            'VendorID': '$vendorID',
-            'VendorName': '$vendorName',
-            'VendorPhoneNumber': '$vendorPhone',
-            'VendorAddress': '$vendorAddress',
-            'Vendor_ID':'$vendorModId',
             "User_ID":"$userModId",
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
             'UserID': '$userID',
-            'UserName': '$userName',
-            'UserPhoneNumber': '$userPhone'
-          });
-
-          // request.files.add(await http.MultipartFile.fromPath(
-          //     'files', file.path.toString(),
-          //     filename: Path.basename(file.path),
-          //     contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-          // ));
-
-          http.StreamedResponse response = await request.send();
-
-          if (response.statusCode == 200) {
-            print(await response.stream.bytesToString());
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Order Posted.!'),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-          }
-          else {
-            print(response.reasonPhrase);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(response.reasonPhrase.toString()),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-            Navigator.pop(context);
-          }
-
-        }else{
-
-          print("abv 5");
-
-          var request = http.MultipartRequest('POST',
-              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
-
-          request.headers['Content-Type'] = 'multipart/form-data';
-
-          request.fields.addAll({
-            'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-            'Flavour': '$tempList',
-            'Shape': '$fixedShape',
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
-              '{"Name":"$fixedCakeArticle","Price":"0"}',
-            'Weight': '${fixedWeight}kg',
-            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
-            'DeliveryAddress': '$deliverAddress',
-            'DeliveryDate': '$fixedDate',
-            'DeliverySession': '$fixedSession',
-            'DeliveryInformation': '$fixedDelliverMethod',
-            'VendorName': '$vendorName',
-            'VendorPhoneNumber': '$vendorPhone',
-            'VendorAddress': '$vendorAddress',
-            'Vendor_ID':'$vendorModId',
-            "User_ID":"$userModId",
             'UserName': '$userName',
             'UserPhoneNumber': '$userPhone',
-            'VendorID': '$vendorID',
-            'UserID': '$userID',
           });
 
-          request.files.add(await http.MultipartFile.fromPath(
-              'files', file.path.toString(),
-              filename: Path.basename(file.path),
-              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-          ));
+          if(msgCtrl.text.isNotEmpty){
+            request.fields.addAll({
+              'MessageOnTheCake':msgCtrl.text,
+            });
+          }
+
+          if(specialReqCtrl.text.isNotEmpty){
+            request.fields.addAll({
+              'SpecialRequest':specialReqCtrl.text,
+            });
+          }
+
+          if(file.path.isNotEmpty){
+            request.files.add(await http.MultipartFile.fromPath(
+                'files', file.path.toString(),
+                filename: Path.basename(file.path),
+                contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+            ));
+          }
+
+          if(vendorID.isNotEmpty){
+            request.fields.addAll({
+              'VendorID': '$vendorID',
+              'VendorName': '$vendorName',
+              'VendorAddress': '$vendorAddress',
+              'Vendor_ID':'$vendorModId',
+              'VendorPhoneNumber1':'$vendorPhone1',
+              'VendorPhoneNumber2':'$vendorPhone2',
+              'PremiumVendor':"n",
+            });
+          }
+
+
+          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+            request.fields.addAll({
+              'PremiumVendor':"y",
+            });
+          }
+
+          if(vendorID.isEmpty){
+            request.fields.addAll({
+              'PremiumVendor':"y",
+            });
+          }
+
 
           http.StreamedResponse response = await request.send();
 
@@ -1295,179 +1270,32 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   behavior: SnackBarBehavior.floating,
                 )
             );
-          }
-          else {
-            print(response.reasonPhrase);
+          }else{
+            checkNetwork();
+            Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(response.reasonPhrase.toString()),
+                  content: Text('Error Occurred ${response.statusCode}'),
                   backgroundColor: Colors.red,
                   behavior: SnackBarBehavior.floating,
                 )
             );
-            Navigator.pop(context);
           }
-
-        }
 
       }catch(e){
         print(e);
+        checkNetwork();
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Something Went Wrong!'),
+              content: Text('Error Occurred'),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             )
         );
       }
 
-    }else{
 
-
-      try{
-
-        //user not select the file
-        if(file.path.isEmpty){
-
-
-          var request = http.MultipartRequest('POST',
-              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
-
-          request.headers['Content-Type'] = 'multipart/form-data';
-
-          request.fields.addAll({
-            'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-            'Flavour': '$tempList',
-            'Shape': '$fixedShape',
-            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
-            '{"Name":"$fixedCakeArticle","Price":"0"}',
-            'Weight': '${fixedWeight}kg',
-            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
-            'DeliveryAddress': '$deliverAddress',
-            'DeliveryDate': '$fixedDate',
-            'DeliverySession': '$fixedSession',
-            'DeliveryInformation': '$fixedDelliverMethod',
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            "User_ID":"$userModId",
-            'UserID': '$userID',
-            'UserName': '$userName',
-            'UserPhoneNumber': '$userPhone'
-          });
-
-          // request.files.add(await http.MultipartFile.fromPath(
-          //     'files', file.path.toString(),
-          //     filename: Path.basename(file.path),
-          //     contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-          // ));
-
-          http.StreamedResponse response = await request.send();
-
-          if (response.statusCode == 200) {
-            print(await response.stream.bytesToString());
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Order Posted.!'),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-          }
-          else {
-            print(response.reasonPhrase);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(response.reasonPhrase.toString()),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-            Navigator.pop(context);
-          }
-
-        }else{
-
-          var request = http.MultipartRequest('POST',
-              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
-
-          request.headers['Content-Type'] = 'multipart/form-data';
-
-          // for (String item in fixedFlavList) {
-          //   request.files.add(http.MultipartFile.fromString('Flavour', item));
-          // }
-
-
-          request.fields.addAll({
-            'TypeOfCake': '$fixedCategory',
-            'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-            'Flavour': '$tempList',
-            'Shape': '$fixedShape',
-            'Article': fixedCakeArticle.isEmpty?'{"Name":"None","Price":"0"}':
-            '{"Name":"$fixedCakeArticle","Price":"0"}',
-            'SpecialRequest':specialReqCtrl.text.isEmpty?'None':'${specialReqCtrl.text}',
-            'Weight': '${fixedWeight}',
-            'MessageOnTheCake':msgCtrl.text.isEmpty?'None':'${msgCtrl.text}',
-            'DeliveryAddress': '$deliverAddress',
-            'DeliveryDate': '$fixedDate',
-            'DeliverySession': '$fixedSession',
-            'DeliveryInformation': '$fixedDelliverMethod',
-            "User_ID":"$userModId",
-            'UserID': '$userID',
-            'User_ID':'$userModId',
-            'UserName': '$userName',
-            'UserPhoneNumber': '$userPhone'
-          });
-
-          request.files.add(await http.MultipartFile.fromPath(
-              'files', file.path.toString(),
-              filename: Path.basename(file.path),
-              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-          ));
-
-          http.StreamedResponse response = await request.send();
-
-          if (response.statusCode == 200) {
-            print(await response.stream.bytesToString());
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Order Posted.!'),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-          }
-          else {
-            print(response.reasonPhrase);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(response.reasonPhrase.toString()),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
-            Navigator.pop(context);
-          }
-
-        }
-
-      }catch(e){
-        print(e);
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Something Went Wrong!'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-
-      }
-
-
-    }
 
   }
 
@@ -1510,7 +1338,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -1520,40 +1347,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }else{
       deliverAddress = deliverAddress;
     }
+
     selFromVenList = context.watch<ContextData>().getAddedMyVendor();
     mySelectdVendors = context.watch<ContextData>().getMyVendorsList();
 
-    // "VendorId":nearestVendors[index]['_id'],
-    // "VendorModId":nearestVendors[index]['Id'],
-    // "VendorName":nearestVendors[index]['VendorName'],
-    // "VendorDesc":nearestVendors[index]['Description'],
-    // "VendorProfile":nearestVendors[index]['ProfileImage'],
-    // "VendorPhone":nearestVendors[index]['PhoneNumber1'],
-    // "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
-    // "VendorEgg":nearestVendors[index]['EggOrEggless'],
-    // "VendorAddress":nearestV
-
     setState((){
       if(mySelectdVendors.isNotEmpty){
-        vendorID = mySelectdVendors[0]['VendorId'];
-        vendorModId = mySelectdVendors[0]['VendorModId'];
+        vendorID = mySelectdVendors[0]['_id'];
+        vendorModId = mySelectdVendors[0]['Id'];
         vendorName = mySelectdVendors[0]['VendorName'];
-        vendorPhone = mySelectdVendors[0]['VendorPhone'];
-        vendorAddress = mySelectdVendors[0]['VendorAddress'];
+        vendorPhone1 = mySelectdVendors[0]['PhoneNumber1'];
+        vendorPhone2 = mySelectdVendors[0]['PhoneNumber2'];
+        vendorAddress = mySelectdVendors[0]['Address']['FullAddress'];
       }
     });
 
     return WillPopScope(
       onWillPop: () async{
-        DateTime now = DateTime.now();
-        if (currentBackPressTime == null ||
-            now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-          currentBackPressTime = now;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Tap again to exit.'))
-          );
-          return Future.value(false);
-        }
+        Navigator.pop(context);
+        context.read<ContextData>().setMyVendors([]);
+        context.read<ContextData>().addMyVendor(false);
         return Future.value(true);
       },
       child: Scaffold(
@@ -2016,11 +1829,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 itemCount: flavourList.length,
                                                 shrinkWrap: true,
                                                 itemBuilder: (context, index) {
-
                                                   fixedFlavChecks.add(false);
                                                   return InkWell(
                                                     onTap: (){
-
                                                       if(flavourList[index].toString().contains('Others')){
                                                         print('Index is $index');
                                                         showOthersFlavourDialog(index);
@@ -2041,11 +1852,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                             fixedFlavChecks[index] = false;
                                                             fixedFlavList.removeWhere((element) => element['Name']==flavourList[index].toString());
                                                           }
-
                                                         });
                                                       }
-
-
                                                     },
                                                     child: Container(
                                                       padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
@@ -2273,19 +2081,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         fontSize: 13
                                     ),
                                     onChanged: (String text){
-                                      if(text.isNotEmpty){
+                                      if(weightCtrl.text.isNotEmpty){
                                         setState((){
                                           isFixedWeight = -1;
-                                          fixedWeight = text+"kg";
+                                          fixedWeight = weightCtrl.text+"kg";
                                         });
                                       }else{
-                                        isFixedWeight = 0;
-                                        fixedWeight = weight[0];
-                                      }
-                                    },
-                                    onSubmitted:(String text){
-                                      if(text.isNotEmpty){
-                                        sendOtherToApi("Weight", text+"kg");
+                                        setState((){
+                                          isFixedWeight = 0;
+                                          fixedWeight = weight[0];
+                                        });
                                       }
                                     },
                                     decoration: InputDecoration(
@@ -2330,16 +2135,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               },
                                               child:Text('Kilo Gram')
                                           ),
-                                          // PopupMenuItem(onTap:(){
-                                          //   setState((){
-                                          //     selectedDropWeight = "Ib";
-                                          //   });
-                                          // },child:Text('Pounds')),
-                                          // PopupMenuItem(onTap:(){
-                                          //   setState((){
-                                          //     selectedDropWeight = "G";
-                                          //   });
-                                          // },child:Text('Gram')),
                                         ]
                                     )
                                 ),
@@ -2398,77 +2193,77 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                 ),
 
-                                //Articlessss
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    ' Articles',
-                                    style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                                  ),
-                                ),
-
-                                Container(
-                                    child:ListView.builder(
-                                      shrinkWrap : true,
-                                      physics : NeverScrollableScrollPhysics(),
-                                      itemCount:articals.length < 5?articals.length:5,
-                                      itemBuilder: (context , index){
-                                        return InkWell(
-                                          onTap:(){
-                                            setState(() {
-                                              if(articals[index].toString().contains('Others')){
-
-                                                if(articGroupVal==index){
-                                                  articGroupVal = -1;
-                                                  addOtherArticle = false;
-                                                }else{
-                                                  addOtherArticle = true;
-                                                  articGroupVal = index;
-                                                }
-
-                                              }else{
-                                                if(articGroupVal==index){
-                                                  fixedCakeArticle = 'None';
-                                                  articGroupVal = -1;
-                                                  addOtherArticle = false;
-                                                }else{
-                                                  articGroupVal = index;
-                                                  fixedCakeArticle = articals[index].toString();
-                                                  addOtherArticle = false;
-                                                }
-                                              }
-
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(5),
-                                            child: Row(
-                                                children:[
-                                                  articGroupVal!=index?
-                                                  Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
-                                                  Icon(Icons.check_circle_rounded, color:Colors.green),
-                                                  SizedBox(width:5),
-                                                  Expanded(
-                                                    child:Text.rich(
-                                                        TextSpan(
-                                                            text: "",
-                                                            children: <InlineSpan>[
-                                                              TextSpan(
-                                                                text:"${articals[index]} ",
-                                                                style: TextStyle(
-                                                                    fontFamily: poppins, color:Colors.black54 , fontSize: 13
-                                                                ),),
-                                                            ]
-                                                        )
-                                                    ),
-                                                  ),
-                                                ]
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    )
-                                ),
+                                // //Articlessss
+                                // Padding(
+                                //   padding: const EdgeInsets.only(top: 10),
+                                //   child: Text(
+                                //     ' Articles',
+                                //     style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                                //   ),
+                                // ),
+                                //
+                                // Container(
+                                //     child:ListView.builder(
+                                //       shrinkWrap : true,
+                                //       physics : NeverScrollableScrollPhysics(),
+                                //       itemCount:articals.length < 5?articals.length:5,
+                                //       itemBuilder: (context , index){
+                                //         return InkWell(
+                                //           onTap:(){
+                                //             setState(() {
+                                //               if(articals[index].toString().contains('Others')){
+                                //
+                                //                 if(articGroupVal==index){
+                                //                   articGroupVal = -1;
+                                //                   addOtherArticle = false;
+                                //                 }else{
+                                //                   addOtherArticle = true;
+                                //                   articGroupVal = index;
+                                //                 }
+                                //
+                                //               }else{
+                                //                 if(articGroupVal==index){
+                                //                   fixedCakeArticle = 'None';
+                                //                   articGroupVal = -1;
+                                //                   addOtherArticle = false;
+                                //                 }else{
+                                //                   articGroupVal = index;
+                                //                   fixedCakeArticle = articals[index].toString();
+                                //                   addOtherArticle = false;
+                                //                 }
+                                //               }
+                                //
+                                //             });
+                                //           },
+                                //           child: Container(
+                                //             padding: EdgeInsets.all(5),
+                                //             child: Row(
+                                //                 children:[
+                                //                   articGroupVal!=index?
+                                //                   Icon(Icons.radio_button_unchecked_rounded, color:Colors.black):
+                                //                   Icon(Icons.check_circle_rounded, color:Colors.green),
+                                //                   SizedBox(width:5),
+                                //                   Expanded(
+                                //                     child:Text.rich(
+                                //                         TextSpan(
+                                //                             text: "",
+                                //                             children: <InlineSpan>[
+                                //                               TextSpan(
+                                //                                 text:"${articals[index]} ",
+                                //                                 style: TextStyle(
+                                //                                     fontFamily: poppins, color:Colors.black54 , fontSize: 13
+                                //                                 ),),
+                                //                             ]
+                                //                         )
+                                //                     ),
+                                //                   ),
+                                //                 ]
+                                //             ),
+                                //           ),
+                                //         );
+                                //       },
+                                //     )
+                                // ),
 
                                 AnimatedSwitcher(
                                     switchInCurve: Curves.ease,
@@ -2976,7 +2771,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               nearestVendors.isNotEmpty?
                               Column(
                                 children: [
-                                  double.parse(fixedWeight.replaceAll("kg", ''))<6.0?
+                                  double.parse(fixedWeight.toLowerCase().replaceAll("kg", ''))<5.0?
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -2987,10 +2782,39 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       //mySelectdVendors
                                       selFromVenList?
                                       InkWell(
-                                        onTap:(){
-                                          // setState((){
-                                          //   selVendorIndex = -1;
-                                          // });
+                                        onTap:() async{
+
+                                          var pref = await SharedPreferences.getInstance();
+
+                                          pref.remove('singleVendorID');
+                                          pref.remove('singleVendorFromCd');
+                                          pref.remove('singleVendorRate');
+                                          pref.remove('singleVendorName');
+                                          pref.remove('singleVendorDesc');
+                                          pref.remove('singleVendorPhone1');
+                                          pref.remove('singleVendorPhone2');
+                                          pref.remove('singleVendorDpImage');
+                                          pref.remove('singleVendorAddress');
+                                          pref.remove('singleVendorSpeciality');
+
+                                          //common keyword single****
+                                          pref.setString('singleVendorID', mySelectdVendors[0]['_id']??'null');
+                                          pref.setBool('singleVendorFromCd', true);
+                                          pref.setString('singleVendorRate', mySelectdVendors[0]['Ratings'].toString()??'0.0');
+                                          pref.setString('singleVendorName', mySelectdVendors[0]['VendorName']??'null');
+                                          pref.setString('singleVendorDesc', mySelectdVendors[0]['Description']??'null');
+                                          pref.setString('singleVendorPhone1', mySelectdVendors[0]['PhoneNumber1']??'null');
+                                          pref.setString('singleVendorPhone2', mySelectdVendors[0]['PhoneNumber2']??'null');
+                                          pref.setString('singleVendorDpImage', mySelectdVendors[0]['ProfileImage']??'null');
+                                          pref.setString('singleVendorAddress', mySelectdVendors[0]['Address']['FullAddress']??'null');
+                                          pref.setString('singleVendorSpecial', mySelectdVendors[0]['YourSpecialityCakes'].toString()??'null');
+
+
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context)=>SingleVendor()
+                                              )
+                                          );
                                         },
                                         child: Container(
                                           width: MediaQuery.of(context).size.width,
@@ -3002,7 +2826,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           ),
                                           child: Row(
                                             children: [
-                                              mySelectdVendors[0]['VendorProfile']!=null?
+                                              mySelectdVendors[0]['ProfileImage']!=null?
                                               Container(
                                                 width:90,
                                                 height:100,
@@ -3010,7 +2834,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                     color:Colors.red ,
                                                     borderRadius:BorderRadius.circular(10) ,
                                                     image:DecorationImage(
-                                                        image:NetworkImage(mySelectdVendors[0]['VendorProfile'].toString()),
+                                                        image:NetworkImage(mySelectdVendors[0]['ProfileImage'].toString()),
                                                         fit: BoxFit.cover
                                                     )
                                                 ),
@@ -3054,7 +2878,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               Row(
                                                                 children: [
                                                                   RatingBar.builder(
-                                                                    initialRating: 4.1,
+                                                                    initialRating: double.parse(mySelectdVendors[0]['Ratings'].toString()),
                                                                     minRating: 1,
                                                                     direction: Axis.horizontal,
                                                                     allowHalfRating: true,
@@ -3069,7 +2893,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       print(rating);
                                                                     },
                                                                   ),
-                                                                  Text(' 4.5',style: TextStyle(
+                                                                  Text(' ${mySelectdVendors[0]['Ratings'].toString().
+                                                                  characters.take(3)}',
+                                                                    style: TextStyle(
                                                                       color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
                                                                   ),)
                                                                 ],
@@ -3083,9 +2909,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       ],
                                                     ),
 
-                                                    Text(mySelectdVendors[0]['VendorDesc']!=null||
-                                                        mySelectdVendors[0]['VendorDesc']!='null'?
-                                                    "${mySelectdVendors[0]['VendorDesc']}":"No Description",
+                                                    Text(mySelectdVendors[0]['Description']!=null||
+                                                        mySelectdVendors[0]['Description']!='null'?
+                                                    "${mySelectdVendors[0]['Description']}":"No Description",
                                                       style:TextStyle(
                                                         fontSize:12,
                                                         fontFamily: "Poppins" ,
@@ -3105,17 +2931,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         Column(
                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                           children: [
-                                                            Text(mySelectdVendors[0]['VendorEgg']=='Both'?
-                                                            'Includes eggless':'${mySelectdVendors[0]['VendorEgg']}',
+                                                            Text(mySelectdVendors[0]['EggOrEggless']=='Both'?
+                                                            'Includes eggless':'${mySelectdVendors[0]['EggOrEggless']}',
                                                               style:TextStyle(
                                                                 fontSize:11,
                                                                 fontFamily: "Poppins" ,
                                                                 color:darkBlue,
                                                               ),maxLines: 1,),
                                                             SizedBox(height:3),
-                                                            Text(mySelectdVendors[0]['VendorDelCharge']=='0'||
-                                                                mySelectdVendors[0]['VendorDelCharge']==null?
-                                                            "DELIVERY FREE":'Delivery Fee Rs.${mySelectdVendors[0]['VendorDelCharge']}',
+                                                            Text(
+                                                                 "DELIVERY FEE RS.50",
                                                               style:TextStyle(
                                                                 fontSize:10,
                                                                 fontFamily: "Poppins" ,
@@ -3130,7 +2955,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                             children: [
                                                               InkWell(
                                                                 onTap: (){
-                                                                  print('phone..');
+                                                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
                                                                 },
                                                                 child: Container(
                                                                   alignment: Alignment.center,
@@ -3146,7 +2971,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               const SizedBox(width: 10,),
                                                               InkWell(
                                                                 onTap: (){
-                                                                  print('whatsapp : ');
+                                                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                                                 },
                                                                 child: Container(
                                                                   alignment: Alignment.center,
@@ -3227,31 +3052,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       String adrss = '1/4 vellandipalayam , Avinashi';
 
                                                       setState((){
+
+                                                        nearVendorClicked = true;
+
                                                         selVendorIndex = index;
 
                                                         vendorID = nearestVendors[index]['_id'];
                                                         vendorModId = nearestVendors[index]['Id'];
                                                         vendorName = nearestVendors[index]['VendorName'];
-                                                        vendorPhone = nearestVendors[index]['PhoneNumber1'];
+                                                        vendorPhone1 = nearestVendors[index]['PhoneNumber1'];
+                                                        vendorPhone2 = nearestVendors[index]['PhoneNumber2'];
                                                         vendorAddress = nearestVendors[index]['Address']['FullAddress'];
 
                                                         context.read<ContextData>().addMyVendor(true);
-                                                        context.read<ContextData>().setMyVendors(
-                                                            [
-                                                              {
-                                                                "VendorId":nearestVendors[index]['_id'],
-                                                                "VendorModId":nearestVendors[index]['Id'],
-                                                                "VendorName":nearestVendors[index]['VendorName'],
-                                                                "VendorDesc":nearestVendors[index]['Description'],
-                                                                "VendorProfile":nearestVendors[index]['ProfileImage'],
-                                                                "VendorPhone":nearestVendors[index]['PhoneNumber1'],
-                                                                "VendorDelCharge":nearestVendors[index]['DeliveryCharge'],
-                                                                "VendorEgg":nearestVendors[index]['EggOrEggless'],
-                                                                "VendorAddress":nearestVendors[index]['Address']['FullAddress'],
-                                                              }
-                                                            ]
-                                                        );
-
+                                                        context.read<ContextData>().setMyVendors([nearestVendors[index]]);
                                                       });
 
                                                     },
@@ -3304,7 +3118,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                         Row(
                                                                           children: [
                                                                             RatingBar.builder(
-                                                                              initialRating: 4.1,
+                                                                              initialRating: double.parse(nearestVendors[index]['Ratings'].toString()),
                                                                               minRating: 1,
                                                                               direction: Axis.horizontal,
                                                                               allowHalfRating: true,
@@ -3319,7 +3133,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                                 print(rating);
                                                                               },
                                                                             ),
-                                                                            Text(' 4.5',style: TextStyle(
+                                                                            Text(' ${nearestVendors[index]['Ratings'].toString().
+                                                                            characters.take(3)}',style: TextStyle(
                                                                                 color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
                                                                             ),)
                                                                           ],
@@ -3502,127 +3317,25 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                       if(newRegUser==true){
                                         showDpUpdtaeDialog();
+                                      }else  if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Invalid Address'))
+                                        );
+                                      }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                          fixedSession.toLowerCase()=="not yet select"||
+                                          fixedDelliverMethod.toLowerCase()=="not yet select"){
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                        );
                                       }else{
-
-                                        if(mySelectdVendors.isNotEmpty){
-
-                                          if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
-                                              fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                  // backgroundColor: Colors.red[300],
-                                                  duration: Duration(minutes: 1),
-                                                  action: SnackBarAction(
-                                                    textColor: Colors.red,
-                                                    onPressed: (){
-                                                    },
-                                                    label: 'Close',
-                                                  ),
-                                                )
-                                            );
-
+                                        setState((){
+                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                            vendorID = "";
                                           }
-                                          else if(deliverAddress.isEmpty||deliverAddress=="null"||deliverAddress==null){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Please Change Your Address!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                  // backgroundColor: Colors.red[300],
-                                                  duration: Duration(minutes: 1),
-                                                  action: SnackBarAction(
-                                                    textColor: Colors.red,
-                                                    onPressed: (){
-                                                    },
-                                                    label: 'Close',
-                                                  ),
-                                                )
-                                            );
-                                          }
-                                          else{
-                                            setState((){
-                                              vendorName = mySelectdVendors[0]['VendorName'];
-                                              vendorID = mySelectdVendors[0]['VendorId'];
-                                              vendorPhone = mySelectdVendors[0]['VendorPhone'];
-                                              vendorModId = mySelectdVendors[0]['VendorModId'];
-                                              vendorAddress = mySelectdVendors[0]['VendorAddress'];
-
-                                              print(vendorName + vendorID + vendorPhone + vendorModId + vendorAddress);
-                                            });
-                                            showConfirmOrder();
-                                          }
-
-                                        }else{
-                                          if(fixedWeight.isEmpty||fixedDelliverMethod.isEmpty||
-                                              fixedDate=="Not Yet Select"||fixedSession=="Not Yet Select"){
-
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                  // backgroundColor: Colors.red[300],
-                                                  duration: Duration(minutes: 1),
-                                                  action: SnackBarAction(
-                                                    textColor: Colors.red,
-                                                    onPressed: (){
-                                                    },
-                                                    label: 'Close',
-                                                  ),
-                                                )
-                                            );
-
-                                          }
-                                          // else if(selVendorIndex==-1){
-                                          //
-                                          //   ScaffoldMessenger.of(context).showSnackBar(
-                                          //       SnackBar(
-                                          //         content: Text('Please Select : Vendor!'),
-                                          //         behavior: SnackBarBehavior.floating,
-                                          //         // backgroundColor: Colors.red[300],
-                                          //         // duration: Duration(minutes: 1),
-                                          //         action: SnackBarAction(
-                                          //           textColor: Colors.red,
-                                          //           onPressed: (){
-                                          //           },
-                                          //           label: 'Close',
-                                          //         ),
-                                          //       )
-                                          //   );
-                                          //
-                                          // }
-                                          else if(deliverAddress.isEmpty||deliverAddress=="null"||deliverAddress==null){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Please Change Your Address!'),
-                                                  behavior: SnackBarBehavior.floating,
-                                                  // backgroundColor: Colors.red[300],
-                                                  duration: Duration(minutes: 1),
-                                                  action: SnackBarAction(
-                                                    textColor: Colors.red,
-                                                    onPressed: (){
-                                                    },
-                                                    label: 'Close',
-                                                  ),
-                                                )
-                                            );
-                                          }
-                                          else{
-                                            showConfirmOrder();
-                                          }
-                                        }
-
+                                        });
+                                        showCakeNameEdit();
                                       }
-
-
-
-                                      // nearestVendors[0].addEntries([
-                                      //   MapEntry('latitude', "000.000"),
-                                      //   MapEntry('longitude', "111.000"),
-                                      // ]);
-
-                                      // print(nearestVendors[0]);
 
                                     },
                                     color: lightPink,

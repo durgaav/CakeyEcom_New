@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ class _SingleVendorState extends State<SingleVendor> {
   String userCurLocation = 'Searching...';
 
   String description = "";
+  String speciality = "";
+  String rate = "0.0";
   String vendorID = '';
   String vendorName = 'Un name';
   String vendorSpecial = 'not provide';
@@ -41,9 +44,10 @@ class _SingleVendorState extends State<SingleVendor> {
   String profileImage = '';
   String vendorEggOrEggless = '';
   String goBacktoVenList= '';
-
+  String phone1 = "", phone2 = "";
 
   bool ordersNull = false;
+  bool isFromCD = false;
 
   List<bool> isExpands = [];
   List vendorOrders = [];
@@ -104,18 +108,25 @@ class _SingleVendorState extends State<SingleVendor> {
 
     setState(() {
 
+      rate = pref.getString('singleVendorRate')??'0.0';
       vendorID = pref.getString('singleVendorID')??'';
       vendorName = pref.getString('singleVendorName')??'No name';
       description = pref.getString('singleVendorDesc')??'No Description';
-      vendorPhone = pref.getString('singleVendorPhone')??'0000000000';
       deliverCharge = pref.getString('singleVendorDelivery')??'';
       vendorSpecial = pref.getString('singleVendorSpecial')??'';
       profileImage = pref.getString('singleVendorDpImage')??'';
       vendorLocalAddres = pref.getString('singleVendorAddress')??'';
       vendorEggOrEggless = pref.getString('singleVendorEggs')??'';
 
-      // getOrdersByVendorId();
+      isFromCD = pref.getBool('singleVendorFromCd')??false;
+      phone1 = pref.getString('singleVendorPhone1')??'';
+      phone2 = pref.getString('singleVendorPhone2')??'';
+      speciality = pref.getString('singleVendorSpecial')??'';
+
     });
+
+    print('Spel $speciality');
+
   }
 
   //getting oreders by id
@@ -224,6 +235,7 @@ class _SingleVendorState extends State<SingleVendor> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        isFromCD==false?
                         InkWell(
                           onTap: () {
                             FocusScope.of(context).unfocus();
@@ -263,6 +275,23 @@ class _SingleVendorState extends State<SingleVendor> {
                                   ],
                                 ),
                               ],
+                            ),
+                          ),
+                        ):
+                        Container(
+                          // margin: const EdgeInsets.only(top: 10,bottom: 15),
+                          child: InkWell(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 30,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(7)
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
                             ),
                           ),
                         ),
@@ -437,7 +466,7 @@ class _SingleVendorState extends State<SingleVendor> {
                             Row(
                               children: [
                                 RatingBar.builder(
-                                  initialRating: 4.1,
+                                  initialRating: double.parse(rate.toString()),
                                   minRating: 1,
                                   direction: Axis.horizontal,
                                   allowHalfRating: true,
@@ -452,7 +481,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                     print(rating);
                                   },
                                 ),
-                                Text(' 4.5',style: TextStyle(
+                                Text(' $rate',style: TextStyle(
                                     color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
                                 ),)
                               ],
@@ -467,7 +496,8 @@ class _SingleVendorState extends State<SingleVendor> {
                             children: [
                               InkWell(
                                 onTap: (){
-                                  print('phone.. $vendorPhone');
+                                  print('phone.. ');
+                                  PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2");
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -483,7 +513,8 @@ class _SingleVendorState extends State<SingleVendor> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: (){
-                                  print('whatsapp : $vendorPhone');
+                                  print('whatsapp : ');
+                                  PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2" , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -525,7 +556,7 @@ class _SingleVendorState extends State<SingleVendor> {
                     ),
                     SizedBox(height: 10,),
                     //Theme text
-                    Text('Speciality ${vendorSpecial.replaceAll("[", "").replaceAll("]", "")}',
+                    Text('Speciality in ${speciality.replaceAll("[", "").replaceAll("]", "")}',
                       style: TextStyle(color: darkBlue,
                         fontWeight: FontWeight.bold,),
                       maxLines: 1,
@@ -547,7 +578,6 @@ class _SingleVendorState extends State<SingleVendor> {
               ),
 
               /*This is temp hiden Vendors Public Orders*/
-
               //Vendors recent orders....
               // Padding(
               //   padding: const EdgeInsets.all(10),
@@ -844,6 +874,8 @@ class _SingleVendorState extends State<SingleVendor> {
               //     ),),
               //   ),
               // )
+
+
             ],
           ),
         )

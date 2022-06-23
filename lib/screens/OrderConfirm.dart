@@ -1,14 +1,9 @@
-import 'dart:io';
-import 'package:cakey/DrawerScreens/HomeScreen.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:convert';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:expandable_text/expandable_text.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../Dialogs.dart';
 import '../DrawerScreens/Notifications.dart';
 
 class OrderConfirm extends StatefulWidget {
@@ -55,7 +50,10 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String cakeSplReq = '';
   String cakeArticle = '';
   String deliverType = '';
-  String extraCharges = '0';
+  int extraCharges = 0;
+  int tierPrice = 0;
+  String tierCakeWeight = "0";
+  String cakeTier = "";
 
   List<String> toppings = [];
 
@@ -69,6 +67,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String vendorModId = '';
   String vendorAddress = '';
 
+  String vendorPhone1 = "";
+  String vendorPhone2 = "";
+
   //User
   String userAddress = '';
   String userName = '';
@@ -77,16 +78,16 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String userPhone = '';
 
   //int
-  int itemsTotal = 0;
+  double itemsTotal = 0;
   int counts = 1;
-  int deliveryCharge = 0;
+  double deliveryCharge = 0;
   int discount = 0;
   int taxes = 0;
-  int bilTotal = 0;
+  double bilTotal = 0;
 
   double gstPrice = 0;
   double sgstPrice = 0;
-  int discountPrice = 0;
+  double discountPrice = 0;
 
 
   //region Functions
@@ -121,200 +122,51 @@ class _OrderConfirmState extends State<OrderConfirm> {
     );
   }
 
-  void showOrderCompleteSheet(){
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(20),
-              topLeft: Radius.circular(20),
-            )
-        ),
-        context: context,
-        builder: (context){
-          return Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 15,),
-                Container(
-                  height: 150,
-                  width: 150,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: AssetImage('assets/images/chefdoll.jpg'),
-                          fit: BoxFit.cover
-                      )
-                  ),
-                ),
-                SizedBox(height: 15,),
-                Text('THANK YOU' , style:TextStyle(
-                    color: Colors.deepPurple , fontFamily: "Poppins",
-                    fontSize: 23 , fontWeight: FontWeight.bold
-                )),Text('for your order' , style:TextStyle(
-                    color: Colors.deepPurple , fontFamily: "Poppins",
-                    fontSize: 13 , fontWeight: FontWeight.bold
-                )),
-                SizedBox(height: 15,),
-                Center(
-                  child: Text('Your order is now being processed.'
-                      '\nWe will let you know once the order is picked \nfrom the outlet.' , style:TextStyle(
-                      color: Colors.grey , fontFamily: "Poppins",
-                      fontSize: 13 , fontWeight: FontWeight.bold
-                  ) , textAlign: TextAlign.center,),
-                ),
-                SizedBox(height: 20,),
-                GestureDetector(
-                  onTap: (){
-                    Navigator.pushReplacement(context, new MaterialPageRoute(builder: (c)=>HomeScreen()));
-                  },
-                  child: Center(
-                      child: Text('BACK TO HOME' , style:TextStyle(
-                          color: lightPink , fontFamily: "Poppins",
-                          fontSize: 13 , fontWeight: FontWeight.bold , decoration:TextDecoration.underline
-                      ), textAlign: TextAlign.center,)
-                  ),
-                ),
-
-              ],
-            ),
-          );
-        }
-    );
-  }
 
   Future<void> recieveDetailsFromScreen() async{
 
     var prefs = await SharedPreferences.getInstance();
 
+    //UI Views variables...
     setState(() {
 
-      cakeImage = prefs.getString('orderCakeImages')
-          ??'https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg';
-      cakeName = prefs.getString('orderCakeName')??'';
-      cakeDesc = prefs.getString('orderCakeDescription')??'';
-      cakePrice = prefs.getString('orderCakePrice')??'';
-      cakeModId = prefs.getString('orderCakeModID')??'';
-      cakeType = prefs.getString('orderCakeType')??'';
+      //Strings
+      cakeName = prefs.getString("orderCakeName")!;
+      cakePrice = prefs.getString("orderCakePrice")!;
+      cakeType = prefs.getString("orderCakeType")!;
+      weight = prefs.getString("orderCakeWeight")!;
+      cakeImage = prefs.getString("orderCakeImages")!;
+      userAddress = prefs.getString("orderCakeDeliverAddress")!;
+      vendorName = prefs.getString("orderCakeVendorName")!;
+      shape = prefs.getString("orderCakeShape")!;
+      vendorPhone1 = prefs.getString("cakeVendorPhone1")!;
+      vendorPhone2 = prefs.getString("cakeVendorPhone2")!;
+      shape = prefs.getString("orderCakeShape")!;
 
-      //user orderCakeDeliverAddress
-      userAddress = prefs.getString('orderCakeDeliverAddress')??'';
-
-      //vendors
-      vendorName = prefs.getString('orderCakeVendorName')??'';
-      vendorMobile = prefs.getString('orderCakeVendorNum')??'';
-
-      //costs
-      // itemTotal = prefs.getInt('orderCakeItemCount')??0;
-      deliveryCharge = prefs.getInt('orderCakeDeliverAmt')??0;
-      extraCharges = prefs.getString('orderCakePaymentExtra')??'0.0';
-      discount = prefs.getInt('orderCakeDiscount')??0;
-      taxes = prefs.getInt('orderCakeTaxes')??0;
-      bilTotal = prefs.getInt('orderCakeTotalAmt')??0;
-
-    });
-
-
-    setState(() {
-
-      cakeID = prefs.getString('orderCakeID')!;
-      shape = prefs.getString('orderCakeShape')!;
-      weight = prefs.getString('orderCakeWeight')!;
-      // flavour = prefs.getString('orderCakeFlavour')!;
-      eggOreggless = prefs.getString('orderCakeEggOrEggless')!;
-      // toppings = prefs.getStringList('orderCakeTopings')!;
-
-      userID = prefs.getString('orderCakeUserID')!;
-      userModId = prefs.getString('orderCakeModID')!;
-      userName = prefs.getString('orderCakeUserName')!;
-      userPhone = prefs.getString('orderCakeUserNum')!;
-
-      vendorID = prefs.getString('orderCakeVendorId')!;
-      vendorModId = prefs.getString('orderCakeVendorModId')!;
-      vendorAddress = prefs.getString('orderCakeVendorAddress')!;
-
-
-      deliverSession = prefs.getString('orderCakeDeliverSession')!;
-      deliverDate = prefs.getString('orderCakeDeliverDate')!;
-
-      cakeMessage = prefs.getString('orderCakeMessage')!;
-      cakeSplReq = prefs.getString('orderCakeRequest')!;
-      deliverType = prefs.getString('orderCakeDeliveryInformation')!;
-
-
+      //ints
       counts = prefs.getInt('orderCakeItemCount')!;
+      bilTotal = prefs.getDouble('orderCakeBillTotal')!;
+      itemsTotal = prefs.getDouble('orderCakeItemTotal')!;
+      gstPrice = prefs.getDouble('orderCakeGst')!;
+      sgstPrice = prefs.getDouble('orderCakeSGst')!;
+      discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
+      discount = prefs.getInt('orderCakeDiscount')!;
+      extraCharges = prefs.getInt('orderCakePaymentExtra')!;
+      taxes = prefs.getInt('orderCakeTaxperc')!;
+      deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
+      
+      //get tier
+      cakeTier = prefs.getString("orderCakeTier")!;
 
-      calculatedCountsAndPrice();
+      //getTopper
 
-      // cakeArticle = prefs.getString('orderCakeArticle')!;
 
-      // counts = prefs.getInt('orderCakeCounts')!;
+      print('Tier $cakeTier');
+      print('--------------');
 
     });
 
   }
-
-  //price calculators...
-  void calculatedCountsAndPrice(){
-
-    print('Extra Charges : $extraCharges');
-
-    // int cakesOrginalPrice = int.parse(cakePrice);
-
-    double itemTotal = 0;
-    int cakesOrginalPrice = int.parse("$cakePrice");
-    int priceAfterDiscount = 0;
-    int discountedPrice = 0;
-    int totalTax = 0;
-    double gstAmt = 0;
-    double sgstAmt = 0;
-    int extraCharge= int.parse(extraCharges, onError: (e)=>0);
-
-    print("Extra crg : $extraCharge");
-
-    setState((){
-
-      priceAfterDiscount = cakesOrginalPrice-(cakesOrginalPrice*discount/100).toInt();
-
-      print('Price After dis : $priceAfterDiscount');
-
-      discountedPrice = cakesOrginalPrice - priceAfterDiscount;
-
-      print('Price After dis : $discountedPrice');
-
-      totalTax = ((priceAfterDiscount*taxes)/100).toInt();
-
-      gstAmt = (totalTax/2);
-      sgstAmt = totalTax/2;
-
-      itemTotal = (counts*priceAfterDiscount)+double.parse(extraCharges);
-      bilTotal = (itemTotal+deliveryCharge+gstAmt+sgstAmt+extraCharge).toInt();
-
-      print("item tot : $itemTotal");
-      print("Del chrg : $deliveryCharge");
-      print("item discount : $discountedPrice");
-      print("item gst : $gstAmt");
-      print("item sgst : $sgstAmt");
-      print("item bil tot : $bilTotal");
-
-
-      discountPrice = discountedPrice;
-      itemsTotal = itemTotal.toInt();
-      gstPrice = gstAmt;
-      sgstPrice = sgstAmt;
-
-
-      // sgstAmt = ((priceAfterDiscount*12)/100).toInt();
-
-    });
-
-    print(priceAfterDiscount);
-    print(discountedPrice);
-
-
-  }
-
 
   //endregion
 
@@ -322,9 +174,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
   @override
   void initState() {
     // TODO: implement initState
-    recieveDetailsFromScreen();
-    print(flav);
-    print(artic);
+    Future.delayed(Duration.zero , () async {
+      recieveDetailsFromScreen();
+    });
     super.initState();
   }
 
@@ -335,22 +187,18 @@ class _OrderConfirmState extends State<OrderConfirm> {
           leading:Container(
             margin: const EdgeInsets.all(10),
             child: InkWell(
-              onTap: () {
+              onTap: (){
                 Navigator.pop(context);
               },
               child: Container(
-                  decoration: BoxDecoration(
-                      color:Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10)
-                  ),
-                  alignment: Alignment.center,
-                  height: 20,
-                  width: 20,
-                  child: Icon(
-                    Icons.chevron_left,
-                    color: lightPink,
-                    size: 35,
-                  )),
+                height: 30,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(7)
+                ),
+                alignment: Alignment.center,
+                child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
+              ),
             ),
           ),
           title: Text('ORDER CONFIRM',
@@ -441,51 +289,63 @@ class _OrderConfirmState extends State<OrderConfirm> {
                       ),
                     ),
                     SizedBox(
-                      width: 5,
+                      width: 7,
                     ),
                     Expanded(
-                      child: Column(
-                      children: [
+                      child:
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              child: Text('${cakeName} (Rs.$cakePrice) × $counts',style: TextStyle(
+                              child: Text('${cakeName} '
+                                  // '(Rs.$cakePrice) x $counts'
+                                ,style: TextStyle(
                                   fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
                               ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('(Shape - ${shape}) + '
-                                  '(Article - ${artic[0]['Name']} Price - Rs.${artic[0]['Price']}) + ',style: TextStyle(
+                            Text('(Shape - ${jsonDecode(shape)['Name'].toString()}) ',style: TextStyle(
                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                               ),overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
                             Wrap(
                               children: [
                                 for(var i in flav)
-                                  Text("(Flavour - ${i['Name']} Price - Rs.${i['Price']})",style: TextStyle(
+                                  Text("(Flavour - ${i['Name']}) "
+                                      // "Price - Rs.${i['Price']})"
+                                    ,style: TextStyle(
                                       fontSize:10.5,fontFamily: "Poppins",
-                                      color: Colors.black26
+                                      color: Colors.grey[500]
                                   ),),
 
-                                Text(" = Rs.$extraCharges",style: TextStyle(
-                                    fontSize:10.5,fontFamily: "Poppins",
-                                    color: Colors.black26
-                                ),)
+                                // Text(" = Rs.$extraCharges",style: TextStyle(
+                                //     fontSize:10.5,fontFamily: "Poppins",
+                                //     color: Colors.black26
+                                // ),)
 
                               ],
                             ),
-                            Text('₹ ${counts * int.parse(cakePrice) + double.parse(extraCharges)}',style: TextStyle(
-                                fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
-                                fontFamily: "Poppins"
-                            ),
-                              overflow: TextOverflow.ellipsis,maxLines: 2,
+                            Text.rich(
+                              TextSpan(
+                                text: '₹ ${(counts * (double.parse(cakePrice.toString()) +
+                                    double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
+                                  fontFamily: "Poppins"),
+                                children: [
+                                  TextSpan(
+                                    text: " *(includes selected weight,flavours,shape,toppers.)",
+                                    style: TextStyle(
+                                        fontSize: 8,color: darkBlue,
+                                        fontFamily: "Poppins"),
+                                  )
+                                ]
+                              )
                             ),
                           ],
                         )
-                      ],
-                    ))
+                    )
                   ],
                 ),
                 SizedBox(height: 15,),
@@ -494,7 +354,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                       borderRadius: BorderRadius.only(bottomRight: Radius.circular(25)
                           ,bottomLeft:  Radius.circular(15)
                       ),
-                      color: Colors.black12
+                      color: Colors.grey[200]
                   ),
                   child: Column(
                     children: [
@@ -502,8 +362,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                         title: const Text('Vendor',style: const TextStyle(
                             fontSize: 11,fontFamily: "Poppins"
                         ),),
-                        subtitle: Text(double.parse(weight.replaceAll("kg", ""))<6.0?
-                        '${vendorName}':'Premium Vendor',style: TextStyle(
+                        subtitle: Text(
+                        '${vendorName}',style: TextStyle(
                             fontSize: 14,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),
@@ -515,11 +375,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               InkWell(
                                 onTap: () async{
                                   print('phone..');
-                                  try{
-                                    await launchUrl(Uri.parse("tel://$vendorMobile"));
-                                  }catch(e){
-                                    print('uri er : $e');
-                                  }
+                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -535,27 +391,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                    print('whatsapp');
-                                    String whatsapp = vendorMobile;
-                                    var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
-                                    var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
-                                    if(Platform.isIOS){
-                                      // for iOS phone only
-                                      if( await canLaunch(whatappURL_ios)){
-                                        await launch(whatappURL_ios, forceSafariVC: false);
-                                      }else{
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: new Text("whatsapp no installed")));
-                                      }
-                                    }else{
-                                      // android , web
-                                      if( await canLaunch(whatsappURl_android)){
-                                        await launch(whatsappURl_android);
-                                      }else{
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: new Text("whatsapp no installed")));
-                                      }
-                                    }
+                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -597,7 +433,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                       const SizedBox(height: 15,),
                       Container(
                         // color: Colors.green,
-                        margin : EdgeInsets.all(5),
+                        margin : EdgeInsets.only(left: 5),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -608,7 +444,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             SizedBox(width: 5,),
                             Expanded(
                                 child: Text(
-                                  "${userAddress}",
+                                  "${userAddress.trim()}",
                                   style: TextStyle(
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
@@ -619,7 +455,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 15,),
+
+                      SizedBox(height: 7,),
+
                       Container(
                         margin: const EdgeInsets.only(left: 10,right: 10),
                         color: Colors.black26,
@@ -640,8 +478,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               margin: EdgeInsets.only(left: 15,right: 15),
                               padding: EdgeInsets.all(15),
                               message: "Item total depends on itemcount/selected shape,flavour,article,weight",
-                              child: Text('₹ ${(counts*int.parse(cakePrice, onError: (e)=>0) )+
-                                  double.tryParse(extraCharges)!}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              child: Text('₹ ${(counts * (double.parse(cakePrice.toString()) +
+                                  double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                             ),
                           ],
                         ),
@@ -656,7 +494,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
-                            Text('₹ ${deliveryCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -671,12 +509,13 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               color: Colors.black54,
                             ),),
                             Row(
+                                //${discount} % $discountPrice
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${discount} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('0 %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ $discountPrice',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ 0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -698,7 +537,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                       padding:EdgeInsets.only(right:10),
                                       child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${gstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -720,7 +559,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                       padding:EdgeInsets.only(right:10),
                                       child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${sgstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -742,7 +581,16 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold
                             ),),
-                            Text('₹ ${bilTotal}',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
+                            Text('₹ ${
+                                  ((counts * (
+                                      double.parse(cakePrice)*
+                                          double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+                                          (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+                                  ) + double.parse(gstPrice.toString()) + double.parse(sgstPrice.toString()) +
+                                      deliveryCharge)
+                                  ).toStringAsFixed(2)
+                               }',
+                              style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
                           ],
                         ),
                       ),

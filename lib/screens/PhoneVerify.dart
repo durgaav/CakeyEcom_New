@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cakey/Dialogs.dart';
 import 'package:cakey/screens/CodeVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,24 @@ class _PhoneVerifyState extends State<PhoneVerify> {
   Color lightPink = Color(0xffFE8416D);
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
+
+
+  //network check
+  void checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        print("Perform Actions Here");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>CodeVerify(
+          phonenumber: "+91"+phoneControl.text.toString(),
+        )));
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      NetworkDialog().showNoNetworkAlert(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,9 +135,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                           ),
                         );
                       }else{
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>CodeVerify(
-                          phonenumber: "+91"+phoneControl.text.toString(),
-                        )));
+                        checkNetwork();
                       }
                       print("+91${phoneControl.text.toString()}");
                     },

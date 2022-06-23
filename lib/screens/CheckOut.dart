@@ -1,14 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cakey/Dialogs.dart';
+import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../DrawerScreens/Notifications.dart';
+import 'package:path/path.dart' as Path;
+import 'package:http_parser/http_parser.dart';
 
 class CheckOut extends StatefulWidget {
 
@@ -38,15 +43,17 @@ class _CheckOutState extends State<CheckOut> {
 
   //Strings
   String cakeName = '';
+  String cakeCommonName = '';
   String cakeID = '';
   String cakeModId = '';
   String shape = '';
   String flavour = '';
-  String weight = '';
+  String weight = '1';
   String cakeImage = '';
   String cakeDesc = '';
-  String cakePrice = '';
+  String cakePrice = '1';
   String cakeType = '';
+  String cakeSubType = '';
   String eggOreggless = '';
   String deliverDate = '';
   String deliverSession = '';
@@ -54,8 +61,18 @@ class _CheckOutState extends State<CheckOut> {
   String cakeSplReq = '';
   String cakeArticle = '';
   String deliverType = '';
-  String extraCharges = '0';
+  int extraCharges = 0;
   String orderFromCustom = 'no';
+  String themeName = "My Theme";
+  String themeFileName = "";
+  int tierPrice = 0;
+  String tierCkWeight = "";
+  String tierCakeWeight = "0";
+  String cakeTier = "";
+  String topperId = "";
+  String topperName = '';
+  String topperImg= '';
+  int topperPrice = 0;
 
   List<String> toppings = [];
 
@@ -67,6 +84,8 @@ class _CheckOutState extends State<CheckOut> {
   String vendorMobile = '';
   String vendorID = '';
   String vendorAddress = '';
+  String vendorPhone1= '';
+  String vendorPhone2 = '';
 
   //User
   String userAddress = '';
@@ -77,18 +96,23 @@ class _CheckOutState extends State<CheckOut> {
 
   //int
   //int
-  int itemsTotal = 0;
+  double itemsTotal = 0;
   int counts = 1;
-  int deliveryCharge = 0;
+  double deliveryCharge = 0;
   int discount = 0;
+  int tempDiscount = 0;
   int taxes = 0;
-  int bilTotal = 0;
+  double bilTotal = 0;
 
   double gstPrice = 0;
   double sgstPrice = 0;
-  int discountPrice = 0;
+  double discountPrice = 0;
+  double tempDiscountPrice = 0;
 
+  double tempPrice = 0;
+  double tempTax = 0;
 
+  var couponCtrl = new TextEditingController();
 
   //Default loader dialog
   void showAlertDialog() {
@@ -185,11 +209,12 @@ class _CheckOutState extends State<CheckOut> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigator.pushAndRemoveUntil(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => DrawerHome()),
-                    //     ModalRoute.withName('/DrawerHome')
-                    // );
+                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        ModalRoute.withName('/HomeScreen')
+                    );
                   },
                   child: Center(
                       child: Text(
@@ -210,156 +235,182 @@ class _CheckOutState extends State<CheckOut> {
         });
   }
 
+  //Confirm order
+  void showConfirmOrder(){
+    showDialog(
+      context: context,
+      builder: (context)=>
+          AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)
+            ),
+            title: Row(
+              children: [
+                Text('Order Confirmation' , style: TextStyle(
+                    color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
+                    fontWeight: FontWeight.bold
+                ),),
+              ],
+            ),
+            content: Text('Are You Sure? Your Order Will Be Placed!' , style: TextStyle(
+                color:lightPink , fontSize: 13 , fontFamily: "Poppins"
+            ),),
+            actions: [
+              FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')
+              ),
+              FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    orderFromCustom=="yes"?
+                      confirmCustomOrder():
+                      confirmOrder();
+                  },
+                  child: Text('Order Now')
+              ),
+            ],
+          ),
+    );
+  }
+
   //region Functions
 
-  //getting order detailssss...
+  //getting order prefs...
   Future<void> recieveDetailsFromScreen() async{
 
     var prefs = await SharedPreferences.getInstance();
 
     setState(() {
 
-      cakeImage = prefs.getString('orderCakeImages')
-          ??'https://cdn4.vectorstock.com/i/1000x1000/25/63/cake-icon-set-of-great-flat-icons-with-style-vector-24172563.jpg';
-      cakeName = prefs.getString('orderCakeName')??'';
-      cakeDesc = prefs.getString('orderCakeDescription')??'';
-      cakePrice = prefs.getString('orderCakePrice')??'';
-      cakeModId = prefs.getString('orderCakeModID')??'';
-      cakeType = prefs.getString('orderCakeType')??'';
-      orderFromCustom = prefs.getString('orderFromCustom')??'';
-
-      //user orderCakeDeliverAddress
-      userAddress = prefs.getString('orderCakeDeliverAddress')??'';
-
-      //vendors
-      vendorName = prefs.getString('orderCakeVendorName')??'';
-      vendorMobile = prefs.getString('orderCakeVendorNum')??'';
-
-      //costs
-      // itemTotal = prefs.getInt('orderCakeItemCount')??0;
-      deliveryCharge = prefs.getInt('orderCakeDeliverAmt')??0;
-      extraCharges = prefs.getString('orderCakePaymentExtra')??'0.0';
-      discount = prefs.getInt('orderCakeDiscount')??0;
-      taxes = prefs.getInt('orderCakeTaxes')??0;
-      bilTotal = prefs.getInt('orderCakeTotalAmt')??0;
+      //UI Views variables...
+      //Strings
+      orderFromCustom = prefs.getString("orderFromCustom")??'no';
 
     });
 
-
-    setState(() {
-
-      cakeID = prefs.getString('orderCakeID')!;
-      shape = prefs.getString('orderCakeShape')!;
-      weight = prefs.getString('orderCakeWeight')!;
-      // flavour = prefs.getString('orderCakeFlavour')!;
-      eggOreggless = prefs.getString('orderCakeEggOrEggless')!;
-      // toppings = prefs.getStringList('orderCakeTopings')!;
-
-      userID = prefs.getString('orderCakeUserID')!;
-      userModId = prefs.getString('orderCakeModID')!;
-      userName = prefs.getString('orderCakeUserName')!;
-      userPhone = prefs.getString('orderCakeUserNum')!;
-
-      vendorID = prefs.getString('orderCakeVendorId')!;
-      vendorModId = prefs.getString('orderCakeVendorModId')!;
-      vendorAddress = prefs.getString('orderCakeVendorAddress')!;
-
-
-      deliverSession = prefs.getString('orderCakeDeliverSession')!;
-      deliverDate = prefs.getString('orderCakeDeliverDate')!;
-
-      cakeMessage = prefs.getString('orderCakeMessage')!;
-      cakeSplReq = prefs.getString('orderCakeRequest')!;
-      deliverType = prefs.getString('orderCakeDeliveryInformation')!;
+    setState((){
+      if(orderFromCustom=="yes"){
+        cakeName = prefs.getString("customCakeName")??'My Custom Cake';
+        cakeImage = "null";
+        cakePrice = prefs.getString("customCakePrice")??'100';
+        vendorName = prefs.getString('customCakeVendor')??'null';
+        cakeType = prefs.getString('customCakeType')??'null';
+        userAddress = prefs.getString('customCakeUserAdd')??'null';
+        vendorPhone1 = prefs.getString('customCakeVenPhn1')??'null';
+        vendorPhone2 = prefs.getString('customCakeVenPhn2')??'null';
+        weight = prefs.getString('customCakeWeight')??'1.0';
+        sgstPrice = double.parse(prefs.getString('customCakeSgst')??'0');
+        gstPrice = double.parse(prefs.getString('customCakeGst')??'0');
+        bilTotal = double.parse(prefs.getString('customCakeTotal')??'0');
+        extraCharges = int.parse(prefs.getString('customCakeExtra')??'0');
+        discountPrice = double.parse(prefs.getString('customCakeDisc')??'0');
+        counts = 1;
+        cakeID = prefs.getString('customCakeId')??'null';
+        shape = prefs.getString('customCakeShape')??"None";
 
 
-      counts = prefs.getInt('orderCakeItemCount')!;
+      }else{
+        cakeName = prefs.getString("orderCakeName")??"My Cake Name";
+        cakePrice = prefs.getString("orderCakePrice")!;
+        cakeType = prefs.getString("orderCakeType")!;
+        weight = prefs.getString("orderCakeWeight")!;
+        cakeImage = prefs.getString("orderCakeImages")!;
+        userAddress = prefs.getString("orderCakeDeliverAddress")!;
+        vendorName = prefs.getString("orderCakeVendorName")!;
+        shape = prefs.getString("orderCakeShape")!;
 
-      calculatedCountsAndPrice();
+        //ints
+        counts = prefs.getInt('orderCakeItemCount')!;
+        bilTotal = prefs.getDouble('orderCakeBillTotal')!;
+        itemsTotal = prefs.getDouble('orderCakeItemTotal')!;
+        gstPrice = prefs.getDouble('orderCakeGst')!;
+        sgstPrice = prefs.getDouble('orderCakeSGst')!;
+        discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
+        discount = prefs.getInt('orderCakeDiscount')!;
+        extraCharges = prefs.getInt('orderCakePaymentExtra')!;
+        taxes = prefs.getInt('orderCakeTaxperc')!;
+        deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
 
-      print(userModId);
+        /*Order Variables Load...*/
+        cakeID = prefs.getString("orderCakeID")!;
+        cakeModId = prefs.getString("orderCakeModID")!;
+        cakeCommonName = prefs.getString("orderCakeCommonName")!;
+        cakeSubType = prefs.getString("orderCakeSubType")!;
+        eggOreggless = prefs.getString("orderCakeEggOrEggless")!;
+        cakeMessage = prefs.getString("orderCakeMessage")!;
+        cakeDesc = prefs.getString("orderCakeDescription")!;
+        cakeSplReq = prefs.getString("orderCakeRequest")!;
+        deliverType = prefs.getString("orderCakeDeliverType")!;
+        deliverSession = prefs.getString("orderCakeDeliverSession")!;
+        deliverDate = prefs.getString("orderCakeDeliverDate")!;
+        themeName = prefs.getString("orderCakeTheme")!;
+        themeFileName = prefs.getString("orderCakeThemeImage")!;
 
-      // cakeArticle = prefs.getString('orderCakeArticle')!;
+        //vendor details...
+        vendorAddress = prefs.getString("orderCakeVendorAddress")!;
+        vendorPhone1 = prefs.getString("orderCakeVendorPh1")!;
+        vendorPhone2 = prefs.getString("orderCakeVendorPh2")!;
+        vendorID = prefs.getString("orderCakeVendorId")!;
+        vendorModId = prefs.getString("orderCakeVendorModId")!;
 
-      // counts = prefs.getInt('orderCakeCounts')!;
+        //user details...
+        userAddress = prefs.getString("orderCakeDeliverAddress")!;
+        userName = prefs.getString("orderCakeUserName")!;
+        userID = prefs.getString("orderCakeUserID")!;
+        userModId = prefs.getString("orderCakeUserModID")!;
+        userPhone = prefs.getString("orderCakeUserNum")!;
 
+        //get tier
+        cakeTier = prefs.getString("orderCakeTier")??'null';
+        tierCakeWeight = prefs.getString("orderCakeTierWeight")??'null';
+
+        //toppers
+        topperId = prefs.getString("orderCakeTopperid")??'null';
+        topperName = prefs.getString("orderCakeTopperName")!;
+        topperImg= prefs.getString("orderCakeTopperImg")!;
+        topperPrice = prefs.getInt("orderCakeTopperPrice")!;
+
+        print('Tier $cakeTier');
+
+        tempDiscountPrice = 0.0;
+        tempDiscount = 0;
+        tempPrice = (counts*(double.parse(cakePrice.toString())+extraCharges))*
+            double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
+        print(tempPrice);
+        tempTax = tempPrice * (double.parse(taxes.toString())/100);
+
+      }
     });
 
   }
-
-  //price calculators...
-  void calculatedCountsAndPrice(){
-
-    print('Extra Charges : $extraCharges');
-
-    // int cakesOrginalPrice = int.parse(cakePrice);
-
-    double itemTotal = 0;
-    int cakesOrginalPrice = int.parse("$cakePrice");
-    int priceAfterDiscount = 0;
-    int discountedPrice = 0;
-    int totalTax = 0;
-    double gstAmt = 0;
-    double sgstAmt = 0;
-    int extraCharge= int.parse(extraCharges, onError: (e)=>0);
-
-    print("Extra crg : $extraCharge");
-
-    if(orderFromCustom=='no'){
-      setState((){
-
-        priceAfterDiscount = cakesOrginalPrice-(cakesOrginalPrice*discount/100).toInt();
-
-        print('Price After dis : $priceAfterDiscount');
-
-        discountedPrice = cakesOrginalPrice - priceAfterDiscount;
-
-        print('Price After dis : $discountedPrice');
-
-        totalTax = ((priceAfterDiscount*taxes)/100).toInt();
-
-        gstAmt = (totalTax/2);
-        sgstAmt = totalTax/2;
-
-        itemTotal = (counts*priceAfterDiscount)+double.parse(extraCharges);
-        bilTotal = (itemTotal+deliveryCharge+gstAmt+sgstAmt+extraCharge).toInt();
-
-        print("item tot : $itemTotal");
-        print("Del chrg : $deliveryCharge");
-        print("item discount : $discountedPrice");
-        print("item gst : $gstAmt");
-        print("item sgst : $sgstAmt");
-        print("item bil tot : $bilTotal");
-
-
-
-        discountPrice = discountedPrice;
-        itemsTotal = itemTotal.toInt();
-        gstPrice = gstAmt;
-        sgstPrice = sgstAmt;
-
-
-        // sgstAmt = ((priceAfterDiscount*12)/100).toInt();
-
-      });
-    }else{
-      setState((){
-        discountPrice = discount;
-        gstPrice = (taxes/2).toDouble();
-        sgstPrice = (taxes/2).toDouble();
-      });
-
-    }
-
-    print(priceAfterDiscount);
-    print(discountedPrice);
-
-
-  }
-
 
   Future<void> confirmCustomOrder() async{
+
+    double mainPrice = (double.parse(cakePrice)*double.parse(weight.toLowerCase().replaceAll('kg', '')))+extraCharges;
+
+    double diss = (mainPrice * discountPrice)/100;
+
+    double finalDiss = mainPrice - diss;
+
+    double discountPr = couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0;
+
+    String billTot = ((double.parse(bilTotal.toString())+deliveryCharge)-discountPr).toString();
+
+    print({
+      "PaymentType": "$paymentType",
+      "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
+      "DeliveryCharge": "$deliveryCharge",
+      "Total": billTot.toString(),
+      "Discount": discountPrice.toString(),
+      "Gst": gstPrice.toString(),
+      "Sgst": sgstPrice.toString(),
+      "ExtraCharges": extraCharges.toString(),
+    });
     showAlertDialog();
+
     var headers = {
       'Content-Type': 'application/json'
     };
@@ -369,32 +420,28 @@ class _CheckOutState extends State<CheckOut> {
       "PaymentType": "$paymentType",
       "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
       "DeliveryCharge": "$deliveryCharge",
-      "Total": "$bilTotal"
+      "Total": billTot.toString(),
+      "Discount": discountPrice.toString(),
+      "Gst": gstPrice.toString(),
+      "Sgst": sgstPrice.toString(),
+      "ExtraCharges": extraCharges.toString(),
     });
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+
+      var map = jsonDecode(await response.stream.bytesToString());
+
       Navigator.pop(context);
       // print();
-
-      if(jsonDecode(await response.stream.bytesToString())['message']=="Order Placed Successfully"){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Order Posted!'),
+            content: Text(map['message']),
             behavior: SnackBarBehavior.floating
         ));
 
-        NotificationService().showNotifications("Order Placed", "Your Customized Cake Ordered.Thank You!");
-
-
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-            content: Text(await response.stream.bytesToString()),
-            behavior: SnackBarBehavior.floating
-        ));
-      }
+        // NotificationService().showNotifications("Order Placed", "Your Customized Cake Ordered.Thank You!");
 
     }
     else {
@@ -408,62 +455,152 @@ class _CheckOutState extends State<CheckOut> {
 
   }
 
-
   //confirm order
   Future<void> confirmOrder() async {
+
+    List tempFlavList = [];
+
+    double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
+
+    print("ext $extraCharges");
+
+    print(price);
+
+    tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice;
+    print(tempPrice);
+    tempTax = tempPrice * (double.parse(taxes.toString())/100);
+
+
+    print(tempTax);
+    print(tempPrice);
+
+    String billTot = ((counts * (
+        double.parse(cakePrice)*
+            double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+            (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+    ) + double.parse((tempTax).toString()) +
+        deliveryCharge)
+        - tempDiscountPrice).toString();
+
+    print(billTot);
+
+    setState((){
+      for (var i = 0 ; i<flavs.length ; i++){
+        tempFlavList.add(jsonEncode(flavs[i]));
+      }
+    });
+
+    print(tempFlavList.toString());
+
 
     showAlertDialog();
 
     try {
-      if (double.parse(weight.replaceAll("kg", "")) < 6.0) {
-        print('Weight is below 5 : $weight');
 
-        var headers = {'Content-Type': 'application/json'};
-        var request = http.Request(
-            'POST',
-            Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-        request.body = json.encode({
+        var headers = {'Content-Type': 'multipart/form-data'};
+        var request = http.MultipartRequest('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
+        request.fields.addAll(
+            {
+              "CakeID": cakeID,
+              "Cake_ID": cakeModId,
+              "CakeName": cakeName,
+              "CakeCommonName": cakeCommonName,
+              "CakeType": cakeType,
+              "CakeSubType": cakeSubType,
+              "Image": cakeImage,
+              "EggOrEggless": eggOreggless,
+              "Flavour": '$tempFlavList',
+              "Shape": shape,
+              "Weight": tierCakeWeight=="null"?
+              weight.toLowerCase().replaceAll("kg", "")+"kg":
+              tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+              "Description": cakeDesc,
+              "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+              "PaymentType": paymentType,
+              "Total": billTot.toString(),
+              "Sgst": (tempTax/2).toString(),
+              "Gst": (tempTax/2).toString(),
+              "DeliveryCharge": deliveryCharge.toString(),
+              "ExtraCharges": extraCharges.toString(),
+              "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
+              "ItemCount": counts.toString(),
+              "Price": cakePrice.toString(),
+              "DeliveryInformation": deliverType,
+              "DeliverySession": deliverSession,
+              "DeliveryDate": deliverDate,
+              "DeliveryAddress": userAddress,
+              "UserPhoneNumber": userPhone,
+              "UserName": userName,
+              "UserID": userID,
+              "User_ID": userModId,
+            }
+        );
 
-          "CakeID": cakeID,
-          "Cake_ID": cakeModId,
-          "Title": cakeName,
-          "Description": cakeDesc,
-          "TypeOfCake": cakeType,
-          "Images": cakeImage,
-          "EggOrEggless": eggOreggless,
-          "Price": cakePrice,
-          "Flavour": flavs,
-          "Shape": shape,
-          "Article": artic[0],
-          "MessageOnTheCake": cakeMessage,
-          "SpecialRequest": cakeSplReq,
-          "Weight": weight,
-          "VendorID": vendorID,
-          "Vendor_ID": vendorModId,
-          "VendorName": vendorName,
-          "VendorPhoneNumber": vendorMobile,
-          "UserID": userID,
-          "User_ID": userModId,
-          "UserName": userName,
-          "UserPhoneNumber": userPhone,
-          "DeliveryAddress": userAddress,
-          "DeliveryDate": deliverDate,
-          "DeliverySession": deliverSession,
-          "VendorAddress": vendorAddress,
-          "ItemCount": counts,
-          "Discount": discount,
-          "Total": bilTotal,
-          "DeliveryCharge": deliveryCharge,
-          "PaymentType": paymentType,
-          "PaymentStatus": paymentType.toLowerCase() == "cash on delivery"
-              ? "Cash On Delivery"
-              : 'Paid',
-          "DeliveryInformation": deliverType,
-          "Gst": gstPrice.toString(),
-          "Sgst": sgstPrice.toString(),
-          "ExtraCharges": extraCharges.toString(),
+        //theme ops
+        if(themeName.toString()!="null"){
+          request.fields.addAll({
+            "Theme":themeName,
+          });
+        }
+        if(themeFileName.toString()!="null"){
+          request.files.add(await http.MultipartFile.fromPath(
+              'file', themeFileName.toString(),
+              filename: Path.basename(themeFileName),
+              contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
+          ));
+        }
 
-        });
+        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0){
+          request.fields.addAll({
+            "PremiumVendor":"y",
+          });
+        }
+
+        //if vendor is not emp..
+        if(vendorID.isNotEmpty || double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0){
+          request.fields.addAll({
+            "VendorName":vendorName,
+            "VendorID":vendorID,
+            "Vendor_ID":vendorModId,
+            "VendorPhoneNumber1":vendorPhone1,
+            "VendorPhoneNumber2":vendorPhone2,
+            "VendorAddress":"$vendorAddress",
+            // "PremiumVendor":"n"
+          });
+        }
+
+        //cake message
+        if(cakeMessage.toString()!="null"){
+          request.fields.addAll({
+            "MessageOnTheCake":cakeMessage
+          });
+        }
+
+        //spl req...
+        if(cakeSplReq.toString()!="null"){
+          request.fields.addAll({
+            "SpecialRequest":cakeSplReq
+          });
+        }
+
+        //tiers ops
+        if(cakeTier.toString()!="null"){
+          request.fields.addAll({
+            "Tier":cakeTier
+          });
+        }
+
+        //toppers
+        if(topperPrice!=0){
+          request.fields.addAll({
+            "TopperId":topperId,
+            "TopperName":topperName,
+            "TopperImage":topperImg,
+            "TopperPrice":'$topperPrice',
+          });
+        }
 
         request.headers.addAll(headers);
 
@@ -485,103 +622,22 @@ class _CheckOutState extends State<CheckOut> {
             NotificationService().showNotifications("Order Placed", "Your $cakeName Ordered.Thank You!");
 
             showOrderCompleteSheet();
+
           }else{
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Unable to Place Your Order'),
+                content: Text('Error occurred'),
                 behavior: SnackBarBehavior.floating
             ));
           }
 
         } else {
-          print(response.reasonPhrase);
+          print(response.reasonPhrase.toString().toLowerCase());
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('Error Occurred : ${response.reasonPhrase}'),
               behavior: SnackBarBehavior.floating
           ));
           Navigator.pop(context);
         }
-      }
-      else {
-        print('Weight is above 5 : $weight');
-
-        var headers = {'Content-Type': 'application/json'};
-        var request = http.Request(
-            'POST',
-            Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-
-        request.body = json.encode({
-          "CakeID": cakeID,
-          "Cake_ID": cakeModId,
-          "Title": cakeName,
-          "Description": cakeDesc,
-          "TypeOfCake": cakeType,
-          "Images": cakeImage,
-          "EggOrEggless": eggOreggless,
-          "Price": cakePrice.toString(),
-          "Flavour": flavs,
-          "Shape": shape,
-          "Theme": "Ben 10",
-          "Article": artic[0],
-          "MessageOnTheCake": cakeMessage,
-          "SpecialRequest": cakeSplReq,
-          "Weight": weight,
-          "UserID": userID,
-          "User_ID": userModId,
-          "UserName": userName,
-          "UserPhoneNumber": userPhone,
-          "DeliveryAddress": userAddress,
-          "DeliveryDate": deliverDate,
-          "DeliverySession": deliverSession,
-          "ItemCount": counts,
-          "Discount": discount.toString(),
-          "Total": bilTotal.toString(),
-          "DeliveryCharge": deliveryCharge.toString(),
-          "PaymentType": paymentType,
-          "PaymentStatus": paymentType.toLowerCase() == "cash on delivery"
-              ? "Cash On Delivery"
-              : 'Paid',
-          "DeliveryInformation": deliverType,
-          "Gst": gstPrice.toString(),
-          "Sgst": sgstPrice.toString(),
-          "ExtraCharges": extraCharges.toString(),
-          // "Above5KG":"y",
-          // "Created_On":simplyFormat(time: DateTime.now())
-        });
-
-        request.headers.addAll(headers);
-
-        http.StreamedResponse response = await request.send();
-
-        if (response.statusCode == 200) {
-          // print(await response.stream.bytesToString());
-
-          if(json.decode(await response.stream.bytesToString())['statusCode'].toString()=="200"){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Order Placed!'),
-                behavior: SnackBarBehavior.floating
-            ));
-            Navigator.pop(context);
-            NotificationService().showNotifications("Order Placed", "Your $cakeName Ordered.Thank You!");
-            showOrderCompleteSheet();
-          }else{
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Unable to Place Your Order'),
-                behavior: SnackBarBehavior.floating
-            ));
-          }
-
-        } else {
-          print(response.reasonPhrase);
-
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Error Occurred : ${response.reasonPhrase}'),
-              behavior: SnackBarBehavior.floating
-          ));
-
-          Navigator.pop(context);
-        }
-      }
     }catch(e){
       print(e);
     }
@@ -594,7 +650,9 @@ class _CheckOutState extends State<CheckOut> {
   @override
   void initState() {
     // TODO: implement initState
-    recieveDetailsFromScreen();
+    Future.delayed(Duration.zero , () async{
+      recieveDetailsFromScreen();
+    });
     super.initState();
   }
 
@@ -698,17 +756,18 @@ class _CheckOutState extends State<CheckOut> {
             child: Column(
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    cakeImage.isEmpty||!cakeImage.startsWith("http")?
+                    cakeImage!="null"?
                     Container(
                       height: 90,
                       width: 75,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
-                              image: AssetImage('assets/images/customcake.png'),
-                              fit: BoxFit.cover)
+                              image:NetworkImage("${cakeImage}"),
+                              fit: BoxFit.cover
+                          )
                       ),
                     ):
                     Container(
@@ -717,82 +776,93 @@ class _CheckOutState extends State<CheckOut> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
-                              image: NetworkImage('$cakeImage'),
-                              fit: BoxFit.cover)
+                              image:AssetImage("assets/images/chefdoll.jpg"),
+                              fit: BoxFit.cover
+                          )
                       ),
                     ),
                     SizedBox(
-                      width: 5,
+                      width: 7,
                     ),
                     Expanded(
-                        child: Column(
+                        child:
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Container(
+                              child: Text('${cakeName} '
+                                // '(Rs.$cakePrice) x $counts'
+                                ,style: TextStyle(
+                                    fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
+                                ),overflow: TextOverflow.ellipsis,maxLines: 10,),
+                            ),
+                            SizedBox(height: 5,),
+                            Text('(Shape - ${shape.replaceAll("Name", "").replaceAll("Price", "")
+                                .replaceAll("{", "").replaceAll("}", "").replaceAll('"', '').replaceAll(":", "")
+                                .replaceAll(",", "").replaceAll("0", "").replaceAll('"', "")})',style: TextStyle(
+                                fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                            ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                            // SizedBox(height: 5,),
+                            Wrap(
                               children: [
-                                Container(
-                                  child: Text('${cakeName} (Rs.$cakePrice) × $counts',style: TextStyle(
-                                      fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
-                                  ),overflow: TextOverflow.ellipsis,maxLines: 10,),
-                                ),
-                                SizedBox(height: 5,),
-                                Text('(Flavour - ${flavs[0]['Name']}) + (Shape - ${shape}) + '
-                                    '(Article - ${artic[0]['Name']}) = Rs.$extraCharges',style: TextStyle(
-                                    fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                                ),overflow: TextOverflow.ellipsis,maxLines: 10),
-                                Wrap(
-                                  children: [
-                                    for(var i in flavs)
-                                      Text("(Flavour - ${i['Name']} Price - Rs.${i['Price']})",style: TextStyle(
-                                          fontSize:10.5,fontFamily: "Poppins",
-                                          color: Colors.black26
-                                      ),),
-
-                                    Text(" = Rs.$extraCharges",style: TextStyle(
+                                for(var i in flavs)
+                                  Text("(Flavour - ${i['Name']}) "
+                                    // "Price - Rs.${i['Price']})"
+                                    ,style: TextStyle(
                                         fontSize:10.5,fontFamily: "Poppins",
-                                        color: Colors.black26
-                                    ),)
-
-                                  ],
-                                ),
-                                Text('₹ ${counts * int.parse(cakePrice) + double.parse(extraCharges)}',style: TextStyle(
-                                    fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
-                                    fontFamily: "Poppins"
-                                ),
-                                  overflow: TextOverflow.ellipsis,maxLines: 2,
-                                ),
+                                        color: Colors.grey[500]
+                                    ),),
                               ],
-                            )
+                            ),
+                            Text.rich(
+                                TextSpan(
+                                    text: orderFromCustom!="yes"?
+                                    '₹ ${(counts * (double.parse(cakePrice.toString()) +
+                                        double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+                                        .toStringAsFixed(2)}':
+                                     "${
+                                      ((double.parse(cakePrice)*
+                                          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+                                          extraCharges).toStringAsFixed(2)
+                                     }",
+                                    style: TextStyle(
+                                        fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
+                                        fontFamily: "Poppins"),
+                                    children: [
+                                      TextSpan(
+                                        text: " *(includes selected weight,flavours,shape,toppers.)",
+                                        style: TextStyle(
+                                            fontSize: 8,color: darkBlue,
+                                            fontFamily: "Poppins"),
+                                      )
+                                    ]
+                                )
+                            ),
                           ],
-                        ))
+                        )
+                    )
                   ],
                 ),
-                SizedBox(
-                  height: 15,
-                ),
+                SizedBox(height: 15,),
                 Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(15),
-                          bottomLeft: Radius.circular(15)),
-                      color: Colors.black12),
+                      borderRadius: BorderRadius.only(bottomRight: Radius.circular(25)
+                          ,bottomLeft:  Radius.circular(15)
+                      ),
+                      color: Colors.grey[200]
+                  ),
                   child: Column(
                     children: [
                       ListTile(
-                        title: const Text(
-                          'Vendor',
-                          style: const TextStyle(
-                              fontSize: 11, fontFamily: "Poppins"),
-                        ),
-                        subtitle: Text(double.parse(weight.replaceAll("kg", ""))<6.0?
-                          '${vendorName}':'Premium Vendor',
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                        ),
+                        title: const Text('Vendor',style: const TextStyle(
+                            fontSize: 11,fontFamily: "Poppins"
+                        ),),
+                        subtitle: Text(
+                          '${vendorName}',style: TextStyle(
+                            fontSize: 14,fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,color: Colors.black
+                        ),),
                         trailing: Container(
                           width: 100,
                           child: Row(
@@ -800,12 +870,7 @@ class _CheckOutState extends State<CheckOut> {
                             children: [
                               InkWell(
                                 onTap: () async{
-                                  print('phone..');
-                                  try{
-                                    await launchUrl(Uri.parse("tel://$vendorMobile"));
-                                  }catch(e){
-                                    print('uri er : $e');
-                                  }
+                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -813,39 +878,15 @@ class _CheckOutState extends State<CheckOut> {
                                   width: 35,
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white),
-                                  child: const Icon(
-                                    Icons.phone,
-                                    color: Colors.blueAccent,
+                                      color: Colors.white
                                   ),
+                                  child:const Icon(Icons.phone,color: Colors.blueAccent,),
                                 ),
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
+                              const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                  print('whatsapp');
-                                  String whatsapp = vendorMobile;
-                                  var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
-                                  var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
-                                  if(Platform.isIOS){
-                                    // for iOS phone only
-                                    if( await canLaunch(whatappURL_ios)){
-                                      await launch(whatappURL_ios, forceSafariVC: false);
-                                    }else{
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: new Text("whatsapp no installed")));
-                                    }
-                                  }else{
-                                    // android , web
-                                    if( await canLaunch(whatsappURl_android)){
-                                      await launch(whatsappURl_android);
-                                    }else{
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: new Text("whatsapp no installed")));
-                                    }
-                                  }
+                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -853,11 +894,9 @@ class _CheckOutState extends State<CheckOut> {
                                   width: 35,
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white),
-                                  child: const Icon(
-                                    Icons.whatsapp_rounded,
-                                    color: Colors.green,
+                                      color: Colors.white
                                   ),
+                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
                                 ),
                               ),
                             ],
@@ -866,103 +905,138 @@ class _CheckOutState extends State<CheckOut> {
                       ),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.only(left: 15, bottom: 10),
+                        padding: const EdgeInsets.only(left: 15,bottom: 10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Cake Type',
-                              style: TextStyle(
-                                  fontSize: 11, fontFamily: "Poppins"),
-                            ),
-                            Text(
-                              '${cakeType}',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
+                            Text('Cake Type',style: TextStyle(
+                                fontSize: 11,fontFamily: "Poppins"
+                            ),),
+                            Text('${cakeType}',style: TextStyle(
+                                fontSize: 14,fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,color: Colors.black
+                            ),),
                           ],
                         ),
                       ),
                       Container(
-                        margin: const EdgeInsets.only(left: 10, right: 10),
+                        margin: const EdgeInsets.only(left: 10,right: 10),
                         color: Colors.black26,
                         height: 1,
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Container(
-                              width: 260,
-                              child: Text(
-                                "$userAddress",
-                                style: TextStyle(
+                      const SizedBox(height: 15,),
+                      Container(
+                        // color: Colors.green,
+                        margin : EdgeInsets.only(left: 5),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.red,
+                            ),
+                            SizedBox(width: 5,),
+                            Expanded(
+                                child: Text(
+                                  "${userAddress.trim()}",
+                                  style: TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
-                                    fontSize: 13),
-                              )),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width:310,
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Text(
-                            "Apply Coupon",
-                            style: TextStyle(
-                                fontFamily: "Poppins",
-                                color: Colors.black54,
-                                fontSize: 12),
-                          ),
+                                    fontSize: 13,
+                                  ),
+                                )
+                            ),
+                          ],
                         ),
-                        Container(
-                          height: 40,
-                          width: MediaQuery.of(context).size.width,
-                          child: TextField(
-                            // onChanged: (){},
-                              decoration: InputDecoration(
+                      ),
 
-                                contentPadding: EdgeInsets.all(5),
-                                border: OutlineInputBorder(),
-                              )
-                          ),
-                        )
-                      ],
-                    )),
-                Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(7)),
-                      color: Colors.black12
-                  ),
-                  child: Column(
-                    children: [
+                      SizedBox(height: 7,),
+
+                      Container(
+                        margin: const EdgeInsets.only(left: 10,right: 10),
+                        color: Colors.black26,
+                        height: 1,
+                      ),
+
+                      Container(
+                        padding: EdgeInsets.only(top: 10,bottom: 10),
+                        width: double.infinity,
+                        color: Colors.white,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                                padding:EdgeInsets.only(left: 5),
+                                child: Text("Apply Coupon",
+                                style: TextStyle(
+                                  color: darkBlue,
+                                  fontFamily: "Poppins",
+                                  fontSize: 12
+                                ),),
+                            ),
+                            SizedBox(height: 6,),
+                            Container(
+                              margin: EdgeInsets.only(left: 7,right: 7),
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontSize: 13,
+                                    color:darkBlue
+                                ),
+                                controller: couponCtrl,
+                                onChanged: (text){
+                                  setState((){
+                                    if(couponCtrl.text.toLowerCase()=="bbq12m"){
+
+                                      print(double.parse(cakePrice.toString())*double.parse(weight.toLowerCase().replaceAll("kg", "").toString()));
+                                      print(taxes);
+                                      print(discountPrice);
+
+                                      setState((){
+                                        tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
+                                            double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-discountPrice;
+                                        print(tempPrice);
+                                        tempTax = tempPrice * (double.parse(taxes.toString())/100);
+                                        print(tempTax);
+                                      });
+                                      tempDiscountPrice = discountPrice;
+                                      tempDiscount = discount;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text('Discount Applied.!'),
+                                            backgroundColor: Colors.green,
+                                        )
+                                      );
+                                    }else{
+                                      setState((){
+                                        tempDiscountPrice = 0.0;
+                                        tempDiscount = 0;
+                                        tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
+                                            double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice;
+                                        print(tempPrice);
+                                        tempTax = tempPrice * (double.parse(taxes.toString())/100);
+                                        print(tempTax);
+                                      });
+                                    }
+                                  });
+                                },
+                                maxLines: 1,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(5),
+                                  hintStyle: TextStyle(
+                                    fontFamily: "Poppins",fontSize: 13
+                                  ),
+                                  hintText: "Coupon code",
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+
                       Container(
                         padding: const EdgeInsets.all(10),
                         child: Row(
@@ -977,8 +1051,15 @@ class _CheckOutState extends State<CheckOut> {
                               margin: EdgeInsets.only(left: 15,right: 15),
                               padding: EdgeInsets.all(15),
                               message: "Item total depends on itemcount/selected shape,flavour,article,weight",
-                              child: Text('₹ ${(counts*int.parse(cakePrice, onError: (e)=>0) )+
-                                  double.tryParse(extraCharges)!}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              child: orderFromCustom!="yes"?
+                              Text('₹ ${(counts * (double.parse(cakePrice.toString()) +
+                                  double.parse(extraCharges.toString()))*
+                                  double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}'
+                                ,style: const TextStyle(fontWeight: FontWeight.bold),):
+                              Text('₹ ${((double.parse(cakePrice)*
+                                  double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+                                  extraCharges).toStringAsFixed(2)}'
+                                ,style: const TextStyle(fontWeight: FontWeight.bold),)
                             ),
                           ],
                         ),
@@ -993,7 +1074,7 @@ class _CheckOutState extends State<CheckOut> {
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
-                            Text('₹ ${deliveryCharge}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -1011,10 +1092,9 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: orderFromCustom!="yes"?
-                                      Text('${discount} %',style: const TextStyle(fontSize:10.5,),):null
+                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ $discountPrice',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${tempDiscountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1034,10 +1114,11 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: orderFromCustom!="yes"?
-                                      Text('${taxes} %',style: const TextStyle(fontSize:10.5,),):null
+                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${gstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  orderFromCustom!="yes"?
+                                  Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ ${(gstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1057,10 +1138,11 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: orderFromCustom!="yes"?
-                                      Text('${taxes} %',style: const TextStyle(fontSize:10.5,),):null,
+                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${sgstPrice}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  orderFromCustom!="yes"?
+                                  Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ ${(gstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1082,14 +1164,26 @@ class _CheckOutState extends State<CheckOut> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold
                             ),),
-                            Text('₹ ${bilTotal}',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
+                            orderFromCustom!="yes"?
+                            Text('₹ ${
+                                ((counts * (
+                                    double.parse(cakePrice)*
+                                        double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+                                        (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+                                ) + double.parse((tempTax).toString()) +
+                                    deliveryCharge)
+                                - tempDiscountPrice).toStringAsFixed(2)
+                            }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),):
+                            Text('₹ ${((((double.parse(cakePrice)*
+                                double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+                                extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+                                tempDiscountPrice).toStringAsFixed(2)}',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-
 
                 ExpansionTile(
                   maintainState: true,
@@ -1325,9 +1419,7 @@ class _CheckOutState extends State<CheckOut> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25)),
                     onPressed: () {
-                      orderFromCustom=="yes"?
-                      confirmCustomOrder():
-                      confirmOrder();
+                      showConfirmOrder();
                     },
                     color: lightPink,
                     child: Text(
