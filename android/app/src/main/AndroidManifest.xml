@@ -14,7 +14,7 @@
 
    <application
         android:hardwareAccelerated="true"
-        android:label="Cakey Shop"
+        android:label="Cakey"
         android:usesCleartextTraffic="true"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
