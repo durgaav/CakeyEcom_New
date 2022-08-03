@@ -107,13 +107,16 @@ class _NavDrawerState extends State<NavDrawer> {
                       boxShadow: [BoxShadow(blurRadius: 12, color: Color(0xffcccccc), spreadRadius: 1)],
                     ),
                     child: profileUrl!="null"?
-                    CircleAvatar(
-                      radius: 37,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 35,
-                        backgroundImage:
-                        NetworkImage('$profileUrl'),
+                    Container(
+                      height: 65,
+                      width: 65,
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                              image: NetworkImage('$profileUrl'),
+                              fit: BoxFit.fill
+                          )
                       ),
                     ):CircleAvatar(
                       radius: 37,

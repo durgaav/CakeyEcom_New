@@ -97,6 +97,9 @@ class _NotificationsState extends State<Notifications> {
     prefs.setString('customCakeUserAdd', myList[0]['DeliveryAddress'].toString());
     prefs.setString('customCakeVenPhn1', myList[0]['VendorPhoneNumber1'].toString());
     prefs.setString('customCakeVenPhn2', myList[0]['VendorPhoneNumber2'].toString());
+    prefs.setString('customCakeVenModId', myList[0]['Vendor_ID'].toString());
+    prefs.setString('customCakeVenId', myList[0]['VendorID'].toString());
+    prefs.setString('customCakeVenAddrss', myList[0]['VendorAddress'].toString());
     prefs.setString('customCakeExtra', myList[0]['ExtraCharges'].toString());
     prefs.setString('customCakeGst', myList[0]['Gst'].toString());
     prefs.setString('customCakeSgst', myList[0]['Sgst'].toString());
@@ -104,6 +107,9 @@ class _NotificationsState extends State<Notifications> {
     prefs.setString('customCakeDisc', myList[0]['Discount'].toString());
     prefs.setString('customCakeWeight', myList[0]['Weight'].toString());
     prefs.setString('customCakeId', myList[0]['_id'].toString());
+    prefs.setString('customCakeVendLat', myList[0]['GoogleLocation']['Latitude'].toString().toString());
+    prefs.setString('customCakeVendLong', myList[0]['GoogleLocation']['Longitude'].toString().toString());
+    prefs.setString('customCakePickOrDel', myList[0]['DeliveryInformation'].toString().toString());
 
 
     print( myList[0]['Discount'].toString());

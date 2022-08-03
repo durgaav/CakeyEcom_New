@@ -64,6 +64,8 @@ class _CakeTypesState extends State<CakeTypes> {
   bool iamYourVendor = false;
   String vendorPhone1 = "";
   String vendorPhone2 = "";
+  String userLatitude = "";
+  String userLongtitude = "";
 
   //booleans
   bool egglesSwitch = false;
@@ -216,7 +218,7 @@ class _CakeTypesState extends State<CakeTypes> {
                             'FILTER',
                             style: TextStyle(
                                 color: darkBlue,
-                                fontSize: 18,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins"),
                           ),
@@ -258,7 +260,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   'Price Range',
                                   style: TextStyle(
                                       color: darkBlue,
-                                      fontSize: 18,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Poppins"),
                                 ),
@@ -336,6 +338,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 title: Text(
                                   'Flavours',
                                   style: TextStyle(
+                                      fontSize: 13,
                                       fontFamily: "Poppins",
                                       color: darkBlue,
                                       fontWeight: FontWeight.bold),
@@ -433,7 +436,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                     style: TextStyle(
                                                         color: darkBlue,
                                                         fontFamily: "Poppins",
-                                                        fontSize: 12,
+                                                        fontSize: 13,
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
@@ -453,6 +456,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 title: Text(
                                   'Shapes',
                                   style: TextStyle(
+                                      fontSize: 13,
                                       color: darkBlue,
                                       fontFamily: "Poppins",
                                       fontWeight: FontWeight.bold),
@@ -567,7 +571,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                     style: TextStyle(
                                                         color: darkBlue,
                                                         fontFamily: "Poppins",
-                                                        fontSize: 15),
+                                                        fontSize: 13),
                                                   ),
                                                 ],
                                               ),
@@ -695,7 +699,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 //   ..strokeWidth = 1.5
                                 //   ..color = darkBlue,
                                 color: darkBlue,
-                                fontSize: 18,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins"),
                           ),
@@ -827,7 +831,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           'Types',
                           style: TextStyle(
                               color: darkBlue,
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               fontFamily: "Poppins"),
                         ),
@@ -860,7 +864,8 @@ class _CakeTypesState extends State<CakeTypes> {
                               child: Text(e,style: TextStyle(
                                 fontFamily: "Poppins",
                                 color: clicked?Colors.white:darkBlue,
-                                fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13
                               ),),
                               style: ButtonStyle(
                                 side: MaterialStateProperty.all(
@@ -966,7 +971,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           'SHAPES',
                           style: TextStyle(
                               color: darkBlue,
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               fontFamily: "Poppins"),
                         ),
@@ -1080,7 +1085,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                             style: TextStyle(
                                                 color: darkBlue,
                                                 fontFamily: "Poppins",
-                                                fontSize: 15),
+                                                fontSize: 13),
                                           ),
                                         ],
                                       ),
@@ -1323,8 +1328,11 @@ class _CakeTypesState extends State<CakeTypes> {
     setState(() {
       authToken = pref.getString("authToken") ?? 'no auth';
       userCurLocation = pref.getString('userCurrentLocation') ?? 'Not Found';
-
-
+      userLatitude = pref.getString('userLatitute')??'Not Found';
+      userLongtitude = pref.getString('userLongtitude')??'Not Found';
+      //delivery charge
+      // adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
+      // adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
       myVendorId = pref.getString('myVendorId') ?? 'Not Found';
       vendorName = pref.getString('myVendorName') ?? 'Un Name';
       vendorPhone = pref.getString('myVendorPhone') ?? '0000000000';
@@ -1374,20 +1382,21 @@ class _CakeTypesState extends State<CakeTypes> {
         } else {
           setState(() {
             isNetworkError = false;
-            cakesList = jsonDecode(response.body);
+            List cakList = jsonDecode(response.body);
             
-            regular = cakesList.where((element) => element['CakeCategory'].toString().toLowerCase()=="regular").toList();
-            premium = cakesList.where((element) => element['CakeCategory'].toString().toLowerCase()=="premium").toList();
+            regular = cakList.where((element) => element['CakeCategory'].toString().toLowerCase()=="regular").toList();
+            premium = cakList.where((element) => element['CakeCategory'].toString().toLowerCase()=="premium").toList();
 
             // cakesList = cakesList.reversed.toList();
 
-            for (int i = 0; i < cakesList.length; i++) {
-              rangeValuesList.add(int.parse(cakesList[i]['BasicCakePrice']));
-              print(cakesList[i]['CakeCategory']);
-              cakesTypes.add(cakesList[i]['CakeType'].toString());
+            for (int i = 0; i < cakList.length; i++) {
+              rangeValuesList.add(int.parse(cakList[i]['BasicCakePrice']));
+              print(cakList[i]['CakeCategory']);
+              cakesTypes.add(cakList[i]['CakeType'].toString());
             }
 
-            cakesList = premium + regular;
+            cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
 
             cakesList = cakesList.reversed.toList();
 
@@ -1503,10 +1512,7 @@ class _CakeTypesState extends State<CakeTypes> {
     List cakeTiers = [];
     var prefs = await SharedPreferences.getInstance();
 
-    String vendorAddress = cakeSearchList[index]['VendorAddress']['Street'].toString()+"," +
-                           cakeSearchList[index]['VendorAddress']['City'].toString()+","+
-                           cakeSearchList[index]['VendorAddress']['State'].toString()+","+
-                           cakeSearchList[index]['VendorAddress']['Pincode'].toString()+".";
+    String vendorAddress = cakeSearchList[index]['VendorAddress'];
 
     //region API LIST LOADING...
     //getting cake pics
@@ -1678,7 +1684,9 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeVendorPhone1", cakeSearchList[index]['VendorPhoneNumber1']??"null");
     prefs.setString("cakeVendorPhone2", cakeSearchList[index]['VendorPhoneNumber2']??"null");
     prefs.setString("cakeVendorAddress", vendorAddress);
-    
+    prefs.setString("cakeVendorLatitu", cakeSearchList[index]['GoogleLocation']['Latitude'].toString());
+    prefs.setString("cakeVendorLongti", cakeSearchList[index]['GoogleLocation']['Longitude'].toString());
+
     //INTEGERS
     prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
     prefs.setInt('cakeTax', int.parse(cakeSearchList[index]['Tax'].toString()));
@@ -1712,6 +1720,16 @@ class _CakeTypesState extends State<CakeTypes> {
       ));
   }
 
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
   //Send filtered prefs to next screen
   Future<void> sendFillDetailsToScreen(int index) async {
     // filterCakesSearchList
@@ -1723,10 +1741,7 @@ class _CakeTypesState extends State<CakeTypes> {
     List cakeTiers = [];
     var prefs = await SharedPreferences.getInstance();
 
-    String vendorAddress = filterCakesSearchList[index]['VendorAddress']['Street'].toString()+"," +
-        filterCakesSearchList[index]['VendorAddress']['City'].toString()+","+
-        filterCakesSearchList[index]['VendorAddress']['State'].toString()+","+
-        filterCakesSearchList[index]['VendorAddress']['Pincode'].toString()+".";
+    String vendorAddress = filterCakesSearchList[index]['VendorAddress'];
 
     //region API LIST LOADING...
     //getting cake pics
@@ -3204,10 +3219,44 @@ class _CakeTypesState extends State<CakeTypes> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              Icon(
-                                                Icons.cake_outlined,
-                                                color: lightPink,
-                                              ),
+                                              index==0?Container(
+                                                height: 30,
+                                                width: 30,
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: AssetImage("assets/images/cakefour.jpg")
+                                                  )
+                                                ),
+                                              ):
+                                              index==1?Container(
+                                                height: 30,
+                                                width: 30,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                        image: AssetImage("assets/images/cakethree.png")
+                                                    )
+                                                ),
+                                              ):
+                                              index==2?Container(
+                                                height: 30,
+                                                width: 30,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                        image: AssetImage("assets/images/cakelist.png")
+                                                    )
+                                                ),
+                                              ):
+                                              index==3?Container(
+                                                height: 30,
+                                                width: 30,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                        image: AssetImage("assets/images/cakefour.jpg")
+                                                    )
+                                                ),
+                                              ):
+                                              Icon(Icons.cake_outlined , color: lightPink,),
+
                                               Text(
                                                 " ${cakesTypes[index][0].toString().toUpperCase() + cakesTypes[index].toString().substring(1).toLowerCase()}",
                                                 style: TextStyle(

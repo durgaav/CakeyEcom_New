@@ -903,7 +903,7 @@ class _HomeScreenState extends State<HomeScreen> {
     pref.setString('singleVendorPhone1', nearestVendors[index]['PhoneNumber1']??'null');
     pref.setString('singleVendorPhone2', nearestVendors[index]['PhoneNumber2']??'null');
     pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
-    pref.setString('singleVendorAddress', nearestVendors[index]['Address']['FullAddress']??'null');
+    pref.setString('singleVendorAddress', nearestVendors[index]['Address']??'null');
     pref.setString('singleVendorSpecial', nearestVendors[index]['YourSpecialityCakes'].toString());
 
     print(nearestVendors[index]['YourSpecialityCakes']);
@@ -977,7 +977,6 @@ class _HomeScreenState extends State<HomeScreen> {
           getVendorsList();
           print(token);
           getFbToken();
-          Navigator.pop(context);
           timerTrigger();
 
         });
@@ -1042,9 +1041,11 @@ class _HomeScreenState extends State<HomeScreen> {
       print(await response.stream.bytesToString());
 
       print("Token Fetched.");
+      Navigator.pop(context);
     }
     else {
       print("Token Fetch Error.");
+      Navigator.pop(context);
     }
 
   }
@@ -1186,6 +1187,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fetchlocation lat long
   Future<void> _getUserLocation() async {
+    var pref = await SharedPreferences.getInstance();
     // Check if permission is granted
     _permissionGranted = await myLocation.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
@@ -1210,49 +1212,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final _locationData = await myLocation.getLocation();
     setState(() {
       _userLocation = _locationData;
-
     });
+
+    pref.setString('userLatitute', "${_userLocation!.latitude}");
+    pref.setString('userLongtitude', "${_userLocation!.longitude}");
 
     GetAddressFromLatLong(_userLocation!.latitude, _userLocation!.longitude);
   }
 
-  Future<void> getNearbyLoc() async {
-    List<List<geocode.Location>> location = [];
-    List myList = vendorsList;
-    List newlist = [];
-
-    try{
-      for (var i = 0; i < myList.length; i++) {
-        try {
-          if (myList[i]['Address'] != null &&
-              myList[i]['Address']['FullAddress'] != null) {
-            location.add(await geocode
-                .locationFromAddress(myList[i]['Address']['FullAddress']));
-
-            myList[i].addEntries([
-              MapEntry('lat', location[i][0].latitude),
-              MapEntry('long', location[i][0].longitude),
-            ]);
-          }
-        } catch (e) {
-          print(e);
-        }
-      }
-
-    }catch(e){
-      print(e);
-    }
-
-    for(int i = 0 ;i<myList.length;i++){
-
-    }
-
+  void getNearestVendors() {
+    print('Near vendors');
+    print(calculateDistance(_userLocation!.latitude, _userLocation!.longitude,11.1137222,77.0284113));
   }
 
   //Get vendors list
   Future<void> getVendorsList() async {
     filteredByEggList.clear();
-
     try {
       var res = await http
           .get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
@@ -1263,19 +1238,10 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           vendorsList = jsonDecode(res.body);
 
-          // getNearbyLoc();
-
-          for (int i = 0; i < vendorsList.length; i++) {
-            // if (vendorsList[i]['Address'] != null &&
-            //     vendorsList[i]['Address']['City']
-            //         .toString()
-            //         .toLowerCase()
-            //         .contains(userMainLocation.toLowerCase())) {
-              setState(() {
-                filteredByEggList.add(vendorsList[i]);
-              });
-
-          }
+          filteredByEggList = vendorsList.where((element) =>
+              calculateDistance(_userLocation!.latitude, _userLocation!.longitude,
+                  element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+          ).toList();
 
           // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
           // contains(userMainLocation.toLowerCase())).toList();
@@ -1840,10 +1806,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   splashColor: Colors.black26,
                                   onPressed: () {
                                     FocusScope.of(context).unfocus();
-                                    setState(() {
-
-                                    });
                                     showFilterBottom();
+                                    // getNearestVendors();
                                   },
                                   icon: Icon(
                                     Icons.tune,
@@ -2529,7 +2493,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   Container(
                                                                       width: 105,
                                                                       child: Text(
-                                                                        ' ${recentOrders[index]['VendorName']}',
+                                                                        recentOrders[index]['PremiumVendor']=='y'?
+                                                                        ' Premium Vendor':' ${recentOrders[index]['VendorName']}',
                                                                         overflow: TextOverflow.ellipsis,
                                                                         style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
                                                                         maxLines: 1,
@@ -2853,18 +2818,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 fontSize: 11.5
                                                             ),maxLines: 2,),
                                                             SizedBox(height: 4,),
-                                                            Divider(height: 0.5,color: darkBlue,),
+                                                            Divider(height: 0.5,color: Color(0xffeeeeee),),
                                                             SizedBox(height: 4,),
                                                             Row(
                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                               children: [
-                                                                index==0||index==1?
+                                                                // index==0?
+                                                                // Text(
+                                                                //   'DELIVERY FREE',
+                                                                //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                                // ):
                                                                 Text(
-                                                                  'DELIVERY FREE',
-                                                                  style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
-                                                                ):
-                                                                Text(
-                                                                  "${deliverykmFromAdmin} KM Delivery Fee Rs.$deliveryChargeFromAdmin",
+                                                                  "${
+                                                                    double.parse("${(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                                        nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")
+                                                                  } KM Delivery Fee Rs.${(deliveryChargeFromAdmin/deliverykmFromAdmin)*(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                                      nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}",
                                                                   style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: poppins  , fontWeight: FontWeight.bold),
                                                                 ),
                                                                 Expanded(child: Align(
@@ -3108,7 +3079,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   SizedBox(height: 5),
                                                   Container(
                                                     // width:120,
-                                                    child: Text(i.isOdd?'FREE DELIVERY':'DELIVERY FEE RS.20',
+                                                    child: Text('DELIVERY FEE RS.${
+                                                        (deliveryChargeFromAdmin/deliverykmFromAdmin)*(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                            cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                                            cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()
+                                                    }',
                                                       style: TextStyle(
                                                           color: Colors.orange,
                                                           fontWeight:

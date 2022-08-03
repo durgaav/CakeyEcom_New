@@ -63,6 +63,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   bool vendorCakeMode = false;
   bool themeSectionVisible = false;
   bool updateCake = false;
+  String vendorLat = "";
+  String vendorLong = "";
 
   //load context vendor...
   bool isMySelVen = false;
@@ -147,6 +149,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String basicCakeWeight= "";
   String vendorPhone1 = '';
   String vendorPhone2 = "";
+  String vendorLatitude = "";
+  String vendorLongtitude = "";
 
   //topper
   String topperId = "";
@@ -212,6 +216,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   //delivery
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
+  String userLatitude = "";
+  String userLongtitude = "";
 
   //Text controls
   var messageCtrl = new TextEditingController();
@@ -2041,6 +2047,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   //region FUNCTIONS
 
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
   //fetch toppers by ven id..
   Future<void> fetchToppersById(String id) async{
     print("V : $id");
@@ -2113,6 +2129,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     setState(() {
 
       authToken = prefs.getString('authToken')!;
+      userLatitude = prefs.getString('userLatitute')??'Not Found';
+      userLongtitude = prefs.getString('userLongtitude')??'Not Found';
 
       vendorCakeMode = prefs.getBool('vendorCakeMode')??false;
 
@@ -2139,6 +2157,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       taxes = prefs.getInt("cakeTax")!;
       cakeDiscounts = prefs.getInt("cakeDiscount")!;
       weight = prefs.getStringList('cakeWeights')!;
+      vendorLat = prefs.getString('cakeVendorLatitu')!;
+      vendorLong = prefs.getString('cakeVendorLongti')!;
 
       //Vendor
       vendorID = prefs.getString('cakeVendorid')!;
@@ -2277,12 +2297,31 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.remove('orderCakeTopperName');
     prefs.remove('orderCakeTopperImg');
     prefs.remove('orderCakeTopperPrice');
+    prefs.remove('orderCakeVenLat');
+    prefs.remove('orderCakeVenLong');
 
     print('.....removed****');
 
+    String dlintKm = "";
+
+    if(mySelVendors.isEmpty||nearestVendors.isEmpty){
+      dlintKm = "0";
+    }else{
+      dlintKm =  ((adminDeliveryCharge/adminDeliveryChargeKm)*
+          (calculateDistance(double.parse(userLatitude),
+              double.parse(userLongtitude),
+              mySelVendors[0]['GoogleLocation']['Latitude'],
+              mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()).toString();
+    }
+
+
+
+    print("deliver based km $dlintKm");
+
     //variables for calculations
     double price = 0 , tax = 0, gst = 0 , sgst = 0 , discount = 0
-    ,itemCount = 0, total = 0 , extra = 0 , delCharge = fixedDelliverMethod.toLowerCase()=="pickup"?0:50 ,
+    ,itemCount = 0, total = 0 , extra = 0 ,
+        delCharge = fixedDelliverMethod.toLowerCase()=="pickup"?0:double.parse(dlintKm),
         weights = 0, finalPrice = 0;
     double priceAfterDis = 0 , discountedPrice = 0 , flavByWeight = 0 , shapeByWeight = 0 , addedPrice =0;
 
@@ -2313,7 +2352,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         shape = '{"Name":"$fixedShape","Price":"$extraShapeCharge"}';
       }
 
-      print(shape);
+      print("status of list ${nearestVendors.length}");
 
       //calculations
 
@@ -2370,6 +2409,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeSubType', cakeSubType);
     prefs.setString('orderCakeImages', cakeImages[0].toString());
     prefs.setString('orderCakeEggOrEggless', cakeEggorEgless);
+    prefs.setString('orderCakeVenLat', vendorLat);
+    prefs.setString('orderCakeVenLong', vendorLong);
 
     if(tierPrice!=0){
       print(" tempCakeWeight $tempCakeWeight");
@@ -2417,6 +2458,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeTheme', themeTextCtrl.text.isNotEmpty?themeTextCtrl.text:"null");//ops
     prefs.setString('orderCakeThemeImage', file.path.isNotEmpty?file.path.toString():'null');//ops
 
+
+    if(nearestVendors.isEmpty || double.parse(fixedWeight)>5.0){
+      prefs.setString('orderCakeNearestIsEmpty', "yes"??'null');
+      prefs.setString('orderCakeVendorName', "Premium Vendor"??'null');
+    }else{
+      prefs.setString('orderCakeNearestIsEmpty', "no"??'null');
+      prefs.setString('orderCakeVendorName', vendorName??'null');//ops
+    }
+
     //users
     prefs.setString('orderCakeUserID', userID);
     prefs.setString('orderCakeUserModID', userModID);
@@ -2456,6 +2506,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         },
       ),
     );
+
+
     print('Loaded....');
   }
 
@@ -2499,7 +2551,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         mySelVendors = vendorsList.where((element) => element['_id'].toString().toLowerCase()==vendorID.toLowerCase()).toList();
         print("mySelVendors $mySelVendors");
 
-        nearestVendors = temp;
+        nearestVendors = temp.where((element) =>
+        calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
+            element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+        ).toList();;
         nearestVendors = nearestVendors.toSet().toList();
       });
     } else {}
@@ -2636,6 +2691,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         isTopperPossible = artTempList[0]['ToppersPossible'];
         taxes = artTempList[0]['Tax'];
         cakeDiscounts = artTempList[0]['Discount'];
+        vendorLat = artTempList[0]['GoogleLocation']['Latitude'];
+        vendorLong = artTempList[0]['GoogleLocation']['Longitude'];
         // weight = artTempList[0]['MinWeightList'];
 
         for(int i = 0 ; i<artTempList[0]['MinWeightList'].length;i++){
@@ -4274,7 +4331,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       color: Colors.pink[100],
                                     )),
                                 Padding(
-                                  padding: EdgeInsets.only(top: 10, left: 10),
+                                  padding: EdgeInsets.only(top: 10, left: 6),
                                   child: Text(
                                     'Delivery Information',
                                     style: TextStyle(
@@ -4324,7 +4381,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               '${picOrDeliver[index]}',
                                               style: TextStyle(
                                                   fontFamily: poppins,
-                                                  color: Colors.black54,
+                                                  color: Colors.grey,
                                                   fontSize: 13),
                                             ),
                                           )
@@ -4336,7 +4393,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
                                 Padding(
                                   padding: EdgeInsets.only(
-                                      top: 10, left: 10, bottom: 5),
+                                      top: 10, left: 6, bottom: 5),
                                   child: Text(
                                     'Delivery Details',
                                     style: TextStyle(
@@ -4381,7 +4438,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             Text(
                                               '$deliverDate',
                                               style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                                  
                                                   color: Colors.grey,
                                                   fontSize: 13),
                                             ),
@@ -4556,7 +4613,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             Text(
                                               '$deliverSession',
                                               style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+
                                                   color: Colors.grey,
                                                   fontSize: 13),
                                             ),
@@ -4581,6 +4638,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ListTile(
+
                               title: Text(
                                 '${userAddress.trim()}',
                                 style: TextStyle(
@@ -4682,7 +4740,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                             pref.setString('singleVendorPhone1', mySelVendors[0]['PhoneNumber1']??'null');
                                                             pref.setString('singleVendorPhone2', mySelVendors[0]['PhoneNumber2']??'null');
                                                             pref.setString('singleVendorDpImage', mySelVendors[0]['ProfileImage']??'null');
-                                                            pref.setString('singleVendorAddress', mySelVendors[0]['Address']['FullAddress']??'null');
+                                                            pref.setString('singleVendorAddress', mySelVendors[0]['Address']??'null');
                                                             pref.setString('singleVendorSpecial', mySelVendors[0]['YourSpecialityCakes'].toString()??'null');
 
 
@@ -4859,7 +4917,18 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                               ),
                                                                               SizedBox(height: 3),
                                                                               Text(
-                                                                                "delivery charge Rs.100",
+                                                                                "${
+                                                                                    (calculateDistance(double.parse(userLatitude),
+                                                                                        double.parse(userLongtitude),
+                                                                                        mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                        mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                                } KM Charge Rs.${
+                                                                                    (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                                        (calculateDistance(double.parse(userLatitude),
+                                                                                            double.parse(userLongtitude),
+                                                                                            mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                            mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                                }",
                                                                                 style: TextStyle(
                                                                                   fontSize: 10,
                                                                                   fontFamily: "Poppins",
@@ -5162,8 +5231,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                               top: 10),
                                                                       height:
                                                                           0.5,
-                                                                      color: Colors
-                                                                          .black26,
+                                                                      color: Color(0xffeeeeee)
                                                                     ),
                                                                     SizedBox(
                                                                       height:
@@ -5190,12 +5258,24 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                             SizedBox(
                                                                               height: 8,
                                                                             ),
-                                                                            index==0?Text(
-                                                                               "DELIVERY FREE",
+                                                                            // index==0?Text(
+                                                                            //    "DELIVERY FREE",
+                                                                            //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
+                                                                            // ):
+                                                                            Text(
+                                                                              "${
+                                                                                  (calculateDistance(double.parse(userLatitude),
+                                                                                      double.parse(userLongtitude),
+                                                                                      nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                              } KM Charge Rs.${
+                                                                                  (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                                      (calculateDistance(double.parse(userLatitude),
+                                                                                          double.parse(userLongtitude),
+                                                                                          nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                              }",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
-                                                                            ):Text(
-                                                                              "Delivery Charge ${adminDeliveryChargeKm}KM/Rs.$adminDeliveryCharge",
-                                                                              style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: "Poppins"),
                                                                             )
                                                                           ],
                                                                         ),
@@ -5360,91 +5440,20 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       if (newRegUser == true) {
                                         showDpUpdtaeDialog();
                                       } else {
-                                        if (mySelVendors.isNotEmpty) {
-                                          if (fixedWeight == '0.0' ||
-                                              fixedDelliverMethod == "" ||
-                                              deliverDate.toLowerCase() ==
-                                                  "not yet select" ||
-                                              deliverSession.toLowerCase() ==
-                                                  "not yet select") {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text(
-                                                  'Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              // backgroundColor: Colors.red[300],
-                                              duration: Duration(minutes: 1),
-                                              action: SnackBarAction(
-                                                textColor: Colors.red,
-                                                onPressed: () {},
-                                                label: 'Close',
-                                              ),
-                                            ));
-                                          } else if (userAddress.isEmpty ||
-                                              userAddress == "null" ||
-                                              userAddress == null) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text(
-                                                  'Please Change Your Address!'),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              // backgroundColor: Colors.red[300],
-                                              duration: Duration(minutes: 1),
-                                              action: SnackBarAction(
-                                                textColor: Colors.red,
-                                                onPressed: () {},
-                                                label: 'Close',
-                                              ),
-                                            ));
-                                          } else {
-                                            loadOrderPreference();
-                                          }
-                                        } else {
-                                          if (fixedWeight == '0.0' ||
-                                              fixedDelliverMethod == "" ||
-                                              deliverDate.toLowerCase() ==
-                                                  "not yet select" ||
-                                              deliverSession.toLowerCase() ==
-                                                  "not yet select") {
-                                            print(userModID);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text(
-                                                  'Please Select : Cake Weight , Deliver Date,Session & Deliver Type.!'),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              // backgroundColor: Colors.red[300],
-                                              duration: Duration(minutes: 1),
-                                              action: SnackBarAction(
-                                                textColor: Colors.red,
-                                                onPressed: () {},
-                                                label: 'Close',
-                                              ),
-                                            ));
-                                          }
-                                          else if (userAddress.isEmpty ||
-                                              userAddress == "null" ||
-                                              userAddress == null) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                  'Please Change Your Address!'),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              // backgroundColor: Colors.red[300],
-                                              duration: Duration(minutes: 1),
-                                              action: SnackBarAction(
-                                                textColor: Colors.red,
-                                                onPressed: () {},
-                                                label: 'Close',
-                                              ),
-                                            ));
-                                          } else {
-                                            print("Ven diiidid"+vendorID);
-                                            loadOrderPreference();
-                                          }
+                                        if(deliverDate.toLowerCase()=="not yet select"){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Please select deliver date"))
+                                          );
+                                        }else if(deliverSession.toLowerCase()=="not yet select"){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Please select deliver session"))
+                                          );
+                                        }else if(fixedDelliverMethod.isEmpty){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Please select pickup or delivery"))
+                                          );
+                                        }else{
+                                          loadOrderPreference();
                                         }
                                       }
                                     },

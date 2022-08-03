@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io' as fil;
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http ;
@@ -108,6 +109,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   bool egglesSwitch = true;
   bool addOtherArticle = false;
   String userCurLocation = 'Searching...';
+  String notificationId = "";
 
   var weight = [
     // 1, 1.5 , 2 , 2.5 , 3 , 4 , 5 , 5.5, 6 , 7,
@@ -155,6 +157,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String vendorModId = '';
   String vendorPhone1 = "";
   String vendorPhone2 = "";
+  String venLat = "";
+  String venLong = "";
+
 
   //Current user details
   String userID ='';
@@ -166,6 +171,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   bool newRegUser = false;
   bool nearVendorClicked = false;
+
+  //delivery
+  int adminDeliveryCharge = 0;
+  int adminDeliveryChargeKm = 0;
+  String userLatitude = "";
+  String userLongtitude = "";
 
   //endregion
 
@@ -784,6 +795,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //region Functions
 
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
   Future<void> removeMyVendorPref() async{
 
     var pref = await SharedPreferences.getInstance();
@@ -807,7 +828,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //load my vendor Details
   Future<void> loadSelVendorDetails() async{
     var pref = await SharedPreferences.getInstance();
-    setState(() {
+    setState((){
       myVendorName = pref.getString('myVendorName')??'null';
       myVendorId= pref.getString('myVendorId')??'null';
       myVendorProfile= pref.getString('myVendorProfile')??'null';
@@ -822,6 +843,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
+      adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
+      adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
+      userLatitude = pref.getString('userLatitute')??'Not Found';
+      userLongtitude = pref.getString('userLongtitude')??'Not Found';
       newRegUser = pref.getBool('newRegUser')??false;
       userID = pref.getString('userID')??'Not Found';
       userModId = pref.getString('userModId')??'Not Found';
@@ -1044,7 +1069,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){*/
               print('found .... $i');
               setState(() {
-                nearestVendors.add(vendorsList[i]);
+                nearestVendors = vendorsList.where((element) =>
+                calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
+                    element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+                ).toList();
               });
           }
           Navigator.pop(context);
@@ -1155,7 +1183,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   //Load Order Preferences...
-  Future<void> confirmOrder([String ckName = "My Customized Cake"]) async{
+  Future<void> confirmOrder(String ckName) async{
 
     showAlertDialog();
 
@@ -1180,13 +1208,43 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
       fixedWeight = fixedWeight.toLowerCase().replaceAll("kg", "");
 
-      print(fixedWeight);
+      print(double.parse(fixedWeight));
 
       print(vendorID);
 
     });
 
-    //below 5 kg it work...
+
+    print("letsvdhgdsh "+nearestVendors.length.toString());
+
+
+    print(
+      {
+        'CakeType': fixedCategory,
+        'CakeName':ckName.isEmpty?"My Customized Cake":ckName,
+        'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
+        'Flavour': jsonEncode(tempList),
+        'Shape': fixedShape,
+        'Weight': fixedWeight+'kg',
+        'DeliveryAddress': deliverAddress,
+        'DeliveryDate': fixedDate,
+        'DeliverySession': fixedSession,
+        'DeliveryInformation': fixedDelliverMethod,
+        "User_ID":userModId,
+        'UserID': userID,
+        'UserName': userName,
+        'UserPhoneNumber': userPhone,
+        'VendorID': '$vendorID',
+        'VendorName': '$vendorName',
+        'VendorAddress': '$vendorAddress',
+        'Vendor_ID':'$vendorModId',
+        'VendorPhoneNumber1':'$vendorPhone1',
+        'VendorPhoneNumber2':'$vendorPhone2',
+        'PremiumVendor':"n",
+        'MessageOnTheCake':msgCtrl.text,
+      }
+    );
+
 
       try{
 
@@ -1196,20 +1254,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           request.headers['Content-Type'] = 'multipart/form-data';
 
           request.fields.addAll({
-            'CakeType': '$fixedCategory',
-            'CakeName':"$ckName",
+            'CakeType': fixedCategory,
+            'CakeName':ckName.isEmpty?"My Customized Cake":ckName,
             'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
             'Flavour': jsonEncode(tempList),
-            'Shape': '$fixedShape',
-            'Weight': '${fixedWeight}kg',
-            'DeliveryAddress': '$deliverAddress',
-            'DeliveryDate': '$fixedDate',
-            'DeliverySession': '$fixedSession',
-            'DeliveryInformation': '$fixedDelliverMethod',
-            "User_ID":"$userModId",
-            'UserID': '$userID',
-            'UserName': '$userName',
-            'UserPhoneNumber': '$userPhone',
+            'Shape': fixedShape,
+            'Weight': fixedWeight+'kg',
+            'DeliveryAddress': deliverAddress,
+            'DeliveryDate': fixedDate,
+            'DeliverySession': fixedSession,
+            'DeliveryInformation': fixedDelliverMethod,
+            "User_ID":userModId,
+            'UserID': userID,
+            'UserName': userName,
+            'UserPhoneNumber': userPhone,
           });
 
           if(msgCtrl.text.isNotEmpty){
@@ -1232,7 +1290,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             ));
           }
 
-          if(vendorID.isNotEmpty){
+          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0){
             request.fields.addAll({
               'VendorID': '$vendorID',
               'VendorName': '$vendorName',
@@ -1241,35 +1299,34 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               'VendorPhoneNumber1':'$vendorPhone1',
               'VendorPhoneNumber2':'$vendorPhone2',
               'PremiumVendor':"n",
+              "GoogleLocation":jsonEncode({"Latitude":venLat , "Longitude":venLong})
             });
           }
 
 
-          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0||nearestVendors.isEmpty){
             request.fields.addAll({
               'PremiumVendor':"y",
             });
           }
-
-          if(vendorID.isEmpty){
-            request.fields.addAll({
-              'PremiumVendor':"y",
-            });
-          }
-
 
           http.StreamedResponse response = await request.send();
 
           if (response.statusCode == 200) {
-            print(await response.stream.bytesToString());
+            var map = jsonDecode(await response.stream.bytesToString());
+            print(map);
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Order Posted.!'),
+                  content: Text(map['message']),
                   backgroundColor: Colors.green[600],
                   behavior: SnackBarBehavior.floating,
                 )
             );
+
+            double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
+            sendNotificationToVendor(notificationId):null;
+
           }else{
             checkNetwork();
             Navigator.pop(context);
@@ -1323,6 +1380,41 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   }
 
+  Future<void> sendNotificationToVendor(String? NoId) async{
+
+    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
+
+    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
+
+    var headers = {
+      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+    request.body = json.encode({
+      "registration_ids": [
+        "$NoId",
+      ],
+      "notification": {
+        "title": "New Order Is Here!",
+        "body": "Hi $vendorName , $tempCakeName is just Ordered By $userName."
+      },
+      "data": {
+        "msgId": "msg_12342"
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
   //endregion
 
   @override
@@ -1358,7 +1450,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         vendorName = mySelectdVendors[0]['VendorName'];
         vendorPhone1 = mySelectdVendors[0]['PhoneNumber1'];
         vendorPhone2 = mySelectdVendors[0]['PhoneNumber2'];
-        vendorAddress = mySelectdVendors[0]['Address']['FullAddress'];
+        vendorAddress = mySelectdVendors[0]['Address'];
       }
     });
 
@@ -1589,7 +1681,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
-                            style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",fontWeight: FontWeight.bold),
+                            style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins"),
                           ),
                         ),
 
@@ -1610,7 +1702,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                             ),
                             Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
-                                fontWeight: FontWeight.bold,fontFamily: "Poppins" ,fontSize: 13),),
+                                fontFamily: "Poppins" ,fontSize: 13),),
                           ],
                         ),
 
@@ -1672,7 +1764,43 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Icon(Icons.cake_outlined,color: lightPink,),
+                                                index==0?Container(
+                                                  height: 25,
+                                                  width: 20,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          image: AssetImage("assets/images/cakefour.jpg")
+                                                      )
+                                                  ),
+                                                ):
+                                                index==1?Container(
+                                                  height: 25,
+                                                  width: 20,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          image: AssetImage("assets/images/cakethree.png")
+                                                      )
+                                                  ),
+                                                ):
+                                                index==2?Container(
+                                                  height: 25,
+                                                  width: 20,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          image: AssetImage("assets/images/cakelist.png")
+                                                      )
+                                                  ),
+                                                ):
+                                                index==3?Container(
+                                                  height: 25,
+                                                  width: 25,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          image: AssetImage("assets/images/cakefour.jpg")
+                                                      )
+                                                  ),
+                                                ):
+                                                Icon(Icons.cake_outlined , color: lightPink,),
                                                 SizedBox(width: 10,),
                                                 Text('${categories[index]}',style: TextStyle(
                                                     fontFamily: "Poppins",
@@ -1769,7 +1897,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         "${shapesList[index]['Name']}",
                                                         style: TextStyle(
                                                             fontFamily: "Poppins", color: darkBlue,
-                                                            fontWeight: FontWeight.bold
+                                                            fontWeight: FontWeight.bold,fontSize: 13,
                                                         ),
                                                       ),)
                                                     ],
@@ -1784,7 +1912,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         "${shapesList[index]['Name']}",
                                                         style: TextStyle(
                                                             fontFamily: "Poppins", color: darkBlue,
-                                                            fontWeight: FontWeight.bold
+                                                            fontWeight: FontWeight.bold,fontSize: 13,
                                                         ),
                                                       ),)
                                                     ],
@@ -1869,6 +1997,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                             "${flavourList[index]}",
                                                             style: TextStyle(
                                                                 fontFamily: "Poppins", color: darkBlue,
+                                                                fontSize: 13,
                                                                 fontWeight: FontWeight.bold
                                                             ),
                                                           ),),
@@ -1884,7 +2013,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                             "${flavourList[index]}",
                                                             style: TextStyle(
                                                                 fontFamily: "Poppins", color: darkBlue,
-                                                                fontWeight: FontWeight.bold
+                                                                fontWeight: FontWeight.bold,fontSize: 13,
                                                             ),
                                                           ),),
                                                         ],
@@ -2356,12 +2485,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   ),
                                 ),
                                 Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 10),
+                                    margin: EdgeInsets.symmetric(horizontal: 8),
                                     child: Divider(
                                       color: Colors.pink[100],
                                     )),
                                 Padding(
-                                  padding: EdgeInsets.only(top: 10 , left: 10),
+                                  padding: EdgeInsets.only(top: 10),
                                   child: Text(
                                     'Delivery Information',
                                     style: TextStyle(
@@ -2393,7 +2522,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   Icon(Icons.check_circle_rounded, color:Colors.green),
                                                   SizedBox(width:6),
                                                   Text('${picOrDeliver[index]}',style: TextStyle(
-                                                      fontFamily: poppins, color:Colors.black54 , fontSize: 14
+                                                      fontFamily: poppins, color:Colors.grey, fontSize: 14
                                                   ),),
                                                 ]
                                             ),
@@ -2412,7 +2541,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(top: 10 , left: 10, bottom:5),
+                                padding: EdgeInsets.only(top: 10 , bottom:5),
                                 child: Text(
                                   'Delivery Details',
                                   style: TextStyle(
@@ -2456,7 +2585,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           Text(
                                             '$fixedDate',
                                             style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+
                                                 color: Colors.grey,
                                                 fontSize: 13),
                                           ),
@@ -2622,7 +2751,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           Text(
                                             '$fixedSession',
                                             style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                                
                                                 color: Colors.grey,
                                                 fontSize: 13
                                             ),
@@ -2658,16 +2787,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(left: 10),
+                          margin: EdgeInsets.only(left: 12 , top:10 , bottom:10),
                           alignment: Alignment.centerLeft,
-                          child: TextButton(
-                              onPressed: (){
-                                // showAddAddressAlert();
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen()));
-                              },
-                              child: const Text('add new address',style: const TextStyle(
-                                  color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
-                              ),)
+                          child: InkWell(
+                            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen())),
+                            child: Text('add new address',style: const TextStyle(
+                                color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
+                            ),
+                            ),
                           ),
                         ),
 
@@ -2806,7 +2933,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           pref.setString('singleVendorPhone1', mySelectdVendors[0]['PhoneNumber1']??'null');
                                           pref.setString('singleVendorPhone2', mySelectdVendors[0]['PhoneNumber2']??'null');
                                           pref.setString('singleVendorDpImage', mySelectdVendors[0]['ProfileImage']??'null');
-                                          pref.setString('singleVendorAddress', mySelectdVendors[0]['Address']['FullAddress']??'null');
+                                          pref.setString('singleVendorAddress', mySelectdVendors[0]['Address']??'null');
                                           pref.setString('singleVendorSpecial', mySelectdVendors[0]['YourSpecialityCakes'].toString()??'null');
 
 
@@ -2940,7 +3067,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               ),maxLines: 1,),
                                                             SizedBox(height:3),
                                                             Text(
-                                                                 "DELIVERY FEE RS.50",
+                                                                 "${
+                                                                     (calculateDistance(double.parse(userLatitude),
+                                                                         double.parse(userLongtitude),
+                                                                         mySelectdVendors[0]['GoogleLocation']['Latitude'],
+                                                                         mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                 } KM Charge Rs.${
+                                                                     (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                         (calculateDistance(double.parse(userLatitude),
+                                                                             double.parse(userLongtitude),
+                                                                             mySelectdVendors[0]['GoogleLocation']['Latitude'],
+                                                                             mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                 }",
                                                               style:TextStyle(
                                                                 fontSize:10,
                                                                 fontFamily: "Poppins" ,
@@ -3062,7 +3200,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         vendorName = nearestVendors[index]['VendorName'];
                                                         vendorPhone1 = nearestVendors[index]['PhoneNumber1'];
                                                         vendorPhone2 = nearestVendors[index]['PhoneNumber2'];
-                                                        vendorAddress = nearestVendors[index]['Address']['FullAddress'];
+                                                        vendorAddress = nearestVendors[index]['Address'];
+                                                        venLat = nearestVendors[index]['GoogleLocation']['Latitude'].toString();
+                                                        venLong = nearestVendors[index]['GoogleLocation']['Longitude'].toString();
+                                                        notificationId = nearestVendors[index]['Notification_Id'].toString();
 
                                                         context.read<ContextData>().addMyVendor(true);
                                                         context.read<ContextData>().setMyVendors([nearestVendors[index]]);
@@ -3159,8 +3300,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                           ),
                                                           Container(
                                                             margin:EdgeInsets.only(top: 10),
-                                                            height: 0.5,
-                                                            color: Colors.black26,
+                                                            height: 1,
+                                                            color: Color(0xffeeeeee),
                                                           ),
                                                           SizedBox(height: 15,),
                                                           Row(
@@ -3181,11 +3322,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       fontFamily: "Poppins"
                                                                   ),),
                                                                   SizedBox(height: 8,),
-                                                                  Text(nearestVendors[index]['DeliveryCharge'].toString()=='null'||
-                                                                      nearestVendors[index]['DeliveryCharge'].toString()=='0'||
-                                                                      nearestVendors[index]['DeliveryCharge'].toString()==null
-                                                                      ?
-                                                                  'DELIVERY FREE':'Delivery Charge ₹${nearestVendors[index]['DeliveryCharge'].toString()}',style: TextStyle(
+                                                                  Text('${
+                                                                      (calculateDistance(double.parse(userLatitude),
+                                                                          double.parse(userLongtitude),
+                                                                          nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                  } KM Delivery Fee Rs.${
+                                                                      (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                          (calculateDistance(double.parse(userLatitude),
+                                                                              double.parse(userLongtitude),
+                                                                              nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                              nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                  }',style: TextStyle(
                                                                       color: Colors.orange,
                                                                       fontSize: 10 ,
                                                                       fontFamily: "Poppins"

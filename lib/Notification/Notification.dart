@@ -1,6 +1,10 @@
+import 'package:cakey/DrawerScreens/Notifications.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
+
   //Singleton pattern
   static final NotificationService _notificationService =
   NotificationService._internal();
@@ -8,6 +12,8 @@ class NotificationService {
     return _notificationService;
   }
   NotificationService._internal();
+
+
 
   //instance of FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -37,9 +43,13 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
+      onSelectNotification:(payload){
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context)=>Notifications())
+        // );
+      }
     );
-
-
   }
 
   AndroidNotificationDetails _androidNotificationDetails =
@@ -56,7 +66,8 @@ class NotificationService {
     NotificationDetails platformChannelSpecifics =
     NotificationDetails(
         android: _androidNotificationDetails,
-        iOS: null);
+        iOS: null
+    );
 
     await flutterLocalNotificationsPlugin.show(
       123,

@@ -305,7 +305,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('(Shape - ${jsonDecode(shape)['Name'].toString()}) ',style: TextStyle(
+                            Text('(Shape - ${jsonDecode(shape)['Name'].toString()})',style: TextStyle(
                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                               ),overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
@@ -363,7 +363,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             fontSize: 11,fontFamily: "Poppins"
                         ),),
                         subtitle: Text(
-                        '${vendorName}',style: TextStyle(
+                        '${double.parse(weight.toLowerCase().replaceAll('kg', ""))>5.0?"Premium Vendor":vendorName}',style: TextStyle(
                             fontSize: 14,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),

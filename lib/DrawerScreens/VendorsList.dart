@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,8 @@ class _VendorsListState extends State<VendorsList> {
   //delivery
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
+  String userLatitude = "";
+  String userLongtitude = "";
 
   TextEditingController searchCtrl = new TextEditingController();
 
@@ -109,19 +112,35 @@ class _VendorsListState extends State<VendorsList> {
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
+
+      userLatitude = pref.getString('userLatitute')??'Not Found';
+      userLongtitude = pref.getString('userLongtitude')??'Not Found';
+      //delivery charge
+      adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
+      adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
+
       iamFromCustom = pref.getBool('iamFromCustomise')??false;
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       cakeTypeFromCD = pref.getString('passCakeType')??'null';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
       authToken = pref.getString("authToken")?? 'no auth';
 
-      //delivery charge
-      adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
-      adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
-
       getCakeList();
       getVendorsList();
+
+      print(userLatitude+"  "+userLongtitude);
+
     });
+  }
+
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
   }
 
   //geting the vendors list
@@ -138,7 +157,6 @@ class _VendorsListState extends State<VendorsList> {
       );
 
       if(res.statusCode==200){
-
         if(cakeTypeFromCD!="null"){
           setState(() {
             List venList = jsonDecode(res.body);
@@ -162,6 +180,10 @@ class _VendorsListState extends State<VendorsList> {
             }
 
             vendorsList = temp;
+            vendorsList = temp.where((element) =>
+            calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+            ).toList();
             vendorsList = vendorsList.toSet().toList();
 
             Navigator.pop(context);
@@ -173,17 +195,10 @@ class _VendorsListState extends State<VendorsList> {
 
             print(nearestVendors.length);
 
-            vendorsList = nearestVendors.toSet().toList();
-
-            // for(int i = 0; i<nearestVendors.length;i++){
-            //   if(nearestVendors[i]['Address']!=null&&
-            //       nearestVendors[i]['Address']['City'].toString().toLowerCase().contains(userMainLocation.toLowerCase())){
-            //     print('found .... $i');
-            //     setState(() {
-            //       vendorsList.add(nearestVendors[i]);
-            //     });
-            //   }
-            // }
+            vendorsList = nearestVendors.where((element) =>
+            calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+            ).toList();
 
             Navigator.pop(context);
           });
@@ -195,6 +210,7 @@ class _VendorsListState extends State<VendorsList> {
       }
 
     }catch(e){
+      print(e);
       Navigator.pop(context);
       checkNetwork();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -228,22 +244,28 @@ class _VendorsListState extends State<VendorsList> {
 
   //getCakesList
   Future<void> getCakeList() async{
+
     print("enter");
     var res = await http.get(
         Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
-      setState(() {
-        myCakeList = jsonDecode(res.body);
-        cakeList = myCakeList
-            .where((element) =>
-            element['CakeType'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
-            .toList();
+      print(res.body);
 
-        print(cakeList.length);
+      if(res.body.length<50){
 
-      });
+      }else{
+        setState(() {
+          myCakeList = jsonDecode(res.body);
+          cakeList = myCakeList
+              .where((element) =>
+              element['CakeType'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
+              .toList();
+          print(cakeList.length);
+        });
+      }
+
     } else {
 
     }
@@ -251,11 +273,6 @@ class _VendorsListState extends State<VendorsList> {
 
   //load select Vendor data to CakeTypeScreen
   Future<void> loadSelVendorDataToCTscreen(int index) async{
-
-    String address = "${locationBySearch[index]['Address']['Street']} , "
-        "${locationBySearch[index]['Address']['City']} , "
-        "${locationBySearch[index]['Address']['District']} , "
-        "${locationBySearch[index]['Address']['Pincode']} , ";
 
     var pref = await SharedPreferences.getInstance();
 
@@ -268,7 +285,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('myVendorProfile',locationBySearch[index]['ProfileImage']??'null');
     pref.setString('myVendorDeliverChrg', locationBySearch[index]['DeliveryCharge']??'null');
     pref.setString('myVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
-    pref.setString('myVendorAddress',address??'null');
+    pref.setString('myVendorAddress',locationBySearch[index]['Address']??'null');
     pref.setBool('vendorCakeMode',true);
 
     context.read<ContextData>().addMyVendor(true);
@@ -283,13 +300,13 @@ class _VendorsListState extends State<VendorsList> {
             "VendorPhone":locationBySearch[index]['PhoneNumber1'],
             "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
             "VendorEgg":locationBySearch[index]['EggOrEggless'],
-            "VendorAddress":locationBySearch[index]['Address']['FullAddress'],
+            "VendorAddress":locationBySearch[index]['Address'],
           }
         ]
     );
 
     print(locationBySearch[index]['VendorName']);
-    print(locationBySearch[index]['Address']['FullAddress']);
+    print(locationBySearch[index]['Address']);
     print(locationBySearch[index]['_id']);
     print(locationBySearch[index]['Id']);
     print(locationBySearch[index]['Description']);
@@ -345,7 +362,7 @@ class _VendorsListState extends State<VendorsList> {
 
   Future<void> sendDataToScreen(int index) async{
 
-    String address = "${locationBySearch[index]['Address']['FullAddress']}";
+    String address = "${locationBySearch[index]['Address']}";
 
     var pref = await SharedPreferences.getInstance();
 
@@ -421,7 +438,7 @@ class _VendorsListState extends State<VendorsList> {
       setState(() {
         isSearching = false;
         locationBySearch =
-            vendorsList.where((element) => element['Address']['City'].toString().toLowerCase()
+            vendorsList.where((element) => element['Address'].toString().toLowerCase()
                 .contains(searchLocation.toLowerCase())).toList();
       });
     }else{
@@ -795,7 +812,7 @@ class _VendorsListState extends State<VendorsList> {
                                                   // padding: EdgeInsets.all(8),
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Container(
                                                         // width:width*0.63,
@@ -874,58 +891,77 @@ class _VendorsListState extends State<VendorsList> {
                                                           ],
                                                         ),
                                                       ),
+                                                      SizedBox(height: 4,),
                                                       Container(
                                                         // width: width*0.63,
-                                                        child: Text(locationBySearch[index]['Description'].toString()=='null'?
-                                                        'No description':'${locationBySearch[index]['Description']}'
+                                                        child: Text("Speciality in "+locationBySearch[index]['YourSpecialityCakes'].toString().
+                                                        replaceAll("[", "").replaceAll("]", "")
                                                           ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                               color: Colors.black54,fontFamily: poppins,fontSize: 13
                                                           ),maxLines: 1,),
                                                       ),
+                                                      SizedBox(height: 4,),
                                                       Container(
                                                         height: 1,
                                                         // width: width*0.63,
-                                                        color: Colors.black26,
+                                                        color: Color(0xffeeeeee)
                                                       ),
+                                                      SizedBox(height: 4,),
                                                       Container(
                                                         // width: width*0.63,
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            index==0||index==1?
-                                                            Text('DELIVERY FREE',style: TextStyle(
-                                                                color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                            ),):Text('Delivery Charge ${adminDeliveryChargeKm}KM/Rs.$adminDeliveryCharge'
+                                                            //index==0?
+                                                            // Text('DELIVERY FREE',style: TextStyle(
+                                                            //     color: Colors.orange,fontSize: 10,fontFamily: poppins
+                                                            // ),):
+                                                            Text('${
+                                                                (calculateDistance(double.parse(userLatitude),
+                                                                    double.parse(userLongtitude),
+                                                                    locationBySearch[index]['GoogleLocation']['Latitude'],
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                            } KM Delivery Fee Rs.${
+                                                                (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                    (calculateDistance(double.parse(userLatitude),
+                                                                        double.parse(userLongtitude),
+                                                                    locationBySearch[index]['GoogleLocation']['Latitude'],
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                            }'
                                                               ,style: TextStyle(
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins
                                                               ),),
                                                             // currentIndex==index?
-                                                            TextButton(
-                                                              onPressed: () async{
+                                                            InkWell(
+                                                                onTap: () async{
 
-                                                                if(iamFromCustom==true){
+                                                                  if(iamFromCustom==true){
 
-                                                                  context.read<ContextData>().addMyVendor(true);
-                                                                  context.read<ContextData>().setMyVendors([locationBySearch[index]]);
+                                                                    context.read<ContextData>().addMyVendor(true);
+                                                                    context.read<ContextData>().setMyVendors([locationBySearch[index]]);
 
-                                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                                      SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                                                                      ['VendorName']}'))
-                                                                  );
+                                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                                        SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
+                                                                        ['VendorName']}'))
+                                                                    );
 
-                                                                  Navigator.pop(context);
+                                                                    Navigator.pop(context);
 
-                                                                }else{
-                                                                  loadSelVendorDataToCTscreen(index);
-                                                                }
+                                                                  }else{
+                                                                    loadSelVendorDataToCTscreen(index);
+                                                                  }
 
-                                                              },
-                                                              child:Text('Select',style: TextStyle(
-                                                                  color: Colors.black,fontSize: 10,fontWeight:
-                                                              FontWeight.bold,fontFamily: poppins,
-                                                                  decoration: TextDecoration.underline
-                                                              ),),
-                                                            )
+                                                                },
+                                                                child: Padding(
+                                                                  padding: EdgeInsets.all(3),
+                                                                  child: Text('Select',style: TextStyle(
+                                                                      color: Colors.black,fontSize: 10,fontWeight:
+                                                                  FontWeight.bold,fontFamily: poppins,
+                                                                      decoration: TextDecoration.underline
+                                                                  ),),
+                                                                ),
+                                                              ),
+
                                                             // :Icon(Icons.check_circle,color: Colors.green,)
                                                           ],
                                                         ),
@@ -1130,8 +1166,8 @@ class _VendorsListState extends State<VendorsList> {
                                                       ),
                                                       Container(
                                                         // width: width*0.63,
-                                                        child: Text(locationBySearch[index]['Description'].toString()=='null'?
-                                                        'No description':'${locationBySearch[index]['Description']}'
+                                                        child: Text("Speciality in "+nearestVendors[index]['YourSpecialityCakes'].toString().
+                                                        replaceAll("[", "").replaceAll("]", "")
                                                           ,overflow: TextOverflow.ellipsis,style: TextStyle(
                                                               color: Colors.black54,fontFamily: poppins,fontSize: 13
                                                           ),maxLines: 1,),
@@ -1139,17 +1175,28 @@ class _VendorsListState extends State<VendorsList> {
                                                       Container(
                                                         height: 1,
                                                         // width: width*0.63,
-                                                        color: Colors.black26,
+                                                        color: Color(0xffeeeeee),
                                                       ),
                                                       Container(
                                                         // width: width*0.63,
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            index==0||index==1?
+                                                            index==0?
                                                             Text('DELIVERY FREE',style: TextStyle(
                                                                 color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                            ),):Text('Delivery Charge ${adminDeliveryChargeKm}KM/Rs.$adminDeliveryCharge'
+                                                            ),):Text('${
+                                                                (calculateDistance(double.parse(userLatitude),
+                                                                    double.parse(userLongtitude),
+                                                                    locationBySearch[index]['GoogleLocation']['Latitude'],
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                            } KM Delivery Fee Rs.${
+                                                                (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                    (calculateDistance(double.parse(userLatitude),
+                                                                        double.parse(userLongtitude),
+                                                                        locationBySearch[index]['GoogleLocation']['Latitude'],
+                                                                        locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                            }'
                                                               ,style: TextStyle(
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins
                                                               ),),

@@ -45,6 +45,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //for expand the tiles..
   List<bool> isExpands = [];
   List recentOrders = [];
+  List vendorsList = [];
+  String notifyId = "";
   bool notifiOnOrOf = true;
   bool isLoading = true;
 
@@ -262,7 +264,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   //Order Cancellations
-  Future<void> cancelOrder(String id , String byId, String cakeName) async{
+  Future<void> cancelOrder(String id , String byId, String cakeName,int index) async{
     showAlertDialog();
     var headers = {
       'Content-Type': 'application/json'
@@ -284,10 +286,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           SnackBar(content: Text('Order is canceled!'))
       );
 
+      sendNotificationToVendor(notifyId, index);
+
       getOrderList(userID);
 
       NotificationService().showNotifications("Order Cancelled", "Your $cakeName order is cancelled.");
-      Navigator.pop(context);
+      // Navigator.pop(context);
     }
     else {
       print(response.reasonPhrase);
@@ -295,6 +299,43 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           SnackBar(content: Text('Error Occurred!'))
       );
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> sendNotificationToVendor(String? NoId ,int index) async{
+
+    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
+
+    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
+
+    var headers = {
+      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+    request.body = json.encode({
+      "registration_ids": [
+        "$NoId",
+      ],
+      "notification": {
+        "title": "Order Cancellation Notifier",
+        "body": "Hi ${recentOrders[index]['VendorName']} , ${
+         recentOrders[index]['CakeName']!=null?"${recentOrders[index]['CakeName']}":"Customized Cake"
+        } is just Order Cancelled By ${recentOrders[index]['UserName']}."
+      },
+      "data": {
+        "msgId": "msg_12342"
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 
@@ -311,18 +352,21 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           recentOrders = jsonDecode(response.body);
           recentOrders = recentOrders.reversed.toList();
         });
-
+        getVendorsList();
         Navigator.pop(context);
       }
       else{
         setState((){
           // isLoading = false;
         });
+        Navigator.pop(context);
       }
+
     }catch(error){
       setState((){
         // isLoading = false;
       });
+      Navigator.pop(context);
     }
   }
 
@@ -339,7 +383,28 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<void> getVendorsList() async{
+    var map = [];
+    var headers = {
+      'Authorization': '$authToken'
+    };
+    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
 
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+        map = jsonDecode(await response.stream.bytesToString());
+        setState((){
+          vendorsList = map;
+        });
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
 
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async{
@@ -354,7 +419,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         // print(jsonDecode(response.body));
         setState(() {
           List body = jsonDecode(response.body);
-
           userID = body[0]['_id'].toString();
           userAddress = body[0]['Address'].toString();
           userProfileUrl = body[0]['ProfileImage'].toString();
@@ -368,7 +432,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
 
         getOrderList(userID);
-
 
       }else{
         checkNetwork();
@@ -441,7 +504,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
 
-  void showOrderCancelDialog(String ordid , String userId , String cakeName){
+  void showOrderCancelDialog(String ordid , String userId , String cakeName ,int index){
     showDialog(
         context: context,
         builder: (context)=>
@@ -460,7 +523,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 FlatButton(
                   onPressed: (){
                     Navigator.pop(context);
-                    cancelOrder(ordid, userId, cakeName);
+                    cancelOrder(ordid, userId, cakeName , index);
                   },
                   child: Text('Cancel Order', style: TextStyle(
                     color: Colors.purple , fontFamily: "Poppins",
@@ -512,9 +575,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   child: file.path.isEmpty?CircleAvatar(
                       radius: 47,
                       backgroundColor: Colors.white,
-                      child: userProfileUrl!="null"?CircleAvatar(
-                        radius: 45,
-                        backgroundImage: NetworkImage("$userProfileUrl"),
+                      child: userProfileUrl!="null"?Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage('$userProfileUrl'),
+                            fit: BoxFit.fill
+                          )
+                        ),
                       ):CircleAvatar(
                         radius: 45,
                         backgroundImage: AssetImage("assets/images/user.png"),
@@ -799,6 +870,21 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           if(isExpands[index]==false){
                             isExpands[index]=true;
 
+                            print(recentOrders[index]['Vendor_ID']);
+                            print(vendorsList.length);
+
+                              List note = vendorsList.where((element) =>
+                              element["Id"]==recentOrders[index]['Vendor_ID']).toList();
+
+                             if(note.isNotEmpty){
+                               setState((){
+                                 note[0]['Notification_Id']!=null?
+                                 notifyId = note[0]['Notification_Id']:notifyId="null";
+                               });
+                             }
+
+                             print(notifyId);
+
                             //mins calculate
 
                             print(recentOrders[index]['Created_On'].toString());
@@ -922,7 +1008,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           ):
                                           Wrap(
                                             children: [
-                                              Text('(Shape - Not Found)',style: TextStyle(
+                                              Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
                                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                                               ),overflow: TextOverflow.ellipsis,maxLines: 10),
                                               Text("(Flavours : ",style: TextStyle(
@@ -930,7 +1016,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   color: Colors.grey[500]
                                               ),),
                                               for(var i in recentOrders[index]['Flavour'])
-                                                Text("${i['Name']})",style: TextStyle(
+                                                Text("${i['Name']}",style: TextStyle(
                                                     fontSize:10.5,fontFamily: "Poppins",
                                                     color:  Colors.grey[500]
                                                 ),),
@@ -1112,6 +1198,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           recentOrders[index]['_id'],
                                           recentOrders[index]['UserID'],
                                           recentOrders[index]['CakeName'],
+                                          index
                                         );
 
                                       },

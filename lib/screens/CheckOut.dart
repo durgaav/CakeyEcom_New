@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
@@ -63,6 +64,7 @@ class _CheckOutState extends State<CheckOut> {
   String deliverType = '';
   int extraCharges = 0;
   String orderFromCustom = 'no';
+  String premiumVendor = 'no';
   String themeName = "My Theme";
   String themeFileName = "";
   int tierPrice = 0;
@@ -72,7 +74,11 @@ class _CheckOutState extends State<CheckOut> {
   String topperId = "";
   String topperName = '';
   String topperImg= '';
+  String authToken= '';
   int topperPrice = 0;
+  String vendorLat = "";
+  String vendorLong = "";
+
 
   List<String> toppings = [];
 
@@ -86,6 +92,7 @@ class _CheckOutState extends State<CheckOut> {
   String vendorAddress = '';
   String vendorPhone1= '';
   String vendorPhone2 = '';
+  String notificationTid = "";
 
   //User
   String userAddress = '';
@@ -112,7 +119,16 @@ class _CheckOutState extends State<CheckOut> {
   double tempPrice = 0;
   double tempTax = 0;
 
+  //delivery
+  int adminDeliveryCharge = 0;
+  int adminDeliveryChargeKm = 0;
+  String userLatitude = "";
+  String userLongtitude = "";
+  String deliveryChargeCustomer = "";
+
+
   var couponCtrl = new TextEditingController();
+
 
   //Default loader dialog
   void showAlertDialog() {
@@ -278,6 +294,15 @@ class _CheckOutState extends State<CheckOut> {
 
   //region Functions
 
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
   //getting order prefs...
   Future<void> recieveDetailsFromScreen() async{
 
@@ -288,11 +313,19 @@ class _CheckOutState extends State<CheckOut> {
       //UI Views variables...
       //Strings
       orderFromCustom = prefs.getString("orderFromCustom")??'no';
+      premiumVendor = prefs.getString("orderCakeNearestIsEmpty")??'no';
+      authToken = prefs.getString("authToken")??'no';
+      userLatitude = prefs.getString('userLatitute')??'Not Found';
+      userLongtitude = prefs.getString('userLongtitude')??'Not Found';
+      //delivery charge
+      adminDeliveryCharge = prefs.getInt("todayDeliveryCharge")??0;
+      adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm")??0;
 
     });
 
     setState((){
       if(orderFromCustom=="yes"){
+
         cakeName = prefs.getString("customCakeName")??'My Custom Cake';
         cakeImage = "null";
         cakePrice = prefs.getString("customCakePrice")??'100';
@@ -310,6 +343,34 @@ class _CheckOutState extends State<CheckOut> {
         counts = 1;
         cakeID = prefs.getString('customCakeId')??'null';
         shape = prefs.getString('customCakeShape')??"None";
+        vendorModId = prefs.getString('customCakeVenModId')??"None";
+        vendorID = prefs.getString('customCakeVenId')??"None";
+        vendorAddress = prefs.getString('customCakeVenAddrss')??"None";
+        deliverType = prefs.getString('customCakePickOrDel')??"None";
+        vendorLat = prefs.getString('customCakeVendLat')??"None";
+        vendorLong = prefs.getString('customCakeVendLong')??"None";
+
+        deliveryChargeCustomer = ((adminDeliveryCharge/adminDeliveryChargeKm)*
+            calculateDistance(
+              double.parse(userLatitude),
+              double.parse(userLongtitude),
+              double.parse(vendorLat),
+              double.parse(vendorLong),
+            ).toInt()).toString();
+        
+        if(deliverType.toString().toLowerCase()=="pickup"){
+          setState((){
+            deliveryCharge = 0;
+          });
+        }else{
+          setState((){
+            deliveryCharge = double.parse(deliveryChargeCustomer);
+          });
+        }
+
+
+
+        print("deelele : $deliveryChargeCustomer");
 
 
       }else{
@@ -355,6 +416,8 @@ class _CheckOutState extends State<CheckOut> {
         vendorPhone2 = prefs.getString("orderCakeVendorPh2")!;
         vendorID = prefs.getString("orderCakeVendorId")!;
         vendorModId = prefs.getString("orderCakeVendorModId")!;
+        vendorLat = prefs.getString('orderCakeVenLat')??"None";
+        vendorLong = prefs.getString('orderCakeVenLong')??"None";
 
         //user details...
         userAddress = prefs.getString("orderCakeDeliverAddress")!;
@@ -384,6 +447,8 @@ class _CheckOutState extends State<CheckOut> {
 
       }
     });
+
+    getVendorsList();
 
   }
 
@@ -434,6 +499,8 @@ class _CheckOutState extends State<CheckOut> {
 
       var map = jsonDecode(await response.stream.bytesToString());
 
+      sendNotificationToVendor(notificationTid);
+
       Navigator.pop(context);
       // print();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -442,7 +509,6 @@ class _CheckOutState extends State<CheckOut> {
         ));
 
         // NotificationService().showNotifications("Order Placed", "Your Customized Cake Ordered.Thank You!");
-
     }
     else {
       Navigator.pop(context);
@@ -452,11 +518,74 @@ class _CheckOutState extends State<CheckOut> {
           behavior: SnackBarBehavior.floating
       ));
     }
+  }
 
+  Future<void> getVendorsList() async{
+    print(vendorModId);
+    showAlertDialog();
+    var list = [];
+    var headers = {
+      'Authorization': '$authToken'
+    };
+    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      list = jsonDecode(await response.stream.bytesToString());
+      print(list);
+      List basedOnVenId = list.where((element) => element["Id"].toString().toLowerCase()==vendorModId.toLowerCase()).toList();
+      notificationTid = basedOnVenId[0]['Notification_Id'];
+      print(notificationTid);
+      Navigator.pop(context);
+    }
+    else {
+      print(response.reasonPhrase);
+      Navigator.pop(context);
+    }
+  }
+
+  Future<void> sendNotificationToVendor(String? NoId) async{
+
+    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
+
+    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
+
+    var headers = {
+      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+    request.body = json.encode({
+      "registration_ids": [
+        "$NoId",
+      ],
+      "notification": {
+        "title": "New Order Is Here!",
+        "body": "Hi $vendorName , $cakeName is just Ordered By $userName."
+      },
+      "data": {
+        "msgId": "msg_12342"
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
   }
 
   //confirm order
   Future<void> confirmOrder() async {
+
+    print(premiumVendor);
 
     List tempFlavList = [];
 
@@ -494,11 +623,54 @@ class _CheckOutState extends State<CheckOut> {
 
     print(tempFlavList.toString());
 
+    print({
+      "VendorName":vendorName,
+      "VendorID":vendorID,
+      "Vendor_ID":vendorModId,
+      "VendorPhoneNumber1":vendorPhone1,
+      "VendorPhoneNumber2":vendorPhone2,
+      "VendorAddress":"$vendorAddress",
+
+    });
+
+    print({
+      // "CakeID": cakeID,
+      // "Cake_ID": cakeModId,
+      // "CakeName": cakeName,
+      // "CakeCommonName": cakeCommonName,
+      // "CakeType": cakeType,
+      // "CakeSubType": cakeSubType,
+      // "Image": cakeImage,
+      // "EggOrEggless": eggOreggless,
+      // "Flavour": '$tempFlavList',
+      // "Shape": shape,
+      "Weight": tierCakeWeight=="null"?
+      weight.toLowerCase().replaceAll("kg", "")+"kg":
+      tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+      "Description": cakeDesc,
+      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+      "PaymentType": paymentType,
+      "Total": billTot.toString(),
+      "Sgst": (tempTax/2).toString(),
+      "Gst": (tempTax/2).toString(),
+      "DeliveryCharge": deliveryCharge.toString(),
+      "ExtraCharges": extraCharges.toString(),
+      "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
+      "ItemCount": counts.toString(),
+      "Price": cakePrice.toString(),
+      "DeliveryInformation": deliverType,
+      "DeliverySession": deliverSession,
+      "DeliveryDate": deliverDate,
+      "DeliveryAddress": userAddress,
+      "UserPhoneNumber": userPhone,
+      "UserName": userName,
+      "UserID": userID,
+      "User_ID": userModId,
+    });
 
     showAlertDialog();
 
     try {
-
         var headers = {'Content-Type': 'multipart/form-data'};
         var request = http.MultipartRequest('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
         request.fields.addAll(
@@ -552,14 +724,14 @@ class _CheckOutState extends State<CheckOut> {
           ));
         }
 
-        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0){
+        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
           request.fields.addAll({
             "PremiumVendor":"y",
           });
         }
 
         //if vendor is not emp..
-        if(vendorID.isNotEmpty || double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0){
+        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
           request.fields.addAll({
             "VendorName":vendorName,
             "VendorID":vendorID,
@@ -567,7 +739,8 @@ class _CheckOutState extends State<CheckOut> {
             "VendorPhoneNumber1":vendorPhone1,
             "VendorPhoneNumber2":vendorPhone2,
             "VendorAddress":"$vendorAddress",
-            // "PremiumVendor":"n"
+            "PremiumVendor":"n",
+            "GoogleLocation":jsonEncode({"Latitude":vendorLat , "Longitude":vendorLong})
           });
         }
 
@@ -609,23 +782,31 @@ class _CheckOutState extends State<CheckOut> {
         print(response.statusCode);
 
         if (response.statusCode == 200) {
+
+          var map = json.decode(await response.stream.bytesToString());
           // print(await response.stream.bytesToString());
 
-          if(json.decode(await response.stream.bytesToString())['statusCode'].toString()=="200"){
+          print(map);
+
+          if(map['statusCode'].toString()=="200"){
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Order Placed!'),
+                content: Text(map['message']),
                 behavior: SnackBarBehavior.floating
             ));
 
             Navigator.pop(context);
 
-            NotificationService().showNotifications("Order Placed", "Your $cakeName Ordered.Thank You!");
+            NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
+
+            premiumVendor=="no"?
+            sendNotificationToVendor(notificationTid):null;
 
             showOrderCompleteSheet();
 
           }else{
+            Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error occurred'),
+                content: Text('Error occurred ' + map['message']),
                 behavior: SnackBarBehavior.floating
             ));
           }
@@ -1420,6 +1601,7 @@ class _CheckOutState extends State<CheckOut> {
                         borderRadius: BorderRadius.circular(25)),
                     onPressed: () {
                       showConfirmOrder();
+                      // sendNotificationToVendor(notificationTid);
                     },
                     color: lightPink,
                     child: Text(

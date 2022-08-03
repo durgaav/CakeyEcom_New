@@ -534,10 +534,10 @@ class _SingleVendorState extends State<SingleVendor> {
                       ],
                     ),
                     SizedBox(height: 10,),
-                    Text('$vendorLocalAddres', style:TextStyle(
-                      fontFamily: "Poppins",
-                    )),
-                    SizedBox(height: 10,),
+                    // Text('$vendorLocalAddres', style:TextStyle(
+                    //   fontFamily: "Poppins",
+                    // )),
+                    // SizedBox(height: 10,),
                     //Sel button
                     InkWell(
                       splashColor: Colors.red[200],

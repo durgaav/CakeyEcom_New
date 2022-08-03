@@ -3,8 +3,10 @@ import 'package:cakey/ContextData.dart';
 import 'package:cakey/TestScreen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:location/location.dart';
 import 'package:cakey/screens/SplashScreen.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,9 +24,12 @@ Future<void> main() async {
   ));
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 
+
   await Firebase.initializeApp();
 
-  await NotificationService().init(); //
+  await NotificationService().init();
+
+  //
   // await NotificationService().requestIOSPermissions();
 
   FirebaseMessaging.onBackgroundMessage(_messageHandler);
@@ -78,7 +83,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     addPrem();
     // TODO: implement initState
-    super.initState();
+
     messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value){
       print("token : $value");
@@ -86,13 +91,44 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message recieved");
       print(event.notification.body);
-      NotificationService().showNotifications(event.notification.title.toString() ,
-          event.notification.body.toString() );
+      showOverlayNotification((context) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          child: SafeArea(
+            child: ListTile(
+              leading: SizedBox.fromSize(
+                  size: const Size(40, 40),
+                  child: ClipOval(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: Svg('assets/images/cakeylogo.svg'),
+                                fit: BoxFit.cover
+                            )
+                        ),
+                      ))),
+              title: Text(event.notification.title.toString(),style: TextStyle(
+                  fontFamily: "Poppins"
+              ),),
+              subtitle: Text(event.notification.body.toString(),style: TextStyle(
+                  fontFamily: "Poppins"
+              ),),
+              trailing: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    OverlaySupportEntry.of(context).dismiss();
+                  }),
+            ),
+          ),
+        );
+      }, duration: Duration(milliseconds: 6000));
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       print('Message clicked!');
     });
+
+    super.initState();
 
   }
 
@@ -100,14 +136,16 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ContextData>(
       create: (context)=>ContextData(),
-      child: MaterialApp(
-          theme: ThemeData(
-              primarySwatch: buildMaterialColor(Color(0xffFE8416D))
-          ),
-          // theme: ThemeData.dark(),
-          debugShowCheckedModeBanner: false,
-          home:SplashScreen()
-          // home:TestScreen()
+      child: OverlaySupport(
+        child: MaterialApp(
+            theme: ThemeData(
+                primarySwatch: buildMaterialColor(Color(0xffFE8416D))
+            ),
+            // theme: ThemeData.dark(),
+            debugShowCheckedModeBanner: false,
+            home:SplashScreen()
+            // home:TestScreen()
+        ),
       ),
     );
   }
