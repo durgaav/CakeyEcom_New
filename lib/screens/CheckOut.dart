@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../DrawerScreens/Notifications.dart';
@@ -38,7 +39,7 @@ class _CheckOutState extends State<CheckOut> {
   String poppins = "Poppins";
   List<bool> isExpands = [];
 
-  String paymentType = "UPI";
+  String paymentType = "Online Payment";
   bool isExpand = false;
   var paymentIndex = 0;
 
@@ -128,6 +129,8 @@ class _CheckOutState extends State<CheckOut> {
 
 
   var couponCtrl = new TextEditingController();
+
+  var _razorpay = Razorpay();
 
 
   //Default loader dialog
@@ -281,9 +284,13 @@ class _CheckOutState extends State<CheckOut> {
               FlatButton(
                   onPressed: (){
                     Navigator.pop(context);
-                    orderFromCustom=="yes"?
+                    if(paymentType.toLowerCase()=="online payment"){
+                      _handleOrder();
+                    }else{
+                      orderFromCustom=="yes"?
                       confirmCustomOrder():
                       confirmOrder();
+                    }
                   },
                   child: Text('Order Now')
               ),
@@ -292,7 +299,241 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
+  //payment done alert
+  void showPaymentDoneAlert(String status){
+    showDialog(
+        context: context,
+        builder: (context){
+          return Dialog(
+            child: Container(
+              height: 85,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 6,
+                    decoration: BoxDecoration(
+                        color: status=="done"?Colors.green:Colors.red,
+                        // borderRadius:BorderRadius.only(
+                        //   topLeft: Radius.circular(12),
+                        //   bottomLeft: Radius.circular(12),
+                        // )
+                    ),
+                  ),
+                  SizedBox(width: 10,),
+                  Icon(
+                    status=="done"?Icons.check_circle_rounded:Icons.cancel,
+                    color: status=="done"?Colors.green:Colors.red,
+                    size: 45,
+                  ),
+                  SizedBox(width: 10,),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(status=="done"?"Payment Complete":"Payment Not Complete",style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.bold,
+                        ),),
+                        Text(status=="done"?'Your payment for $cakeName was successful.'
+                            :"Your payment for $cakeName was unsuccessful.",style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: "Poppins",
+                          fontSize: 12
+                        ),)
+                      ],
+                    ),
+                  )
+                ],
+              )
+            ),
+          );
+        }
+    );
+  }
+
   //region Functions
+
+  //handle razor pay order here...
+  void _handleOrder() async{
+
+    showAlertDialog();
+
+    var amount = 0;
+
+    if(orderFromCustom!="no"){
+      amount = ((((double.parse(cakePrice)*
+          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+          tempDiscountPrice).toInt();
+    }else{
+      amount = ((counts * (
+          double.parse(cakePrice)*
+              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+      ) + double.parse((tempTax).toString()) +
+          deliveryCharge)
+          - tempDiscountPrice).toInt();
+    }
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_MyjGwTc9WHqxJZ:HN0Wocy6yeYils1HFJIaE34G'))}'
+    };
+    var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
+    request.body = json.encode({
+      "amount": int.parse(amount.toString())*100,
+      "currency": "INR",
+      "receipt": "Receipt",
+      "notes": {
+        "notes_key_1": "Order for $cakeName",
+        // "notes_key_2": "Order for $cakeName"
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var res = jsonDecode(await response.stream.bytesToString());
+      print(res);
+      _handleFinalPayment(res['amount'].toString() , res['id']);
+      Navigator.pop(context);
+    }
+    else {
+    // print();
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
+        +response.reasonPhrase.toString())));
+    }
+
+    //{id: order_K1RKAn7G9lnanu, entity: order, amount: "700", amount_paid: "0",
+    // amount_due: "700", currency: INR, receipt: Receipt, offer_id: null, status: created,
+    // attempts: "0", notes: {notes_key_1: Order for Vanilla Cake}, created_at: "1659590700"}
+
+
+    // var amount = 0.0;
+    //
+    // if(orderFromCustom!="no"){
+    //   amount = ((((double.parse(cakePrice)*
+    //       double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+    //       extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+    //       tempDiscountPrice);
+    // }else{
+    //   amount = ((counts * (
+    //       double.parse(cakePrice)*
+    //           double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+    //           (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+    //   ) + double.parse((tempTax).toString()) +
+    //       deliveryCharge)
+    //       - tempDiscountPrice);
+    // }
+    //
+
+  }
+
+
+  //handle razorpay payment here...
+  void _handleFinalPayment(String amt , String orderId){
+
+
+    print("Test ord id : $orderId");
+
+    var amount = 0;
+
+    if(orderFromCustom!="no"){
+      amount = ((((double.parse(cakePrice)*
+          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+          tempDiscountPrice).toInt();
+    }else{
+      amount = ((counts * (
+          double.parse(cakePrice)*
+              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+      ) + double.parse((tempTax).toString()) +
+          deliveryCharge)
+          - tempDiscountPrice).toInt();
+    }
+
+
+    var options = {
+      'key': 'rzp_test_MyjGwTc9WHqxJZ',
+      'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
+      'name': 'Surya Prakash',
+      'order_id': "$orderId", // Generate order_id using Orders API
+      'description': '$cakeName',
+      'timeout': 300, // in seconds
+      'prefill': {
+        'contact': '$userPhone',
+        // 'email': '$userName',
+        'email': 'test@gmail.com',
+      },
+      "theme":{
+        "color":'#E8416D'
+      },
+      // "method": {
+      //   "netbanking": false,
+      //   "card": true,
+      //   "upi": true,
+      //   "wallet": false,
+      //   "emi": false,
+      //   "paylater": false
+      // },
+    };
+
+    print(options);
+
+    _razorpay.open(options);
+  }
+
+  //capture the payment....
+  void _capturePayment(String payId) async {
+
+    var amount = 0;
+
+    if(orderFromCustom!="no"){
+      amount = ((((double.parse(cakePrice)*
+          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+          tempDiscountPrice).toInt();
+    }else{
+      amount = ((counts * (
+          double.parse(cakePrice)*
+              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+      ) + double.parse((tempTax).toString()) +
+          deliveryCharge)
+          - tempDiscountPrice).toInt();
+    }
+
+    var headers = {
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_MyjGwTc9WHqxJZ:HN0Wocy6yeYils1HFJIaE34G'))}',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
+    request.body = json.encode({
+      "amount": int.parse(amount.toString())*100,
+      "currency": "INR"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+    print(response.reasonPhrase);
+    }
+
+  }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
@@ -479,6 +720,7 @@ class _CheckOutState extends State<CheckOut> {
     var headers = {
       'Content-Type': 'application/json'
     };
+
     var request = http.Request('POST',
         Uri.parse('https://cakey-database.vercel.app/api/customize/cake/order/new/$cakeID'));
     request.body = json.encode({
@@ -825,6 +1067,28 @@ class _CheckOutState extends State<CheckOut> {
 
   }
 
+  //payment handlers...
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    // Do something when payment succeeds
+    print("Pay success : "+response.paymentId.toString());
+    // _capturePayment(response.paymentId.toString());
+    orderFromCustom=="yes"?
+    confirmCustomOrder():
+    confirmOrder();
+    // showPaymentDoneAlert("done");
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    print("Pay error : "+response.toString());
+    showPaymentDoneAlert("failed");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet is selected
+    print("wallet : "+response.toString());
+    showPaymentDoneAlert("failed");
+  }
 
   //endregion
 
@@ -834,7 +1098,17 @@ class _CheckOutState extends State<CheckOut> {
     Future.delayed(Duration.zero , () async{
       recieveDetailsFromScreen();
     });
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     super.initState();
+  }
+
+
+  @override
+  void dispose(){
+    _razorpay.clear();
+    super.dispose();
   }
 
   @override
@@ -1398,7 +1672,7 @@ class _CheckOutState extends State<CheckOut> {
                     ListTile(
                       onTap: () {
                         setState(() {
-                          paymentType = "UPI";
+                          paymentType = "Online Payment";
                           paymentIndex = 0;
                         });
                       },
@@ -1406,7 +1680,7 @@ class _CheckOutState extends State<CheckOut> {
                       Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
                       Icon(Icons.check_circle , color: Colors.green,),
                       title: Text(
-                        'UPI',
+                        'Online Payment',
                         style: TextStyle(
                             color: darkBlue,
                             fontFamily: "Poppins",
@@ -1433,25 +1707,25 @@ class _CheckOutState extends State<CheckOut> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          paymentType = "Credit Card";
-                          paymentIndex = 2;
-                        });
-                      },
-                      leading: paymentIndex!=2?
-                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                      Icon(Icons.check_circle , color: Colors.green,),
-                      title: Text(
-                        'Credit Card',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontFamily: "Poppins",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    // ListTile(
+                    //   onTap: () {
+                    //     setState(() {
+                    //       paymentType = "Credit Card";
+                    //       paymentIndex = 2;
+                    //     });
+                    //   },
+                    //   leading: paymentIndex!=2?
+                    //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                    //   Icon(Icons.check_circle , color: Colors.green,),
+                    //   title: Text(
+                    //     'Credit Card',
+                    //     style: TextStyle(
+                    //         color: darkBlue,
+                    //         fontFamily: "Poppins",
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.bold),
+                    //   ),
+                    // ),
                   ],
                 ),
                 Container(
@@ -1587,7 +1861,7 @@ class _CheckOutState extends State<CheckOut> {
                   ),
                 )
                     : Container(),
-
+                
                 SizedBox(
                   height: 15,
                 ),
@@ -1600,6 +1874,7 @@ class _CheckOutState extends State<CheckOut> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25)),
                     onPressed: () {
+                      // _handleOrder();
                       showConfirmOrder();
                       // sendNotificationToVendor(notificationTid);
                     },

@@ -736,7 +736,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           child: RaisedButton(
             onPressed: (){
               FocusScope.of(context).unfocus();
-              updateProfile();
+              if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Make sure fields are not empty...'))
+                );
+              }else{
+                updateProfile();
+              }
+
             },
             color: darkBlue,
             shape: RoundedRectangleBorder(

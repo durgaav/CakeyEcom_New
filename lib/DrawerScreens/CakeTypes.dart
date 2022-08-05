@@ -1094,6 +1094,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 );
                               }),
                           SizedBox(height: 6),
+
                           // ExpansionTile(
                           //   title: Text(
                           //     'OTHERS',
@@ -1204,6 +1205,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           //         }),
                           //   ],
                           // )
+
                         ],
                       )),
                     ),
@@ -1362,7 +1364,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     String commonCake = 'https://cakey-database.vercel.app/api/cake/list';
     String vendorCake =
-        'https://cakey-database.vercel.app/api/cake/listbyId/$myVendorId';
+        'https://cakey-database.vercel.app/api/cake/listbyIdandstatus/$myVendorId';
 
     try {
       http.Response response = await http.get(
@@ -1397,6 +1399,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
             cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
                 element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
+
+
 
             cakesList = cakesList.reversed.toList();
 

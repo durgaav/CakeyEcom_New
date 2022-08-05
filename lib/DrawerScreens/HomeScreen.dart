@@ -972,9 +972,9 @@ class _HomeScreenState extends State<HomeScreen> {
           context.read<ContextData>().setUserName(userName);
 
           _getUserLocation();
+          getVendorsList();
           getCakeList();
           getOrderList();
-          getVendorsList();
           print(token);
           getFbToken();
           timerTrigger();
