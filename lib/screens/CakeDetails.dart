@@ -2369,6 +2369,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         price = (counts * (double.parse(cakePrice.toString())+extra))*
             double.parse(fixedWeight.toLowerCase().replaceAll("kg", "").toString());
 
+        //if tier selected
       if(tierPrice!=0){
         price = double.parse(tierPrice.toString());
         weights = 1.0;
