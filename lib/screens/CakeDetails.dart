@@ -2150,7 +2150,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       cakeDescription = prefs.getString('cakeDescription')!;
       cakeType = prefs.getString('cakeType')!;
       cakeSubType = prefs.getString('cakeSubType')!;
-      cakeRatings = prefs.getInt('cakeRating')!.toString();
+      cakeRatings = prefs.getDouble('cakeRating')!.toString();
       isThemePossible = prefs.getString('cakeThemePoss')!.toString();
       isTierPossible = prefs.getString('cakeTierPoss')!.toString();
       isTopperPossible = prefs.getString('cakeTopperPoss')!.toString();
@@ -2360,11 +2360,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       // double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))
 
       //--> Assign
-      if(tierPrice!=0){
-        price = double.parse(tierPrice.toString());
-        weights = 1.0;
-      }else{
-
         extra = double.parse(flavExtraCharge.toString())+
             double.parse(extraShapeCharge.toString())+
             double.parse(topperPrice.toString());
@@ -2373,6 +2368,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
         price = (counts * (double.parse(cakePrice.toString())+extra))*
             double.parse(fixedWeight.toLowerCase().replaceAll("kg", "").toString());
+
+      if(tierPrice!=0){
+        price = double.parse(tierPrice.toString());
+        weights = 1.0;
+      }
 
         print("price $price");
 
@@ -2392,7 +2392,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
         print("Dis Price $discountedPrice");
 
-      }
+
 
     });
 
@@ -2418,7 +2418,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       prefs.setString('orderCakeWeight', weights.toString()+"kg");
       prefs.setString('orderCakePrice', tempTierPrice.toString());
       prefs.setString("orderCakeTier", cakeTiers[tierSelIndex]['Tier'].toString());
-      prefs.setString("orderCakeTierWeight", cakeTiers[tierSelIndex]['Tier'].toString());
+      prefs.setString("orderCakeTierWeight", cakeTiers[tierSelIndex]['Weight'].toString());
     }else{
       prefs.setString('orderCakeWeight', fixedWeight+"kg");
       prefs.setString('orderCakePrice', cakePrice);
@@ -2459,12 +2459,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeThemeImage', file.path.isNotEmpty?file.path.toString():'null');//ops
 
 
-    if(nearestVendors.isEmpty || double.parse(fixedWeight)>5.0){
-      prefs.setString('orderCakeNearestIsEmpty', "yes"??'null');
-      prefs.setString('orderCakeVendorName', "Premium Vendor"??'null');
-    }else{
+    if(nearestVendors.length > 0 && double.parse(fixedWeight)<5.0){
       prefs.setString('orderCakeNearestIsEmpty', "no"??'null');
       prefs.setString('orderCakeVendorName', vendorName??'null');//ops
+    }else{
+      prefs.setString('orderCakeNearestIsEmpty', "yes"??'null');
+      prefs.setString('orderCakeVendorName', "Premium Vendor"??'null');
+      prefs.setDouble('orderCakeDelCharge', 0);
     }
 
     //users
@@ -2559,6 +2560,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       });
     } else {}
     print("...end");
+
+    print(nearestVendors.length);
+
   }
 
   //getAllcakes List
@@ -3219,7 +3223,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 fontFamily: "Poppins",
                                 fontSize: 18,
                                 color: darkBlue,
-                                fontWeight: FontWeight.w600),
+                                fontWeight: FontWeight.w600
+                            ),
                           ),
                         ),
 
@@ -3251,7 +3256,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         ),
                                       ):
                                       Text(
-                                        "${
+                                        ""
+                                            "${
                                           ((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                               double.parse(cakePrice)) + (
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
@@ -3259,7 +3265,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                                   double.parse(extraShapeCharge.toString())) +
                                               double.parse(topperPrice.toString())) * counts
-                                        }",
+                                        }"
+                                            ,
                                         style: TextStyle(
                                           color: lightPink,
                                           fontWeight: FontWeight.bold,
@@ -3930,8 +3937,17 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   fixedWeight = weight[index];
                                                 } else {
                                                   weightIndex = index;
-                                                  fixedWeight =
-                                                      weight[index].toString();
+                                                  if(weight[index].toString().toLowerCase().endsWith("kg")){
+                                                    fixedWeight =
+                                                        weight[index].toString();
+                                                    print("yes");
+                                                  }else{
+                                                    print("no"+weight[index].toString().split("g").first);
+                                                    // fixedWeight = weight[index].toString().split("g")[0]+"kg";
+                                                    fixedWeight = (double.parse(weight[index].toString().split("g").first)/1000).toString()+"kg";
+                                                    // print(500/1000);
+                                                  }
+
                                                   print(fixedWeight);
                                                 }
                                               });
@@ -3947,7 +3963,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                   border: Border.all(
-                                                      color: lightPink, width: 1),
+                                                      color: Colors.grey[400]!, width: 1),
                                                   color: weightIndex == index
                                                       ? Colors.pink
                                                       : Colors.white),
@@ -3996,7 +4012,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           style: TextStyle(
                                               fontFamily: 'Poppins', fontSize: 13),
                                           inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(new RegExp('[1-9.]')),
+                                            FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
                                             FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
                                             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
                                             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
@@ -4058,6 +4074,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                         fontFamily: "Poppins"
                                                     ),)
                                                 ),
+                                                
                                                 // PopupMenuItem(
                                                 //     onTap: () {
                                                 //       setState(() {
@@ -4072,6 +4089,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 //       });
                                                 //     },
                                                 //     child: Text('Gram')),
+                                                
+                                                
                                               ])),
                                     )
                                   ],
@@ -4107,6 +4126,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       selwIndex.add(false);
                                       return InkWell(
                                           onTap: () {
+                                            print(cakeTiers[index]);
                                             FocusScope.of(context).unfocus();
                                             setState(() {
                                               if(tierSelIndex==index){
@@ -4624,57 +4644,58 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               ],
                             )),
 
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: Text(
-                            ' Address',
-                            style:
-                                TextStyle(fontFamily: poppins, color: darkBlue),
-                          ),
-                        ),
-
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        fixedDelliverMethod.toLowerCase()=="delivery"?Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,  
                           children: [
-                            ListTile(
-
-                              title: Text(
-                                '${userAddress.trim()}',
-                                style: TextStyle(
-                                    fontFamily: poppins,
-                                    color: Colors.grey,
-                                    fontSize: 13),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                ' Address',
+                                style:
+                                    TextStyle(fontFamily: poppins, color: darkBlue),
                               ),
-                              trailing:
-                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,),
                             ),
-                            GestureDetector(
-                              onTap: (){
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddressScreen()));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 14),
-                                child: Text(
-                                  'add new address',
-                                  style: const TextStyle(
-                                      color: Colors.orange,
-                                      fontFamily: "Poppins",
-                                      decoration: TextDecoration.underline),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    '${userAddress.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing:
+                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,),
                                 ),
-                              ),
+                                GestureDetector(
+                                  onTap: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => AddressScreen()));
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 14),
+                                    child: Text(
+                                      'add new address',
+                                      style: const TextStyle(
+                                          color: Colors.orange,
+                                          fontFamily: "Poppins",
+                                          decoration: TextDecoration.underline),
+                                    ),
+                                  ),
+                                ),
+
+
+                              ],
                             ),
-
-
+                            SizedBox(
+                              height: 15,
+                            ),
                           ],
-                        ),
-
-                        SizedBox(
-                          height: 15,
-                        ),
+                        ):Container(),
 
                         Container(
                           padding: EdgeInsets.all(10.0),
@@ -5440,7 +5461,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       if (newRegUser == true) {
                                         showDpUpdtaeDialog();
                                       } else {
-                                        if(deliverDate.toLowerCase()=="not yet select"){
+                                        if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
+                                            customweightCtrl.text.startsWith("0")&&
+                                                customweightCtrl.text.endsWith("0")){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please enter correct weight or select weight!")
+                                              )
+                                          );
+                                        }
+                                        else if(deliverDate.toLowerCase()=="not yet select"){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(content: Text("Please select deliver date"))
                                           );
@@ -5462,7 +5492,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       "ORDER NOW",
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold
+                                      ),
                                     ),
                                   ),
                                 ),

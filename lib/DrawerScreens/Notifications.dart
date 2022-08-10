@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
+import 'package:cakey/screens/Profile.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -42,6 +43,11 @@ class _NotificationsState extends State<Notifications> {
   List ordersList = [];
   String cakeId='';
   String userId='';
+
+  //on list longpres
+  List<bool> selectedTiles = [];
+  List selectedNotiIds = [];
+
 
   int pageViewCurIndex = 0;
 
@@ -104,6 +110,7 @@ class _NotificationsState extends State<Notifications> {
     prefs.setString('customCakeGst', myList[0]['Gst'].toString());
     prefs.setString('customCakeSgst', myList[0]['Sgst'].toString());
     prefs.setString('customCakeTotal', myList[0]['Total'].toString());
+    prefs.setInt('customCakeTaxes', int.parse(myList[0]['Tax']));
     prefs.setString('customCakeDisc', myList[0]['Discount'].toString());
     prefs.setString('customCakeWeight', myList[0]['Weight'].toString());
     prefs.setString('customCakeId', myList[0]['_id'].toString());
@@ -675,6 +682,43 @@ class _NotificationsState extends State<Notifications> {
 
   }
 
+  void showOrderDeleteAllDialog(){
+    showDialog(
+        context: context,
+        builder: (context)=>
+            AlertDialog(
+              title: Text("Delete Notifications!" , style: TextStyle(
+                  color: darkBlue , fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold
+              ),),
+              content:Text(
+                  "Are you sure? do you want to delete all notifications?", style: TextStyle(
+                color: Colors.black , fontFamily: "Poppins",
+              )
+              ),
+              actions: [
+
+                FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    deleteAllNotifications();
+                  },
+                  child: Text('Delete All', style: TextStyle(
+                    color: Colors.purple , fontFamily: "Poppins",
+                  )),
+                ),
+
+                FlatButton(
+                  onPressed: ()=>Navigator.pop(context),
+                  child: Text('Cancel', style: TextStyle(
+                    color: Colors.purple , fontFamily: "Poppins",
+                  )),
+                ),
+              ],
+            )
+    );
+  }
+
   //region Functions
 
   //get notifications
@@ -780,6 +824,26 @@ class _NotificationsState extends State<Notifications> {
 
   }
 
+  //delete all notifications
+  Future<void> deleteAllNotifications() async{
+    showAlertDialog();
+    var request = http.Request('DELETE',
+        Uri.parse('https://cakey-database.vercel.app/api/users/deletenotification/$userId'));
+
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      Navigator.pop(context);
+      fetchNotifications();
+    }
+    else {
+      Navigator.pop(context);
+    print(response.reasonPhrase);
+    }
+  }
+
   //endregion
 
   @override
@@ -838,6 +902,14 @@ class _NotificationsState extends State<Notifications> {
                             fontSize: 17),
                       ),
                     ),
+                    Expanded(
+                        child: Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              onPressed: ()=>showOrderDeleteAllDialog(),
+                              icon: Icon(Icons.delete_outline_outlined , color: Colors.red,),
+                            ))
+                    )
                   ],
                 ),
               ),
@@ -915,157 +987,180 @@ class _NotificationsState extends State<Notifications> {
                             itemCount: mainList.length,
                             shrinkWrap: true,
                             // physics: NeverScrollableScrollPhysics(),
+
                             itemBuilder: (context, index) {
+                              selectedTiles.add(false);
                               return GestureDetector(
+                                onLongPress: (){
+                                  setState((){
+                                    selectedTiles[index] = !selectedTiles[index];
+                                  });
+                                },
                                 onTap: (){
                                   if(mainList[index]['CustomizedCake']=="y"){
                                     showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
+                                  }else{
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 1)));
                                   }
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(15),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Column(
                                     children: [
-                                      mainList[index]['Image']==null||
-                                      mainList[index]['Image'].toString().isEmpty||
-                                      !mainList[index]['Image'].toString().startsWith("http")?
-                                      Container(
-                                        height: 55,
-                                        width: 55,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.grey[300],
-                                        ),
-                                        child: Icon(
-                                          CupertinoIcons.photo,
-                                          size: 35,color:Colors.grey,
-                                        ),
-                                      ):
-                                      Container(
-                                        height: 55,
-                                        width: 55,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.grey[350],
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: NetworkImage(mainList[index]['Image'].toString()),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                // width: 270,
-                                                  child:
-                                                  ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} delivered on "
-                                                        "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop.",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13,
-                                                    ),
-                                                  ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
-                                                        "is being prepared and it will be delivered soon , thank you.",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13,
-                                                    ),
-                                                  ):
-                                                  (mainList[index]['Status'].toString().toLowerCase()=='new')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
-                                                        "order is placed.We will notify status soon as possible",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),
-                                                  ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']}, kindly check the invoice details for your ${mainList[index]["CakeName"]} "
-                                                        ", Then continue your payment processes.Thank You.",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),
-                                                  ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']} is ordered.We will notify status soon as possible",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),
-                                                  ):(mainList[index]['Status'].toString().toLowerCase()=='assigned')?
-                                                  Text(
-                                                    "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
-                                                        "is assigned to Vendor ${mainList[index]['VendorName']}",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),
-                                                  ):Text(
-                                                    "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
-                                                        " is order cancelled.",
-                                                    maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color:Colors.black,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),
-                                                  )
-                                                  )
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          mainList[index]['Image']==null||
+                                          mainList[index]['Image'].toString().isEmpty||
+                                          !mainList[index]['Image'].toString().startsWith("http")?
+                                          Container(
+                                            height: 55,
+                                            width: 55,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.grey[300],
+                                            ),
+                                            child: Icon(
+                                              CupertinoIcons.photo,
+                                              size: 35,color:Colors.grey,
+                                            ),
+                                          ):
+                                          Container(
+                                            height: 55,
+                                            width: 55,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.grey[350],
+                                              image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: NetworkImage(mainList[index]['Image'].toString()),
                                               ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Container(
-                                                // width: 270,
-                                                  child: Text(
-                                                      simplyFormat(time: DateTime.now(),dateOnly: true)==
-                                                          mainList[index]['Status_Updated_On'].toString().split(" ").first?
-                                                      "Today":formateToDay( mainList[index]['Status_Updated_On'].toString().split(" ").first)
-                                                      ,overflow: TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                          color: darkBlue,
-                                                          fontFamily: "Poppins",
-                                                          fontSize: 12.5,
-                                                          fontWeight:
-                                                          FontWeight.bold
-                                                      ))
-                                              )
-                                            ],
+                                            ),
                                           ),
-                                        ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    // width: 270,
+                                                      child:
+                                                      ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} delivered on "
+                                                            "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop.",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13,
+                                                        ),
+                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
+                                                            "is being prepared and it will be delivered soon , thank you.",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13,
+                                                        ),
+                                                      ):
+                                                      (mainList[index]['Status'].toString().toLowerCase()=='new')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
+                                                            "order is placed.We will notify status soon as possible",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13
+                                                        ),
+                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']}, kindly check the invoice details for your ${mainList[index]["CakeName"]} "
+                                                            ", Then continue your payment processes.Thank You.",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13
+                                                        ),
+                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']} is ordered.We will notify status soon as possible",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13
+                                                        ),
+                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='assigned')?
+                                                      Text(
+                                                        "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
+                                                            "is assigned to Vendor ${mainList[index]['VendorName']}",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13
+                                                        ),
+                                                      ):Text(
+                                                        "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
+                                                            " is order cancelled.",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color:Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13
+                                                        ),
+                                                      )
+                                                      )
+                                                  ),
+                                                  SizedBox(
+                                                    height: 7,
+                                                  ),
+                                                  Container(
+                                                    // width: 270,
+                                                      child: Text(
+                                                          simplyFormat(time: DateTime.now(),dateOnly: true)==
+                                                              mainList[index]['Status_Updated_On'].toString().split(" ").first?
+                                                          "Today":formateToDay( mainList[index]['Status_Updated_On'].toString().split(" ").first)
+                                                          ,overflow: TextOverflow.ellipsis,
+                                                          style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontFamily: "Poppins",
+                                                              fontSize: 12.5,
+                                                              fontWeight:
+                                                              FontWeight.bold
+                                                          ))
+                                                  ),
+                                                  SizedBox(height: 6,)
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          selectedTiles[index]==true?
+                                          Icon(Icons.check_box , color: Colors.green,):Container()
+                                        ],
+                                      ),
+                                      simplyFormat(time: DateTime.now(),dateOnly: true)==
+                                          mainList[index]['Status_Updated_On'].toString().split(" ").first?
+                                      Container():
+                                      Container(
+                                        height: 0.5,
+                                        color: darkBlue,
                                       ),
                                     ],
                                   ),

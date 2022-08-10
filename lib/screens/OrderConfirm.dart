@@ -142,6 +142,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
       vendorPhone1 = prefs.getString("cakeVendorPhone1")!;
       vendorPhone2 = prefs.getString("cakeVendorPhone2")!;
       shape = prefs.getString("orderCakeShape")!;
+      deliverType = prefs.getString('orderCakeDeliverType')??"None";
 
       //ints
       counts = prefs.getInt('orderCakeItemCount')!;
@@ -444,7 +445,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             SizedBox(width: 5,),
                             Expanded(
                                 child: Text(
-                                  "${userAddress.trim()}",
+                                  deliverType.toLowerCase()=="delivery"?
+                                  "${userAddress.trim()}":"Pickuping by you.",
                                   style: TextStyle(
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
@@ -535,7 +537,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -557,7 +559,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]

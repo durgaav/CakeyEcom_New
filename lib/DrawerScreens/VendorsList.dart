@@ -126,7 +126,6 @@ class _VendorsListState extends State<VendorsList> {
       authToken = pref.getString("authToken")?? 'no auth';
 
       getCakeList();
-      getVendorsList();
 
       print(userLatitude+"  "+userLongtitude);
 
@@ -263,6 +262,7 @@ class _VendorsListState extends State<VendorsList> {
               element['CakeType'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
               .toList();
           print(cakeList.length);
+          getVendorsList();
         });
       }
 
@@ -377,6 +377,7 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('singleVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
     pref.setString('singleVendorAddress', address??'null');
     pref.setString('singleVendorSpecial', locationBySearch[index]['YourSpecialityCakes'].toString());
+    pref.setString('singleVendorRate', locationBySearch[index]['Ratings'].toString()??'null');
     pref.setString('ventosingleven', 'yes');
 
     print(locationBySearch[index]['YourSpecialityCakes']);

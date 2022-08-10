@@ -79,6 +79,7 @@ class _CheckOutState extends State<CheckOut> {
   int topperPrice = 0;
   String vendorLat = "";
   String vendorLong = "";
+  double finalTotal = 0;
 
 
   List<String> toppings = [];
@@ -373,13 +374,11 @@ class _CheckOutState extends State<CheckOut> {
           extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
           tempDiscountPrice).toInt();
     }else{
-      amount = ((counts * (
-          double.parse(cakePrice)*
-              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-      ) + double.parse((tempTax).toString()) +
-          deliveryCharge)
-          - tempDiscountPrice).toInt();
+      amount = ((counts *
+          ((double.parse(cakePrice)*
+              double.parse(weight.replaceAll("kg", "")))+
+              (extraCharges))+
+          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
     }
 
     var headers = {
@@ -436,6 +435,7 @@ class _CheckOutState extends State<CheckOut> {
     // }
     //
 
+
   }
 
 
@@ -453,13 +453,11 @@ class _CheckOutState extends State<CheckOut> {
           extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
           tempDiscountPrice).toInt();
     }else{
-      amount = ((counts * (
-          double.parse(cakePrice)*
-              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-      ) + double.parse((tempTax).toString()) +
-          deliveryCharge)
-          - tempDiscountPrice).toInt();
+      amount = ((counts *
+          ((double.parse(cakePrice)*
+              double.parse(weight.replaceAll("kg", "")))+
+              (extraCharges))+
+          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
     }
 
 
@@ -504,13 +502,11 @@ class _CheckOutState extends State<CheckOut> {
           extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
           tempDiscountPrice).toInt();
     }else{
-      amount = ((counts * (
-          double.parse(cakePrice)*
-              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-      ) + double.parse((tempTax).toString()) +
-          deliveryCharge)
-          - tempDiscountPrice).toInt();
+      amount = ((counts *
+          ((double.parse(cakePrice)*
+              double.parse(weight.replaceAll("kg", "")))+
+              (extraCharges))+
+          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
     }
 
     var headers = {
@@ -569,7 +565,7 @@ class _CheckOutState extends State<CheckOut> {
 
         cakeName = prefs.getString("customCakeName")??'My Custom Cake';
         cakeImage = "null";
-        cakePrice = prefs.getString("customCakePrice")??'100';
+        cakePrice = prefs.getString("customCakePrice")??'0';
         vendorName = prefs.getString('customCakeVendor')??'null';
         cakeType = prefs.getString('customCakeType')??'null';
         userAddress = prefs.getString('customCakeUserAdd')??'null';
@@ -590,6 +586,7 @@ class _CheckOutState extends State<CheckOut> {
         deliverType = prefs.getString('customCakePickOrDel')??"None";
         vendorLat = prefs.getString('customCakeVendLat')??"None";
         vendorLong = prefs.getString('customCakeVendLong')??"None";
+        taxes = prefs.getInt("customCakeTaxes")??0;
 
         deliveryChargeCustomer = ((adminDeliveryCharge/adminDeliveryChargeKm)*
             calculateDistance(
@@ -609,10 +606,7 @@ class _CheckOutState extends State<CheckOut> {
           });
         }
 
-
-
         print("deelele : $deliveryChargeCustomer");
-
 
       }else{
         cakeName = prefs.getString("orderCakeName")??"My Cake Name";
@@ -686,6 +680,12 @@ class _CheckOutState extends State<CheckOut> {
         print(tempPrice);
         tempTax = tempPrice * (double.parse(taxes.toString())/100);
 
+        finalTotal = counts *
+            (double.parse(cakePrice)*
+            double.parse(weight.replaceAll("kg", "")))+
+            (extraCharges *
+                double.parse(weight.replaceAll("kg", "")));
+
       }
     });
 
@@ -695,7 +695,8 @@ class _CheckOutState extends State<CheckOut> {
 
   Future<void> confirmCustomOrder() async{
 
-    double mainPrice = (double.parse(cakePrice)*double.parse(weight.toLowerCase().replaceAll('kg', '')))+extraCharges;
+    double mainPrice = (double.parse(cakePrice)*double.parse(weight.toLowerCase().replaceAll('kg', '')))
+        +(extraCharges);
 
     double diss = (mainPrice * discountPrice)/100;
 
@@ -703,18 +704,21 @@ class _CheckOutState extends State<CheckOut> {
 
     double discountPr = couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0;
 
-    String billTot = ((double.parse(bilTotal.toString())+deliveryCharge)-discountPr).toString();
+    String billTot = ((double.parse(mainPrice.toString())+deliveryCharge+gstPrice+sgstPrice)-discountPr).toString();
+
+    print(discountPr);
 
     print({
       "PaymentType": "$paymentType",
       "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
       "DeliveryCharge": "$deliveryCharge",
       "Total": billTot.toString(),
-      "Discount": discountPrice.toString(),
+      "Discount": discountPr.toString(),
       "Gst": gstPrice.toString(),
       "Sgst": sgstPrice.toString(),
       "ExtraCharges": extraCharges.toString(),
     });
+
     showAlertDialog();
 
     var headers = {
@@ -728,10 +732,11 @@ class _CheckOutState extends State<CheckOut> {
       "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
       "DeliveryCharge": "$deliveryCharge",
       "Total": billTot.toString(),
-      "Discount": discountPrice.toString(),
+      "Discount": discountPr.toString(),
       "Gst": gstPrice.toString(),
       "Sgst": sgstPrice.toString(),
       "ExtraCharges": extraCharges.toString(),
+      "Tax":taxes.toString()
     });
     request.headers.addAll(headers);
 
@@ -941,16 +946,22 @@ class _CheckOutState extends State<CheckOut> {
               "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
               "ItemCount": counts.toString(),
               "Price": cakePrice.toString(),
-              "DeliveryInformation": deliverType,
               "DeliverySession": deliverSession,
               "DeliveryDate": deliverDate,
-              "DeliveryAddress": userAddress,
               "UserPhoneNumber": userPhone,
               "UserName": userName,
               "UserID": userID,
               "User_ID": userModId,
+              "Tax":taxes.toString(),
+              "DeliveryInformation": deliverType,
             }
         );
+
+        if(deliverType.toLowerCase()=="delivery"){
+          request.fields.addAll({
+            "DeliveryAddress": userAddress,
+          });
+        }
 
         //theme ops
         if(themeName.toString()!="null"){
@@ -1394,7 +1405,8 @@ class _CheckOutState extends State<CheckOut> {
                             SizedBox(width: 5,),
                             Expanded(
                                 child: Text(
-                                  "${userAddress.trim()}",
+                                  deliverType.toLowerCase()=="delivery"?
+                                  "${userAddress.trim()}":'Pickuping by you.',
                                   style: TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
@@ -1569,7 +1581,7 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   orderFromCustom!="yes"?
                                   Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
@@ -1593,7 +1605,7 @@ class _CheckOutState extends State<CheckOut> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:10),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   orderFromCustom!="yes"?
                                   Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
@@ -1629,10 +1641,12 @@ class _CheckOutState extends State<CheckOut> {
                                     deliveryCharge)
                                 - tempDiscountPrice).toStringAsFixed(2)
                             }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),):
-                            Text('₹ ${((((double.parse(cakePrice)*
-                                double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-                                extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-                                tempDiscountPrice).toStringAsFixed(2)}',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
+                            Text('₹ ${((counts *
+                                ((double.parse(cakePrice)*
+                                    double.parse(weight.replaceAll("kg", "")))+
+                                    (extraCharges))+
+                                sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toStringAsFixed(2)}'
+                              ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
                           ],
                         ),
                       ),

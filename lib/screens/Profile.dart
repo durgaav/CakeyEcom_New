@@ -471,7 +471,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   //Rate the cake & Vendor
   Future<void> rateCake(double rate,String cakeId,int index) async{
-
+    showAlertDialog();
     print(rate);
     print(cakeId);
     print(index);
@@ -489,15 +489,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Rating Updated To Cake'))
       );
-
       // rateVendor(rate,
       //     recentOrders[index]['VendorID'].toString());
     }
     else {
       print(response.reasonPhrase);
+      Navigator.pop(context);
       // rateVendor(rate,
       //     recentOrders[index]['VendorID'].toString());
     }
@@ -540,8 +541,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             )
     );
   }
-
-
 
   //Notifications....
 
@@ -860,6 +859,28 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index){
+              String gramAndKilo = "";
+
+              if(recentOrders[index]['Weight'].toString().toLowerCase().endsWith("kg")){
+                print("yes..");
+                gramAndKilo = (
+                     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                         (double.parse(recentOrders[index]['Price'].toString())*
+                             double.parse(recentOrders[index]['Weight'].toString().
+                             toLowerCase().replaceAll("kg", "")))+
+                             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                     )
+                    ).toStringAsFixed(2);
+              }else{
+                print("no...");
+                gramAndKilo = (
+                    (double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                        (double.parse(recentOrders[index]['Price'].toString()))+
+                            double.parse(recentOrders[index]['ExtraCharges'].toString())
+                    )/2)
+                ).toStringAsFixed(2);
+              }
+
               isExpands.add(false);
               return Container(
                 margin: const EdgeInsets.only(top: 10),
@@ -1041,14 +1062,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("₹ ${(
-                                           double.parse(recentOrders[index]['ItemCount'].toString()) * (
-                                               (double.parse(recentOrders[index]['Price'].toString())*
-                                                   double.parse(recentOrders[index]['Weight'].toString().
-                                                   toLowerCase().replaceAll("kg", "")))+
-                                                   double.parse(recentOrders[index]['ExtraCharges'].toString())
-                                           )
-                                          ).toStringAsFixed(2)}",
+                                          Text("₹ "
+                                          //     "${(
+                                          //  double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                          //      (double.parse(recentOrders[index]['Price'].toString())*
+                                          //          double.parse(recentOrders[index]['Weight'].toString().
+                                          //          toLowerCase().replaceAll("kg", "")))+
+                                          //          double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                          //  )
+                                          // ).toStringAsFixed(2)
+                                          // }"
+                                              "$gramAndKilo",
                                               style: TextStyle(color: lightPink,
                                               fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
                                           Container(
@@ -1274,14 +1298,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     color: Colors.black54,
                                   ),),
                                   recentOrders[index]['ExtraCharges']!=null?
-                                  Text("₹${(
-                                      double.parse(recentOrders[index]['ItemCount'].toString()) * (
-                                          (double.parse(recentOrders[index]['Price'].toString())*
-                                              double.parse(recentOrders[index]['Weight'].toString().
-                                              toLowerCase().replaceAll("kg", "")))+
-                                              double.parse(recentOrders[index]['ExtraCharges'].toString())
-                                      )
-                                  ).toStringAsFixed(2)}"
+                                  Text("₹ "
+                                  //     "${(
+                                  //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                  //         (double.parse(recentOrders[index]['Price'].toString())*
+                                  //             double.parse(recentOrders[index]['Weight'].toString().
+                                  //             toLowerCase().replaceAll("kg", "")))+
+                                  //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                  //     )
+                                  // ).toStringAsFixed(2)}"
+                                      "$gramAndKilo"
                                     ,style: const TextStyle(fontWeight: FontWeight.bold),):
                                   Text(""),
                                 ],
@@ -1391,7 +1417,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       builder:(BuildContext context , void Function(void Function()) setState)=>
                                           AlertDialog(
                                             title:Center(
-                                              child: Text('Rete Vendor & Cake',style: TextStyle(
+                                              child: Text('Give Rate To Cake',style: TextStyle(
                                                 fontFamily: "Poppins",
                                                 fontSize: 15.5,
                                                 fontWeight: FontWeight.bold

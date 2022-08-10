@@ -1307,6 +1307,7 @@ class _CakeTypesState extends State<CakeTypes> {
           activeSearch = true;
         });
       }
+
       if (filterCType.isNotEmpty) {
         for (int i = 0; i < cakeSearchList.length; i++) {
           if (cakeSearchList[i]['CakeType'].isNotEmpty) {
@@ -1695,7 +1696,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
     prefs.setInt('cakeTax', int.parse(cakeSearchList[index]['Tax'].toString()));
     prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
-    prefs.setInt("cakeRating",int.parse(cakeSearchList[index]['Ratings'].toString()));
+    prefs.setDouble("cakeRating",double.parse(cakeSearchList[index]['Ratings'].toString()));
 
 
     Navigator.of(context).push(PageRouteBuilder(
@@ -1905,7 +1906,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setInt('cakeDiscount', int.parse(filterCakesSearchList[index]['Discount'].toString()));
     prefs.setInt('cakeTax', int.parse(filterCakesSearchList[index]['Tax'].toString()));
     prefs.setInt('cakeDiscount', int.parse(filterCakesSearchList[index]['Discount'].toString()));
-    prefs.setInt("cakeRating",int.parse(filterCakesSearchList[index]['Ratings'].toString()));
+    prefs.setDouble("cakeRating",double.parse(filterCakesSearchList[index]['Ratings'].toString()));
 
 
     Navigator.of(context).push(PageRouteBuilder(
@@ -2307,7 +2308,6 @@ class _CakeTypesState extends State<CakeTypes> {
         });
       }
       if (isFiltered == true && searchCakesText.isNotEmpty) {
-
         setState(() {
           filterCakesSearchList = cakesByType
               .where((element) => element['CakeName']
@@ -2659,13 +2659,21 @@ class _CakeTypesState extends State<CakeTypes> {
                     },
                     builder: (BuildContext context) {
                       return GestureDetector(
-                        onTap: () => setState(() {
-                          print('on Tap Sheet****');
-                          cakeSearchList = eggOrEgglesList.where((element) =>
-                              element['CakeType'].toString().toLowerCase().contains("Theme Cake")).toList();
-                          activeSearch = true;
-                          isFiltered = true;
-                        }),
+                        onTap: () {
+                          //
+                          setState((){
+                            // searchByGivenFilter("", "", "", ["Theme Cake"]);
+                            // isFiltered = true;
+                            // activeSearch = true;
+                            // print(cakeSearchList.length);
+                            //
+                            // cakesByType = cakeSearchList.where((element) =>
+                            //     element['CakeType'].toString().toLowerCase()=="theme cake"
+                            // ).toList();
+                            searchCakesText = "Theme Cake";
+                            searchControl.text = searchCakesText;
+                          });
+                        },
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -3188,7 +3196,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                                                 .toString()
                                                                 .toLowerCase())
                                                         .toList();
-
                                                 }
                                               } else {
                                                 selIndex[i] = false;
@@ -3807,7 +3814,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                     physics: NeverScrollableScrollPhysics(),
                                     itemCount: cakeSearchList.length,
                                     itemBuilder: (c, i) {
-
                                       return Container(
                                         margin: EdgeInsets.only(
                                             left: 15,

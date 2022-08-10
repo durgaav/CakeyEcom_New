@@ -19,12 +19,6 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.white, // status bar color
-  ));
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
-
   await Firebase.initializeApp();
 
   await NotificationService().init();
@@ -137,14 +131,25 @@ class _MyAppState extends State<MyApp> {
     return ChangeNotifierProvider<ContextData>(
       create: (context)=>ContextData(),
       child: OverlaySupport(
-        child: MaterialApp(
-            theme: ThemeData(
-                primarySwatch: buildMaterialColor(Color(0xffFE8416D))
-            ),
-            // theme: ThemeData.dark(),
-            debugShowCheckedModeBanner: false,
-            home:SplashScreen()
-            // home:TestScreen()
+        child: AnnotatedRegion(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Color(0xffF5F5F5),
+            // For Android.
+            // Use [light] for white status bar and [dark] for black status bar.
+            statusBarIconBrightness: Brightness.dark,
+            // For iOS.
+            // Use [dark] for white status bar and [light] for black status bar.
+            statusBarBrightness: Brightness.light,
+          ),
+          child: MaterialApp(
+              theme: ThemeData(
+                  primarySwatch: buildMaterialColor(Color(0xffFE8416D))
+              ),
+              // theme: ThemeData.dark(),
+              debugShowCheckedModeBanner: false,
+              home:SplashScreen()
+              // home:TestScreen()
+          ),
         ),
       ),
     );

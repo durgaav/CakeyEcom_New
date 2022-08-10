@@ -1043,10 +1043,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           for(int i=0;i<myList.length;i++){
             weight.add(myList[i]['Weight']);
           }
-          weight.sort();
+          print(weight);
         }else{
           weight = ["1kg","2kg","3kg" , "4kg", "5kg" , "6kg"];
         }
+        
+        weight = weight.reversed.toList();
+
 
       });
     }else{
@@ -2140,11 +2143,28 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   selwIndex.add(false);
                                   return InkWell(
                                     onTap: () {
-
                                       setState(() {
-                                        isFixedWeight = index;
-                                        fixedWeight = weight[index].toString();
-                                        print(fixedWeight);
+                                        FocusScope.of(context).unfocus();
+                                        if (weightCtrl
+                                            .text.isNotEmpty) {
+                                          weightCtrl.text = "";
+                                          isFixedWeight = index;
+                                          fixedWeight = weight[index];
+                                        } else {
+                                          isFixedWeight = index;
+                                          if(weight[index].toString().toLowerCase().endsWith("kg")){
+                                            fixedWeight =
+                                                weight[index].toString();
+                                            print("yes");
+                                          }else{
+                                            print("no"+weight[index].toString().split("g").first);
+                                            // fixedWeight = weight[index].toString().split("g")[0]+"kg";
+                                            fixedWeight = (double.parse(weight[index].toString().split("g").first)/1000).toString()+"kg";
+                                            // print(500/1000);
+                                          }
+
+                                          print(fixedWeight);
+                                        }
                                       });
 
                                     },
@@ -2155,7 +2175,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(18),
                                           border: Border.all(
-                                            color: lightPink,
+                                            color: Colors.grey[400]!,
                                             width: 1,
                                           ),
                                           color: isFixedWeight==index
@@ -2177,8 +2197,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                         SizedBox(height:10),
 
-
-
                         Padding(
                           padding: const EdgeInsets.only(left :15.0 , top:15),
                           child: Text(
@@ -2187,6 +2205,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 fontFamily: poppins, color: darkBlue),
                           ),
                         ),
+
                         SizedBox(height:5),
                         Container(
                           child: Row(
@@ -2766,37 +2785,43 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           ),
                         ),
 
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: Text(' Address',
-                            style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
-                          ),
-                        ),
-                        Container(
-                          padding:EdgeInsets.only(left:15 , right:15,top:3),
-                          child:Row(
-                              crossAxisAlignment:CrossAxisAlignment.center,
-                              children:[
-                                Expanded(
-                                  child:Text('$deliverAddress',
-                                    style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
-                                  ),
+                        fixedDelliverMethod.toLowerCase()=="delivery"?
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(' Address',
+                                style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins"),
+                              ),
+                            ),
+                            Container(
+                              padding:EdgeInsets.only(left:15 , right:15,top:3),
+                              child:Row(
+                                  crossAxisAlignment:CrossAxisAlignment.center,
+                                  children:[
+                                    Expanded(
+                                      child:Text('$deliverAddress',
+                                        style: TextStyle(fontFamily: poppins,color: Colors.grey,fontSize: 13),
+                                      ),
+                                    ),
+                                    Icon(Icons.check_circle,color: Colors.green,size: 25,),
+                                  ]
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 12 , top:10 , bottom:10),
+                              alignment: Alignment.centerLeft,
+                              child: InkWell(
+                                onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen())),
+                                child: Text('add new address',style: const TextStyle(
+                                    color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
                                 ),
-                                Icon(Icons.check_circle,color: Colors.green,size: 25,),
-                              ]
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(left: 12 , top:10 , bottom:10),
-                          alignment: Alignment.centerLeft,
-                          child: InkWell(
-                            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen())),
-                            child: Text('add new address',style: const TextStyle(
-                                color: Colors.orange,fontFamily: "Poppins",decoration: TextDecoration.underline
+                                ),
+                              ),
                             ),
-                            ),
-                          ),
-                        ),
+                          ],
+                        ):Container(),
 
                         //Image Upload
                         Padding(
@@ -3465,24 +3490,35 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                       if(newRegUser==true){
                                         showDpUpdtaeDialog();
-                                      }else  if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Invalid Address'))
-                                        );
-                                      }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                          fixedSession.toLowerCase()=="not yet select"||
-                                          fixedDelliverMethod.toLowerCase()=="not yet select"){
+                                      }else {
+                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                            weightCtrl.text.startsWith("0")&&
+                                                weightCtrl.text.endsWith("0")){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please enter correct weight or select weight!")
+                                              )
+                                          );
+                                        }
+                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Invalid Address'))
+                                          );
+                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                            fixedSession.toLowerCase()=="not yet select"||
+                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
 
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please Select Deliver Date And Type'))
-                                        );
-                                      }else{
-                                        setState((){
-                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                            vendorID = "";
-                                          }
-                                        });
-                                        showCakeNameEdit();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                          );
+                                        }else{
+                                          setState((){
+                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                              vendorID = "";
+                                            }
+                                          });
+                                          showCakeNameEdit();
+                                        }
                                       }
 
                                     },
