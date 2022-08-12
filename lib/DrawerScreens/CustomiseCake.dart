@@ -1459,7 +1459,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     return WillPopScope(
       onWillPop: () async{
-        Navigator.pop(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         context.read<ContextData>().setMyVendors([]);
         context.read<ContextData>().addMyVendor(false);
         return Future.value(true);

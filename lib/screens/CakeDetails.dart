@@ -3938,15 +3938,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   fixedWeight = weight[index];
                                                 } else {
                                                   weightIndex = index;
-                                                  if(weight[index].toString().toLowerCase().endsWith("kg")){
-                                                    fixedWeight =
-                                                        weight[index].toString();
-                                                    print("yes");
-                                                  }else{
-                                                    print("no"+weight[index].toString().split("g").first);
+                                                  if(weight[index].toString().contains("500")){
+
+                                                    print("Yes"+weight[index].toString().split("g").first);
                                                     // fixedWeight = weight[index].toString().split("g")[0]+"kg";
                                                     fixedWeight = (double.parse(weight[index].toString().split("g").first)/1000).toString()+"kg";
                                                     // print(500/1000);
+
+                                                  }else{
+                                                    fixedWeight = double.parse(weight[index].toString().toLowerCase().replaceAll("kg", "")).toString();
+                                                    print("no..");
                                                   }
 
                                                   print(fixedWeight);
@@ -4708,10 +4709,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               nearestVendors.isNotEmpty
                                   ? Column(
                                       children: [
-                                        customweightCtrl.text.isEmpty ||
-                                                double.parse(
-                                                        customweightCtrl.text) <
-                                                    5.0 ||
                                                 double.parse(fixedWeight.toLowerCase()
                                                         .replaceAll("kg", "")) <
                                                     5.0

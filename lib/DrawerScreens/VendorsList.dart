@@ -457,7 +457,7 @@ class _VendorsListState extends State<VendorsList> {
 
     return WillPopScope(
       onWillPop: () async{
-        Navigator.pop(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         return Future.value(true);
       },

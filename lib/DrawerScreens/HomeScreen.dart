@@ -928,6 +928,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadPrefs() async {
     var prefs = await SharedPreferences.getInstance();
     setState(() {
+
       authToken = prefs.getString("authToken") ?? 'no auth';
       profileRemainder = prefs.getBool("profileUpdated") ?? false;
       phoneNumber = prefs.getString("phoneNumber") ?? "";
@@ -985,12 +986,6 @@ class _HomeScreenState extends State<HomeScreen> {
           context.read<ContextData>().setUserName(userName);
 
           _getUserLocation();
-          // getVendorsList();
-          getCakeList();
-          getOrderList();
-          print(token);
-          getFbToken();
-          timerTrigger();
 
         });
       } else {
@@ -1284,12 +1279,15 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
     print("getting vendors....done...");
+    getCakeList();
+    getOrderList();
+    getFbToken();
+    timerTrigger();
   }
 
   //get Ads Banners
   Future<void> getAdsBanner() async{
     adsBanners.clear();
-
     try {
       var res = await http
           .get(Uri.parse("https://cakey-database.vercel.app/api/banner/list"),

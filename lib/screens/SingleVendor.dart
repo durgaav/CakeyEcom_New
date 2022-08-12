@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
+import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:cakey/screens/ChatScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -10,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
 import 'package:http/http.dart' as http;
+import '../DrawerScreens/HomeScreen.dart';
 import '../DrawerScreens/Notifications.dart';
 import '../drawermenu/NavDrawer.dart';
 import 'Profile.dart';
@@ -213,9 +216,11 @@ class _SingleVendorState extends State<SingleVendor> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     return WillPopScope(
       onWillPop: () async{
-        if(goBacktoVenList=="yes"){
-          context.read<ContextData>().setCurrentIndex(3);
-        }
+        Navigator.pop(context);
+        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>VendorsList()));
+        // // if(goBacktoVenList=="yes"){
+        // //   context.read<ContextData>().setCurrentIndex(3);
+        // // }
         return true;
       },
       child: Scaffold(
@@ -514,7 +519,9 @@ class _SingleVendorState extends State<SingleVendor> {
                               InkWell(
                                 onTap: (){
                                   print('whatsapp : ');
-                                  PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2" , true);
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context)=>ChatScreen()));
+                                  // PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2" , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
