@@ -753,9 +753,6 @@ class _NotificationsState extends State<Notifications> {
       setState((){
         isLoading = false;
         checkNetwork();
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error Occurred!'),behavior: SnackBarBehavior.floating,)
-        );
       });
     }
   }

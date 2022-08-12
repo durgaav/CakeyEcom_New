@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
+import 'package:cakey/DrawerScreens/Hampers.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -28,7 +29,7 @@ import '../screens/SingleVendor.dart';
 import 'CakeTypes.dart';
 import 'Notifications.dart';
 
-//This is home screen.........
+//This is home ...
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
   @override
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int deliveryChargeFromAdmin = 0;
   int deliverykmFromAdmin = 0;
   //booleans
-  bool egglesSwitch = true;
+  bool egglesSwitch = false;
   //prefs val..
   bool newRegUser = true;
   bool profileRemainder = false;
@@ -83,6 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String location = 'Null, Press Button';
   //address
   String userLocalityAdr = 'Searching...';
+  bool showAddressEdit = false;
+  var deliverToCtrl = new TextEditingController();
+
   //users details
   String userID = "";
   String userAddress = "";
@@ -126,6 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
   var cakeVendorCtrl = new TextEditingController();
   var cakeLocationCtrl = new TextEditingController();
   var mainSearchCtrl = new TextEditingController();
+
+
+  double userLat = 0.0;
+  double userLong = 0.0;
 
 
 
@@ -911,7 +919,7 @@ class _HomeScreenState extends State<HomeScreen> {
     pref.setString('singleVendorID', nearestVendors[index]['_id']??'null');
     pref.setBool('singleVendorFromCd', false);
     pref.setString('singleVendorRate', nearestVendors[index]['Ratings'].toString()??'0.0');
-    pref.setString('singleVendorName', nearestVendors[index]['VendorName']??'null');
+    pref.setString('singleVendorName', nearestVendors[index]['PreferredNameOnTheApp']??'null');
     pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'null');
     pref.setString('singleVendorPhone1', nearestVendors[index]['PhoneNumber1']??'null');
     pref.setString('singleVendorPhone2', nearestVendors[index]['PhoneNumber2']??'null');
@@ -1121,7 +1129,7 @@ class _HomeScreenState extends State<HomeScreen> {
             List myList = jsonDecode(response.body);
 
             cakesList = myList.where((element) =>
-            calculateDistance(_userLocation!.latitude, _userLocation!.longitude,
+            calculateDistance(userLat, userLong,
                 element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
 
             for(int i=0;i<cakesList.length;i++){
@@ -1208,7 +1216,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    myLocation.changeSettings(accuracy: LocationAccuracy.balanced);
+    myLocation.changeSettings(accuracy: LocationAccuracy.high);
 
     // Check if location service is enable
     _serviceEnabled = await myLocation.serviceEnabled();
@@ -1220,20 +1228,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final _locationData = await myLocation.getLocation();
+
     setState(() {
       _userLocation = _locationData;
+      userLat = double.parse(_userLocation!.latitude.toString());
+      userLong = double.parse(_userLocation!.longitude.toString());
     });
 
     pref.setString('userLatitute', "${_userLocation!.latitude}");
     pref.setString('userLongtitude', "${_userLocation!.longitude}");
 
-    GetAddressFromLatLong(_userLocation!.latitude, _userLocation!.longitude);
+
+    print('start location : $userLat , $userLong');
+
+    GetAddressFromLatLong(userLat, userLong);
     getVendorsList(authToken);
   }
 
-  //Get vendors list
-  Future<void> getVendorsList(String token) async {
 
+  Future<void> getVendorForDeliveryto(String token) async{
+
+    showAlertDialog();
     print("location....");
     print(_userLocation!.latitude);
     print(_userLocation!.longitude);
@@ -1250,15 +1265,54 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           vendorsList = jsonDecode(res.body);
 
+          filteredByEggList = vendorsList.where((element) =>
+          calculateDistance(userLat, userLong,
+              element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+          ).toList();
+
+          // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
+          // contains(userMainLocation.toLowerCase())).toList();
+
+          filteredByEggList = filteredByEggList.toSet().toList();
+          filteredByEggList = filteredByEggList.reversed.toList();
+
+
+          Navigator.pop(context);
+          // getNearbyLoc();
+        });
+      } else {
+        print("Error code : ${res.statusCode}");
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print(e);
+      Navigator.pop(context);
+    }
+    print("getting vendors....done...");
+  }
+
+  //Get vendors list
+  Future<void> getVendorsList(String token) async {
+
+    print("getting vendors....");
+    filteredByEggList.clear();
+    try {
+      var res = await http
+          .get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          headers: {"Authorization":"$token"}
+      );
+
+      if (res.statusCode == 200) {
+        setState(() {
+          vendorsList = jsonDecode(res.body);
+
           print(vendorsList);
 
           filteredByEggList = vendorsList.where((element) =>
-              calculateDistance(_userLocation!.latitude, _userLocation!.longitude,
+              calculateDistance(userLat, userLong,
                   element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
           ).toList();
 
-          print(calculateDistance(_userLocation!.latitude, _userLocation!.longitude,
-              13.0732598, 80.1638976));
 
           // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
           // contains(userMainLocation.toLowerCase())).toList();
@@ -1396,26 +1450,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     //egg or eggless...
-    if(!onChanged){
-      nearestVendors = filteredByEggList;
-    }else{
       if (egglesSwitch == false) {
         setState(() {
-          nearestVendors = filteredByEggList
-              .where((element) =>
-          element['EggOrEggless'] == 'Egg' ||
-              element['EggOrEggless'] == 'Egg and Eggless')
-              .toList();
+          nearestVendors = filteredByEggList;
         });
       }
       else {
         setState(() {
           nearestVendors = filteredByEggList
-              .where((element) => element['EggOrEggless'] == 'Eggless')
+              .where((element) => element['EggOrEggless'] == 'Eggless' ||
+              element['EggOrEggless'] == "Egg and Eggless"
+          )
               .toList();
         });
       }
-    }
+
 
     return WillPopScope(
       onWillPop: () async{
@@ -1643,16 +1692,127 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: EdgeInsets.only(left: 8),
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        '$userLocalityAdr',
-                        style: TextStyle(
-                            fontFamily: poppins,
-                            fontSize: 15,
-                            color: darkBlue,
-                            fontWeight: FontWeight.bold),
+                      child: Row(
+                        children: [
+                          Container(
+                             width: 150,
+                            child: GestureDetector(
+                                onTap: (){
+                                  setState((){
+                                    showAddressEdit = !showAddressEdit;
+                                  });
+                                  FocusScope.of(context).unfocus();
+                                },
+                                child: Text(
+                                  '$userLocalityAdr',
+                                  style: TextStyle(
+                                      fontFamily: poppins,
+                                      fontSize: 15,
+                                      color: darkBlue,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                          ),
+                          SizedBox(width: 5,),
+                          GestureDetector(
+                            onTap: (){
+                              setState((){
+                                showAddressEdit = !showAddressEdit;
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                            child: Icon(Icons.arrow_drop_down),
+                          )
+                        ],
                       ),
                     ),
+                    showAddressEdit?
+                    Container(
+                      padding: EdgeInsets.only(right: 8,top: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child:Container(
+                              height: 45,
+                              child: TextField(
+                                controller: deliverToCtrl,
+                                style: TextStyle(fontFamily: poppins,fontSize: 13 ,
+                                    fontWeight: FontWeight.bold),
+                                onChanged: (String? text){
 
+                                  setState(() {
+
+                                  });
+
+                                },
+                                decoration: InputDecoration(
+                                    hintText: "Delivery location...",
+                                    hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
+                                    prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1,color: Colors.grey[200]!,style: BorderStyle.solid),
+                                        borderRadius: BorderRadius.circular(8)
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1.5,color: Colors.grey[300]!,style: BorderStyle.solid),
+                                        borderRadius: BorderRadius.circular(8)
+                                    ),
+                                    contentPadding: EdgeInsets.all(5),
+                                    suffixIcon: IconButton(
+                                      onPressed: (){
+                                        FocusScope.of(context).unfocus();
+                                        setState(() {
+                                          deliverToCtrl.text = "";
+                                        });
+                                      },
+                                      icon: Icon(Icons.close),
+                                      iconSize: 16,
+                                    )
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 45,
+                            width: 45,
+                            margin: EdgeInsets.only(left: 10),
+                            decoration: BoxDecoration(
+                                color: darkBlue,
+                                borderRadius: BorderRadius.circular(7)
+                            ),
+                            child: Semantics(
+                              child: IconButton(
+                                  splashColor: Colors.black26,
+                                  onPressed: () async{
+                                    var pref = await SharedPreferences.getInstance();
+                                    FocusScope.of(context).unfocus();
+                                    if(deliverToCtrl.text.isNotEmpty){
+                                      List<geocode.Location> location =
+                                      await geocode.locationFromAddress(deliverToCtrl.text);
+                                      print(location);
+                                      setState((){
+                                        userLat = location[0].latitude;
+                                        userLong = location[0].longitude;
+                                        pref.setString('userLatitute', "${userLat}");
+                                        pref.setString('userLongtitude', "${userLong}");
+                                        pref.setString("userCurrentLocation", deliverToCtrl.text);
+                                        userLocalityAdr = deliverToCtrl.text;
+                                        getVendorForDeliveryto(authToken);
+                                        getCakeList();
+                                      });
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.download_done_outlined,
+                                    color: Colors.white,
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ):
                     Container(
                       padding: EdgeInsets.only(right: 8,top: 10),
                       child: Row(
@@ -1669,7 +1829,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                 },
                                 decoration: InputDecoration(
-                                    hintText: "Search cake, vendor, etc...",
+                                    hintText: "Search cake...",
                                     hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
                                     prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
                                     fillColor: Colors.white,
@@ -1928,7 +2088,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .spaceBetween,
                                 children: [
                                   Text(
-                                    'Festivals',
+                                    'Hampers',
                                     style: TextStyle(
                                         fontFamily: poppins,
                                         fontSize: 15,
@@ -1940,7 +2100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onTap: () async {
                                       var pr =
                                       Navigator.push(context,
-                                          MaterialPageRoute(builder: (context)=>CakeTypes())
+                                          MaterialPageRoute(builder: (context)=>Hampers())
                                       );
                                     },
                                     child: Row(
@@ -1976,7 +2136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Colors.white,
                                           BlendMode.darken)),
                                 ),
-                                height: 125,
+                                height: 140,
                                 child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: adsBanners.length,
@@ -2040,7 +2200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     })),
 
                             Container(
-                              height: recentOrders.isNotEmpty?500:240,
+                              height: recentOrders.isNotEmpty?480:200,
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
                                     image: Svg(
@@ -2102,7 +2262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Container(
                                     padding: EdgeInsets.all(5),
                                     alignment: Alignment.centerLeft,
-                                    height: 175,
+                                    height: 145,
                                     child: searchCakeType.isEmpty
                                         ? Center(
                                           child: Text(
@@ -2128,7 +2288,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               .toLowerCase().contains(
                                               'customize your cake')
                                               ? Container(
-                                            width: 150,
+                                            width: 100,
                                             child: InkWell(
                                               onTap:
                                                   () async {
@@ -2139,9 +2299,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 children: [
                                                   Container(
                                                     height:
-                                                    120,
+                                                    80,
                                                     width:
-                                                    130,
+                                                    80,
                                                     decoration: BoxDecoration(
                                                         borderRadius:
                                                         BorderRadius.circular(20),
@@ -2153,7 +2313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     2,
                                                   ),
                                                   Text(
-                                                    "Customise Your \nCake",
+                                                    "Customise Cake",
                                                     style: TextStyle(
                                                         color:
                                                         darkBlue,
@@ -2162,7 +2322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fontFamily:
                                                         poppins,
                                                         fontSize:
-                                                        13),
+                                                        12),
                                                     textAlign:
                                                     TextAlign.center,
                                                   )
@@ -2171,7 +2331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           )
                                               : Container(
-                                            width: 150,
+                                            width: 100,
                                             child: InkWell(
                                               onTap: () {
                                                 Navigator.push(context,
@@ -2181,9 +2341,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 children: [
                                                   Container(
                                                     height:
-                                                    120,
+                                                    80,
                                                     width:
-                                                    130,
+                                                    80,
                                                     decoration: BoxDecoration(
                                                         borderRadius:
                                                         BorderRadius.circular(20),
@@ -2210,7 +2370,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fontFamily:
                                                         poppins,
                                                         fontSize:
-                                                        13),
+                                                        12),
                                                     textAlign:
                                                     TextAlign.center,
                                                     maxLines:
@@ -2317,235 +2477,319 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ],
                                         ),
                                       ),
+
                                       Container(
-                                          height: 200,
-                                          child: ordersLoading
-                                              ? Center(
-                                              child: Transform.scale(
-                                                  scale: 0.8,
-                                                  child:
-                                                  CircularProgressIndicator()))
-                                              : recentOrders.length > 0
-                                              ? ListView.builder(
-                                              itemCount: recentOrders
-                                                  .length <
-                                                  3
-                                                  ? recentOrders
-                                                  .length
-                                                  : 3,
-                                              scrollDirection:
-                                              Axis.horizontal,
-                                              itemBuilder:
-                                                  (context,
-                                                  index) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(
-                                                        context)
-                                                        .push(
-                                                      PageRouteBuilder(
-                                                        pageBuilder: (context,
-                                                            animation,
-                                                            secondaryAnimation) =>
-                                                            Profile(
-                                                              defindex:
-                                                              1,
-                                                            ),
-                                                        transitionsBuilder: (context,
-                                                            animation,
-                                                            secondaryAnimation,
-                                                            child) {
-                                                          const begin = Offset(
-                                                              1.0,
-                                                              0.0);
-                                                          const end =
-                                                              Offset.zero;
-                                                          const curve =
-                                                              Curves.ease;
+                                        child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: 3,
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemBuilder: (c ,i ){
+                                              var color = Colors.blue;
 
-                                                          final tween = Tween(
-                                                              begin:
-                                                              begin,
-                                                              end:
-                                                              end);
-                                                          final curvedAnimation =
-                                                          CurvedAnimation(
-                                                            parent:
-                                                            animation,
-                                                            curve:
-                                                            curve,
-                                                          );
+                                              if(recentOrders[i]['Status'].toString().toLowerCase()=="new"){
+                                                color = Colors.blue;
+                                              }else if(recentOrders[i]['Status'].toString().toLowerCase()=="preparing"){
+                                                color = Colors.blue;
+                                              }else if(recentOrders[i]['Status'].toString().toLowerCase()=="cancelled"){
+                                                color = Colors.red;
+                                              }else if(recentOrders[i]['Status'].toString().toLowerCase()=="out for delivery"){
+                                                color = Colors.green;
+                                              }else if(recentOrders[i]['Status'].toString().toLowerCase()=="delivered"){
+                                                color = Colors.green;
+                                              }
 
-                                                          return SlideTransition(
-                                                            position:
-                                                            tween.animate(curvedAnimation),
-                                                            child:
-                                                            child,
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
-                                                  },
-                                                  child:
-                                                  Container(
-                                                    margin: EdgeInsets
-                                                        .only(
-                                                        left:
-                                                        10,
-                                                        right:
-                                                        10),
-                                                    child: Stack(
-                                                      alignment:
-                                                      Alignment
-                                                          .topCenter,
-                                                      children: [
-                                                        recentOrders[index]['Image']==null||
-                                                        recentOrders[index]['Image'].toString().isEmpty?
-                                                        Container(
-                                                          width: width /
-                                                              2.2,
-                                                          height:
-                                                          135,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius.circular(15),
-                                                              image: DecorationImage(fit: BoxFit.cover,
-                                                                  image: AssetImage("assets/images/chefdoll.jpg"))
-                                                          ),
-                                                        ):
-                                                        Container(
-                                                          width: width /
-                                                              2.2,
-                                                          height:
-                                                          135,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius.circular(15),
-                                                              image: DecorationImage(fit: BoxFit.cover,
-                                                                  image: NetworkImage('${recentOrders[index]['Image']}'))),
-                                                        ),
-                                                        Positioned(
-                                                          top: 85,
-                                                          child:
-                                                          Card(
-                                                            shape:
-                                                            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                            elevation:
-                                                            7,
-                                                            child:
-                                                            Container(
-                                                              padding:
-                                                              EdgeInsets.all(8),
-                                                              width:
-                                                              155,
-                                                              child:
-                                                              Column(
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  Container(
-                                                                      alignment: Alignment.centerLeft,
-                                                                      child: Container(
-                                                                        width: 120,
-                                                                        child: Text(
-                                                                          recentOrders[index]['CakeName']!=null?
-                                                                          '${recentOrders[index]['CakeName']}':"My Cake",
-                                                                          style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
-                                                                          maxLines: 1,
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                        ),
-                                                                      )),
-                                                                  SizedBox(
-                                                                    height: 4,
-                                                                  ),
-                                                                  Row(
-                                                                    children: [
-                                                                      Icon(
-                                                                        Icons.account_circle,
-                                                                      ),
-                                                                      Container(
-                                                                          width: 105,
-                                                                          child: Text(
-                                                                            recentOrders[index]['PremiumVendor']=='y'?
-                                                                            ' Premium Vendor':' ${recentOrders[index]['VendorName']}',
-                                                                            overflow: TextOverflow.ellipsis,
-                                                                            style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
-                                                                            maxLines: 1,
-                                                                          ))
-                                                                    ],
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height: 4,
-                                                                  ),
-                                                                  Container(
-                                                                    height: 0.5,
-                                                                    color: Colors.black54,
-                                                                    margin: EdgeInsets.only(left: 5, right: 5),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height: 4,
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                    children: [
-                                                                      Text(
-                                                                        "₹ ${double.parse(recentOrders[index]['Total'].toString()).toStringAsFixed(2)}",
-                                                                        style: TextStyle(color: lightPink, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
-                                                                        maxLines: 1,
-                                                                      ),
-                                                                      recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
-                                                                          ? Text(
-                                                                        "${recentOrders[index]['Status'].toString()}",
-                                                                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
-                                                                      )
-                                                                          : Text(
-                                                                        "${recentOrders[index]['Status']}",
-                                                                        style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
-                                                                        Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
-                                                                      )
-                                                                    ],
-                                                                  )
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
+                                              return Card(
+                                                elevation: 0.5,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(20)
+                                                ),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(5),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(20)
                                                   ),
-                                                );
-                                              })
-                                              : Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .center,
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment
-                                                .center,
-                                            children: [
-                                              Icon(
-                                                Icons
-                                                    .shopping_basket_outlined,
-                                                color:
-                                                lightPink,
-                                                size: 35,
-                                              ),
-                                              Text(
-                                                'No Recent Orders',
-                                                style: TextStyle(
-                                                    color:
-                                                    darkBlue,
-                                                    fontFamily:
-                                                    "Poppins",
-                                                    fontWeight:
-                                                    FontWeight
-                                                        .bold,
-                                                    fontSize:
-                                                    15),
-                                              ),
-                                            ],
-                                          )
-                                      ),
+                                                  child: Row(
+                                                    children: [
+                                                      recentOrders[i]['Image']!=null?
+                                                      CircleAvatar(
+                                                        backgroundImage: NetworkImage(recentOrders[i]['Image']),
+                                                        radius: 25,
+                                                      ):
+                                                      CircleAvatar(
+                                                        backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
+                                                        radius: 25,
+                                                      ),
+                                                      SizedBox(width: 5,),
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text(recentOrders[i]['CakeName']!=null?
+                                                            recentOrders[i]['CakeName']:
+                                                            "Customised Cake",style: TextStyle(
+                                                              color: darkBlue , fontFamily:  "Poppins",
+                                                              fontSize: 13 ,fontWeight: FontWeight.bold
+                                                            ),),
+                                                            Row(
+                                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Text(recentOrders[i]['VendorName']+" |",style: TextStyle(
+                                                                    color: Colors.black , fontFamily:  "Poppins" ,
+                                                                    fontSize: 13
+                                                                ),),
+                                                                SizedBox(width: 3,),
+                                                                Text(recentOrders[i]['Status'] ,style: TextStyle(
+                                                                    color: color , fontFamily: "Poppins" ,
+                                                                    fontSize: 12
+                                                                ),),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 6,),
+                                                      Text("Rs."+recentOrders[i]['Total'] + " " ,style: TextStyle(
+                                                          color: lightPink , fontFamily:  "Poppins" ,
+                                                          fontSize: 14 , fontWeight: FontWeight.bold
+                                                      ),),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                        ),
+                                      )
+
+                                      // Container(
+                                      //     height: 200,
+                                      //     child: ordersLoading
+                                      //         ? Center(
+                                      //         child: Transform.scale(
+                                      //             scale: 0.8,
+                                      //             child:
+                                      //             CircularProgressIndicator()))
+                                      //         : recentOrders.length > 0
+                                      //         ? ListView.builder(
+                                      //         itemCount: recentOrders
+                                      //             .length <
+                                      //             3
+                                      //             ? recentOrders
+                                      //             .length
+                                      //             : 3,
+                                      //         scrollDirection:
+                                      //         Axis.horizontal,
+                                      //         itemBuilder:
+                                      //             (context,
+                                      //             index) {
+                                      //           return GestureDetector(
+                                      //             onTap: () {
+                                      //               Navigator.of(
+                                      //                   context)
+                                      //                   .push(
+                                      //                 PageRouteBuilder(
+                                      //                   pageBuilder: (context,
+                                      //                       animation,
+                                      //                       secondaryAnimation) =>
+                                      //                       Profile(
+                                      //                         defindex:
+                                      //                         1,
+                                      //                       ),
+                                      //                   transitionsBuilder: (context,
+                                      //                       animation,
+                                      //                       secondaryAnimation,
+                                      //                       child) {
+                                      //                     const begin = Offset(
+                                      //                         1.0,
+                                      //                         0.0);
+                                      //                     const end =
+                                      //                         Offset.zero;
+                                      //                     const curve =
+                                      //                         Curves.ease;
+                                      //
+                                      //                     final tween = Tween(
+                                      //                         begin:
+                                      //                         begin,
+                                      //                         end:
+                                      //                         end);
+                                      //                     final curvedAnimation =
+                                      //                     CurvedAnimation(
+                                      //                       parent:
+                                      //                       animation,
+                                      //                       curve:
+                                      //                       curve,
+                                      //                     );
+                                      //
+                                      //                     return SlideTransition(
+                                      //                       position:
+                                      //                       tween.animate(curvedAnimation),
+                                      //                       child:
+                                      //                       child,
+                                      //                     );
+                                      //                   },
+                                      //                 ),
+                                      //               );
+                                      //             },
+                                      //             child:
+                                      //             Container(
+                                      //               margin: EdgeInsets
+                                      //                   .only(
+                                      //                   left:
+                                      //                   10,
+                                      //                   right:
+                                      //                   10),
+                                      //               child: Stack(
+                                      //                 alignment:
+                                      //                 Alignment
+                                      //                     .topCenter,
+                                      //                 children: [
+                                      //                   recentOrders[index]['Image']==null||
+                                      //                   recentOrders[index]['Image'].toString().isEmpty?
+                                      //                   Container(
+                                      //                     width: width /
+                                      //                         2.2,
+                                      //                     height:
+                                      //                     135,
+                                      //                     decoration: BoxDecoration(
+                                      //                         borderRadius:
+                                      //                         BorderRadius.circular(15),
+                                      //                         image: DecorationImage(fit: BoxFit.cover,
+                                      //                             image: AssetImage("assets/images/chefdoll.jpg"))
+                                      //                     ),
+                                      //                   ):
+                                      //                   Container(
+                                      //                     width: width /
+                                      //                         2.2,
+                                      //                     height:
+                                      //                     135,
+                                      //                     decoration: BoxDecoration(
+                                      //                         borderRadius:
+                                      //                         BorderRadius.circular(15),
+                                      //                         image: DecorationImage(fit: BoxFit.cover,
+                                      //                             image: NetworkImage('${recentOrders[index]['Image']}'))),
+                                      //                   ),
+                                      //                   Positioned(
+                                      //                     top: 85,
+                                      //                     child:
+                                      //                     Card(
+                                      //                       shape:
+                                      //                       RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      //                       elevation:
+                                      //                       7,
+                                      //                       child:
+                                      //                       Container(
+                                      //                         padding:
+                                      //                         EdgeInsets.all(8),
+                                      //                         width:
+                                      //                         155,
+                                      //                         child:
+                                      //                         Column(
+                                      //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      //                           mainAxisSize: MainAxisSize.min,
+                                      //                           children: [
+                                      //                             Container(
+                                      //                                 alignment: Alignment.centerLeft,
+                                      //                                 child: Container(
+                                      //                                   width: 120,
+                                      //                                   child: Text(
+                                      //                                     recentOrders[index]['CakeName']!=null?
+                                      //                                     '${recentOrders[index]['CakeName']}':"My Cake",
+                                      //                                     style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
+                                      //                                     maxLines: 1,
+                                      //                                     overflow: TextOverflow.ellipsis,
+                                      //                                   ),
+                                      //                                 )),
+                                      //                             SizedBox(
+                                      //                               height: 4,
+                                      //                             ),
+                                      //                             Row(
+                                      //                               children: [
+                                      //                                 Icon(
+                                      //                                   Icons.account_circle,
+                                      //                                 ),
+                                      //                                 Container(
+                                      //                                     width: 105,
+                                      //                                     child: Text(
+                                      //                                       recentOrders[index]['PremiumVendor']=='y'?
+                                      //                                       ' Premium Vendor':' ${recentOrders[index]['VendorName']}',
+                                      //                                       overflow: TextOverflow.ellipsis,
+                                      //                                       style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                      //                                       maxLines: 1,
+                                      //                                     ))
+                                      //                               ],
+                                      //                             ),
+                                      //                             SizedBox(
+                                      //                               height: 4,
+                                      //                             ),
+                                      //                             Container(
+                                      //                               height: 0.5,
+                                      //                               color: Colors.black54,
+                                      //                               margin: EdgeInsets.only(left: 5, right: 5),
+                                      //                             ),
+                                      //                             SizedBox(
+                                      //                               height: 4,
+                                      //                             ),
+                                      //                             Row(
+                                      //                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      //                               children: [
+                                      //                                 Text(
+                                      //                                   "₹ ${double.parse(recentOrders[index]['Total'].toString()).toStringAsFixed(2)}",
+                                      //                                   style: TextStyle(color: lightPink, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
+                                      //                                   maxLines: 1,
+                                      //                                 ),
+                                      //                                 recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
+                                      //                                     ? Text(
+                                      //                                   "${recentOrders[index]['Status'].toString()}",
+                                      //                                   style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                      //                                 )
+                                      //                                     : Text(
+                                      //                                   "${recentOrders[index]['Status']}",
+                                      //                                   style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
+                                      //                                   Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                      //                                 )
+                                      //                               ],
+                                      //                             )
+                                      //                           ],
+                                      //                         ),
+                                      //                       ),
+                                      //                     ),
+                                      //                   ),
+                                      //                 ],
+                                      //               ),
+                                      //             ),
+                                      //           );
+                                      //         })
+                                      //         : Column(
+                                      //       mainAxisAlignment:
+                                      //       MainAxisAlignment
+                                      //           .center,
+                                      //       crossAxisAlignment:
+                                      //       CrossAxisAlignment
+                                      //           .center,
+                                      //       children: [
+                                      //         Icon(
+                                      //           Icons
+                                      //               .shopping_basket_outlined,
+                                      //           color:
+                                      //           lightPink,
+                                      //           size: 35,
+                                      //         ),
+                                      //         Text(
+                                      //           'No Recent Orders',
+                                      //           style: TextStyle(
+                                      //               color:
+                                      //               darkBlue,
+                                      //               fontFamily:
+                                      //               "Poppins",
+                                      //               fontWeight:
+                                      //               FontWeight
+                                      //                   .bold,
+                                      //               fontSize:
+                                      //               15),
+                                      //         ),
+                                      //       ],
+                                      //     )
+                                      // ),
                                     ],
                                   ):Container(),
                                 ],
@@ -2712,7 +2956,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         borderRadius: BorderRadius.circular(15),
                                                       color: index.isOdd?Colors.purple:Colors.teal
                                                     ),
-                                                    child: Text(nearestVendors[index]['VendorName'][0].toString().toUpperCase(),style: TextStyle(
+                                                    child: Text(nearestVendors[index]['PreferredNameOnTheApp'][0]
+                                                        .toString().toUpperCase(),style: TextStyle(
                                                        color: Colors.white,
                                                        fontWeight: FontWeight.bold,
                                                        fontSize: 35
@@ -2734,8 +2979,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     Container(
                                                                       width:width*0.5,
                                                                       child: Text(
-                                                                        '${nearestVendors[index]['VendorName'][0].toString().toUpperCase() +
-                                                                            "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}',
+                                                                        '${nearestVendors[index]['PreferredNameOnTheApp'][0].toString().toUpperCase() +
+                                                                            "${nearestVendors[index]['PreferredNameOnTheApp'].toString().substring(1).toLowerCase()}"}',
                                                                         overflow: TextOverflow.ellipsis,
                                                                         style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: poppins),
                                                                       ),
@@ -2806,10 +3051,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 // ):
                                                                 Text(
                                                                   "${
-                                                                    double.parse("${(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                                    double.parse("${(calculateDistance(userLat,userLong,
                                                                         nearestVendors[index]['GoogleLocation']['Latitude'],
                                                                       nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")
-                                                                  } KM Delivery Fee Rs.${(deliveryChargeFromAdmin/deliverykmFromAdmin)*(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                                  } KM Delivery Fee Rs.${(deliveryChargeFromAdmin/deliverykmFromAdmin)*(
+                                                                      calculateDistance(userLat,userLong,
                                                                       nearestVendors[index]['GoogleLocation']['Latitude'],
                                                                       nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}",
                                                                   style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: poppins  , fontWeight: FontWeight.bold),
@@ -3056,7 +3302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Container(
                                                     // width:120,
                                                     child: Text('DELIVERY FEE RS.${
-                                                        (deliveryChargeFromAdmin/deliverykmFromAdmin)*(calculateDistance(_userLocation!.latitude,_userLocation!.longitude,
+                                                        (deliveryChargeFromAdmin/deliverykmFromAdmin)*(calculateDistance(userLat,userLong,
                                                             cakeSearchList[i]['GoogleLocation']['Latitude'],
                                                             cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()
                                                     }',

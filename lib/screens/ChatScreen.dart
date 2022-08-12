@@ -9,7 +9,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-
   //colors...
   String poppins = "Poppins";
   Color darkBlue = Color(0xffF213959);
@@ -22,44 +21,28 @@ class _ChatScreenState extends State<ChatScreen> {
   var messageCtrl = new TextEditingController();
 
   List chatList = [
-    {
-      "message":'Hi how are you',
-      "senderId":1,
-      "on":"12-08-2022 10:02 AM"
-    },
-    {
-      "message":'Iam fine.You?',
-      "senderId":2,
-      "on":"12-08-2022 10:02 AM"
-    },
-    {
-      "message":'Iam also fine',
-      "senderId":1,
-      "on":"12-08-2022 10:02 AM"
-    },
-    {
-      "message":'Ohh nice',
-      "senderId":2,
-      "on":"12-08-2022 10:02 AM"
-    },
+    {"message": 'Hi how are you', "senderId": 1, "on": "12-08-2022 10:02 AM"},
+    {"message": 'Iam fine.You?', "senderId": 2, "on": "12-08-2022 10:02 AM"},
+    {"message": 'Iam also fine', "senderId": 1, "on": "12-08-2022 10:02 AM"},
+    {"message": 'Ohh nice', "senderId": 2, "on": "12-08-2022 10:02 AM"},
   ];
 
   ScrollController _scrollController = ScrollController();
 
   _scrollToBottom() {
-
-    setState((){
+    setState(() {
       _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent+60,
+          _scrollController.position.maxScrollExtent + 100,
           duration: const Duration(milliseconds: 400),
           curve: Curves.fastOutSlowIn);
     });
-
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: lightGrey,
         leading: Container(
@@ -72,61 +55,65 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 30,
               decoration: BoxDecoration(
                   color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(7)
-              ),
+                  borderRadius: BorderRadius.circular(7)),
               alignment: Alignment.center,
-              child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
+              child: Icon(
+                Icons.chevron_left,
+                size: 30,
+                color: lightPink,
+              ),
             ),
           ),
         ),
-        title: Text("Surya Cakes" ,style: TextStyle(
-          color: darkBlue,fontFamily: poppins , fontSize: 14
-        ),),
+        title: Text(
+          "Surya Cakes",
+          style: TextStyle(color: darkBlue, fontFamily: poppins, fontSize: 14),
+        ),
       ),
       body: Stack(
         children: [
-
           //messages
           Container(
-            padding: EdgeInsets.only(bottom: 60),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/splash.png"),
+                fit: BoxFit.cover,
+              )
+            ),
             child: ListView.builder(
                 controller: _scrollController,
                 shrinkWrap: true,
                 itemCount: chatList.length,
-                itemBuilder: (c,i){
-                  return chatList[i]['senderId']==myId?
-                  Container(
-                    alignment: Alignment.centerRight,
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[100],
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(0),
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
-                        bottomLeft: Radius.circular(15)
-                      )
-                        
+                padding: EdgeInsets.only(bottom: 60),
+                itemBuilder: (c, i) {
+                  return Container(
+                    padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
+                    child: Align(
+                      alignment: (chatList[i]['senderId']==1?Alignment.topLeft:Alignment.topRight),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: (chatList[i]['senderId']==1?Colors.grey.shade200:Colors.red[50]),
+                        ),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: chatList[i]['senderId']==1?CrossAxisAlignment.start:CrossAxisAlignment.end,
+                          children: [
+                            Text(chatList[i]['message'],
+                              textAlign: chatList[i]['senderId']==1?TextAlign.left:TextAlign.right,
+                              style: TextStyle(fontSize: 14 , fontFamily: poppins),),
+                            SizedBox(height: 4,),
+                            Text(chatList[i]['on'], style: TextStyle(fontSize: 10 , fontFamily: poppins),),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Text(chatList[i]["message"].toString()),
-                  ):Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(15),
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15),
-                            bottomLeft: Radius.circular(0)
-                        )
-                    ),
-                    child: Text(chatList[i]["message"]),
                   );
-                }
-            ),
+
+
+                }),
           ),
+
           //message type and send
           Align(
             alignment: Alignment.bottomLeft,
@@ -136,40 +123,41 @@ class _ChatScreenState extends State<ChatScreen> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Expanded(child: TextField(
+                  Expanded(
+                      child: TextField(
                     decoration: InputDecoration(
-                        hintText: "Type message",
-                        hintStyle: TextStyle(
-                            fontFamily: poppins,
-                            fontSize: 14
-                        ),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none
-                        ),
+                        hintText: "Type message...",
+                        hintStyle: TextStyle(fontFamily: poppins, fontSize: 14),
+                        border: OutlineInputBorder(borderSide: BorderSide.none),
                         isDense: true,
-                        contentPadding: EdgeInsets.all(10)
-                    ),
+                        contentPadding: EdgeInsets.all(10)),
                     controller: messageCtrl,
                   )),
                   IconButton(
-                      onPressed: (){
-                        setState((){
-                          chatList.add({
-                            "message":'${messageCtrl.text}',
-                            "senderId":2,
-                            "on":"12-08-2022 10:02 AM"
-                          },);
-                          messageCtrl.text = "";
-                          _scrollToBottom();
-                        });
+                      onPressed: () {
+                        if (messageCtrl.text.isNotEmpty) {
+                          setState(() {
+                            chatList.add(
+                              {
+                                "message": '${messageCtrl.text}',
+                                "senderId": 1,
+                                "on": "12-08-2022 10:02 AM"
+                              },
+                            );
+                            messageCtrl.text = "";
+                            _scrollToBottom();
+                          });
+                        }
                       },
-                      icon: Icon(Icons.send ,size: 25, color: lightPink,)
-                  )
+                      icon: Icon(
+                        Icons.send,
+                        size: 25,
+                        color: lightPink,
+                      ))
                 ],
               ),
             ),
           )
-
         ],
       ),
     );
