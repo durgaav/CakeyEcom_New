@@ -73,6 +73,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String userMainLocation ="";
   String profileUrl = '';
   String btnMsg = 'ORDER NOW';
+  String tier = '2 tier';
 
 
   //Fixed Strings and Lists
@@ -1675,7 +1676,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         child: Row(
                           children: [
                             Container(
-                              width: 150,
+                              width: 200,
                               child: GestureDetector(
                                 onTap: (){
                                   setState((){
@@ -1689,7 +1690,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       fontFamily: poppins,
                                       fontSize: 15,
                                       color: darkBlue,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis
+                                  ),
                                 ),
                               ),
                             ),
@@ -2427,6 +2430,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               color: Colors.pink[100],
                             )),
 
+                        double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=2.0?
                         Padding(
                           padding: const EdgeInsets.only(left :15.0 , top:15),
                           child: Text(
@@ -2434,13 +2438,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             style: TextStyle(
                                 fontFamily: poppins, color: darkBlue),
                           ),
-                        ),
+                        ):Container(),
+                        
                         //Tier cake
+                        double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=2.0?
                         Container(
                           width: double.infinity,
                           margin: EdgeInsets.only(left:15 ,right:15 ),
                           child: DropdownButton(
-                              value:'2 tier',
+                              value:'$tier',
                               items: <DropdownMenuItem<String>>[
                                 DropdownMenuItem(
                                     child: Text("2 tier"),
@@ -2457,14 +2463,47 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ],
                               onChanged: (item){
                                 print(item);
+                                setState((){
+                                  tier = item.toString();
+                                });
                               },
                               isExpanded: true,
                           ),
-                        ),
+                        ):Container(),
 
                         //theme....
-                        
-                        
+                        Container(
+                           child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children :[
+                               Padding(
+                                 padding: const EdgeInsets.only(left :15.0 , top:10),
+                                 child: Text(
+                                   'Themes',
+                                   style: TextStyle(
+                                       fontFamily: poppins, color: darkBlue),
+                                 ),
+                               ),
+                               Padding(
+                                 padding: const EdgeInsets.only(
+                                   left: 15 , right: 15
+                                 ),
+                                 child: TextField(
+                                   decoration: InputDecoration(
+                                     hintText: 'Theme Name..',
+                                     contentPadding: EdgeInsets.all(8.0),
+                                     isDense: true,
+                                     hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                         fontSize: 13
+                                     ),
+                                     // border: InputBorder.none
+                                   ),
+                                 ),
+                               )
+                             ]
+                           ),  
+                        ),
+
                         Container(
                           //margin
                             margin: EdgeInsets.all(10),

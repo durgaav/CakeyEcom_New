@@ -1270,7 +1270,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 Container(
                                     width: 260,
                                     child:Text(
-                                      "${recentOrders[index]['DeliveryAddress'].toString().trim()}",
+                                        recentOrders[index]['DeliveryAddress']!=null?
+                                      "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                        "Pick Up",
                                       style: TextStyle(
                                           fontFamily: "Poppins",
                                           color: Colors.black54,

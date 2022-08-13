@@ -368,11 +368,14 @@ class _CheckOutState extends State<CheckOut> {
 
     var amount = 0;
 
-    if(orderFromCustom!="no"){
-      amount = ((((double.parse(cakePrice)*
-          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-          tempDiscountPrice).toInt();
+    if(orderFromCustom!="yes"){
+      amount = ((counts * (
+          double.parse(cakePrice)*
+              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+      ) + double.parse((tempTax).toString()) +
+          deliveryCharge)
+          - tempDiscountPrice).toInt();
     }else{
       amount = ((counts *
           ((double.parse(cakePrice)*

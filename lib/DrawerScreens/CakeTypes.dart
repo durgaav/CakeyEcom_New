@@ -1696,6 +1696,18 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeVendorLatitu", cakeSearchList[index]['GoogleLocation']['Latitude'].toString());
     prefs.setString("cakeVendorLongti", cakeSearchList[index]['GoogleLocation']['Longitude'].toString());
 
+    if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
+        cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
+      prefs.setString("cake3kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
+      prefs.setString("cake5kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
+    }else{
+      prefs.setString("cake3kgminTime", 'Nf');
+      prefs.setString("cake5kgminTime", 'Nf');
+    }
+    prefs.setString("cakeminDelTime", cakeSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
+
+
+
     //INTEGERS
     prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
     prefs.setInt('cakeTax', int.parse(cakeSearchList[index]['Tax'].toString()));

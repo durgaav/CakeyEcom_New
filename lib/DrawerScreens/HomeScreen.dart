@@ -994,7 +994,10 @@ class _HomeScreenState extends State<HomeScreen> {
           context.read<ContextData>().setUserName(userName);
 
           _getUserLocation();
-
+          getCakeList();
+          getOrderList();
+          getFbToken();
+          timerTrigger();
         });
       } else {
         checkNetwork();
@@ -1057,11 +1060,11 @@ class _HomeScreenState extends State<HomeScreen> {
       print(await response.stream.bytesToString());
 
       print("Token Fetched.");
-      Navigator.pop(context);
+      // Navigator.pop(context);
     }
     else {
       print("Token Fetch Error.");
-      Navigator.pop(context);
+      // Navigator.pop(context);
     }
 
   }
@@ -1133,7 +1136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
 
             for(int i=0;i<cakesList.length;i++){
-              searchCakeType.add(cakesList[i]['CakeType']);
+              if(cakesList[i]['CakeType']!=null){
+                searchCakeType.add(cakesList[i]['CakeType']);
+              }
             }
 
             searchCakeType = searchCakeType.toSet().toList();
@@ -1174,7 +1179,7 @@ class _HomeScreenState extends State<HomeScreen> {
           headers: {"Authorization":"$authToken"}
       );
       if (response.statusCode == 200) {
-
+        Navigator.pop(context);
         if(response.contentLength!>50){
           setState(() {
             isNetworkError = false;
@@ -1190,12 +1195,14 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
       } else {
+        Navigator.pop(context);
         setState(() {
           // isNetworkError = true;
           ordersLoading = false;
         });
       }
     } catch (error) {
+      Navigator.pop(context);
       setState(() {
         isNetworkError = true;
         ordersLoading = false;
@@ -1333,10 +1340,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
     print("getting vendors....done...");
-    getCakeList();
-    getOrderList();
-    getFbToken();
-    timerTrigger();
   }
 
   //get Ads Banners
@@ -1354,7 +1357,6 @@ class _HomeScreenState extends State<HomeScreen> {
           getAdminDeliveryCharge();
         });
       } else {
-
       }
     } catch (e) {
       print("Ads error: $e");
@@ -1402,9 +1404,7 @@ class _HomeScreenState extends State<HomeScreen> {
         pref.setInt("todayDeliveryCharge", deliveryChargeFromAdmin);
         pref.setInt("todayDeliveryKm", deliverykmFromAdmin);
       });
-      
     }
-
     else {
       print(response.reasonPhrase);
     }
@@ -1695,7 +1695,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         children: [
                           Container(
-                             width: 150,
+                             width: 200,
                             child: GestureDetector(
                                 onTap: (){
                                   setState((){
@@ -1709,7 +1709,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontFamily: poppins,
                                       fontSize: 15,
                                       color: darkBlue,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis
+                                  ),
                                 ),
                               ),
                           ),
@@ -2498,62 +2500,106 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 color = Colors.green;
                                               }
 
-                                              return Card(
-                                                elevation: 0.5,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(20)
-                                                ),
-                                                child: Container(
-                                                  padding: EdgeInsets.all(5),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(20)
+                                              return GestureDetector(
+                                                onTap: () async {
+                                                  Navigator.of(context)
+                                                      .push(
+                                                    PageRouteBuilder(
+                                                      pageBuilder: (context,
+                                                          animation,
+                                                          secondaryAnimation) =>
+                                                          Profile(
+                                                            defindex: 1,
+                                                          ),
+                                                      transitionsBuilder:
+                                                          (context,
+                                                          animation,
+                                                          secondaryAnimation,
+                                                          child) {
+                                                        const begin =
+                                                        Offset(
+                                                            1.0, 0.0);
+                                                        const end =
+                                                            Offset.zero;
+                                                        const curve =
+                                                            Curves.ease;
+
+                                                        final tween = Tween(
+                                                            begin: begin,
+                                                            end: end);
+                                                        final curvedAnimation =
+                                                        CurvedAnimation(
+                                                          parent: animation,
+                                                          curve: curve,
+                                                        );
+
+                                                        return SlideTransition(
+                                                          position:
+                                                          tween.animate(
+                                                              curvedAnimation),
+                                                          child: child,
+                                                        );
+                                                      },
+                                                    ),
+                                                  );
+                                                },
+                                                child: Card(
+                                                  elevation: 0.5,
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(20)
                                                   ),
-                                                  child: Row(
-                                                    children: [
-                                                      recentOrders[i]['Image']!=null?
-                                                      CircleAvatar(
-                                                        backgroundImage: NetworkImage(recentOrders[i]['Image']),
-                                                        radius: 25,
-                                                      ):
-                                                      CircleAvatar(
-                                                        backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
-                                                        radius: 25,
-                                                      ),
-                                                      SizedBox(width: 5,),
-                                                      Expanded(
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(recentOrders[i]['CakeName']!=null?
-                                                            recentOrders[i]['CakeName']:
-                                                            "Customised Cake",style: TextStyle(
-                                                              color: darkBlue , fontFamily:  "Poppins",
-                                                              fontSize: 13 ,fontWeight: FontWeight.bold
-                                                            ),),
-                                                            Row(
-                                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                              children: [
-                                                                Text(recentOrders[i]['VendorName']+" |",style: TextStyle(
-                                                                    color: Colors.black , fontFamily:  "Poppins" ,
-                                                                    fontSize: 13
-                                                                ),),
-                                                                SizedBox(width: 3,),
-                                                                Text(recentOrders[i]['Status'] ,style: TextStyle(
-                                                                    color: color , fontFamily: "Poppins" ,
-                                                                    fontSize: 12
-                                                                ),),
-                                                              ],
-                                                            )
-                                                          ],
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(20)
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        recentOrders[i]['Image']!=null?
+                                                        CircleAvatar(
+                                                          backgroundImage: NetworkImage(recentOrders[i]['Image']),
+                                                          radius: 25,
+                                                        ):
+                                                        CircleAvatar(
+                                                          backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
+                                                          radius: 25,
                                                         ),
-                                                      ),
-                                                      SizedBox(width: 6,),
-                                                      Text("Rs."+recentOrders[i]['Total'] + " " ,style: TextStyle(
-                                                          color: lightPink , fontFamily:  "Poppins" ,
-                                                          fontSize: 14 , fontWeight: FontWeight.bold
-                                                      ),),
-                                                    ],
+                                                        SizedBox(width: 5,),
+                                                        Expanded(
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Text(recentOrders[i]['CakeName']!=null?
+                                                              recentOrders[i]['CakeName']:
+                                                              "Customised Cake",style: TextStyle(
+                                                                color: darkBlue , fontFamily:  "Poppins",
+                                                                fontSize: 13 ,fontWeight: FontWeight.bold
+                                                              ),),
+                                                              Row(
+                                                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                children: [
+                                                                  Text(recentOrders[i]['VendorName']+" |",style: TextStyle(
+                                                                      color: Colors.black , fontFamily:  "Poppins" ,
+                                                                      fontSize: 13
+                                                                  ),),
+                                                                  SizedBox(width: 3,),
+                                                                  Text(recentOrders[i]['Status'] ,style: TextStyle(
+                                                                      color: color , fontFamily: "Poppins" ,
+                                                                      fontSize: 12
+                                                                  ),),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 6,),
+                                                        Text("Rs."+recentOrders[i]['Total'] + " " ,style: TextStyle(
+                                                            color: lightPink , fontFamily:  "Poppins" ,
+                                                            fontSize: 14 , fontWeight: FontWeight.bold
+                                                        ),),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               );

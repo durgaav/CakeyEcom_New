@@ -743,15 +743,16 @@ class _VendorsListState extends State<VendorsList> {
                                   List<Location> location =
                                   await locationFromAddress(searchCtrl.text);
                                   print(location);
-                                  setState((){
+                                  setState(() {
                                     // userLat = location[0].latitude;
                                     // userLong = location[0].longitude;
-                                    // pref.setString('userLatitute', "${userLat}");
-                                    // pref.setString('userLongtitude', "${userLong}");
                                     // pref.setString("userCurrentLocation", deliverToCtrl.text);
                                     userCurLocation = searchCtrl.text;
                                     userLatitude = location[0].latitude.toString();
                                     userLongtitude = location[0].longitude.toString();
+                                    pref.setString('userLatitute', "$userLatitude");
+                                    pref.setString('userLongtitude', "$userLongtitude");
+                                    pref.setString("userCurrentLocation", searchCtrl.text);
                                     getVendorsList();
                                   });
                                 }

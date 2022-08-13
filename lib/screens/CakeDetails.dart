@@ -65,6 +65,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   bool updateCake = false;
   String vendorLat = "";
   String vendorLong = "";
+  String thrkgdeltime = "";
+  String fvkgdeltime = "";
+  String cakeMindeltime = "";
 
   //load context vendor...
   bool isMySelVen = false;
@@ -2159,6 +2162,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       weight = prefs.getStringList('cakeWeights')!;
       vendorLat = prefs.getString('cakeVendorLatitu')!;
       vendorLong = prefs.getString('cakeVendorLongti')!;
+      thrkgdeltime = prefs.getString('cake3kgminTime')!;
+      fvkgdeltime = prefs.getString('cake5kgminTime')!;
+      cakeMindeltime = prefs.getString('cakeminDelTime')!;
 
       //Vendor
       vendorID = prefs.getString('cakeVendorid')!;
@@ -3982,6 +3988,26 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               ),
                                             ));
                                       })),
+
+                              //sho
+                              Container(
+                                padding: EdgeInsets.only(
+                                  left: 15,bottom: 8,top: 8
+                                ),
+                                child: Text(
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=3.0?
+                                  'Min Delivery Time Of Cake $thrkgdeltime':
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=5.0?
+                                  "Min Delivery Time Of Cake $fvkgdeltime":
+                                  'Min Delivery Time Of Cake $cakeMindeltime',
+                                  style: TextStyle(
+                                    color: lightPink,
+                                    fontFamily: "Poppins",
+                                    fontSize: 13
+                                  ),
+                                ),
+                              ),
+
                               Padding(
                                 padding: const EdgeInsets.only(left: 15.0, top: 5),
                                 child: Text(
