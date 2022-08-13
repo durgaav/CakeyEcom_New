@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
@@ -38,6 +39,9 @@ class _CakeTypesState extends State<CakeTypes> {
   String homeCakeType = '';
 
   DateTime? currentBackPressTime;
+
+  bool showAddressEdit = false;
+  var deliverToCtrl = new TextEditingController();
 
   //Strings
   String profileUrl = "";
@@ -740,7 +744,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           controller: cakeCategoryCtrl,
                           decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
-                              hintText: "Category",
+                              hintText: "Cakename",
                               hintStyle: TextStyle(
                                   fontFamily: "Poppins", fontSize: 13),
                               prefixIcon: Icon(Icons.search_outlined),
@@ -765,7 +769,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           controller: cakeSubCategoryCtrl,
                           decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
-                              hintText: "Sub Category",
+                              hintText: "Occasion Cake",
                               hintStyle: TextStyle(
                                   fontFamily: "Poppins", fontSize: 13),
                               prefixIcon: Icon(Icons.search_outlined),
@@ -1278,7 +1282,7 @@ class _CakeTypesState extends State<CakeTypes> {
     setState(() {
       if (category.isNotEmpty) {
         a = eggOrEgglesList
-            .where((element) => element['Category']
+            .where((element) => element['CakeName']
                 .toString()
                 .toLowerCase()
                 .contains(category.toLowerCase()))
@@ -1288,7 +1292,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
       if (subCategory.isNotEmpty) {
         b = eggOrEgglesList
-            .where((element) => element['SubCategory']
+            .where((element) => element['CakeName']
                 .toString()
                 .toLowerCase()
                 .contains(subCategory.toLowerCase()))
@@ -1398,7 +1402,8 @@ class _CakeTypesState extends State<CakeTypes> {
               cakesTypes.add(cakList[i]['CakeType'].toString());
             }
 
-            cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
+            cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),
+                double.parse(userLongtitude),
                 element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
 
 
@@ -1420,7 +1425,6 @@ class _CakeTypesState extends State<CakeTypes> {
             rangeValues =
                 new RangeValues(0.0, rangeValuesList.reduce(max).toDouble());
           });
-
 
         }
       } else {
@@ -2354,7 +2358,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
             if (cakeCategoryCtrl.text.isNotEmpty) {
               categorySearch = eggOrEgglesList
-                  .where((element) => element['CakeCategory']
+                  .where((element) => element['CakeName']
                       .toString()
                       .toLowerCase()
                       .contains(cakeCategoryCtrl.text.toLowerCase()))
@@ -2363,7 +2367,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
             if (cakeSubCategoryCtrl.text.isNotEmpty) {
               subCategorySearch = eggOrEgglesList
-                  .where((element) => element['CakeType']
+                  .where((element) => element['CakeName']
                       .toString()
                       .toLowerCase()
                       .contains(cakeSubCategoryCtrl.text.toLowerCase()))
@@ -2784,15 +2788,134 @@ class _CakeTypesState extends State<CakeTypes> {
                           Container(
                             padding: EdgeInsets.only(left: 8),
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              '$userCurLocation',
-                              style: TextStyle(
-                                  fontFamily: poppins,
-                                  fontSize: 15,
-                                  color: darkBlue,
-                                  fontWeight: FontWeight.bold),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 150,
+                                  child: GestureDetector(
+                                    onTap: (){
+                                      setState((){
+                                        showAddressEdit = !showAddressEdit;
+                                      });
+                                      FocusScope.of(context).unfocus();
+                                    },
+                                    child: Text(
+                                      '$userCurLocation',
+                                      style: TextStyle(
+                                          fontFamily: poppins,
+                                          fontSize: 15,
+                                          color: darkBlue,
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 5,),
+                                GestureDetector(
+                                  onTap: (){
+                                    setState((){
+                                      showAddressEdit = !showAddressEdit;
+                                    });
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  child: Icon(Icons.arrow_drop_down),
+                                )
+                              ],
                             ),
                           ),
+
+                          showAddressEdit?
+                          Container(
+                            padding: EdgeInsets.only(right: 8,top: 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child:Container(
+                                    height: 45,
+                                    child: TextField(
+                                      controller: deliverToCtrl,
+                                      style: TextStyle(fontFamily: poppins,fontSize: 13 ,
+                                          fontWeight: FontWeight.bold),
+                                      onChanged: (String? text){
+
+                                        setState(() {
+
+                                        });
+
+                                      },
+                                      decoration: InputDecoration(
+                                          hintText: "Delivery location...",
+                                          hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
+                                          prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                              borderSide: BorderSide(width: 1,color: Colors.grey[200]!,style: BorderStyle.solid),
+                                              borderRadius: BorderRadius.circular(8)
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(width: 1.5,color: Colors.grey[300]!,style: BorderStyle.solid),
+                                              borderRadius: BorderRadius.circular(8)
+                                          ),
+                                          contentPadding: EdgeInsets.all(5),
+                                          suffixIcon: IconButton(
+                                            onPressed: (){
+                                              FocusScope.of(context).unfocus();
+                                              setState(() {
+                                                deliverToCtrl.text = "";
+                                              });
+                                            },
+                                            icon: Icon(Icons.close),
+                                            iconSize: 16,
+                                          )
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 45,
+                                  width: 45,
+                                  margin: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                      color: darkBlue,
+                                      borderRadius: BorderRadius.circular(7)
+                                  ),
+                                  child: Semantics(
+                                    child: IconButton(
+                                        splashColor: Colors.black26,
+                                        onPressed: () async{
+                                          var pref = await SharedPreferences.getInstance();
+                                          FocusScope.of(context).unfocus();
+                                          if(deliverToCtrl.text.isNotEmpty){
+
+                                            List<Location> location =
+                                            await locationFromAddress(deliverToCtrl.text);
+                                            print(location);
+                                            setState((){
+                                              // userLat = location[0].latitude;
+                                              // userLong = location[0].longitude;
+                                              // pref.setString('userLatitute', "${userLat}");
+                                              // pref.setString('userLongtitude', "${userLong}");
+                                              // pref.setString("userCurrentLocation", deliverToCtrl.text);
+                                              userCurLocation = deliverToCtrl.text;
+                                              userLatitude = location[0].latitude.toString();
+                                              userLongtitude = location[0].longitude.toString();
+                                              // getVendorForDeliveryto(authToken);
+                                              getCakeList();
+                                            });
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.download_done_outlined,
+                                          color: Colors.white,
+                                        )),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ):
+                          Container()
+
                         ],
                       ),
                     ),
@@ -2942,7 +3065,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   });
                                 },
                                 decoration: InputDecoration(
-                                    hintText: "Search cake, vendor, etc...",
+                                    hintText: "Search cake...",
                                     hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
                                     prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
                                     fillColor: Colors.white,

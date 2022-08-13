@@ -101,6 +101,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var specialReqCtrl = new TextEditingController();
   var addArticleCtrl = new TextEditingController();
   var weightCtrl = new TextEditingController();
+  var deliverToCtrl = new TextEditingController();
+
+  var showAddressEdit = false;
+
   String cakeMessage = '';
   String cakeRequest = "";
   String authToken = "";
@@ -1668,19 +1672,146 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       Container(
                         padding: EdgeInsets.only(left: 8),
                         alignment: Alignment.centerLeft,
-                        child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 150,
+                              child: GestureDetector(
+                                onTap: (){
+                                  setState((){
+                                    showAddressEdit = !showAddressEdit;
+                                  });
+                                  FocusScope.of(context).unfocus();
+                                },
+                                child: Text(
+                                  '$userCurLocation',
+                                  style: TextStyle(
+                                      fontFamily: poppins,
+                                      fontSize: 15,
+                                      color: darkBlue,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 5,),
+                            GestureDetector(
+                              onTap: (){
+                                setState((){
+                                  showAddressEdit = !showAddressEdit;
+                                });
+                                FocusScope.of(context).unfocus();
+                              },
+                              child: Icon(Icons.arrow_drop_down),
+                            )
+                          ],
+                        ),
                       ),
+
+                      showAddressEdit?
+                      Container(
+                        padding: EdgeInsets.only(right: 10 ,top: 10 , left:0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child:Container(
+                                height: 45,
+                                child: TextField(
+                                  controller: deliverToCtrl,
+                                  style: TextStyle(fontFamily: poppins,fontSize: 13 ,
+                                      fontWeight: FontWeight.bold),
+                                  onChanged: (String? text){
+
+                                    setState(() {
+
+                                    });
+
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: "Delivery location...",
+                                      hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
+                                      prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                          borderSide: BorderSide(width: 1,color: Colors.grey[200]!,style: BorderStyle.solid),
+                                          borderRadius: BorderRadius.circular(8)
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(width: 1.5,color: Colors.grey[300]!,style: BorderStyle.solid),
+                                          borderRadius: BorderRadius.circular(8)
+                                      ),
+                                      contentPadding: EdgeInsets.all(5),
+                                      suffixIcon: IconButton(
+                                        onPressed: (){
+                                          FocusScope.of(context).unfocus();
+                                          setState(() {
+                                            deliverToCtrl.text = "";
+                                          });
+                                        },
+                                        icon: Icon(Icons.close),
+                                        iconSize: 16,
+                                      )
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 45,
+                              width: 45,
+                              margin: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                  color: darkBlue,
+                                  borderRadius: BorderRadius.circular(7)
+                              ),
+                              child: Semantics(
+                                child: IconButton(
+                                    splashColor: Colors.black26,
+                                    onPressed: () async{
+                                      var pref = await SharedPreferences.getInstance();
+                                      FocusScope.of(context).unfocus();
+                                      if(deliverToCtrl.text.isNotEmpty){
+                                        List<Location> location =
+                                        await locationFromAddress(deliverToCtrl.text);
+                                        print(location);
+                                        setState((){
+                                          // userLat = location[0].latitude;
+                                          // userLong = location[0].longitude;
+                                          // pref.setString('userLatitute', "${userLat}");
+                                          // pref.setString('userLongtitude', "${userLong}");
+                                          // pref.setString("userCurrentLocation", deliverToCtrl.text);
+                                          userCurLocation = deliverToCtrl.text;
+                                          // getVendorForDeliveryto(authToken);
+                                          // getCakeList();
+                                          userLatitude = location[0].latitude.toString();
+                                          userLongtitude = location[0].longitude.toString();
+                                          getVendorsList();
+                                        });
+                                      }
+                                    },
+                                    icon: Icon(
+                                      Icons.download_done_outlined,
+                                      color: Colors.white,
+                                    )),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ):
+                      Container(),
+
                     ],
                   ),
                 ),
                 //Main widgets....
                 Container(
-                  height: MediaQuery.of(context).size.height*0.82,
+                  height:showAddressEdit ? MediaQuery.of(context).size.height*0.74:
+                  MediaQuery.of(context).size.height*0.82,
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
@@ -2296,6 +2427,44 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               color: Colors.pink[100],
                             )),
 
+                        Padding(
+                          padding: const EdgeInsets.only(left :15.0 , top:15),
+                          child: Text(
+                            'Select Tier',
+                            style: TextStyle(
+                                fontFamily: poppins, color: darkBlue),
+                          ),
+                        ),
+                        //Tier cake
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.only(left:15 ,right:15 ),
+                          child: DropdownButton(
+                              value:'2 tier',
+                              items: <DropdownMenuItem<String>>[
+                                DropdownMenuItem(
+                                    child: Text("2 tier"),
+                                    value: "2 tier",
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("3 tier"),
+                                  value: "3 tier",
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("4 tier"),
+                                  value: "4 tier",
+                                ),
+                              ],
+                              onChanged: (item){
+                                print(item);
+                              },
+                              isExpanded: true,
+                          ),
+                        ),
+
+                        //theme....
+                        
+                        
                         Container(
                           //margin
                             margin: EdgeInsets.all(10),
@@ -3475,60 +3644,61 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              Center(
-                                child: Container(
-                                  height: 50,
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25)
-                                  ),
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25)
-                                    ),
-                                    onPressed: (){
+                              // Center(
+                              //   child: Container(
+                              //     height: 50,
+                              //     width: 200,
+                              //     decoration: BoxDecoration(
+                              //         borderRadius: BorderRadius.circular(25)
+                              //     ),
+                              //     child: RaisedButton(
+                              //       shape: RoundedRectangleBorder(
+                              //           borderRadius: BorderRadius.circular(25)
+                              //       ),
+                              //       onPressed: (){
+                              //
+                              //         if(newRegUser==true){
+                              //           showDpUpdtaeDialog();
+                              //         }else {
+                              //           if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                              //               weightCtrl.text.startsWith("0")&&
+                              //                   weightCtrl.text.endsWith("0")){
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(
+                              //                     content: Text("Please enter correct weight or select weight!")
+                              //                 )
+                              //             );
+                              //           }
+                              //           else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(content: Text('Invalid Address'))
+                              //             );
+                              //           }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                              //               fixedSession.toLowerCase()=="not yet select"||
+                              //               fixedDelliverMethod.toLowerCase()=="not yet select"){
+                              //
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(content: Text('Please Select Deliver Date And Type'))
+                              //             );
+                              //           }else{
+                              //             setState((){
+                              //               if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                              //                 vendorID = "";
+                              //               }
+                              //             });
+                              //             showCakeNameEdit();
+                              //           }
+                              //         }
+                              //
+                              //       },
+                              //       color: lightPink,
+                              //       child: Text("ORDER NOW",style: TextStyle(
+                              //           color: Colors.white,fontWeight: FontWeight.bold
+                              //       ),),
+                              //     ),
+                              //   ),
+                              // ),
 
-                                      if(newRegUser==true){
-                                        showDpUpdtaeDialog();
-                                      }else {
-                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                                            weightCtrl.text.startsWith("0")&&
-                                                weightCtrl.text.endsWith("0")){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please enter correct weight or select weight!")
-                                              )
-                                          );
-                                        }
-                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Invalid Address'))
-                                          );
-                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                            fixedSession.toLowerCase()=="not yet select"||
-                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
-
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please Select Deliver Date And Type'))
-                                          );
-                                        }else{
-                                          setState((){
-                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                              vendorID = "";
-                                            }
-                                          });
-                                          showCakeNameEdit();
-                                        }
-                                      }
-
-                                    },
-                                    color: lightPink,
-                                    child: Text("ORDER NOW",style: TextStyle(
-                                        color: Colors.white,fontWeight: FontWeight.bold
-                                    ),),
-                                  ),
-                                ),
-                              ),
                               SizedBox(height: 15,),
                             ],
                           ),

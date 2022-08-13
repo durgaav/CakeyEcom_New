@@ -3453,181 +3453,181 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               borderRadius: BorderRadius.circular(10)),
                           child: Column(
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Theme',
-                                    style: TextStyle(fontFamily: "Poppins"),
-                                  ),
-                                  fixedtheme.isNotEmpty
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              fixedtheme = "";
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 100,
-                                            alignment: Alignment.center,
-                                            margin: EdgeInsets.only(right: 100),
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              color: lightPink,
-                                            ),
-                                            child: Wrap(
-                                              children: [
-                                                Text(
-                                                  '${fixedtheme}',
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 9,
-                                                      color: Colors.white),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                      : Container(),
-                                  fixedtheme.isEmpty
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            // showThemeBottomSheet();
-                                            setState((){
-                                              
-                                              if(isThemePossible.toLowerCase()=='y'){
-                                                themeSectionVisible = !themeSectionVisible;
-                                              }else{
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text("No Custom Themes :("),
-                                                      duration: Duration(seconds: 2),
-                                                  )
-                                                );
-                                              }
-
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 30,
-                                            height: 30,
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                      blurRadius: 3,
-                                                      color: Colors.black26,
-                                                      spreadRadius: 1
-                                                  )
-                                                ],
-                                                color: Colors.white),
-                                            child: Icon(
-                                              Icons.add,
-                                              color: darkBlue,
-                                            ),
-                                          ),
-                                        )
-                                      : CircleAvatar(
-                                          radius: 15,
-                                          backgroundColor: Colors.green,
-                                          child: Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 16,
-                                          )),
-                                ],
-                              ),
-                              SizedBox(height: 6),
-                              Visibility(
-                                visible: themeSectionVisible,
-                                child: Container(
-                                    height:175,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(18)
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        //theme name editor
-                                        Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: TextField(
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                fontSize: 13
-                                            ),
-                                            controller: themeTextCtrl,
-                                            onChanged: (text){
-
-                                            },
-                                            keyboardType: TextInputType.text,
-                                            decoration: InputDecoration(
-                                              hintText: "Enter Theme Name",
-                                              hintStyle: TextStyle(
-                                                fontFamily: "Poppins",
-                                                fontSize: 13
-                                              ),
-                                              contentPadding: EdgeInsets.all(5.0),
-                                              isDense: true,
-                                            ),
-                                          ),
-                                        ),
-
-                                        //Imageview
-                                        Container(
-                                          padding: EdgeInsets.all(8),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  border: Border.all(color: Colors.grey , width: 1.0),
-                                                  image: file.path.isNotEmpty?DecorationImage(
-                                                    image: FileImage(file),
-                                                    fit: BoxFit.cover,
-                                                  ):null
-                                                ),
-                                                height: 100,
-                                                width: 100,
-                                                child: file.path.isEmpty?
-                                                Icon(Icons.image_outlined,color:lightPink):
-                                                null
-                                              ),
-                                              SizedBox(width: 10,),
-                                              RaisedButton(
-                                                  onPressed: (){
-                                                    file.path.isEmpty?
-                                                    imagePicker():
-                                                    setState((){
-                                                      file = new File("");
-                                                    });
-                                                  },
-                                                  child: Text(file.path.isEmpty?'Choose Image':'Remove Image',style:
-                                                    TextStyle(fontFamily: "Poppins", color: Colors.white),),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(10)
-                                                  ),
-                                                  color: lightPink,
-                                              )
-                                            ],
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
-                                ),
-                              ),
-                              SizedBox(height: 6),
+                              // Row(
+                              //   mainAxisAlignment:
+                              //       MainAxisAlignment.spaceBetween,
+                              //   children: [
+                              //     Text(
+                              //       'Theme',
+                              //       style: TextStyle(fontFamily: "Poppins"),
+                              //     ),
+                              //     fixedtheme.isNotEmpty
+                              //         ? GestureDetector(
+                              //             onTap: () {
+                              //               setState(() {
+                              //                 fixedtheme = "";
+                              //               });
+                              //             },
+                              //             child: Container(
+                              //               width: 100,
+                              //               alignment: Alignment.center,
+                              //               margin: EdgeInsets.only(right: 100),
+                              //               padding: EdgeInsets.symmetric(
+                              //                   horizontal: 10, vertical: 3),
+                              //               decoration: BoxDecoration(
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(20),
+                              //                 color: lightPink,
+                              //               ),
+                              //               child: Wrap(
+                              //                 children: [
+                              //                   Text(
+                              //                     '${fixedtheme}',
+                              //                     maxLines: 1,
+                              //                     overflow:
+                              //                         TextOverflow.ellipsis,
+                              //                     style: TextStyle(
+                              //                         fontFamily: "Poppins",
+                              //                         fontSize: 9,
+                              //                         color: Colors.white),
+                              //                   ),
+                              //                 ],
+                              //               ),
+                              //             ),
+                              //           )
+                              //         : Container(),
+                              //     fixedtheme.isEmpty
+                              //         ? GestureDetector(
+                              //             onTap: () {
+                              //               // showThemeBottomSheet();
+                              //               setState((){
+                              //
+                              //                 if(isThemePossible.toLowerCase()=='y'){
+                              //                   themeSectionVisible = !themeSectionVisible;
+                              //                 }else{
+                              //                   ScaffoldMessenger.of(context).showSnackBar(
+                              //                     SnackBar(
+                              //                         content: Text("No Custom Themes :("),
+                              //                         duration: Duration(seconds: 2),
+                              //                     )
+                              //                   );
+                              //                 }
+                              //
+                              //               });
+                              //             },
+                              //             child: Container(
+                              //               width: 30,
+                              //               height: 30,
+                              //               alignment: Alignment.center,
+                              //               decoration: BoxDecoration(
+                              //                   shape: BoxShape.circle,
+                              //                   boxShadow: [
+                              //                     BoxShadow(
+                              //                         blurRadius: 3,
+                              //                         color: Colors.black26,
+                              //                         spreadRadius: 1
+                              //                     )
+                              //                   ],
+                              //                   color: Colors.white),
+                              //               child: Icon(
+                              //                 Icons.add,
+                              //                 color: darkBlue,
+                              //               ),
+                              //             ),
+                              //           )
+                              //         : CircleAvatar(
+                              //             radius: 15,
+                              //             backgroundColor: Colors.green,
+                              //             child: Icon(
+                              //               Icons.check,
+                              //               color: Colors.white,
+                              //               size: 16,
+                              //             )),
+                              //   ],
+                              // ),
+                              // SizedBox(height: 6),
+                              // Visibility(
+                              //   visible: themeSectionVisible,
+                              //   child: Container(
+                              //       height:175,
+                              //       decoration: BoxDecoration(
+                              //         color: Colors.white,
+                              //         borderRadius: BorderRadius.circular(18)
+                              //       ),
+                              //       child: Column(
+                              //         children: [
+                              //           //theme name editor
+                              //           Padding(
+                              //             padding: EdgeInsets.all(10),
+                              //             child: TextField(
+                              //               maxLines: 1,
+                              //               style: TextStyle(
+                              //                   fontFamily: "Poppins",
+                              //                   fontSize: 13
+                              //               ),
+                              //               controller: themeTextCtrl,
+                              //               onChanged: (text){
+                              //
+                              //               },
+                              //               keyboardType: TextInputType.text,
+                              //               decoration: InputDecoration(
+                              //                 hintText: "Enter Theme Name",
+                              //                 hintStyle: TextStyle(
+                              //                   fontFamily: "Poppins",
+                              //                   fontSize: 13
+                              //                 ),
+                              //                 contentPadding: EdgeInsets.all(5.0),
+                              //                 isDense: true,
+                              //               ),
+                              //             ),
+                              //           ),
+                              //
+                              //           //Imageview
+                              //           Container(
+                              //             padding: EdgeInsets.all(8),
+                              //             child: Row(
+                              //               mainAxisSize: MainAxisSize.min,
+                              //               children: [
+                              //                 Container(
+                              //                   decoration: BoxDecoration(
+                              //                     borderRadius: BorderRadius.circular(10),
+                              //                     border: Border.all(color: Colors.grey , width: 1.0),
+                              //                     image: file.path.isNotEmpty?DecorationImage(
+                              //                       image: FileImage(file),
+                              //                       fit: BoxFit.cover,
+                              //                     ):null
+                              //                   ),
+                              //                   height: 100,
+                              //                   width: 100,
+                              //                   child: file.path.isEmpty?
+                              //                   Icon(Icons.image_outlined,color:lightPink):
+                              //                   null
+                              //                 ),
+                              //                 SizedBox(width: 10,),
+                              //                 RaisedButton(
+                              //                     onPressed: (){
+                              //                       file.path.isEmpty?
+                              //                       imagePicker():
+                              //                       setState((){
+                              //                         file = new File("");
+                              //                       });
+                              //                     },
+                              //                     child: Text(file.path.isEmpty?'Choose Image':'Remove Image',style:
+                              //                       TextStyle(fontFamily: "Poppins", color: Colors.white),),
+                              //                     shape: RoundedRectangleBorder(
+                              //                       borderRadius: BorderRadius.circular(10)
+                              //                     ),
+                              //                     color: lightPink,
+                              //                 )
+                              //               ],
+                              //             ),
+                              //           ),
+                              //
+                              //         ],
+                              //       ),
+                              //   ),
+                              // ),
+                              // SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -4103,85 +4103,84 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         ),
 
                         //Cake Tier
-                        isTierPossible.toLowerCase()=="y"?
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10.0, bottom: 5, left: 15),
-                              child: Text(
-                                'Cake Tier',
-                                style: TextStyle(
-                                    color: darkBlue, fontFamily: "Poppins"),
-                              ),
-                            ),
-                            Container(
-                                height: MediaQuery.of(context).size.height * 0.057,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                //  color: Colors.grey,
-                                child: ListView.builder(
-                                    itemCount: cakeTiers.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) {
-                                      selwIndex.add(false);
-                                      return InkWell(
-                                          onTap: () {
-                                            print(cakeTiers[index]);
-                                            FocusScope.of(context).unfocus();
-                                            setState(() {
-                                              if(tierSelIndex==index){
-                                                tierSelIndex = -1;
-                                                tierPrice = 0;
-                                                tempTierPrice = 0;
-                                                tempCakeWeight = "0.0";
-                                              }else{
-                                                tierSelIndex = index;
-                                                tierPrice = double
-                                                    .parse(cakeTiers[index]['Price'].toString());
-                                                tempTierPrice = tierPrice;
-                                                tempCakeWeight = cakeTiers[index]['Weight'].toString();
-                                              }
-                                            });
-                                          },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 13),
-                                            // height:10,
-                                            margin: EdgeInsets.only(
-                                                left: 9, top: 9, bottom: 9),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.circular(20),
-                                                border: Border.all(
-                                                    color: lightPink, width: 1),
-                                                color: tierSelIndex == index
-                                                    ? Colors.pink
-                                                    : Colors.white),
-                                            child: Text(
-                                              "${cakeTiers[index]['Tier']}",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: poppins,
-                                                color: tierSelIndex == index
-                                                    ? Colors.white
-                                                    : darkBlue,
-                                                fontSize: 13.5,
-                                              ),
-                                            ),
-                                          ));
-                                    })),
-                          ],
-                        ):
-                        Container(),
-
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 15),
-                            child: Divider(
-                              color: Colors.pink[100],
-                            )),
+                        // isTierPossible.toLowerCase()=="y"?
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     Padding(
+                        //       padding: const EdgeInsets.only(
+                        //           top: 10.0, bottom: 5, left: 15),
+                        //       child: Text(
+                        //         'Cake Tier',
+                        //         style: TextStyle(
+                        //             color: darkBlue, fontFamily: "Poppins"),
+                        //       ),
+                        //     ),
+                        //     Container(
+                        //         height: MediaQuery.of(context).size.height * 0.057,
+                        //         width: MediaQuery.of(context).size.width,
+                        //         margin: EdgeInsets.symmetric(horizontal: 10),
+                        //         //  color: Colors.grey,
+                        //         child: ListView.builder(
+                        //             itemCount: cakeTiers.length,
+                        //             scrollDirection: Axis.horizontal,
+                        //             itemBuilder: (context, index) {
+                        //               selwIndex.add(false);
+                        //               return InkWell(
+                        //                   onTap: () {
+                        //                     print(cakeTiers[index]);
+                        //                     FocusScope.of(context).unfocus();
+                        //                     setState(() {
+                        //                       if(tierSelIndex==index){
+                        //                         tierSelIndex = -1;
+                        //                         tierPrice = 0;
+                        //                         tempTierPrice = 0;
+                        //                         tempCakeWeight = "0.0";
+                        //                       }else{
+                        //                         tierSelIndex = index;
+                        //                         tierPrice = double
+                        //                             .parse(cakeTiers[index]['Price'].toString());
+                        //                         tempTierPrice = tierPrice;
+                        //                         tempCakeWeight = cakeTiers[index]['Weight'].toString();
+                        //                       }
+                        //                     });
+                        //                   },
+                        //                   child: Container(
+                        //                     alignment: Alignment.center,
+                        //                     padding: EdgeInsets.symmetric(
+                        //                         horizontal: 13),
+                        //                     // height:10,
+                        //                     margin: EdgeInsets.only(
+                        //                         left: 9, top: 9, bottom: 9),
+                        //                     decoration: BoxDecoration(
+                        //                         borderRadius:
+                        //                         BorderRadius.circular(20),
+                        //                         border: Border.all(
+                        //                             color: lightPink, width: 1),
+                        //                         color: tierSelIndex == index
+                        //                             ? Colors.pink
+                        //                             : Colors.white),
+                        //                     child: Text(
+                        //                       "${cakeTiers[index]['Tier']}",
+                        //                       style: TextStyle(
+                        //                         fontWeight: FontWeight.bold,
+                        //                         fontFamily: poppins,
+                        //                         color: tierSelIndex == index
+                        //                             ? Colors.white
+                        //                             : darkBlue,
+                        //                         fontSize: 13.5,
+                        //                       ),
+                        //                     ),
+                        //                   ));
+                        //             })),
+                        //   ],
+                        // ):
+                        // Container(),
+                        // Container(
+                        //     margin: EdgeInsets.symmetric(horizontal: 15),
+                        //     child: Divider(
+                        //       color: Colors.pink[100],
+                        //     )),
 
                         Container(
                             //margin
