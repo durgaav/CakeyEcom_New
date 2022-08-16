@@ -888,8 +888,8 @@ class _CheckOutState extends State<CheckOut> {
           // "CakeSubType": cakeSubType,
           "Image": cakeImage,
           "EggOrEggless": eggOreggless,
-          "Flavour": '$tempFlavList',
-          "Shape": shape,
+          "Flavour": tempFlavList,
+          "Shape": [shape],
           "Weight": tierCakeWeight=="null"?
           weight.toLowerCase().replaceAll("kg", "")+"kg":
           tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
@@ -911,10 +911,6 @@ class _CheckOutState extends State<CheckOut> {
           "VendorPhoneNumber1":vendorPhone1,
           "VendorPhoneNumber2":vendorPhone2,
           "VendorAddress":"$vendorAddress",
-          "TopperId":topperId,
-          "TopperName":topperName,
-          "TopperImage":topperImg,
-          "TopperPrice":'$topperPrice',
           "PremiumVendor":"n",
           "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
           // "DeliveryDate": deliverDate,
@@ -928,11 +924,18 @@ class _CheckOutState extends State<CheckOut> {
         }
     );
 
+
+    print(shape);
+
+    List tempShapeList = [jsonDecode(shape)];
+
+    print(tempShapeList);
+
     try {
 
         var headers = {'Content-Type': 'application/json'};
         var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-        request.headers.addAll(headers);
+
         request.body = jsonEncode({
           "CakeID": cakeID,
           "Cake_ID": cakeModId,
@@ -942,8 +945,8 @@ class _CheckOutState extends State<CheckOut> {
           // "CakeSubType": cakeSubType,
           "Image": cakeImage,
           "EggOrEggless": eggOreggless,
-          "Flavour": '$tempFlavList',
-          "Shape": shape,
+          "Flavour": tempFlavList,
+          "Shape": tempShapeList,
           "Weight": tierCakeWeight=="null"?
           weight.toLowerCase().replaceAll("kg", "")+"kg":
           tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
@@ -966,91 +969,73 @@ class _CheckOutState extends State<CheckOut> {
           "User_ID": userModId,
           "Tax":taxes.toString(),
           "DeliveryInformation": deliverType,
-          "VendorName":vendorName,
-          "VendorID":vendorID,
-          "Vendor_ID":vendorModId,
-          "VendorPhoneNumber1":vendorPhone1,
-          "VendorPhoneNumber2":vendorPhone2,
-          "VendorAddress":"$vendorAddress",
-          "PremiumVendor":"n",
-          "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
-          "DeliveryAddress": userAddress,
-          "PremiumVendor":"y",
-          "MessageOnTheCake":cakeMessage,
-          "SpecialRequest":cakeSplReq,
-          "TopperId":topperId,
-          "TopperName":topperName,
-          "TopperImage":topperImg,
-          "TopperPrice":'$topperPrice',
+
         });
 
+        //send address
+        if(deliverType.toLowerCase()=="delivery"){
+          request.body = jsonEncode({
+            "DeliveryAddress": userAddress,
+          });
+        }
 
+        //theme ops
+        // if(themeName.toString()!="null"){
+        //   request.fields.addAll({
+        //     "Theme":themeName,
+        //   });
+        // }
+        // if(themeFileName.toString()!="null"){
+        //   request.files.add(await http.MultipartFile.fromPath(
+        //       'file', themeFileName.toString(),
+        //       filename: Path.basename(themeFileName),
+        //       contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
+        //   ));
+        // }
 
-        //
-        // //send address
-        // if(deliverType.toLowerCase()=="delivery"){
-        //   request.body = jsonEncode({
-        //     "DeliveryAddress": userAddress,
-        //   });
-        // }
-        //
-        // //theme ops
-        // // if(themeName.toString()!="null"){
-        // //   request.fields.addAll({
-        // //     "Theme":themeName,
-        // //   });
-        // // }
-        // // if(themeFileName.toString()!="null"){
-        // //   request.files.add(await http.MultipartFile.fromPath(
-        // //       'file', themeFileName.toString(),
-        // //       filename: Path.basename(themeFileName),
-        // //       contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
-        // //   ));
-        // // }
-        //
-        // if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
-        //   request.body = jsonEncode({
-        //     "PremiumVendor":"y",
-        //   });
-        // }
-        //
-        // //if vendor is not emp..
-        // if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
-        //   request.body = jsonEncode({
-        //     "VendorName":vendorName,
-        //     "VendorID":vendorID,
-        //     "Vendor_ID":vendorModId,
-        //     "VendorPhoneNumber1":vendorPhone1,
-        //     "VendorPhoneNumber2":vendorPhone2,
-        //     "VendorAddress":"$vendorAddress",
-        //     "PremiumVendor":"n",
-        //     "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong}
-        //   });
-        // }
-        //
-        // //cake message
-        // if(cakeMessage.toString()!="null"){
-        //   request.body = jsonEncode({
-        //     "MessageOnTheCake":cakeMessage
-        //   });
-        // }
-        //
-        // //spl req...
-        // if(cakeSplReq.toString()!="null"){
-        //   request.body = jsonEncode({
-        //     "SpecialRequest":cakeSplReq
-        //   });
-        // }
-        //
-        // //toppers
-        // if(topperPrice!=0){
-        //   request.body = jsonEncode({
-        //     "TopperId":topperId,
-        //     "TopperName":topperName,
-        //     "TopperImage":topperImg,
-        //     "TopperPrice":'$topperPrice',
-        //   });
-        // }
+        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
+          request.body = jsonEncode({
+            "PremiumVendor":"y",
+          });
+        }
+
+        //if vendor is not emp..
+        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
+          request.body = jsonEncode({
+            "VendorName":vendorName,
+            "VendorID":vendorID,
+            "Vendor_ID":vendorModId,
+            "VendorPhoneNumber1":vendorPhone1,
+            "VendorPhoneNumber2":vendorPhone2,
+            "VendorAddress":"$vendorAddress",
+            "PremiumVendor":"n",
+            "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong}
+          });
+        }
+
+        //cake message
+        if(cakeMessage.toString()!="null"){
+          request.body = jsonEncode({
+            "MessageOnTheCake":cakeMessage
+          });
+        }
+
+        //spl req...
+        if(cakeSplReq.toString()!="null"){
+          request.body = jsonEncode({
+            "SpecialRequest":cakeSplReq
+          });
+        }
+
+        //toppers
+        if(topperPrice!=0){
+          request.body = jsonEncode({
+            "TopperId":topperId,
+            "TopperName":topperName,
+            "TopperImage":topperImg,
+            "TopperPrice":'$topperPrice',
+          });
+        }
 
         //tiers ops
         // if(cakeTier.toString()!="null"){
@@ -1059,6 +1044,9 @@ class _CheckOutState extends State<CheckOut> {
         //   });
         // }
 
+
+
+        request.headers.addAll(headers);
 
         http.StreamedResponse response = await request.send();
 
