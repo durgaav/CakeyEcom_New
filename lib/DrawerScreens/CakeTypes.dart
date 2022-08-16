@@ -1272,7 +1272,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //search by filters
   void searchByGivenFilter(String category, String subCategory,
       String vendorName, List filterCType) {
-    List a = [], b = [], c = [];
+    List a = [], b = [], c = [] , d = [];
 
     cakeTypeList = [];
 
@@ -1291,13 +1291,15 @@ class _CakeTypesState extends State<CakeTypes> {
       }
 
       if (subCategory.isNotEmpty) {
-        b = eggOrEgglesList
-            .where((element) => element['CakeName']
-                .toString()
-                .toLowerCase()
-                .contains(subCategory.toLowerCase()))
-            .toList();
-        activeSearch = true;
+        //CakeSubType
+        setState((){
+          isFiltered = true;
+          for (int i = 0; i < cakesList.length; i++) {
+            if(cakesList[i]['CakeSubType'].isNotEmpty && cakesList[i]['CakeSubType'].contains(subCategory)){
+              b.add(cakesList[i]);
+            }
+          }
+        });
       }
 
       if (vendorName.isNotEmpty) {
@@ -1313,19 +1315,22 @@ class _CakeTypesState extends State<CakeTypes> {
       }
 
       if (filterCType.isNotEmpty) {
-        for (int i = 0; i < cakeSearchList.length; i++) {
-          if (cakeSearchList[i]['CakeType'].isNotEmpty) {
+        isFiltered = true;
+        for (int i = 0; i < cakesList.length; i++) {
+          if (cakesList[i]['CakeType'].isNotEmpty || cakesList[i]['CakeSubType'].isNotEmpty) {
             for (int j = 0; j < filterCType.length; j++) {
-              if (cakeSearchList[i]['CakeType'].contains(filterCType[j])) {
-                cakeTypeList.add(cakeSearchList[i]);
+              if (cakesList[i]['CakeType'].contains(filterCType[j]) ||
+                  cakesList[i]['CakeSubType'].contains(filterCType[j])) {
+                d.add(cakesList[i]);
               }
             }
           }
         }
       }
 
-      cakeSearchList = a + b + c + cakeTypeList.toList();
+      cakeSearchList = a + b + c + d.toList();
       cakeSearchList = cakeSearchList.toSet().toList();
+
     });
   }
 
@@ -1353,8 +1358,64 @@ class _CakeTypesState extends State<CakeTypes> {
         ];
       } else {}
 
+      getCakeType();
       getCakeList();
     });
+  }
+
+  //fetch cake types
+  Future<void> getCakeType() async {
+    cakesTypes.clear();
+    var mainList = [];
+    List subType = [];
+
+    var headers = {'Authorization': '$authToken'};
+    var request = http.Request('GET',
+        Uri.parse('https://cakey-database.vercel.app/api/caketype/list'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      mainList = jsonDecode(await response.stream.bytesToString());
+      setState(() {
+        print("CAKE TYPES : " + mainList.toString());
+        if (mainList.length > 1) {
+          for (int i = 0; i < mainList.length; i++) {
+
+            if (mainList[i]['Type'] != null) {
+              cakesTypes.add(mainList[i]['Type'].toString());
+            }
+
+            if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
+              for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
+                print(mainList[i]['SubType'][k]);
+                cakesTypes.add(mainList[i]['SubType'][k].toString());
+              }
+            }
+
+          }
+        }
+
+        print('Sub types>>>> $subType');
+
+        cakesTypes.insert(0, "All Cakes");
+        cakesTypes = cakesTypes.toSet().toList();
+
+        // searchCakeType.insert(0, "Customize your cake");
+        // // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
+        // searchCakeType.toSet().toList();
+
+        print('type cake ::::: $cakesTypes');
+
+      });
+    } else {
+      print(response.reasonPhrase);
+      setState((){
+
+      });
+    }
   }
 
   //Fetching cake list API...
@@ -1399,7 +1460,7 @@ class _CakeTypesState extends State<CakeTypes> {
             for (int i = 0; i < cakList.length; i++) {
               rangeValuesList.add(int.parse(cakList[i]['BasicCakePrice']));
               print(cakList[i]['CakeCategory']);
-              cakesTypes.add(cakList[i]['CakeType'].toString());
+              // cakesTypes.add(cakList[i]['CakeType'].toString());
             }
 
             cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),
@@ -1410,8 +1471,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
             cakesList = cakesList.reversed.toList();
 
-            cakesTypes.insert(0, "All Cakes");
-            cakesTypes = cakesTypes.toSet().toList();
+            // cakesTypes.insert(0, "All Cakes");
+            // cakesTypes = cakesTypes.toSet().toList();
 
             print(cakesTypes);
 
@@ -1681,8 +1742,8 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeToppersPoss", cakeSearchList[index]['ToppersPossible']??"null");
     prefs.setString("cakeBasicCustom", cakeSearchList[index]['BasicCustomisationPossible']??"null");
     prefs.setString("cakeFullCustom", cakeSearchList[index]['FullCustomisationPossible']??"null");
-    prefs.setString("cakeType", cakeSearchList[index]['CakeType']??"null");
-    prefs.setString("cakeSubType", cakeSearchList[index]['CakeSubType']??"null");
+    // prefs.setString("cakeType", cakeSearchList[index]['CakeType']??"null");
+    // prefs.setString("cakeSubType", cakeSearchList[index]['CakeSubType']??"null");
     prefs.setString("cakeDescription", cakeSearchList[index]['Description']??"null");
     prefs.setString("cakeCategory", cakeSearchList[index]['CakeCategory']??"null");
     prefs.setString("cakeTopperPoss", cakeSearchList[index]['ToppersPossible']??"null");
@@ -1753,7 +1814,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Send filtered prefs to next screen
   Future<void> sendFillDetailsToScreen(int index) async {
-    // filterCakesSearchList
     //Local Vars
     List<String> cakeImgs = [];
     List<String> cakeWeights = [];
@@ -1826,7 +1886,24 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
+
+    //getting cake toppings list
+    // if(filterCakesSearchList[index]['CakeToppings'].isNotEmpty){
+    //   setState(() {
+    //     for(int i=0;i<filterCakesSearchList[index]['CakeToppings'].length;i++){
+    //       cakeTopings.add(filterCakesSearchList[index]['CakeToppings'][i].toString());
+    //     }
+    //   });
+    // }
+    // else{
+    //   setState(() {
+    //     cakeTopings = [];
+    //   });
+    // }
+
     //getting cake weights
+
+
     if (filterCakesSearchList[index]['MinWeightList'].isNotEmpty || filterCakesSearchList[index]['MinWeightList']!=null) {
       setState(() {
         for (int i = 0; i < filterCakesSearchList[index]['MinWeightList'].length; i++) {
@@ -1905,8 +1982,8 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeToppersPoss", filterCakesSearchList[index]['ToppersPossible']??"null");
     prefs.setString("cakeBasicCustom", filterCakesSearchList[index]['BasicCustomisationPossible']??"null");
     prefs.setString("cakeFullCustom", filterCakesSearchList[index]['FullCustomisationPossible']??"null");
-    prefs.setString("cakeType", filterCakesSearchList[index]['CakeType']??"null");
-    prefs.setString("cakeSubType", filterCakesSearchList[index]['CakeSubType']??"null");
+    // prefs.setString("cakeType", filterCakesSearchList[index]['CakeType']??"null");
+    // prefs.setString("cakeSubType", filterCakesSearchList[index]['CakeSubType']??"null");
     prefs.setString("cakeDescription", filterCakesSearchList[index]['Description']??"null");
     prefs.setString("cakeCategory", filterCakesSearchList[index]['CakeCategory']??"null");
     prefs.setString("cakeTopperPoss", filterCakesSearchList[index]['ToppersPossible']??"null");
@@ -1917,6 +1994,20 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeVendorPhone1", filterCakesSearchList[index]['VendorPhoneNumber1']??"null");
     prefs.setString("cakeVendorPhone2", filterCakesSearchList[index]['VendorPhoneNumber2']??"null");
     prefs.setString("cakeVendorAddress", vendorAddress);
+    prefs.setString("cakeVendorLatitu", filterCakesSearchList[index]['GoogleLocation']['Latitude'].toString());
+    prefs.setString("cakeVendorLongti", filterCakesSearchList[index]['GoogleLocation']['Longitude'].toString());
+
+    if(filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
+        filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
+      prefs.setString("cake3kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
+      prefs.setString("cake5kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
+    }else{
+      prefs.setString("cake3kgminTime", 'Nf');
+      prefs.setString("cake5kgminTime", 'Nf');
+    }
+    prefs.setString("cakeminDelTime", filterCakesSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
+
+
 
     //INTEGERS
     prefs.setInt('cakeDiscount', int.parse(filterCakesSearchList[index]['Discount'].toString()));
@@ -2227,6 +2318,7 @@ class _CakeTypesState extends State<CakeTypes> {
       searchCakeVendor = '';
       searchCakeLocation = '';
       Navigator.pop(context);
+      eggOrEgglesList = cakesList.toList();
     });
   }
 
@@ -2280,25 +2372,31 @@ class _CakeTypesState extends State<CakeTypes> {
             .toLowerCase()
             .contains("y")  ).toList();
 
-        cakesByType = eggOrEgglesList
-            .where((element) =>
-                element['CakeType'].toString().toLowerCase() ==
-                cakesTypes[currentIndex].toString().toLowerCase())
-            .toList();
+        List subList = eggOrEgglesList.where((element)
+        => element['CakeSubType'].contains(cakesTypes[currentIndex])
+        ).toList();
+
+        cakesByType = eggOrEgglesList.where((element)
+        => element['CakeType'].contains(cakesTypes[currentIndex])
+        ).toList();
+
+        cakesByType = cakesByType + subList;
+
       });
     }
     else if (egglesSwitch == false) {
       setState(() {
-        eggOrEgglesList = cakesList
-            .where((element) =>
-                element['DefaultCakeEggOrEggless'].toString().toLowerCase() == "egg")
-            .toList();
+        eggOrEgglesList = cakesList.toList();
 
-        cakesByType = eggOrEgglesList
-            .where((element) =>
-                element['CakeType'].toString().toLowerCase() ==
-                cakesTypes[currentIndex].toString().toLowerCase())
-            .toList();
+        List subList = eggOrEgglesList.where((element)
+        => element['CakeSubType'].contains(cakesTypes[currentIndex])
+        ).toList();
+
+        cakesByType = eggOrEgglesList.where((element)
+        => element['CakeType'].contains(cakesTypes[currentIndex])
+        ).toList();
+
+        cakesByType = cakesByType + subList;
       });
     }
 
@@ -2361,6 +2459,7 @@ class _CakeTypesState extends State<CakeTypes> {
             cakeCategoryCtrl.text.isNotEmpty ||
             cakeSubCategoryCtrl.text.isNotEmpty ||
             selectedFilter.isNotEmpty) {
+
           setState(() {
             categorySearch = [];
             subCategorySearch = [];
@@ -2416,7 +2515,8 @@ class _CakeTypesState extends State<CakeTypes> {
                 cakeTypeList.toList();
             cakeSearchList = cakeSearchList.toSet().toList();
           });
-        } else {
+        }
+        else {
           // activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         }
@@ -2438,11 +2538,6 @@ class _CakeTypesState extends State<CakeTypes> {
           filterCakesSearchList = cakesByType;
         });
       }
-    }
-
-
-    /*3) set filters for filtered by types*/
-    if(isFiltered==true){
 
     }
 
@@ -2452,15 +2547,22 @@ class _CakeTypesState extends State<CakeTypes> {
       },
       child: WillPopScope(
         onWillPop: () async {
-          context.read<ContextData>().setMyVendors([]);
-          context.read<ContextData>().addMyVendor(false);
+
+          if(activeSearch==true){
+            activeSearchClear();
+            return Future.value(false);
+          }else{
+            context.read<ContextData>().setMyVendors([]);
+            context.read<ContextData>().addMyVendor(false);
             if (iamYourVendor == true) {
               Navigator.pop(context);
               return false;
             }else{
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-              return Future.value(true);
             }
+          }
+
+          return Future.value(true);
 
         },
         child:Scaffold(
@@ -2899,19 +3001,16 @@ class _CakeTypesState extends State<CakeTypes> {
                                           var pref = await SharedPreferences.getInstance();
                                           FocusScope.of(context).unfocus();
                                           if(deliverToCtrl.text.isNotEmpty){
-
                                             List<Location> location =
                                             await locationFromAddress(deliverToCtrl.text);
                                             print(location);
                                             setState((){
-                                              // userLat = location[0].latitude;
-                                              // userLong = location[0].longitude;
-                                              // pref.setString('userLatitute', "${userLat}");
-                                              // pref.setString('userLongtitude', "${userLong}");
-                                              // pref.setString("userCurrentLocation", deliverToCtrl.text);
                                               userCurLocation = deliverToCtrl.text;
                                               userLatitude = location[0].latitude.toString();
                                               userLongtitude = location[0].longitude.toString();
+                                              pref.setString('userLatitute', "${userLatitude}");
+                                              pref.setString('userLongtitude', "${userLongtitude}");
+                                              pref.setString("userCurrentLocation", deliverToCtrl.text);
                                               // getVendorForDeliveryto(authToken);
                                               getCakeList();
                                             });
@@ -3154,11 +3253,12 @@ class _CakeTypesState extends State<CakeTypes> {
                                 ),
                               ),
                               Text(
-                                egglesSwitch ? 'Eggless' : 'Egg',
+                                 'Eggless',
                                 style: TextStyle(
                                     color: darkBlue,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: poppins),
+                                    fontFamily: poppins
+                                ),
                               ),
                             ],
                           ),
@@ -3321,15 +3421,27 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   selIndex[i] = true;
                                                   isFiltered = true;
                                                   currentIndex = index;
-                                                  cakesByType = eggOrEgglesList
-                                                        .where((element) =>
-                                                            element['CakeType']
-                                                                .toString()
-                                                                .toLowerCase() ==
-                                                            cakesTypes[index]
-                                                                .toString()
-                                                                .toLowerCase())
-                                                        .toList();
+
+                                                  // for(int i =0;i<eggOrEgglesList.length;i++){
+                                                  //   if(eggOrEgglesList[i]['CakeType'].contains(cakesTypes[index])){
+                                                  //     print("Yessss....");
+                                                  //     cakesByType.add(eggOrEgglesList[i]);
+                                                  //   }else{
+                                                  //     print("test failed...");
+                                                  //   }
+                                                  // }
+
+                                                  List subList = eggOrEgglesList.where((element)
+                                                  => element['CakeSubType'].contains(cakesTypes[index])
+                                                  ).toList();
+
+                                                  cakesByType = eggOrEgglesList.where((element)
+                                                   => element['CakeType'].contains(cakesTypes[index])
+                                                  ).toList();
+
+                                                  cakesByType = cakesByType + subList;
+
+                                                  cakesByType = cakesByType.toSet().toList();
                                                 }
                                               } else {
                                                 selIndex[i] = false;

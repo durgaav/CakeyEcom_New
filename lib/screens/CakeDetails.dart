@@ -1219,703 +1219,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     });
   }
 
-  //Order confirmation dialog**************use lesss*********
-  void showOrderConfirmSheet() {
-    int count = counts;
-    int itemPrice = int.parse(cakePrice);
-    int cakesPrice = 0;
-    int deliverCharge = 0;
-    int tax = 0;
-    int totalAmt = 0;
-    int afterdiscount = 0;
-    int additionals = 0;
-
-    String fixflavour = '';
-    String fixshape = '';
-    String fixtopings = '';
-    String fixweight = '';
-
-    if (fixedFlavour.isEmpty) {
-      setState(() {
-        if (flavour.isNotEmpty) {
-          setState(() {
-            fixflavour = fixedFlavour.split("-").first.toString();
-            flavExtraCharge = int.parse(
-                    fixflavour.replaceAll(new RegExp(r'[^0-9]'), ''),
-                    onError: (e) => 0) +
-                articleExtraCharge;
-            additionals = flavExtraCharge;
-          });
-        } else {
-          setState(() {
-            fixflavour = fixedFlavour.split("-").first.toString();
-            flavExtraCharge = int.parse(
-                    fixflavour.replaceAll(new RegExp(r'[^0-9]'), ''),
-                    onError: (e) => 0) +
-                articleExtraCharge;
-            additionals = flavExtraCharge;
-          });
-        }
-      });
-    } else {
-      setState(() {
-        fixflavour = fixedFlavour;
-        flavExtraCharge = int.parse(
-                fixflavour.replaceAll(new RegExp(r'[^0-9]'), ''),
-                onError: (e) => 0) +
-            articleExtraCharge;
-        additionals = flavExtraCharge;
-      });
-    }
-
-    if (fixedShape.isEmpty) {
-      setState(() {
-        if (shapes.isNotEmpty) {
-          fixshape = shapes[0].toString();
-        } else {
-          fixshape = 'None';
-        }
-      });
-    } else {
-      setState(() {
-        fixshape = fixedShape;
-      });
-    }
-
-    if (fixedWeight.isEmpty) {
-      setState(() {
-        if (weight.isNotEmpty) {
-          fixweight = weight[0].toString();
-        } else {
-          fixweight = 'None';
-        }
-      });
-    } else {
-      setState(() {
-        fixweight = fixedWeight;
-      });
-    }
-
-    if (fixedToppings.isEmpty) {
-      setState(() {
-        fixtopings = 'None';
-      });
-    } else {
-      setState(() {
-        fixtopings = "${fixedToppings.length}+ Toppings";
-      });
-    }
-
-    if (iamYourVendor == true) {
-      setState(() {
-        deliveryCharge = int.parse(
-            myVendorDelCharge.replaceAll(new RegExp(r'[^0-9]'), ''),
-            onError: (e) => 0);
-      });
-    } else {
-      setState(() {
-        deliveryCharge = int.parse(
-            cakeDeliverCharge.replaceAll(new RegExp(r'[^0-9]'), ''),
-            onError: (e) => 0);
-      });
-    }
-
-    int discount =
-        int.parse(cakeDiscounts.toString().replaceAll(new RegExp(r'[^0-9]'), ''));
-    print('discounts $discount');
-
-    setState(() {
-      afterdiscount = (itemPrice / 100 * discount).toInt();
-    });
-    print('after dis total : $afterdiscount');
-
-    setState(() {
-      cakesPrice = itemPrice - afterdiscount.toInt();
-      totalAmt = additionals + cakesPrice + deliverCharge;
-      tax = (totalAmt * taxes / 100).toInt();
-      totalAmt = additionals + cakesPrice + deliverCharge + tax;
-      print('Bill total : $cakesPrice');
-      print('Tax total : $tax');
-    });
-
-    showModalBottomSheet<dynamic>(
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder:
-              (BuildContext context, void Function(void Function()) setState) {
-            return Container(
-              height: MediaQuery.of(context).size.height * 0.75,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20), color: Colors.white),
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(bottom: 35, left: 15, right: 15),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 5,
-                  ),
-                  //Title text...
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'ORDER CONFIRM',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                            width: 35,
-                            height: 35,
-                            decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.circular(10)),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.close_outlined,
-                              color: lightPink,
-                            )),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Container(
-                    color: lightPink,
-                    height: 0.5,
-                    width: double.infinity,
-                  ),
-                  Container(
-                    height: 450,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            trailing: Text(
-                              '₹ $cakePrice',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: lightPink,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            title: Text(
-                              '$cakeName',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  fontSize: 13,
-                                  color: darkBlue,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          ExpansionTile(
-                            title: Text(
-                              'Flavour , Shape etc..',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontFamily: poppins,
-                                  color: darkBlue),
-                            ),
-                            children: [
-                              Container(
-                                padding: EdgeInsets.only(left: 15, right: 15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Flavour',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontFamily: "Poppins",
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      fixedFlavour.isNotEmpty
-                                          ? '${fixedFlavour.split('-').first.toString()}'
-                                          : 'Default',
-                                      style: TextStyle(
-                                        color: darkBlue,
-                                        fontFamily: "Poppins",
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      color: Colors.grey,
-                                      height: 0.5,
-                                      width: double.infinity,
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      'Shape',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontFamily: "Poppins",
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      '$fixshape',
-                                      style: TextStyle(
-                                        color: darkBlue,
-                                        fontFamily: "Poppins",
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      color: Colors.grey,
-                                      height: 0.5,
-                                      width: double.infinity,
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      'Weight',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontFamily: "Poppins",
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      '$fixweight',
-                                      style: TextStyle(
-                                        color: darkBlue,
-                                        fontFamily: "Poppins",
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                          ExpansionTile(
-                            title: Text(
-                              'Delivery address & date etc...',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontFamily: poppins,
-                                  color: darkBlue),
-                            ),
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Icon(
-                                    Icons.calendar_today,
-                                    color: lightPink,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '$deliverDate',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontFamily: "Poppins",
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Icon(
-                                    CupertinoIcons.clock,
-                                    color: lightPink,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '$deliverSession',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontFamily: "Poppins",
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Icon(
-                                    Icons.home_outlined,
-                                    color: lightPink,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                    width: 250,
-                                    child: Text(
-                                      '$userAddress',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontFamily: "Poppins",
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Icon(
-                                    Icons.directions_bike_outlined,
-                                    color: lightPink,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '$fixedDelliverMethod',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontFamily: "Poppins",
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Container(
-                            padding: EdgeInsets.only(left: 15, right: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Item count ($count)',
-                                  style: TextStyle(
-                                      color: darkBlue, fontFamily: "Poppins"),
-                                ),
-                                Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          count++;
-                                          setState(() {
-                                            cakesPrice = itemPrice -
-                                                afterdiscount.toInt();
-                                            totalAmt = additionals +
-                                                cakesPrice +
-                                                deliverCharge +
-                                                tax;
-                                          });
-                                        });
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                              height: 30,
-                                              width: 30,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: lightPink),
-                                              child: Icon(
-                                                Icons.add,
-                                                color: Colors.white,
-                                              ))
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          if (count > 1) {
-                                            count = count - 1;
-                                          }
-                                        });
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                              height: 30,
-                                              width: 30,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: lightPink),
-                                              child: Icon(
-                                                Icons.remove,
-                                                color: Colors.white,
-                                              ))
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Container(
-                            padding: EdgeInsets.only(left: 5, right: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Item Total',
-                                        style: TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      RichText(
-                                          text: TextSpan(text: '', children: [
-                                        TextSpan(
-                                          text: '₹ $cakePrice',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontStyle: FontStyle.italic,
-                                              fontWeight: FontWeight.normal,
-                                              decoration:
-                                                  TextDecoration.lineThrough),
-                                        ),
-                                        TextSpan(
-                                          text: '  ₹ ${count * cakesPrice}',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: darkBlue),
-                                        ),
-                                      ]))
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Additional',
-                                        style: const TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      Text(
-                                        '₹${flavExtraCharge}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Delivery charge',
-                                        style: const TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      Text(
-                                        '₹${deliverCharge}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Discounts',
-                                        style: const TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${discount} %',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      // ₹
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Taxes',
-                                        style: const TextStyle(
-                                          fontFamily: "Poppins",
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${taxes} %',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 10, right: 10),
-                                  color: Colors.black26,
-                                  height: 1,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Bill Total',
-                                        style: TextStyle(
-                                            fontFamily: "Poppins",
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        '₹${count * totalAmt}',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                      child: Container(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            margin: EdgeInsets.only(left: 6, right: 6),
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              color: lightPink,
-                              onPressed: () {
-                                // int itemCount = 0;
-                                // int totalAmount = 0;
-                                // int deliveryCharge = 0;
-                                // int discounts = 0;
-                                // int taxes = 0;
-                                setState(() {
-                                  totalAmount = count * totalAmt;
-                                  itemCount = count * cakesPrice;
-                                  deliveryCharge = deliverCharge;
-                                  discounts = discount;
-                                  taxes = taxes;
-                                  counts = count;
-                                });
-                                loadOrderPreference();
-                              },
-                              child: Text(
-                                'Confirm Checkout',
-                                style: TextStyle(
-                                    fontFamily: "Poppins", color: Colors.white),
-                              ),
-
-                            ),
-                          )))
-                ],
-              ),
-            );
-          });
-        });
-  }
-
   //Profile update remainder dialog
   void showDpUpdtaeDialog() {
     showDialog(
@@ -2151,8 +1454,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       cakeEgglessPrice = prefs.getString('cakeEgglesCost')!;
       basicCakeWeight = prefs.getString('cakeMinWeight')!;
       cakeDescription = prefs.getString('cakeDescription')!;
-      cakeType = prefs.getString('cakeType')!;
-      cakeSubType = prefs.getString('cakeSubType')!;
+      // cakeType = prefs.getString('cakeType')!;
+      // cakeSubType = prefs.getString('cakeSubType')!;
       cakeRatings = prefs.getDouble('cakeRating')!.toString();
       isThemePossible = prefs.getString('cakeThemePoss')!.toString();
       isTierPossible = prefs.getString('cakeTierPoss')!.toString();
@@ -2178,6 +1481,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       adminDeliveryCharge = prefs.getInt("todayDeliveryCharge")??0;
       adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm")??0;
 
+      //topper fetch...
       fetchToppersById(vendorID);
 
       //user
@@ -2320,8 +1624,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
               mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()).toString();
     }
 
-
-
     print("deliver based km $dlintKm");
 
     //variables for calculations
@@ -2335,9 +1637,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     setState((){
 
-      if(fixedWeight=="1.0"){
-        fixedWeight = weight[0].toString();
-      }
+      // if(fixedWeight=="1.0"){
+      //   fixedWeight = weight[0].toString();
+      // }
 
       fixedWeight = fixedWeight.toLowerCase().replaceAll("kg", "");
 
@@ -2542,8 +1844,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         List vendorsList = jsonDecode(res.body);
         List temp = [];
 
-        List ctypesList = cakesList.where((element) => element['CakeType'].toString().toLowerCase()
-            ==cakeType.toLowerCase()).toList();
+        List ctypesList = cakesList.where((element) => element['CakeName'].toString().toLowerCase().contains(
+            cakeName.toLowerCase()
+        )).toList();
 
         print(ctypesList.length);
 
@@ -2564,6 +1867,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
             element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
         ).toList();;
         nearestVendors = nearestVendors.toSet().toList();
+
       });
     } else {}
     print("...end");
@@ -2582,10 +1886,18 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     if (res.statusCode == 200) {
       setState(() {
         myCakesList = jsonDecode(res.body);
-        cakesList = myCakesList
+        List cakeList = jsonDecode(res.body);
+
+        cakeList = myCakesList.where((element) => calculateDistance(double.parse(userLatitude),
+            double.parse(userLongtitude),
+            element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
+
+        cakesList = cakeList
             .where((element) =>
-                element['CakeType'].toString().toLowerCase().contains(cakeType.toLowerCase().toString()))
+                element['CakeName'].toString().toLowerCase().contains(cakeName.toLowerCase().toString()))
             .toList();
+
+        print("Cake list length = ... ${cakesList.length}");
 
         getVendorsList();
         Navigator.pop(context);
@@ -2604,14 +1916,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
 
   //changing dynamcially cake based on vendors
-  Future<void> loadCakeDetailsByVendor(String venId , String cakesType , [int index = 0,bool selectedFrm = false]) async{
+  Future<void> loadCakeDetailsByVendor(String venId , String cakesType ,
+      [int index = 0,bool selectedFrm = false]) async{
+
+    print("updating....");
 
     List artTempList = [];
     String adrss = "";
     List flavour1 = [];
     List shapes1 = [];
-
-    context.read<ContextData>().addMyVendor(false);
 
     //clear the flavlist
     fixedFlavour = "";
@@ -2639,46 +1952,27 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     tempCakeWeight = "0.0";
 
 
-    try {
-      
+    print("Ven cake Update "+"${cakesList.length}");
+
       //Change ui based on vendor and cake type
       setState((){
-        artTempList = myCakesList
+
+        artTempList = cakesList
             .where((element) =>
         element['VendorID']
             .toString().toLowerCase() ==
             venId.toString().toLowerCase())
             .toList();
 
+
+        // print(artTempList[0]['VendorID']);
+        print(artTempList[0]['_id']);
+
         artTempList = artTempList
-            .where((element) => element[
-        'CakeType']
-            .toString()
-            .toLowerCase()
-            .contains(cakesType
-            .toString()
-            .toLowerCase()))
+            .where((element) => element['CakeName'].toString()==cakesType)
             .toList();
 
-        print("artTempList $artTempList");
-
-        adrss = artTempList[0]['VendorAddress']['Street'].toString() +
-            "," +
-            artTempList[0]['VendorAddress']
-            [
-            'City']
-                .toString() +
-            "," +
-            artTempList[0]['VendorAddress']
-            [
-            'District']
-                .toString() +
-            "," +
-            artTempList[0]['VendorAddress']
-            [
-            'Pincode']
-                .toString();
-
+        adrss = artTempList[0]['VendorAddress'];
 
         cakeImages = artTempList[0]['AdditionalCakeImages'];
         cakeId = artTempList[0]['_id'];
@@ -2694,39 +1988,58 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         cakeEgglessPrice = artTempList[0]['BasicEgglessCostPerKg'];
         basicCakeWeight = artTempList[0]['MinWeight'];
         cakeDescription = artTempList[0]['Description'];
-        cakeType = artTempList[0]['CakeType'];
-        cakeSubType = artTempList[0]['CakeSubType'];
+        // cakeType = artTempList[0]['CakeType'];
+        // cakeSubType = artTempList[0]['CakeSubType'];
         cakeRatings = artTempList[0]['Ratings'].toString();
         isThemePossible = artTempList[0]['ThemeCakePossible'];
         isTierPossible = artTempList[0]['IsTierCakePossible'];
         isTopperPossible = artTempList[0]['ToppersPossible'];
         taxes = artTempList[0]['Tax'];
         cakeDiscounts = artTempList[0]['Discount'];
-        vendorLat = artTempList[0]['GoogleLocation']['Latitude'];
-        vendorLong = artTempList[0]['GoogleLocation']['Longitude'];
+        vendorLat = artTempList[0]['GoogleLocation']['Latitude'].toString();
+        vendorLong = artTempList[0]['GoogleLocation']['Longitude'].toString();
+
+        thrkgdeltime = artTempList[0]['MinTimeForDeliveryOfA3KgCake'];
+        fvkgdeltime = artTempList[0]['MinTimeForDeliveryOfA5KgCake'];
+        cakeMindeltime = artTempList[0]['MinTimeForDeliveryOfDefaultCake'];
         // weight = artTempList[0]['MinWeightList'];
 
-        for(int i = 0 ; i<artTempList[0]['MinWeightList'].length;i++){
-          weight.add(artTempList[0]['MinWeightList'][i].toString());
+        print("%%%%%%%%%%%%%%%");
+        print(artTempList[0]['MinWeightList']);
+
+        weight.clear();
+
+        if(artTempList[0]['MinWeightList'].isNotEmpty){
+          print("Exc...");
+          for(int i = 0 ; i<artTempList[0]['MinWeightList'].length;i++){
+            weight.add(artTempList[0]['MinWeightList'][i].toString());
+          }
         }
-
-        //Vendor
-        vendorID = artTempList[0]['VendorID'];
-        vendorModID = artTempList[0]['Vendor_ID'];
-        vendorPhone1 = artTempList[0]['VendorPhoneNumber1'];
-        vendorPhone2 = artTempList[0]['VendorPhoneNumber2'];
-        vendorAddress = "artTempList[0]['VendorAddress']";
-        vendorName = artTempList[0]['VendorName'];
-
-        fetchToppersById(vendorID);
-        
-        print("Users : $userID\n $userName\n $userModID\n $userAddress\n $newRegUser\n $userPhone\n");
 
         if(weight.isEmpty){
           weight.add(basicCakeWeight);
         }else{
           weight.insert(0, basicCakeWeight);
         }
+
+        weight = weight.toSet().toList();
+        weight.sort();
+        fixedWeight = weight[0].toString();
+        weightIndex = 0;
+        cakeImages = cakeImages.toSet().toList();
+
+        //Vendor
+        vendorID = artTempList[0]['VendorID'];
+        vendorModID = artTempList[0]['Vendor_ID'];
+        vendorPhone1 = artTempList[0]['VendorPhoneNumber1'];
+        vendorPhone2 = artTempList[0]['VendorPhoneNumber2'];
+        vendorAddress = artTempList[0]['VendorAddress'];
+        vendorName = artTempList[0]['VendorName'];
+
+        fetchToppersById(vendorID);
+
+        print("Users : $userID\n $userName\n $userModID\n $userAddress\n $newRegUser\n $userPhone\n");
+
 
         cakeTiers = artTempList[0]['TierCakeMinWeightAndPrice'];
 
@@ -2736,10 +2049,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
           cakeImages.insert(0, artTempList[0]['MainCakeImage'].toString());
         }
 
-        weight = weight.toSet().toList();
-        fixedWeight = weight[0].toString();
-        weightIndex = 0;
-        cakeImages = cakeImages.toSet().toList();
 
         if(cakeEggorEgless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=='y'){
           // showEgglessSheet();
@@ -2748,7 +2057,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         if(cakeEggorEgless.toLowerCase()=="eggless"){
           isFromEggless = true;
         }
-
 
         print(cakeEgglessPrice);
 
@@ -2759,6 +2067,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         if(shapes1.isEmpty){
           shapes1.add({"Name":"$cakeBaseShape","Price":"0"});
         }
+
+        context.read<ContextData>().addMyVendor(false);
 
         flavour.clear();
         shapes.clear();
@@ -2772,10 +2082,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         shapes = shapes.reversed.toList();
       });
 
-    } catch (e){
 
-    }
-    
+    print("....updated");
+
   }
 
   //endregion
@@ -2889,7 +2198,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     selVendor = context.watch<ContextData>().getAddedMyVendor();
     if(selVendor == true){
       mySelVendors = context.watch<ContextData>().getMyVendorsList();
-      loadCakeDetailsByVendor(mySelVendors[0]['_id'] , cakeType , 0);
+      loadCakeDetailsByVendor(mySelVendors[0]['_id'] , cakeName , 0);
       isNearVendrClicked = true;
     }
     if(context.watch<ContextData>().getDpUpdate()==true){
@@ -2920,21 +2229,22 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         : Text(""),
                     expandedHeight: 300.0,
                     leading: Container(
-                      margin: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.all(12),
                       child: InkWell(
                         onTap: () {
                           Navigator.pop(context);
-                          context.read<ContextData>().setMyVendors([]);
-                          context.read<ContextData>().addMyVendor(false);
                         },
                         child: Container(
                           height: 30,
                           decoration: BoxDecoration(
                               color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(7)
-                          ),
+                              borderRadius: BorderRadius.circular(7)),
                           alignment: Alignment.center,
-                          child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
+                          child: Icon(
+                            Icons.chevron_left,
+                            size: 30,
+                            color: lightPink,
+                          ),
                         ),
                       ),
                     ),
@@ -4452,18 +3762,30 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
                                 GestureDetector(
                                   onTap: () async {
+
                                     DateTime? SelDate = await showDatePicker(
                                       context: context,
-                                      initialDate: DateTime.now(),
+                                      initialDate: DateTime(
+                                        DateTime.now().year,
+                                        DateTime.now().month,
+                                        DateTime.now().day+1,
+                                      ),
                                       lastDate: DateTime(2100),
-                                      firstDate: DateTime.now()
-                                          .subtract(Duration(days: 0)),
+                                      firstDate: DateTime(
+                                        DateTime.now().year,
+                                        DateTime.now().month,
+                                        DateTime.now().day+1,
+                                      ),
+                                      helpText: "Select Deliver Date"
                                     );
 
                                     setState(() {
                                       deliverDate = simplyFormat(
-                                          time: SelDate, dateOnly: true);
+                                          time: SelDate, dateOnly: true
+                                      );
                                     });
+
+                                    print(cakeMindeltime.replaceAll(RegExp('[^0-9]'), ''));
 
                                     // print(SelDate.toString());
                                     // print(DateTime.now().subtract(Duration(days: 0)));
@@ -4960,6 +4282,19 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 maxLines: 1,
                                                                               ),
                                                                               SizedBox(height: 3),
+                                                                              (calculateDistance(double.parse(userLatitude),
+                                                                                  double.parse(userLongtitude),
+                                                                                  mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                  mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()==0?
+                                                                              Text(
+                                                                                "DELIVERY FREE",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 10,
+                                                                                  fontFamily: "Poppins",
+                                                                                  color: Colors.orange,
+                                                                                ),
+                                                                                maxLines: 1,
+                                                                              ):
                                                                               Text(
                                                                                 "${
                                                                                     (calculateDistance(double.parse(userLatitude),
@@ -5083,7 +4418,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                               'iamFromCustomise',
                                                               true);
 
-                                                          pref.setString("passCakeType","$cakeType");
+                                                          pref.setString("passCakeType","$cakeName");
 
                                                           setState(() {
                                                             Navigator.push(
@@ -5149,7 +4484,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                    mySelVendors = [nearestVendors[index]];
                                                                    isNearVendrClicked = true;
                                                                    print(mySelVendors);
-                                                                   loadCakeDetailsByVendor(mySelVendors[0]['_id'].toString(), cakeType , 0);
+                                                                   loadCakeDetailsByVendor(mySelVendors[0]['_id'].toString(), cakeName , 0);
                                                                 });
                                                               },
                                                               child: Container(
@@ -5302,10 +4637,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                             SizedBox(
                                                                               height: 8,
                                                                             ),
-                                                                            // index==0?Text(
-                                                                            //    "DELIVERY FREE",
-                                                                            //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
-                                                                            // ):
+                                                                            (calculateDistance(double.parse(userLatitude),
+                                                                                double.parse(userLongtitude),
+                                                                                nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()==0?Text(
+                                                                               "DELIVERY FREE",
+                                                                              style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
+                                                                            ):
                                                                             Text(
                                                                               "${
                                                                                   (calculateDistance(double.parse(userLatitude),

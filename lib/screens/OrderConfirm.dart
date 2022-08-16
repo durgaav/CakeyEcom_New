@@ -77,6 +77,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String userModId = '';
   String userPhone = '';
 
+  String deiverDate = "";
+
   //int
   double itemsTotal = 0;
   int counts = 1;
@@ -127,45 +129,53 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
     var prefs = await SharedPreferences.getInstance();
 
-    //UI Views variables...
-    setState(() {
 
-      //Strings
-      cakeName = prefs.getString("orderCakeName")!;
-      cakePrice = prefs.getString("orderCakePrice")!;
-      cakeType = prefs.getString("orderCakeType")!;
-      weight = prefs.getString("orderCakeWeight")!;
-      cakeImage = prefs.getString("orderCakeImages")!;
-      userAddress = prefs.getString("orderCakeDeliverAddress")!;
-      vendorName = prefs.getString("orderCakeVendorName")!;
-      shape = prefs.getString("orderCakeShape")!;
-      vendorPhone1 = prefs.getString("cakeVendorPhone1")!;
-      vendorPhone2 = prefs.getString("cakeVendorPhone2")!;
-      shape = prefs.getString("orderCakeShape")!;
-      deliverType = prefs.getString('orderCakeDeliverType')??"None";
+    try{
+      //UI Views variables...
+      setState(() {
 
-      //ints
-      counts = prefs.getInt('orderCakeItemCount')!;
-      bilTotal = prefs.getDouble('orderCakeBillTotal')!;
-      itemsTotal = prefs.getDouble('orderCakeItemTotal')!;
-      gstPrice = prefs.getDouble('orderCakeGst')!;
-      sgstPrice = prefs.getDouble('orderCakeSGst')!;
-      discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
-      discount = prefs.getInt('orderCakeDiscount')!;
-      extraCharges = prefs.getInt('orderCakePaymentExtra')!;
-      taxes = prefs.getInt('orderCakeTaxperc')!;
-      deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
-      
-      //get tier
-      cakeTier = prefs.getString("orderCakeTier")!;
+        //Strings
+        cakeName = prefs.getString("orderCakeName")!;
+        cakePrice = prefs.getString("orderCakePrice")??'100';
+        // cakeType = prefs.getString("orderCakeType")!;
+        weight = prefs.getString("orderCakeWeight")!;
+        cakeImage = prefs.getString("orderCakeImages")!;
+        userAddress = prefs.getString("orderCakeDeliverAddress")!;
+        vendorName = prefs.getString("orderCakeVendorName")!;
+        shape = prefs.getString("orderCakeShape")!;
+        vendorPhone1 = prefs.getString("cakeVendorPhone1")!;
+        vendorPhone2 = prefs.getString("cakeVendorPhone2")!;
+        shape = prefs.getString("orderCakeShape")!;
+        deliverType = prefs.getString('orderCakeDeliverType')??"None";
 
-      //getTopper
+        //ints
+        counts = prefs.getInt('orderCakeItemCount')!;
+        bilTotal = prefs.getDouble('orderCakeBillTotal')!;
+        itemsTotal = prefs.getDouble('orderCakeItemTotal')!;
+        gstPrice = prefs.getDouble('orderCakeGst')!;
+        sgstPrice = prefs.getDouble('orderCakeSGst')!;
+        discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
+        discount = prefs.getInt('orderCakeDiscount')!;
+        extraCharges = prefs.getInt('orderCakePaymentExtra')!;
+        taxes = prefs.getInt('orderCakeTaxperc')!;
+        deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
+        deliverDate = prefs.getString('orderCakeDeliverDate')!;
+
+        //get tier
+        cakeTier = prefs.getString("orderCakeTier")!;
+
+        //getTopper
 
 
-      print('Tier $cakeTier');
-      print('--------------');
+        print('Tier $cakeTier');
+        print('--------------');
 
-    });
+      });
+    }catch(e){
+      print(e);
+    }
+
+
 
   }
 
@@ -186,19 +196,22 @@ class _OrderConfirmState extends State<OrderConfirm> {
     return Scaffold(
         appBar: AppBar(
           leading:Container(
-            margin: const EdgeInsets.all(10),
+            margin: EdgeInsets.all(12),
             child: InkWell(
-              onTap: (){
+              onTap: () {
                 Navigator.pop(context);
               },
               child: Container(
                 height: 30,
                 decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(7)
-                ),
+                    borderRadius: BorderRadius.circular(7)),
                 alignment: Alignment.center,
-                child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
+                child: Icon(
+                  Icons.chevron_left,
+                  size: 30,
+                  color: lightPink,
+                ),
               ),
             ),
           ),
@@ -306,7 +319,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('(Shape - ${jsonDecode(shape)['Name'].toString()})',style: TextStyle(
+                            Text('(Shape - ${shape.replaceAll("Name", "").replaceAll("Price", "")
+                                .replaceAll("{", "").replaceAll("}", "").replaceAll('"', '').replaceAll(":", "")
+                                .replaceAll(",", "").replaceAll("0", "").replaceAll('"', "")})',style: TextStyle(
                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                               ),overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
@@ -330,7 +345,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             Text.rich(
                               TextSpan(
                                 text: '₹ ${(counts * (double.parse(cakePrice.toString()) +
-                                    double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',
+                                    double.parse(extraCharges.toString()))*
+                                    double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                   fontFamily: "Poppins"),
@@ -416,10 +432,10 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Cake Type',style: TextStyle(
+                            Text('Deliver Date',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('${cakeType}',style: TextStyle(
+                            Text('${deliverDate}',style: TextStyle(
                                 fontSize: 14,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),

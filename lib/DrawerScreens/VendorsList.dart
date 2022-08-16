@@ -163,7 +163,7 @@ class _VendorsListState extends State<VendorsList> {
 
             List temp = [];
 
-            List ctypesList = cakeList.where((element) => element['CakeType'].toString().toLowerCase()
+            List ctypesList = cakeList.where((element) => element['CakeName'].toString().toLowerCase()
                 ==cakeTypeFromCD.toLowerCase()).toList();
 
             print(ctypesList);
@@ -260,7 +260,7 @@ class _VendorsListState extends State<VendorsList> {
           myCakeList = jsonDecode(res.body);
           cakeList = myCakeList
               .where((element) =>
-              element['CakeType'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
+              element['CakeName'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
               .toList();
           print(cakeList.length);
           getVendorsList();

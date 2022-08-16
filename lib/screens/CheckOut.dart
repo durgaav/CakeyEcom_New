@@ -386,7 +386,7 @@ class _CheckOutState extends State<CheckOut> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_MyjGwTc9WHqxJZ:HN0Wocy6yeYils1HFJIaE34G'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_339Az2MifF7NxM:LO2zHWEkcFGyfJwUv0NTILj0'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -465,7 +465,7 @@ class _CheckOutState extends State<CheckOut> {
 
 
     var options = {
-      'key': 'rzp_test_MyjGwTc9WHqxJZ',
+      'key': 'rzp_test_339Az2MifF7NxM',
       'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -804,7 +804,7 @@ class _CheckOutState extends State<CheckOut> {
     // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
 
     var headers = {
-      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
+      'Authorization': '$authToken',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
@@ -867,171 +867,198 @@ class _CheckOutState extends State<CheckOut> {
 
     setState((){
       for (var i = 0 ; i<flavs.length ; i++){
-        tempFlavList.add(jsonEncode(flavs[i]));
+        tempFlavList.add(flavs[i]);
       }
     });
 
     print(tempFlavList.toString());
 
-    print({
-      "VendorName":vendorName,
-      "VendorID":vendorID,
-      "Vendor_ID":vendorModId,
-      "VendorPhoneNumber1":vendorPhone1,
-      "VendorPhoneNumber2":vendorPhone2,
-      "VendorAddress":"$vendorAddress",
-
-    });
-
-    print({
-      // "CakeID": cakeID,
-      // "Cake_ID": cakeModId,
-      // "CakeName": cakeName,
-      // "CakeCommonName": cakeCommonName,
-      // "CakeType": cakeType,
-      // "CakeSubType": cakeSubType,
-      // "Image": cakeImage,
-      // "EggOrEggless": eggOreggless,
-      // "Flavour": '$tempFlavList',
-      // "Shape": shape,
-      "Weight": tierCakeWeight=="null"?
-      weight.toLowerCase().replaceAll("kg", "")+"kg":
-      tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
-      "Description": cakeDesc,
-      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
-      "PaymentType": paymentType,
-      "Total": billTot.toString(),
-      "Sgst": (tempTax/2).toString(),
-      "Gst": (tempTax/2).toString(),
-      "DeliveryCharge": deliveryCharge.toString(),
-      "ExtraCharges": extraCharges.toString(),
-      "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
-      "ItemCount": counts.toString(),
-      "Price": cakePrice.toString(),
-      "DeliveryInformation": deliverType,
-      "DeliverySession": deliverSession,
-      "DeliveryDate": deliverDate,
-      "DeliveryAddress": userAddress,
-      "UserPhoneNumber": userPhone,
-      "UserName": userName,
-      "UserID": userID,
-      "User_ID": userModId,
-    });
-
     showAlertDialog();
 
+
+    print("weight.... $weight");
+
+    print(
+        {
+          "CakeID": cakeID,
+          "Cake_ID": cakeModId,
+          "CakeName": cakeName,
+          "CakeCommonName": cakeCommonName,
+          // "CakeType": cakeType,
+          // "CakeSubType": cakeSubType,
+          "Image": cakeImage,
+          "EggOrEggless": eggOreggless,
+          "Flavour": '$tempFlavList',
+          "Shape": shape,
+          "Weight": tierCakeWeight=="null"?
+          weight.toLowerCase().replaceAll("kg", "")+"kg":
+          tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+          // "Description": cakeDesc,
+          "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+          "PaymentType": paymentType,
+          "Total": billTot.toString(),
+          "Sgst": (tempTax/2).toString(),
+          "Gst": (tempTax/2).toString(),
+          // "DeliveryCharge": deliveryCharge.toString(),
+          "ExtraCharges": extraCharges.toString(),
+          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
+          "ItemCount": counts.toString(),
+          "Price": cakePrice.toString(),
+          "DeliverySession": deliverSession,
+          "VendorName":vendorName,
+          "VendorID":vendorID,
+          "Vendor_ID":vendorModId,
+          "VendorPhoneNumber1":vendorPhone1,
+          "VendorPhoneNumber2":vendorPhone2,
+          "VendorAddress":"$vendorAddress",
+          "TopperId":topperId,
+          "TopperName":topperName,
+          "TopperImage":topperImg,
+          "TopperPrice":'$topperPrice',
+          "PremiumVendor":"n",
+          "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
+          // "DeliveryDate": deliverDate,
+          // "UserPhoneNumber": userPhone,
+          // "UserName": userName,
+          // "UserID": userID,
+          // "User_ID": userModId,
+          // "Tax":taxes.toString(),
+          // "DeliveryInformation": deliverType,
+          // "DeliveryAddress": userAddress,
+        }
+    );
+
     try {
-        var headers = {'Content-Type': 'multipart/form-data'};
-        var request = http.MultipartRequest('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-        request.fields.addAll(
-            {
-              "CakeID": cakeID,
-              "Cake_ID": cakeModId,
-              "CakeName": cakeName,
-              "CakeCommonName": cakeCommonName,
-              "CakeType": cakeType,
-              "CakeSubType": cakeSubType,
-              "Image": cakeImage,
-              "EggOrEggless": eggOreggless,
-              "Flavour": '$tempFlavList',
-              "Shape": shape,
-              "Weight": tierCakeWeight=="null"?
-              weight.toLowerCase().replaceAll("kg", "")+"kg":
-              tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
-              "Description": cakeDesc,
-              "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
-              "PaymentType": paymentType,
-              "Total": billTot.toString(),
-              "Sgst": (tempTax/2).toString(),
-              "Gst": (tempTax/2).toString(),
-              "DeliveryCharge": deliveryCharge.toString(),
-              "ExtraCharges": extraCharges.toString(),
-              "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
-              "ItemCount": counts.toString(),
-              "Price": cakePrice.toString(),
-              "DeliverySession": deliverSession,
-              "DeliveryDate": deliverDate,
-              "UserPhoneNumber": userPhone,
-              "UserName": userName,
-              "UserID": userID,
-              "User_ID": userModId,
-              "Tax":taxes.toString(),
-              "DeliveryInformation": deliverType,
-            }
-        );
 
-        if(deliverType.toLowerCase()=="delivery"){
-          request.fields.addAll({
-            "DeliveryAddress": userAddress,
-          });
-        }
+        var headers = {'Content-Type': 'application/json'};
+        var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
+        request.headers.addAll(headers);
+        request.body = jsonEncode({
+          "CakeID": cakeID,
+          "Cake_ID": cakeModId,
+          "CakeName": cakeName,
+          "CakeCommonName": cakeCommonName,
+          // "CakeType": cakeType,
+          // "CakeSubType": cakeSubType,
+          "Image": cakeImage,
+          "EggOrEggless": eggOreggless,
+          "Flavour": '$tempFlavList',
+          "Shape": shape,
+          "Weight": tierCakeWeight=="null"?
+          weight.toLowerCase().replaceAll("kg", "")+"kg":
+          tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+          "Description": cakeDesc,
+          "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+          "PaymentType": paymentType,
+          "Total": billTot.toString(),
+          "Sgst": (tempTax/2).toString(),
+          "Gst": (tempTax/2).toString(),
+          "DeliveryCharge": deliveryCharge.toString(),
+          "ExtraCharges": extraCharges.toString(),
+          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?int.parse(discountPrice.toString()):0,
+          "ItemCount": counts,
+          "Price": cakePrice.toString(),
+          "DeliverySession": deliverSession,
+          "DeliveryDate": deliverDate,
+          "UserPhoneNumber": userPhone,
+          "UserName": userName,
+          "UserID": userID,
+          "User_ID": userModId,
+          "Tax":taxes.toString(),
+          "DeliveryInformation": deliverType,
+          "VendorName":vendorName,
+          "VendorID":vendorID,
+          "Vendor_ID":vendorModId,
+          "VendorPhoneNumber1":vendorPhone1,
+          "VendorPhoneNumber2":vendorPhone2,
+          "VendorAddress":"$vendorAddress",
+          "PremiumVendor":"n",
+          "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
+          "DeliveryAddress": userAddress,
+          "PremiumVendor":"y",
+          "MessageOnTheCake":cakeMessage,
+          "SpecialRequest":cakeSplReq,
+          "TopperId":topperId,
+          "TopperName":topperName,
+          "TopperImage":topperImg,
+          "TopperPrice":'$topperPrice',
+        });
 
-        //theme ops
-        if(themeName.toString()!="null"){
-          request.fields.addAll({
-            "Theme":themeName,
-          });
-        }
-        if(themeFileName.toString()!="null"){
-          request.files.add(await http.MultipartFile.fromPath(
-              'file', themeFileName.toString(),
-              filename: Path.basename(themeFileName),
-              contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
-          ));
-        }
 
-        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
-          request.fields.addAll({
-            "PremiumVendor":"y",
-          });
-        }
 
-        //if vendor is not emp..
-        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
-          request.fields.addAll({
-            "VendorName":vendorName,
-            "VendorID":vendorID,
-            "Vendor_ID":vendorModId,
-            "VendorPhoneNumber1":vendorPhone1,
-            "VendorPhoneNumber2":vendorPhone2,
-            "VendorAddress":"$vendorAddress",
-            "PremiumVendor":"n",
-            "GoogleLocation":jsonEncode({"Latitude":vendorLat , "Longitude":vendorLong})
-          });
-        }
-
-        //cake message
-        if(cakeMessage.toString()!="null"){
-          request.fields.addAll({
-            "MessageOnTheCake":cakeMessage
-          });
-        }
-
-        //spl req...
-        if(cakeSplReq.toString()!="null"){
-          request.fields.addAll({
-            "SpecialRequest":cakeSplReq
-          });
-        }
+        //
+        // //send address
+        // if(deliverType.toLowerCase()=="delivery"){
+        //   request.body = jsonEncode({
+        //     "DeliveryAddress": userAddress,
+        //   });
+        // }
+        //
+        // //theme ops
+        // // if(themeName.toString()!="null"){
+        // //   request.fields.addAll({
+        // //     "Theme":themeName,
+        // //   });
+        // // }
+        // // if(themeFileName.toString()!="null"){
+        // //   request.files.add(await http.MultipartFile.fromPath(
+        // //       'file', themeFileName.toString(),
+        // //       filename: Path.basename(themeFileName),
+        // //       contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
+        // //   ));
+        // // }
+        //
+        // if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
+        //   request.body = jsonEncode({
+        //     "PremiumVendor":"y",
+        //   });
+        // }
+        //
+        // //if vendor is not emp..
+        // if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
+        //   request.body = jsonEncode({
+        //     "VendorName":vendorName,
+        //     "VendorID":vendorID,
+        //     "Vendor_ID":vendorModId,
+        //     "VendorPhoneNumber1":vendorPhone1,
+        //     "VendorPhoneNumber2":vendorPhone2,
+        //     "VendorAddress":"$vendorAddress",
+        //     "PremiumVendor":"n",
+        //     "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong}
+        //   });
+        // }
+        //
+        // //cake message
+        // if(cakeMessage.toString()!="null"){
+        //   request.body = jsonEncode({
+        //     "MessageOnTheCake":cakeMessage
+        //   });
+        // }
+        //
+        // //spl req...
+        // if(cakeSplReq.toString()!="null"){
+        //   request.body = jsonEncode({
+        //     "SpecialRequest":cakeSplReq
+        //   });
+        // }
+        //
+        // //toppers
+        // if(topperPrice!=0){
+        //   request.body = jsonEncode({
+        //     "TopperId":topperId,
+        //     "TopperName":topperName,
+        //     "TopperImage":topperImg,
+        //     "TopperPrice":'$topperPrice',
+        //   });
+        // }
 
         //tiers ops
-        if(cakeTier.toString()!="null"){
-          request.fields.addAll({
-            "Tier":cakeTier
-          });
-        }
+        // if(cakeTier.toString()!="null"){
+        //   request.fields.addAll({
+        //     "Tier":cakeTier
+        //   });
+        // }
 
-        //toppers
-        if(topperPrice!=0){
-          request.fields.addAll({
-            "TopperId":topperId,
-            "TopperName":topperName,
-            "TopperImage":topperImg,
-            "TopperPrice":'$topperPrice',
-          });
-        }
-
-        request.headers.addAll(headers);
 
         http.StreamedResponse response = await request.send();
 
@@ -1056,9 +1083,7 @@ class _CheckOutState extends State<CheckOut> {
 
             premiumVendor=="no"?
             sendNotificationToVendor(notificationTid):null;
-
             showOrderCompleteSheet();
-
           }else{
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1075,6 +1100,8 @@ class _CheckOutState extends State<CheckOut> {
           ));
           Navigator.pop(context);
         }
+
+
     }catch(e){
       print(e);
     }
@@ -1131,26 +1158,27 @@ class _CheckOutState extends State<CheckOut> {
     return Scaffold(
         appBar: AppBar(
           leading: Container(
-            margin: const EdgeInsets.all(10),
+            margin: EdgeInsets.all(12),
             child: InkWell(
               onTap: () {
                 Navigator.pop(context);
               },
               child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10)),
-                  alignment: Alignment.center,
-                  height: 20,
-                  width: 20,
-                  child: Icon(
-                    Icons.chevron_left,
-                    color: lightPink,
-                    size: 35,
-                  )),
+                height: 30,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(7)),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.chevron_left,
+                  size: 30,
+                  color: lightPink,
+                ),
+              ),
             ),
           ),
-          title: Text('CHECKOUT',
+          title: Text(
+              'CHECKOUT',
               style: TextStyle(
                   color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
           elevation: 0.0,
@@ -1379,10 +1407,10 @@ class _CheckOutState extends State<CheckOut> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Cake Type',style: TextStyle(
+                            Text('Deliver Date',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('${cakeType}',style: TextStyle(
+                            Text('${deliverDate}',style: TextStyle(
                                 fontSize: 14,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),
@@ -1897,7 +1925,8 @@ class _CheckOutState extends State<CheckOut> {
                     },
                     color: lightPink,
                     child: Text(
-                      "PROCEED TO PAY",
+                      paymentType.toLowerCase()=="cash on delivery"?
+                      "ORDER NOW":'PROCEED TO PAY',
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
