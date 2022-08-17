@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
-import 'package:cakey/DrawerScreens/Hampers.dart';
+import 'package:cakey/screens/Hampers.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -2660,7 +2660,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ListView.builder(
                                                                   shrinkWrap:
                                                                       true,
-                                                                  itemCount: 3,
+                                                                  itemCount: recentOrders.length<3?recentOrders.length:3,
                                                                   physics:
                                                                       NeverScrollableScrollPhysics(),
                                                                   itemBuilder:
@@ -2775,7 +2775,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                                       children: [
                                                                                         Text(
-                                                                                          recentOrders[i]['VendorName'] + " |",
+                                                                                          recentOrders[i]['VendorName']!=null?
+                                                                                          recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
                                                                                           style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
                                                                                         ),
                                                                                         SizedBox(
@@ -3335,11 +3336,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           mainAxisAlignment:
                                                                               MainAxisAlignment.spaceBetween,
                                                                           children: [
-                                                                            // index==0?
-                                                                            // Text(
-                                                                            //   'DELIVERY FREE',
-                                                                            //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
-                                                                            // ):
+                                                                            double.parse("${(calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")==0.0?
+                                                                            Text(
+                                                                              'DELIVERY FREE',
+                                                                              style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                                            ):
                                                                             Text(
                                                                               "${double.parse("${(calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'], nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")} KM Delivery Fee Rs.${(deliveryChargeFromAdmin / deliverykmFromAdmin) * (calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'], nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}",
                                                                               style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: poppins, fontWeight: FontWeight.bold),
@@ -3624,7 +3626,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Container(
                                                       // width:120,
                                                       child: Text(
-                                                        'DELIVERY FEE RS.${(deliveryChargeFromAdmin / deliverykmFromAdmin) * (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'], cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}',
+                                                        double.parse("${(calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                                            cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}")!=0.0?
+                                                        'DELIVERY CHARGE RS.${(deliveryChargeFromAdmin / deliverykmFromAdmin) *
+                                                            (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                                                cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}':'DELIVERY FREE',
                                                         style: TextStyle(
                                                             color:
                                                                 Colors.orange,

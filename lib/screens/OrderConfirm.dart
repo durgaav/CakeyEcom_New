@@ -50,13 +50,11 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String cakeSplReq = '';
   String cakeArticle = '';
   String deliverType = '';
-  int extraCharges = 0;
+  double extraCharges = 0;
   int tierPrice = 0;
   String tierCakeWeight = "0";
   String cakeTier = "";
-
   List<String> toppings = [];
-
 
   //HYVOOB9SJFHMFA8L
 
@@ -156,7 +154,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
         sgstPrice = prefs.getDouble('orderCakeSGst')!;
         discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
         discount = prefs.getInt('orderCakeDiscount')!;
-        extraCharges = prefs.getInt('orderCakePaymentExtra')!;
+        extraCharges = prefs.getDouble('orderCakePaymentExtra')!;
         taxes = prefs.getInt('orderCakeTaxperc')!;
         deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
         deliverDate = prefs.getString('orderCakeDeliverDate')!;

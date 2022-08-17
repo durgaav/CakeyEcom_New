@@ -63,7 +63,7 @@ class _CheckOutState extends State<CheckOut> {
   String cakeSplReq = '';
   String cakeArticle = '';
   String deliverType = '';
-  int extraCharges = 0;
+  double extraCharges = 0;
   String orderFromCustom = 'no';
   String premiumVendor = 'no';
   String themeName = "My Theme";
@@ -441,10 +441,8 @@ class _CheckOutState extends State<CheckOut> {
 
   }
 
-
   //handle razorpay payment here...
   void _handleFinalPayment(String amt , String orderId){
-
 
     print("Test ord id : $orderId");
 
@@ -578,7 +576,7 @@ class _CheckOutState extends State<CheckOut> {
         sgstPrice = double.parse(prefs.getString('customCakeSgst')??'0');
         gstPrice = double.parse(prefs.getString('customCakeGst')??'0');
         bilTotal = double.parse(prefs.getString('customCakeTotal')??'0');
-        extraCharges = int.parse(prefs.getString('customCakeExtra')??'0');
+        extraCharges = double.parse(prefs.getString('customCakeExtra')??'0');
         discountPrice = double.parse(prefs.getString('customCakeDisc')??'0');
         counts = 1;
         cakeID = prefs.getString('customCakeId')??'null';
@@ -629,7 +627,7 @@ class _CheckOutState extends State<CheckOut> {
         sgstPrice = prefs.getDouble('orderCakeSGst')!;
         discountPrice = prefs.getDouble('orderCakeDiscountedPrice')!;
         discount = prefs.getInt('orderCakeDiscount')!;
-        extraCharges = prefs.getInt('orderCakePaymentExtra')!;
+        extraCharges = prefs.getDouble('orderCakePaymentExtra')!;
         taxes = prefs.getInt('orderCakeTaxperc')!;
         deliveryCharge = prefs.getDouble('orderCakeDelCharge')!;
 
@@ -804,7 +802,7 @@ class _CheckOutState extends State<CheckOut> {
     // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
 
     var headers = {
-      'Authorization': '$authToken',
+      'Authorization': 'Bearer AAAAfUzNhqs:APA91bEsu2OWHUz4U7Y2Y0Z3XpkBN0ePeyLEcBioYQd-UQdcr3pDjXvYfDcZaWrSExv-L-BfKBoAs6h10YMqRwNZZU7wrFmxsg8PvkpTtMw1PZEyxeH8Pd25vcKjEtFhhqriBMKcuIEj',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
@@ -835,6 +833,8 @@ class _CheckOutState extends State<CheckOut> {
   //confirm order
   Future<void> confirmOrder() async {
 
+    showAlertDialog();
+
     print(premiumVendor);
 
     List tempFlavList = [];
@@ -842,18 +842,11 @@ class _CheckOutState extends State<CheckOut> {
     double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
         double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
 
-    print("ext $extraCharges");
-
-    print(price);
-
     tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
         double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice;
     print(tempPrice);
     tempTax = tempPrice * (double.parse(taxes.toString())/100);
 
-
-    print(tempTax);
-    print(tempPrice);
 
     String billTot = ((counts * (
         double.parse(cakePrice)*
@@ -871,72 +864,17 @@ class _CheckOutState extends State<CheckOut> {
       }
     });
 
-    print(tempFlavList.toString());
+    var extra = double.parse(extraCharges.toString())*
+        double.parse(weight.toLowerCase().replaceAll("kg", ""));
 
-    showAlertDialog();
-
-
-    print("weight.... $weight");
-
-    print(
-        {
-          "CakeID": cakeID,
-          "Cake_ID": cakeModId,
-          "CakeName": cakeName,
-          "CakeCommonName": cakeCommonName,
-          // "CakeType": cakeType,
-          // "CakeSubType": cakeSubType,
-          "Image": cakeImage,
-          "EggOrEggless": eggOreggless,
-          "Flavour": tempFlavList,
-          "Shape": [shape],
-          "Weight": tierCakeWeight=="null"?
-          weight.toLowerCase().replaceAll("kg", "")+"kg":
-          tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
-          // "Description": cakeDesc,
-          "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
-          "PaymentType": paymentType,
-          "Total": billTot.toString(),
-          "Sgst": (tempTax/2).toString(),
-          "Gst": (tempTax/2).toString(),
-          // "DeliveryCharge": deliveryCharge.toString(),
-          "ExtraCharges": extraCharges.toString(),
-          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?discountPrice.toString():"0",
-          "ItemCount": counts.toString(),
-          "Price": cakePrice.toString(),
-          "DeliverySession": deliverSession,
-          "VendorName":vendorName,
-          "VendorID":vendorID,
-          "Vendor_ID":vendorModId,
-          "VendorPhoneNumber1":vendorPhone1,
-          "VendorPhoneNumber2":vendorPhone2,
-          "VendorAddress":"$vendorAddress",
-          "PremiumVendor":"n",
-          "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
-          // "DeliveryDate": deliverDate,
-          // "UserPhoneNumber": userPhone,
-          // "UserName": userName,
-          // "UserID": userID,
-          // "User_ID": userModId,
-          // "Tax":taxes.toString(),
-          // "DeliveryInformation": deliverType,
-          // "DeliveryAddress": userAddress,
-        }
-    );
-
-
-    print(shape);
-
-    List tempShapeList = [jsonDecode(shape)];
+    var tempShapeList = jsonDecode(shape);
 
     print(tempShapeList);
+    print(tempFlavList);
 
     try {
 
-        var headers = {'Content-Type': 'application/json'};
-        var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/order/new'));
-
-        request.body = jsonEncode({
+        var data = {
           "CakeID": cakeID,
           "Cake_ID": cakeModId,
           "CakeName": cakeName,
@@ -957,7 +895,7 @@ class _CheckOutState extends State<CheckOut> {
           "Sgst": (tempTax/2).toString(),
           "Gst": (tempTax/2).toString(),
           "DeliveryCharge": deliveryCharge.toString(),
-          "ExtraCharges": extraCharges.toString(),
+          "ExtraCharges": extra.toString(),
           "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?int.parse(discountPrice.toString()):0,
           "ItemCount": counts,
           "Price": cakePrice.toString(),
@@ -969,129 +907,118 @@ class _CheckOutState extends State<CheckOut> {
           "User_ID": userModId,
           "Tax":taxes.toString(),
           "DeliveryInformation": deliverType,
+          "DeliveryAddress": userAddress,
+          "PremiumVendor":premiumVendor=="no"?"n":'y',
+          "VendorName":vendorName,
+          "VendorID":vendorID,
+          "Vendor_ID":vendorModId,
+          "VendorPhoneNumber1":vendorPhone1,
+          "VendorPhoneNumber2":vendorPhone2,
+          "VendorAddress":vendorAddress,
+          "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
+          cakeMessage!="null"?"MessageOnTheCake":cakeMessage:null,
+          cakeSplReq!="null"?"SpecialRequest":cakeSplReq:null,
+          topperPrice!=0?"TopperId":topperId:null,
+          topperPrice!=0?"TopperName":topperName:null,
+          topperPrice!=0?"TopperImage":topperImg:null,
+          topperPrice!=0?"TopperPrice":'$topperPrice':null,
+        };
 
-        });
+        var premiumData = {
+          "CakeID": cakeID,
+          "Cake_ID": cakeModId,
+          "CakeName": cakeName,
+          "CakeCommonName": cakeCommonName,
+          "Image": cakeImage,
+          "EggOrEggless": eggOreggless,
+          "Flavour": tempFlavList,
+          "Shape": tempShapeList,
+          "Weight": tierCakeWeight=="null"?
+          weight.toLowerCase().replaceAll("kg", "")+"kg":
+          tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+          "Description": cakeDesc,
+          "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+          "PaymentType": paymentType,
+          "Total": billTot.toString(),
+          "Sgst": (tempTax/2).toString(),
+          "Gst": (tempTax/2).toString(),
+          "DeliveryCharge": deliveryCharge.toString(),
+          "ExtraCharges": extra.toString(),
+          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?int.parse(discountPrice.toString()):0,
+          "ItemCount": counts,
+          "Price": cakePrice.toString(),
+          "DeliverySession": deliverSession,
+          "DeliveryDate": deliverDate,
+          "UserPhoneNumber": userPhone,
+          "UserName": userName,
+          "UserID": userID,
+          "User_ID": userModId,
+          "Tax":taxes.toString(),
+          "DeliveryInformation": deliverType,
+          "DeliveryAddress": userAddress,
+          "PremiumVendor":premiumVendor=="no"?"n":'y',
+          cakeMessage!="null"?"MessageOnTheCake":cakeMessage:null,
+          cakeSplReq!="null"?"SpecialRequest":cakeSplReq:null,
+          topperPrice!=0?"TopperId":topperId:null,
+          topperPrice!=0?"TopperName":topperName:null,
+          topperPrice!=0?"TopperImage":topperImg:null,
+          topperPrice!=0?"TopperPrice":'$topperPrice':null,
+        };
 
-        //send address
-        if(deliverType.toLowerCase()=="delivery"){
-          request.body = jsonEncode({
-            "DeliveryAddress": userAddress,
-          });
+        var body = jsonEncode('object');
+
+        if(premiumVendor == 'yes'){
+          body = jsonEncode(premiumData);
+        }else{
+          body = jsonEncode(data);
         }
 
-        //theme ops
-        // if(themeName.toString()!="null"){
-        //   request.fields.addAll({
-        //     "Theme":themeName,
-        //   });
-        // }
-        // if(themeFileName.toString()!="null"){
-        //   request.files.add(await http.MultipartFile.fromPath(
-        //       'file', themeFileName.toString(),
-        //       filename: Path.basename(themeFileName),
-        //       contentType: MediaType.parse(lookupMimeType(themeFileName.toString()).toString())
-        //   ));
-        // }
 
-        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))>5.0||premiumVendor=="yes"){
-          request.body = jsonEncode({
-            "PremiumVendor":"y",
-          });
-        }
+        print(body);
 
-        //if vendor is not emp..
-        if(double.parse(weight.toLowerCase().replaceAll("kg", ""))<5.0||premiumVendor=="no"){
-          request.body = jsonEncode({
-            "VendorName":vendorName,
-            "VendorID":vendorID,
-            "Vendor_ID":vendorModId,
-            "VendorPhoneNumber1":vendorPhone1,
-            "VendorPhoneNumber2":vendorPhone2,
-            "VendorAddress":"$vendorAddress",
-            "PremiumVendor":"n",
-            "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong}
-          });
-        }
+        var response = await http.post(Uri.parse("https://cakey-database.vercel.app/api/order/new"),
+            headers: {"Content-Type": "application/json"},
+            body: body
+        );
 
-        //cake message
-        if(cakeMessage.toString()!="null"){
-          request.body = jsonEncode({
-            "MessageOnTheCake":cakeMessage
-          });
-        }
+        print("${response.statusCode}");
+        print("${response.body}");
+        var map = jsonDecode(response.body);
 
-        //spl req...
-        if(cakeSplReq.toString()!="null"){
-          request.body = jsonEncode({
-            "SpecialRequest":cakeSplReq
-          });
-        }
-
-        //toppers
-        if(topperPrice!=0){
-          request.body = jsonEncode({
-            "TopperId":topperId,
-            "TopperName":topperName,
-            "TopperImage":topperImg,
-            "TopperPrice":'$topperPrice',
-          });
-        }
-
-        //tiers ops
-        // if(cakeTier.toString()!="null"){
-        //   request.fields.addAll({
-        //     "Tier":cakeTier
-        //   });
-        // }
-
-
-
-        request.headers.addAll(headers);
-
-        http.StreamedResponse response = await request.send();
-
-        print(response.statusCode);
-
-        if (response.statusCode == 200) {
-
-          var map = json.decode(await response.stream.bytesToString());
-          // print(await response.stream.bytesToString());
-
-          print(map);
+        if(response.statusCode == 200){
 
           if(map['statusCode'].toString()=="200"){
+
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(map['message']),
                 behavior: SnackBarBehavior.floating
             ));
-
-            Navigator.pop(context);
 
             NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
 
             premiumVendor=="no"?
             sendNotificationToVendor(notificationTid):null;
             showOrderCompleteSheet();
-          }else{
+
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error occurred ' + map['message']),
-                behavior: SnackBarBehavior.floating
-            ));
           }
 
-        } else {
-          print(response.reasonPhrase.toString().toLowerCase());
+          Navigator.pop(context);
+
+        }else{
+
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Error Occurred : ${response.reasonPhrase}'),
+              content: Text(map['message']),
               behavior: SnackBarBehavior.floating
           ));
           Navigator.pop(context);
+
         }
 
 
     }catch(e){
       print(e);
+      Navigator.pop(context);
     }
 
   }

@@ -1668,9 +1668,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       // double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))
 
       //--> Assign
-        extra = double.parse(flavExtraCharge.toString())+
+        extra = (double.parse(flavExtraCharge.toString())+
             double.parse(extraShapeCharge.toString())+
-            double.parse(topperPrice.toString());
+            double.parse(topperPrice.toString()));
+            // *double.parse(fixedWeight.toLowerCase().replaceAll('kg', ""));
 
         print("extra $extra");
 
@@ -1750,7 +1751,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setDouble('orderCakeItemTotal', addedPrice);
     prefs.setDouble('orderCakeBillTotal', finalPrice);
     prefs.setDouble('orderCakeDelCharge', delCharge);
-    prefs.setInt('orderCakePaymentExtra', extraShapeCharge+flavExtraCharge+topperPrice);
+    prefs.setDouble('orderCakePaymentExtra', double.parse(extra.toString()));
     prefs.setInt('orderCakeTopperPrice', topperPrice??0);
     prefs.setInt('orderCakeTaxperc', taxes??0);
     prefs.setDouble('orderCakeDiscountedPrice',discountedPrice ??0);
@@ -2204,6 +2205,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     if(context.watch<ContextData>().getDpUpdate()==true){
       newRegUser = false;
     }
+
     if (context.watch<ContextData>().getAddress().isNotEmpty) {
       userAddress = context.watch<ContextData>().getAddress();
     } else {
@@ -2531,6 +2533,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             child: Divider(
                               color: Colors.pink[100],
                             )),
+
+
                         Container(
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child: Text(
@@ -3759,7 +3763,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         fontSize: 15),
                                   ),
                                 ),
-
                                 GestureDetector(
                                   onTap: () async {
 
@@ -3993,7 +3996,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               ],
                             )),
 
-                        fixedDelliverMethod.toLowerCase()=="delivery"?Column(
+                        fixedDelliverMethod.toLowerCase()=="delivery"?
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,  
                           children: [
                             Padding(
