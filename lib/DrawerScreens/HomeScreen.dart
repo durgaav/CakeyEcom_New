@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
+import '../screens/HamperDetails.dart';
 import '../screens/Profile.dart';
 import 'package:location/location.dart';
 import '../screens/SingleVendor.dart';
@@ -144,6 +145,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late PermissionStatus _permissionGranted;
   LocationData? _userLocation;
   Location myLocation = Location();
+
+  List hampers = [];
 
   //endregion
 
@@ -996,11 +999,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       fetchProfileByPhn();
       _getUserLocation();
-      getAdsBanner();
-      getCakeList();
-      getCakeType();
-      timerTrigger();
     });
+
+    timerTrigger();
   }
 
   //update profile timer dialog for new users
@@ -1048,6 +1049,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           context.read<ContextData>().setUserName(userName);
         });
+
       } else {
         checkNetwork();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1080,6 +1082,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     getFbToken();
+    getHampers();
 
   }
 
@@ -1252,6 +1255,9 @@ class _HomeScreenState extends State<HomeScreen> {
         isAllLoading = false;
       });
     }
+
+    getCakeType();
+
   }
 
   //getting recent orders list by UserId
@@ -1263,7 +1269,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       http.Response response = await http.get(
           Uri.parse(
-              "https://cakey-database.vercel.app/api/order/listbyuserid/$userID"),
+              "https://cakey-database.vercel.app/api/ordersandhamperorders/listbyuser/$userID"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
 
@@ -1272,7 +1278,6 @@ class _HomeScreenState extends State<HomeScreen> {
             isNetworkError = false;
             ordersLoading = false;
             recentOrders = jsonDecode(response.body);
-            recentOrders = recentOrders.reversed.toList();
           });
         } else {
           setState(() {
@@ -1281,7 +1286,6 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         }
 
-        Navigator.pop(context);
 
       } else {
 
@@ -1290,8 +1294,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ordersLoading = false;
         });
 
-        Navigator.pop(context);
-
       }
     } catch (error) {
       setState(() {
@@ -1299,7 +1301,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ordersLoading = false;
       });
 
-      Navigator.pop(context);
     }
   }
 
@@ -1433,23 +1434,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //get Ads Banners
-  Future<void> getAdsBanner() async {
-    showAlertDialog();
-    adsBanners.clear();
-    try {
-      var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/banner/list"),
-          headers: {"Authorization": "$authToken"});
+  Future<void> getHampers() async {
+    hampers.clear();
+    var headers = {
+      'Authorization': '$authToken'
+    };
+    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/hamper/approvedlist'));
 
-      if (res.statusCode == 200) {
-        setState(() {
-          adsBanners = jsonDecode(res.body);
-          getAdminDeliveryCharge();
-        });
-      } else {}
-    } catch (e) {
-      print("Ads error: $e");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      List map = jsonDecode(await response.stream.bytesToString());
+
+      setState((){
+        hampers = map;
+        // hampers = map.where((element) =>
+        // calculateDistance(
+        //     userLat,
+        //     userLong,
+        //     element['GoogleLocation']['Latitude'],
+        //     element['GoogleLocation']['Longitude']) <=
+        //     10)
+        //     .toList();
+      });
+
     }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.reasonPhrase.toString()))
+      );
+    }
+
+    getCakeList();
+
   }
 
   //network check
@@ -2228,6 +2247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Column(
                                       children: [
                                         //Ads View
+                                        hampers.isNotEmpty?
                                         Container(
                                           alignment: Alignment.centerLeft,
                                           decoration: const BoxDecoration(
@@ -2253,6 +2273,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
+                                              hampers.length>3?
                                               InkWell(
                                                 onTap: () async {
                                                   var pr = Navigator.push(
@@ -2278,10 +2299,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     )
                                                   ],
                                                 ),
-                                              ),
+                                              ):Container(),
                                             ],
                                           ),
-                                        ),
+                                        ):Container(),
+                                        hampers.isNotEmpty?
                                         Container(
                                             decoration: const BoxDecoration(
                                               image: DecorationImage(
@@ -2296,58 +2318,103 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
-                                                itemCount: adsBanners.length,
+                                                itemCount: hampers.length,
                                                 itemBuilder: (c, i) {
-                                                  return Container(
-                                                    alignment:
-                                                        Alignment.bottomLeft,
-                                                    margin: EdgeInsets.all(8),
-                                                    width: 230,
-                                                    decoration: adsBanners[i]['Image'] == null ||
-                                                            adsBanners[i]['Image']
-                                                                .toString()
-                                                                .isEmpty
-                                                        ? BoxDecoration(
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .white,
-                                                                style: BorderStyle
-                                                                    .solid,
-                                                                width: 1.5),
-                                                            color: Colors.white,
-                                                            // boxShadow: [
-                                                            //
-                                                            // ],
-                                                            borderRadius: BorderRadius.circular(
-                                                                22),
-                                                            image: DecorationImage(
-                                                                image: AssetImage(
-                                                                    'assets/images/cakebaner.jpg'),
-                                                                fit: BoxFit
-                                                                    .cover))
-                                                        : BoxDecoration(
-                                                            border: Border.all(
-                                                                color: Colors.white,
-                                                                style: BorderStyle.solid,
-                                                                width: 1.5),
-                                                            color: Colors.white,
-                                                            borderRadius: BorderRadius.circular(22),
-                                                            image: DecorationImage(image: NetworkImage(adsBanners[i]['Image'].toString()), fit: BoxFit.cover)),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8,
-                                                              bottom: 8),
-                                                      child: Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: []),
+                                                  return GestureDetector(
+                                                    onTap: () async{
+                                                      var pref = await SharedPreferences.getInstance();
+                                                      List<String> productsContains = [];
+
+                                                      if(hampers[i]['Product_Contains']!=null && hampers[i]['Product_Contains'].isNotEmpty){
+                                                        for(int j = 0 ; j<hampers[i]['Product_Contains'].length;j++){
+                                                          productsContains.add(hampers[i]['Product_Contains'][j].toString());
+                                                        }
+                                                      }
+
+                                                      pref.remove("hamperImage");
+                                                      pref.remove("hamperName");
+                                                      pref.remove("hamperPrice");
+                                                      pref.remove("hamper_ID");
+                                                      pref.remove("hamperDescription");
+                                                      pref.remove("hamperVendorName");
+                                                      pref.remove("hamperVendorID");
+                                                      pref.remove("hamperVendorName");
+                                                      pref.remove("hamperVendorPhn1");
+                                                      pref.remove("hamperVendorPhn2");
+                                                      pref.remove("hamperProducts");
+
+
+                                                      pref.setString("hamperImage", hampers[i]['HamperImage']??'null');
+                                                      pref.setString("hamperName", hampers[i]['HampersName']??'null');
+                                                      pref.setString("hamperPrice", hampers[i]['Price']??'null');
+                                                      pref.setString("hamper_ID", hampers[i]['_id']??'null');
+                                                      pref.setString("hamperDescription", hampers[i]['Description']??'null');
+                                                      pref.setString("hamperVendorName", hampers[i]['VendorName']??'null');
+                                                      pref.setString("hamperVendorID", hampers[i]['VendorID']??'null');
+                                                      pref.setString("hamperVendor_ID", hampers[i]['Vendor_ID']??'null');
+                                                      pref.setString("hamperVendorAddress", hampers[i]['VendorAddress']??'null');
+                                                      pref.setString("hamperVendorPhn1", hampers[i]['VendorPhoneNumber1']??'null');
+                                                      pref.setString("hamperVendorPhn2", hampers[i]['VendorPhoneNumber2']??'null');
+                                                      pref.setString("hamperLat", hampers[i]['GoogleLocation']['Latitude'].toString()??'null');
+                                                      pref.setString("hamperLong", hampers[i]['GoogleLocation']['Longitude'].toString()??'null');
+                                                      pref.setStringList("hamperProducts", productsContains??[]);
+
+                                                      print(productsContains);
+
+                                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>HamperDetails()));
+
+                                                    },
+                                                    child: Container(
+                                                      alignment:
+                                                          Alignment.bottomLeft,
+                                                      margin: EdgeInsets.all(8),
+                                                      width: 230,
+                                                      decoration: hampers[i]['HamperImage'] == null ||
+                                                              hampers[i]['HamperImage']
+                                                                  .toString()
+                                                                  .isEmpty
+                                                          ? BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  style: BorderStyle
+                                                                      .solid,
+                                                                  width: 1.5),
+                                                              color: Colors.white,
+                                                              // boxShadow: [
+                                                              //
+                                                              // ],
+                                                              borderRadius: BorderRadius.circular(
+                                                                  22),
+                                                              image: DecorationImage(
+                                                                  image: AssetImage(
+                                                                      'assets/images/cakebaner.jpg'),
+                                                                  fit: BoxFit
+                                                                      .cover))
+                                                          : BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors.white,
+                                                                  style: BorderStyle.solid,
+                                                                  width: 1.5),
+                                                              color: Colors.white,
+                                                              borderRadius: BorderRadius.circular(22),
+                                                              image: DecorationImage(image: NetworkImage(hampers[i]['HamperImage'].toString()), fit: BoxFit.cover)),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 8,
+                                                                bottom: 8),
+                                                        child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize.min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: []),
+                                                      ),
                                                     ),
                                                   );
-                                                })),
+                                                })):Container(),
 
                                         Container(
                                           height: recentOrders.isNotEmpty
@@ -2381,6 +2448,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
+                                                    searchCakeType.length>3?
                                                     InkWell(
                                                       onTap: () async {
                                                         var pr = Navigator.push(
@@ -2410,7 +2478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           )
                                                         ],
                                                       ),
-                                                    ),
+                                                    ):Container(),
                                                   ],
                                                 ),
                                               ),
@@ -2581,6 +2649,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         FontWeight
                                                                             .bold),
                                                               ),
+                                                              recentOrders.length>3?
                                                               InkWell(
                                                                 onTap:
                                                                     () async {
@@ -2650,7 +2719,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     )
                                                                   ],
                                                                 ),
-                                                              ),
+                                                              ):Container(),
                                                             ],
                                                           ),
                                                         ),
@@ -2702,7 +2771,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           .green;
                                                                     }
 
-                                                                    return GestureDetector(
+                                                                    return recentOrders[i]['HampersName']==null?
+                                                                    GestureDetector(
                                                                       onTap:
                                                                           () async {
                                                                         Navigator.of(context)
@@ -2770,6 +2840,108 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     Text(
                                                                                       recentOrders[i]['CakeName'] != null ? recentOrders[i]['CakeName'] : "Customised Cake",
                                                                                       style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
+                                                                                    ),
+                                                                                    Row(
+                                                                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          recentOrders[i]['VendorName']!=null?
+                                                                                          recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
+                                                                                          style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
+                                                                                        ),
+                                                                                        SizedBox(
+                                                                                          width: 3,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          recentOrders[i]['Status'],
+                                                                                          style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
+                                                                                        ),
+                                                                                      ],
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 6,
+                                                                              ),
+                                                                              Text(
+                                                                                "Rs." + recentOrders[i]['Total'] + " ",
+                                                                                style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ):
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () async {
+                                                                        Navigator.of(context)
+                                                                            .push(
+                                                                          PageRouteBuilder(
+                                                                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                                                                Profile(
+                                                                                  defindex: 1,
+                                                                                ),
+                                                                            transitionsBuilder: (context,
+                                                                                animation,
+                                                                                secondaryAnimation,
+                                                                                child) {
+                                                                              const begin = Offset(1.0, 0.0);
+                                                                              const end = Offset.zero;
+                                                                              const curve = Curves.ease;
+
+                                                                              final tween = Tween(begin: begin, end: end);
+                                                                              final curvedAnimation = CurvedAnimation(
+                                                                                parent: animation,
+                                                                                curve: curve,
+                                                                              );
+
+                                                                              return SlideTransition(
+                                                                                position: tween.animate(curvedAnimation),
+                                                                                child: child,
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                      child:
+                                                                      Card(
+                                                                        elevation:
+                                                                        0.5,
+                                                                        shape: RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                            BorderRadius.circular(20)),
+                                                                        child:
+                                                                        Container(
+                                                                          padding:
+                                                                          EdgeInsets.all(5),
+                                                                          decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(20)),
+                                                                          child:
+                                                                          Row(
+                                                                            children: [
+                                                                              recentOrders[i]['HamperImage'] != null
+                                                                                  ? CircleAvatar(
+                                                                                backgroundImage: NetworkImage(recentOrders[i]['HamperImage']),
+                                                                                radius: 25,
+                                                                              )
+                                                                                  : CircleAvatar(
+                                                                                backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
+                                                                                radius: 25,
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 5,
+                                                                              ),
+                                                                              Expanded(
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      recentOrders[i]['HampersName'] != null ? recentOrders[i]['HampersName']: "Customised Cake",
+                                                                                      style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
+                                                                                      maxLines: 2,
                                                                                     ),
                                                                                     Row(
                                                                                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -3035,6 +3207,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         //       ],
                                                         //     )
                                                         // ),
+
+
                                                       ],
                                                     )
                                                   : Container(),

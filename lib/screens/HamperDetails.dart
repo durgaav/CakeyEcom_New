@@ -68,17 +68,19 @@ class _HamperDetailsState extends State<HamperDetails> {
   String vendorProfile = "";
   String vendorId = "";
   String vendor_Id = "";
+  String vendorAddress = "";
 
   //user
   String userId = "";
-  // String user_ID = "";
-  // String use = "";
-  // String userId = "";
+  String user_ID = "";
+  String userName = "";
+  String userPhone = "";
 
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
   int counts = 1;
   int deliveryCharge = 0;
+  int amount = 0;
 
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -137,6 +139,10 @@ class _HamperDetailsState extends State<HamperDetails> {
       userLongtitude = pref.getString("userLongtitude") ?? '';
       adminDeliveryCharge = pref.getInt("todayDeliveryCharge") ?? 0;
       adminDeliveryChargeKm = pref.getInt("todayDeliveryKm") ?? 0;
+      userId = pref.getString("userID") ?? '';
+      user_ID = pref.getString("userModId") ?? '';
+      userName = pref.getString("userName") ?? '';
+      userPhone = pref.getString("phoneNumber") ?? '';
       deliveryAddress = pref.getString("userAddress") ?? 'null';
       hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
@@ -191,10 +197,14 @@ class _HamperDetailsState extends State<HamperDetails> {
           vendrorLat = vendorList[0]['GoogleLocation']['Latitude'].toString();
           vendrorLong = vendorList[0]['GoogleLocation']['Longitude'].toString();
           vendrorRating = vendorList[0]['Ratings'].toString();
-          hampVenPhn1 = vendorList[0]['PhoneNumber1'].toString();
-          hampVenPhn2 = vendorList[0]['PhoneNumber2'].toString();
+          vendrorPhone1 = vendorList[0]['PhoneNumber1'].toString();
+          vendrorPhonr2 = vendorList[0]['PhoneNumber2'].toString();
           vendorId = vendorList[0]['Id'].toString();
           vendor_Id = vendorList[0]['_id'].toString();
+          vendorAddress = vendorList[0]['Address'].toString();
+          deliveryCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
+              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
         }
       });
 
@@ -468,6 +478,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                       onTap: ()=>setState((){
                         index = 0;
                         paymentMethod = "Online Payment";
+                        payType = "Online Payment";
                       }),
                       child: Container(
                         padding:EdgeInsets.all(8),
@@ -494,6 +505,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                       onTap: ()=>setState((){
                         index = 1;
                         paymentMethod = "Cash On Delivery";
+                        payType = "Cash On Delivery";
                       }),
                       child: Container(
                         padding:EdgeInsets.all(8),
@@ -504,7 +516,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Icon(Icons.radio_button_unchecked_rounded , color: Colors.grey, size: 26,),
                             SizedBox(width: 6,),
                             Expanded(child: Text(
-                              'Cash On Delivery' ,
+                              'Cash On $fixedDelliverMethod' ,
                               style: TextStyle(
                                 color: darkBlue ,
                                 fontWeight: FontWeight.bold,
@@ -528,18 +540,28 @@ class _HamperDetailsState extends State<HamperDetails> {
                           color: Colors.pink,
                           onPressed: () {
 
-                            print('total......');
+                            int charge = 0;
+
+                            if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                              charge = deliveryCharge;
+                            }else{
+                              charge = 0;
+                            }
+
+                            print('total...... $charge');
 
                             print(
-                                ((int.parse(hamperPrice) * counts) + (adminDeliveryCharge / adminDeliveryChargeKm) *
-                                    (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()).toInt().toString()
+                                ((int.parse(hamperPrice) * counts) + charge).toInt().toString()
                             );
 
                             Navigator.pop(context);
-                            _handleOrder(((int.parse(hamperPrice) * counts) + (adminDeliveryCharge / adminDeliveryChargeKm) *
-                                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()).toInt().toString());
+
+                            if(payType.toLowerCase()=="cash on delivery"){
+                              proceedOrder(((int.parse(hamperPrice) * counts) + charge).toInt().toString());
+                            }else{
+                              _handleOrder(((int.parse(hamperPrice) * counts) + charge).toInt().toString());
+                            }
+
                           },
                           child: Text(
                             "PROCEED",
@@ -739,24 +761,25 @@ class _HamperDetailsState extends State<HamperDetails> {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Do something when payment succeeds
     print("Pay success : "+response.paymentId.toString());
-    proceedOrder();
+    proceedOrder(amount);
     // _capturePayment(response.paymentId.toString());
     // showPaymentDoneAlert("done");
   }
 
   ///make the order
-  Future<void> proceedOrder() async{
+  Future<void> proceedOrder(amount) async{
 
-    int amount = ((int.parse(hamperPrice) * counts) + (adminDeliveryCharge / adminDeliveryChargeKm) *
-        (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-            double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()).toInt();
+    showAlertDialog();
 
-    print('Final : $amount');
+    int delCharge = 0;
 
-    int delCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
-        (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-            double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
-
+    if(fixedDelliverMethod.toLowerCase() == "delivery"){
+      delCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
+          (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+              double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
+    }else{
+      delCharge = 0;
+    }
 
     print({
       "HamperID": "$hampVenId",
@@ -764,21 +787,21 @@ class _HamperDetailsState extends State<HamperDetails> {
       "HampersName": "$hamperName",
       "Product_Contains": productContains,
       "HamperImage": "$hamperImage",
-      // "Description": "$hamperDescription",
+      "Description": "$hamperDescription",
       "VendorID": "$vendor_Id",
       "Vendor_ID": "$vendorId",
       "VendorName": "$vendrorName",
       "VendorPhoneNumber1": "$vendrorPhone1",
       "VendorPhoneNumber2": "$vendrorPhonr2",
-      "VendorAddress": "$hampVenAddres",
+      "VendorAddress": "$vendorAddress",
       "GoogleLocation": {
         "Latitude": "$vendrorLat",
         "Longitude": "$vendrorLong"
       },
-      "UserID": "",
-      "User_ID": "CKYCUS-8",
-      "UserName": "Surya Naveen",
-      "UserPhoneNumber": "919566459352",
+      "UserID": "$userId",
+      "User_ID": "$user_ID",
+      "UserName": "$userName",
+      "UserPhoneNumber": "$userPhone",
       "DeliveryAddress": "$deliveryAddress",
       "DeliveryDate": "$deliverDate",
       "DeliverySession": "$deliverSession",
@@ -791,54 +814,69 @@ class _HamperDetailsState extends State<HamperDetails> {
       "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
     });
 
-    // var headers = {
-    //   'Content-Type': 'application/json'
-    // };
-    // var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/new'));
-    // request.body = json.encode({
-    //   "HamperID": "$hampVenId",
-    //   "Hamper_ID": "$hamper_id-2",
-    //   "HampersName": "$hamperName",
-    //   "Product_Contains": productContains,
-    //   "HamperImage": "$hamperImage",
-    //   "Description": "$hamperDescription",
-    //   "VendorID": "$vendor_Id",
-    //   "Vendor_ID": "$vendorId",
-    //   "VendorName": "$vendrorName",
-    //   "VendorPhoneNumber1": "$vendrorPhone1",
-    //   "VendorPhoneNumber2": "$vendrorPhonr2",
-    //   "VendorAddress": "$hampVenAddres",
-    //   "GoogleLocation": {
-    //     "Latitude": "$vendrorLat",
-    //     "Longitude": "$vendrorLong"
-    //   },
-    //   "UserID": "",
-    //   "User_ID": "CKYCUS-8",
-    //   "UserName": "Surya Naveen",
-    //   "UserPhoneNumber": "919566459352",
-    //   "DeliveryAddress": "$deliveryAddress",
-    //   "DeliveryDate": "$deliverDate",
-    //   "DeliverySession": "$deliverSession",
-    //   "DeliveryInformation": "$fixedDelliverMethod",
-    //   "Price": "$hamperPrice",
-    //   "ItemCount": "$counts",
-    //   "DeliveryCharge": "$delCharge",
-    //   "Total": "$amount",
-    //   "PaymentType": "$paymentMethod",
-    //   "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
-    // });
-    // request.headers.addAll(headers);
-    //
-    // http.StreamedResponse response = await request.send();
-    //
-    // if (response.statusCode == 200) {
-    //
-    //   print(await response.stream.bytesToString());
-    //
-    // }
-    // else {
-    //   print(response.reasonPhrase);
-    // }
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/new'));
+    request.body = json.encode({
+      "HamperID": "$hampVenId",
+      "Hamper_ID": "$hamper_id",
+      "HampersName": "$hamperName",
+      "Product_Contains": productContains,
+      "HamperImage": "$hamperImage",
+      "Description": "$hamperDescription",
+      "VendorID": "$vendor_Id",
+      "Vendor_ID": "$vendorId",
+      "VendorName": "$vendrorName",
+      "VendorPhoneNumber1": "$vendrorPhone1",
+      "VendorPhoneNumber2": "$vendrorPhonr2",
+      "VendorAddress": "$vendorAddress",
+      "GoogleLocation": {
+        "Latitude": "$vendrorLat",
+        "Longitude": "$vendrorLong"
+      },
+      "UserID": "$userId",
+      "User_ID": "$user_ID",
+      "UserName": "$userName",
+      "UserPhoneNumber": "$userPhone",
+      "DeliveryAddress": "$deliveryAddress",
+      "DeliveryDate": "$deliverDate",
+      "DeliverySession": "$deliverSession",
+      "DeliveryInformation": "$fixedDelliverMethod",
+      "Price": "$hamperPrice",
+      "ItemCount": "$counts",
+      "DeliveryCharge": "$delCharge",
+      "Total": "$amount",
+      "PaymentType": "$paymentMethod",
+      "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      var map = jsonDecode(await response.stream.bytesToString());
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(map['message'].toString()),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ));
+
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.reasonPhrase.toString()),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ));
+      Navigator.pop(context);
+    }
 
   }
 
@@ -1692,7 +1730,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                 maxLines: 1,
                                               )
                                             : Text(
-                                                "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()} KM Charge Rs.${(adminDeliveryCharge / adminDeliveryChargeKm) * (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()}",
+                                                "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
+                                                    double.parse(vendrorLong))).toInt()} KM Charge Rs.${(adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                    (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()}",
                                                 style: TextStyle(
                                                   fontSize: 10,
                                                   fontFamily: "Poppins",
@@ -1785,7 +1825,33 @@ class _HamperDetailsState extends State<HamperDetails> {
                           borderRadius: BorderRadius.circular(25)),
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        showCheckoutSheet();
+
+                        int charge = 0;
+
+                        if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                          charge = deliveryCharge;
+                        }else{
+                          charge = 0;
+                        }
+
+                        print('total...... $charge');
+
+                        amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
+
+                        print("Final $amount");
+
+                        if(deliverDate.toLowerCase()=="not yet select" ||
+                            deliverSession.toLowerCase()=="not yet select")
+                        {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text("Please Select Deliver Date / Deliver Session"),
+                                  behavior: SnackBarBehavior.floating,
+                              ));
+                        }else{
+                          showCheckoutSheet();
+                        }
+
                       },
                       color: lightPink,
                       child: Text(

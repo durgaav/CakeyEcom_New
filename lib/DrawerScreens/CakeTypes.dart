@@ -2915,6 +2915,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     },
                                     child: Text(
                                       '$userCurLocation',
+                                      maxLines: 2 ,
                                       style: TextStyle(
                                           fontFamily: poppins,
                                           fontSize: 15,
@@ -2951,11 +2952,9 @@ class _CakeTypesState extends State<CakeTypes> {
                                       style: TextStyle(fontFamily: poppins,fontSize: 13 ,
                                           fontWeight: FontWeight.bold),
                                       onChanged: (String? text){
-
                                         setState(() {
 
                                         });
-
                                       },
                                       decoration: InputDecoration(
                                           hintText: "Delivery location...",

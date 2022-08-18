@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cakey/screens/HamperDetails.dart';
 import 'package:flutter/cupertino.dart';
@@ -115,6 +116,16 @@ class _HampersState extends State<Hampers> {
           );
         });
   }
+
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
   
   Future<void> getHampers() async{
     showAlertDialog();
@@ -129,10 +140,18 @@ class _HampersState extends State<Hampers> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var map = jsonDecode(await response.stream.bytesToString());
+      List map = jsonDecode(await response.stream.bytesToString());
 
       setState((){
         hampers = map;
+        // hampers = map.where((element) =>
+        // calculateDistance(
+        //     double.parse(userLat),
+        //     double.parse(userLong),
+        //     element['GoogleLocation']['Latitude'],
+        //     element['GoogleLocation']['Longitude']) <=
+        //     10)
+        //     .toList();
       });
 
       Navigator.pop(context);
@@ -157,7 +176,7 @@ class _HampersState extends State<Hampers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       appBar:AppBar(
         backgroundColor: lightGrey,
         elevation: 2.0,
@@ -186,7 +205,22 @@ class _HampersState extends State<Hampers> {
           style: TextStyle(color: darkBlue, fontFamily: poppins, fontSize: 16),
         ),
       ),
-      body: Container(
+      body:
+      hampers.isEmpty?
+      Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.sentiment_dissatisfied_outlined , color:lightPink, size: 36,),
+            SizedBox(height: 10,),
+            Text("No Data Found!" , style: TextStyle(
+              color: darkBlue  , fontSize: 20 , fontFamily: "Poppins" , fontWeight: FontWeight.bold
+            ),)
+          ],
+        ),
+      ):
+      Container(
         padding: EdgeInsets.all(8),
         height: MediaQuery.of(context).size.height * 0.9,
         child:GridView.builder(

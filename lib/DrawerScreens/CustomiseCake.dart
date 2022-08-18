@@ -73,7 +73,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String userMainLocation ="";
   String profileUrl = '';
   String btnMsg = 'ORDER NOW';
-  String tier = '2 tier';
+  String tier = '2tier';
 
 
   //Fixed Strings and Lists
@@ -103,6 +103,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var addArticleCtrl = new TextEditingController();
   var weightCtrl = new TextEditingController();
   var deliverToCtrl = new TextEditingController();
+  var themeCtrl = new TextEditingController();
 
   var showAddressEdit = false;
 
@@ -863,11 +864,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
     getShapesList();
-    getWeightList();
-    getFlavsList();
-    getArticleList();
-    getVendorsList();
-
     // prefs.setString('userID', userID);
     // prefs.setString('userAddress', userAddress);
     // prefs.setString('userName', userName);
@@ -971,6 +967,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       print(res.statusCode);
     }
 
+    getArticleList();
+
   }
 
   //geting the shapes fom collection
@@ -1004,6 +1002,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       print(res.statusCode);
     }
 
+    getWeightList();
+
+
   }
 
   //geting the article fom collection
@@ -1031,6 +1032,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }else{
       print(res.statusCode);
     }
+
+    getVendorsList();
 
   }
 
@@ -1060,6 +1063,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }else{
       print(res.statusCode);
     }
+
+    getFlavsList();
+
   }
 
   //get the vendors....
@@ -1281,6 +1287,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           if(msgCtrl.text.isNotEmpty){
             request.fields.addAll({
               'MessageOnTheCake':msgCtrl.text,
+            });
+          }
+
+          if(tier.toLowerCase()!="no tier"){
+            request.fields.addAll({
+              'Tier':tier,
+            });
+          }
+
+          if(themeCtrl.text.isNotEmpty){
+            request.fields.addAll({
+              'Theme':themeCtrl.text,
             });
           }
 
@@ -2449,16 +2467,20 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               value:'$tier',
                               items: <DropdownMenuItem<String>>[
                                 DropdownMenuItem(
-                                    child: Text("2 tier"),
-                                    value: "2 tier",
+                                  child: Text("No Tier"),
+                                  value: "No Tier",
                                 ),
                                 DropdownMenuItem(
-                                  child: Text("3 tier"),
-                                  value: "3 tier",
+                                    child: Text("2tier"),
+                                    value: "2tier",
                                 ),
                                 DropdownMenuItem(
-                                  child: Text("4 tier"),
-                                  value: "4 tier",
+                                  child: Text("3tier"),
+                                  value: "3tier",
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("4tier"),
+                                  value: "4tier",
                                 ),
                               ],
                               onChanged: (item){
@@ -2489,6 +2511,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                    left: 15 , right: 15
                                  ),
                                  child: TextField(
+                                   controller:themeCtrl,
                                    decoration: InputDecoration(
                                      hintText: 'Theme Name..',
                                      contentPadding: EdgeInsets.all(8.0),
@@ -3342,7 +3365,40 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               const SizedBox(width: 10,),
                                                               InkWell(
                                                                 onTap: (){
-                                                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+
+                                                                  if(newRegUser==true){
+                                                                    showDpUpdtaeDialog();
+                                                                  }else {
+                                                                    if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                                                        weightCtrl.text.startsWith("0")&&
+                                                                            weightCtrl.text.endsWith("0")){
+                                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                                          SnackBar(
+                                                                              content: Text("Please enter correct weight or select weight!")
+                                                                          )
+                                                                      );
+                                                                    }
+                                                                    else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                                          SnackBar(content: Text('Invalid Address'))
+                                                                      );
+                                                                    }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                                                        fixedSession.toLowerCase()=="not yet select"||
+                                                                        fixedDelliverMethod.toLowerCase()=="not yet select"){
+                                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                                          SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                                                      );
+                                                                    }else{
+                                                                      setState((){
+                                                                        if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                                                          vendorID = "";
+                                                                        }
+                                                                      });
+                                                                      showCakeNameEdit();
+                                                                    }
+                                                                  }
+
+                                                                  // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                                                 },
                                                                 child: Container(
                                                                   alignment: Alignment.center,
@@ -3683,60 +3739,62 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              // Center(
-                              //   child: Container(
-                              //     height: 50,
-                              //     width: 200,
-                              //     decoration: BoxDecoration(
-                              //         borderRadius: BorderRadius.circular(25)
-                              //     ),
-                              //     child: RaisedButton(
-                              //       shape: RoundedRectangleBorder(
-                              //           borderRadius: BorderRadius.circular(25)
-                              //       ),
-                              //       onPressed: (){
-                              //
-                              //         if(newRegUser==true){
-                              //           showDpUpdtaeDialog();
-                              //         }else {
-                              //           if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                              //               weightCtrl.text.startsWith("0")&&
-                              //                   weightCtrl.text.endsWith("0")){
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(
-                              //                     content: Text("Please enter correct weight or select weight!")
-                              //                 )
-                              //             );
-                              //           }
-                              //           else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(content: Text('Invalid Address'))
-                              //             );
-                              //           }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                              //               fixedSession.toLowerCase()=="not yet select"||
-                              //               fixedDelliverMethod.toLowerCase()=="not yet select"){
-                              //
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(content: Text('Please Select Deliver Date And Type'))
-                              //             );
-                              //           }else{
-                              //             setState((){
-                              //               if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                              //                 vendorID = "";
-                              //               }
-                              //             });
-                              //             showCakeNameEdit();
-                              //           }
-                              //         }
-                              //
-                              //       },
-                              //       color: lightPink,
-                              //       child: Text("ORDER NOW",style: TextStyle(
-                              //           color: Colors.white,fontWeight: FontWeight.bold
-                              //       ),),
-                              //     ),
-                              //   ),
-                              // ),
+                              double.parse(fixedWeight.toLowerCase().replaceAll("kg", ''))>=5.0?
+                              Center(
+                                child: Container(
+                                  height: 50,
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25)
+                                  ),
+                                  child: RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25)
+                                    ),
+                                    onPressed: (){
+
+                                      if(newRegUser==true){
+                                        showDpUpdtaeDialog();
+                                      }else {
+                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                            weightCtrl.text.startsWith("0")&&
+                                                weightCtrl.text.endsWith("0")){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please enter correct weight or select weight!")
+                                              )
+                                          );
+                                        }
+                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Invalid Address'))
+                                          );
+                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                            fixedSession.toLowerCase()=="not yet select"||
+                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                          );
+                                        }else{
+                                          setState((){
+                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                              vendorID = "";
+                                            }
+                                          });
+                                          showCakeNameEdit();
+                                        }
+                                      }
+
+                                    },
+                                    color: lightPink,
+                                    child: Text("ORDER NOW",style: TextStyle(
+                                        color: Colors.white,fontWeight: FontWeight.bold
+                                    ),),
+                                  ),
+                                ),
+                              ):
+                              Container(),
 
                               SizedBox(height: 15,),
                             ],
