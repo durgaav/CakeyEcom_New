@@ -41,6 +41,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   String hamperImage = "";
   String hamperName = "";
   String hamper_id = "";
+  String hampeModid = "";
   String hamperPrice = "0.0";
   String hamperDescription = "";
   String hampVen_Id = "";
@@ -147,6 +148,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
       hamper_id = pref.getString("hamper_ID") ?? '';
+      hampeModid = pref.getString("hamperModID") ?? '';
       hamperPrice = pref.getString("hamperPrice") ?? '';
       hamperDescription = pref.getString("hamperDescription") ?? '';
       hampVen_Id = pref.getString("hamperVendor_ID") ?? '';
@@ -159,6 +161,9 @@ class _HamperDetailsState extends State<HamperDetails> {
     });
 
     getVendor(hampVenId);
+
+
+
   }
 
   //geting vendor
@@ -168,51 +173,61 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     List forFilter = [];
 
-    var headers = {'Authorization': '$authToken'};
-    var request = http.Request(
-        'GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+    try{
+      var headers = {'Authorization': '$authToken'};
+      var request = http.Request(
+          'GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
 
-    request.headers.addAll(headers);
+      request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
+      http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
-      forFilter = jsonDecode(await response.stream.bytesToString());
+      if (response.statusCode == 200) {
+        forFilter = jsonDecode(await response.stream.bytesToString());
 
-      setState(() {
-        vendorList = forFilter
-            .where((element) =>
-                element['_id'].toString().toLowerCase() ==
-                id.toString().toLowerCase())
-            .toList();
+        setState(() {
+          vendorList = forFilter
+              .where((element) =>
+          element['_id'].toString().toLowerCase() ==
+              id.toString().toLowerCase())
+              .toList();
 
-        if (vendorList.isNotEmpty) {
-          vendrorName = vendorList[0]['VendorName'].toString();
-          vendrorEgg = vendorList[0]['EggOrEggless'].toString();
-          vendorProfile = vendorList[0]['ProfileImage'].toString();
-          vendrorSpecial = vendorList[0]['YourSpecialityCakes']
-              .toString()
-              .replaceAll("[", "")
-              .replaceAll("]", "");
-          vendrorLat = vendorList[0]['GoogleLocation']['Latitude'].toString();
-          vendrorLong = vendorList[0]['GoogleLocation']['Longitude'].toString();
-          vendrorRating = vendorList[0]['Ratings'].toString();
-          vendrorPhone1 = vendorList[0]['PhoneNumber1'].toString();
-          vendrorPhonr2 = vendorList[0]['PhoneNumber2'].toString();
-          vendorId = vendorList[0]['Id'].toString();
-          vendor_Id = vendorList[0]['_id'].toString();
-          vendorAddress = vendorList[0]['Address'].toString();
-          deliveryCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
-              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
-        }
-      });
+          if (vendorList.isNotEmpty) {
+            vendrorName = vendorList[0]['VendorName'].toString();
+            vendrorEgg = vendorList[0]['EggOrEggless'].toString();
+            vendorProfile = vendorList[0]['ProfileImage'].toString();
+            vendrorSpecial = vendorList[0]['YourSpecialityCakes']
+                .toString()
+                .replaceAll("[", "")
+                .replaceAll("]", "");
+            vendrorLat = vendorList[0]['GoogleLocation']['Latitude'].toString();
+            vendrorLong = vendorList[0]['GoogleLocation']['Longitude'].toString();
+            vendrorRating = vendorList[0]['Ratings'].toString();
+            vendrorPhone1 = vendorList[0]['PhoneNumber1'].toString();
+            vendrorPhonr2 = vendorList[0]['PhoneNumber2'].toString();
+            vendorId = vendorList[0]['Id'].toString();
+            vendor_Id = vendorList[0]['_id'].toString();
+            vendorAddress = vendorList[0]['Address'].toString();
+            deliveryCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
+          }
+        });
 
-      Navigator.pop(context);
-    } else {
-      print(response.reasonPhrase);
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.reasonPhrase.toString()))
+        );
+        Navigator.pop(context);
+      }
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("error occurred"))
+      );
       Navigator.pop(context);
     }
+
   }
 
   //showcheckout
@@ -819,7 +834,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     };
     var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/new'));
     request.body = json.encode({
-      "HamperID": "$hampVenId",
+      "HamperID": "$hampeModid",
       "Hamper_ID": "$hamper_id",
       "HampersName": "$hamperName",
       "Product_Contains": productContains,

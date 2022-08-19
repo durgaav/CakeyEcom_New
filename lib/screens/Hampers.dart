@@ -65,6 +65,7 @@ class _HampersState extends State<Hampers> {
     pref.setString("hamperName", hampers[index]['HampersName']??'null');
     pref.setString("hamperPrice", hampers[index]['Price']??'null');
     pref.setString("hamper_ID", hampers[index]['_id']??'null');
+    pref.setString("hamperModID", hampers[index]['Id']??'null');
     pref.setString("hamperDescription", hampers[index]['Description']??'null');
     pref.setString("hamperVendorName", hampers[index]['VendorName']??'null');
     pref.setString("hamperVendorID", hampers[index]['VendorID']??'null');
