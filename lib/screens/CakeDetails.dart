@@ -2534,7 +2534,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               color: Colors.pink[100],
                             )),
 
-
                         Container(
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child: Text(
@@ -2579,13 +2578,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       Text(
                                         ""
                                             "${
-                                          ((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+                                         ( ((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                               double.parse(cakePrice)) + (
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                                   double.parse(flavExtraCharge.toString())) +(
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                                   double.parse(extraShapeCharge.toString())) +
-                                              double.parse(topperPrice.toString())) * counts
+                                              double.parse(topperPrice.toString())) * counts).toStringAsFixed(2)
                                         }"
                                             ,
                                         style: TextStyle(
@@ -2667,7 +2666,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               Icon(Icons.add, color: darkBlue)),
                                     ),
                                   ])
-                                ])),
+                                ])
+                        ),
 
                         Container(
                             margin: EdgeInsets.all(10),
@@ -2679,7 +2679,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               collapseOnTextTap: true,
                               style: TextStyle(
                                   color: Colors.grey, fontFamily: "Poppins"),
-                            )),
+                        )),
 
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 15),
@@ -4048,7 +4048,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               height: 15,
                             ),
                           ],
-                        ):Container(),
+                        ):
+                        Container(),
 
                         Container(
                           padding: EdgeInsets.all(10.0),
@@ -4807,62 +4808,62 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       ],
                                     ),
 
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Center(
-                                child: Container(
-                                  height: 50,
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25)),
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    onPressed: () async {
-                                      FocusScope.of(context).unfocus();
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Center(
+                                  child: Container(
+                                    height: 50,
+                                    width: 200,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(25)),
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(25)),
+                                      onPressed: () async {
+                                        FocusScope.of(context).unfocus();
 
-                                      if (newRegUser == true) {
-                                        showDpUpdtaeDialog();
-                                      } else {
-                                        if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
-                                            customweightCtrl.text.startsWith("0")&&
-                                                customweightCtrl.text.endsWith("0")){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please enter correct weight or select weight!")
-                                              )
-                                          );
+                                        if (newRegUser == true) {
+                                          showDpUpdtaeDialog();
+                                        } else {
+                                          if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
+                                              customweightCtrl.text.startsWith("0")&&
+                                                  customweightCtrl.text.endsWith("0")){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text("Please enter correct weight or select weight!")
+                                                )
+                                            );
+                                          }
+                                          else if(deliverDate.toLowerCase()=="not yet select"){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Please select deliver date"))
+                                            );
+                                          }else if(deliverSession.toLowerCase()=="not yet select"){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Please select deliver session"))
+                                            );
+                                          }else if(fixedDelliverMethod.isEmpty){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Please select pickup or delivery"))
+                                            );
+                                          }else{
+                                            loadOrderPreference();
+                                          }
                                         }
-                                        else if(deliverDate.toLowerCase()=="not yet select"){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Please select deliver date"))
-                                          );
-                                        }else if(deliverSession.toLowerCase()=="not yet select"){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Please select deliver session"))
-                                          );
-                                        }else if(fixedDelliverMethod.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Please select pickup or delivery"))
-                                          );
-                                        }else{
-                                          loadOrderPreference();
-                                        }
-                                      }
-                                    },
-                                    color: lightPink,
-                                    child: Text(
-                                      "ORDER NOW",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold
+                                      },
+                                      color: lightPink,
+                                      child: Text(
+                                        "ORDER NOW",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              )
+                                )
                             ],
                           ),
                         ),

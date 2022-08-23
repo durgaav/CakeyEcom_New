@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -49,6 +50,7 @@ class _CakeTypesState extends State<CakeTypes> {
   String poppins = "Poppins";
   String networkMsg = "";
   String authToken = "";
+  String currentCakeType = "";
 
   //get caketype from home....
   String searchCakesText = '';
@@ -110,6 +112,9 @@ class _CakeTypesState extends State<CakeTypes> {
   List filterCakesSearchList = [];
   //Egg or eggless Lists
   List eggOrEgglesList = [];
+
+  //other products
+  List otherProducts = [];
 
   //For filters bottom
   List filterCakesFlavList = [];
@@ -1363,6 +1368,33 @@ class _CakeTypesState extends State<CakeTypes> {
     });
   }
 
+  //fetch others..
+  Future<void> getOtherProducts() async{
+
+    try{
+      var request = http.Request('GET',
+          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/list'));
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var map = jsonDecode(await response.stream.bytesToString());
+
+        setState((){
+          otherProducts = map;
+        });
+
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+      print(e);
+    }
+
+
+  }
+
   //fetch cake types
   Future<void> getCakeType() async {
     cakesTypes.clear();
@@ -1400,7 +1432,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
         print('Sub types>>>> $subType');
 
-        cakesTypes.insert(0, "All Cakes");
+        cakesTypes.add("All Cakes");
+        cakesTypes.add("Others");
+        cakesTypes.sort();
         cakesTypes = cakesTypes.toSet().toList();
 
         // searchCakeType.insert(0, "Customize your cake");
@@ -1416,6 +1450,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
       });
     }
+
+    getOtherProducts();
+
   }
 
   //Fetching cake list API...
@@ -1570,6 +1607,89 @@ class _CakeTypesState extends State<CakeTypes> {
 
       shapesForFilter = shapesForFilter.toSet().toList();
     } else {}
+  }
+
+  //send others
+  Future<void> sendOthers(int index) async{
+
+    var prefs = await SharedPreferences.getInstance();
+    List weight = [];
+    List<String> flavs = [];
+    List<String> images = [];
+
+    //add flav
+    for(int i = 0 ;i<otherProducts[index]['Flavour'].length;i++){
+      flavs.add(otherProducts[index]['Flavour'][i].toString());
+    }
+
+    //add images
+    for(int i = 0 ;i<otherProducts[index]['ProductImage'].length;i++){
+      images.add(otherProducts[index]['ProductImage'][i].toString());
+    }
+
+    if(otherProducts[index]['Type'].toString().toLowerCase()=="kg"){
+      weight = [otherProducts[index]['MinWeightPerKg']];
+    }else if(otherProducts[index]['Type'].toString().toLowerCase()=="unit"){
+      weight = otherProducts[index]['MinWeightPerUnit'];
+    }else{
+      weight = otherProducts[index]['MinWeightPerBox'];
+    }
+
+
+    prefs.setString("otherName" , otherProducts[index]['ProductName'].toString());
+
+    if(otherProducts[index]['Shape']!=null){
+      prefs.setString("otherShape" , otherProducts[index]['Shape'].toString());
+    } else{
+      prefs.setString("otherShape" , "None");
+    }
+
+    prefs.setString("otherSubType" , otherProducts[index]['CakeSubType'].toString());
+    prefs.setString("otherMainId" , otherProducts[index]['_id'].toString());
+    prefs.setString("otherModID" , otherProducts[index]['Id'].toString());
+    prefs.setString("otherDiscound" , otherProducts[index]['Discount'].toString());
+    prefs.setString("otherComName" , otherProducts[index]['ProductCommonName'].toString());
+    prefs.setString("otherVendorId" , otherProducts[index]['VendorID'].toString());
+    prefs.setString("otherType" , otherProducts[index]['Type'].toString());
+    prefs.setString("otherEggOr" , otherProducts[index]['EggOrEggless'].toString());
+    prefs.setString("otherMinDel" , otherProducts[index]['MinTimeForDelivery'].toString());
+    prefs.setString("otherBestUse" , otherProducts[index]['BestUsedBefore'].toString());
+    prefs.setString("otherStoredIn" , otherProducts[index]['ToBeStoredIn'].toString());
+    // prefs.setString("otherKeepInRoom" , otherProducts[index]['KeepTheCakeInRoomTemperature'].toString());
+    prefs.setString("otherDescrip" , otherProducts[index]['Description'].toString());
+    prefs.setString("otherRatings" , otherProducts[index]['Ratings'].toString());
+    prefs.setString("otherVendorAddress" , otherProducts[index]['VendorAddress']);
+    prefs.setString("otherVenMainId" , otherProducts[index]['VendorID']);
+    prefs.setString("otherVenModId" , otherProducts[index]['Vendor_ID']);
+    prefs.setString("otherVenName" , otherProducts[index]['VendorName']);
+    prefs.setString("otherVenPhn1" , otherProducts[index]['VendorPhoneNumber1']);
+    prefs.setString("otherVenPhn2" , otherProducts[index]['VendorPhoneNumber2']);
+
+
+    prefs.setStringList("otherFlavs" , flavs);
+    prefs.setStringList("otherImages" , images);
+
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => OthersDetails(
+        weight: weight,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        final tween = Tween(begin: begin, end: end);
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
+
+        return SlideTransition(
+          position: tween.animate(curvedAnimation),
+          child: child,
+        );
+      },
+    ));
   }
 
   //Send prefs to next screen....
@@ -3416,6 +3536,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 if (i == 0) {
                                                   isFiltered = false;
                                                   selIndex[i] = true;
+                                                  currentCakeType = "All cakes";
                                                 } else {
                                                   selIndex[i] = true;
                                                   isFiltered = true;
@@ -3429,7 +3550,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   //     print("test failed...");
                                                   //   }
                                                   // }
-
+                                                  currentCakeType = cakesTypes[index].toString();
                                                   List subList = eggOrEgglesList.where((element)
                                                   => element['CakeSubType'].contains(cakesTypes[index])
                                                   ).toList();
@@ -3531,7 +3652,8 @@ class _CakeTypesState extends State<CakeTypes> {
                     !activeSearch
                         ? Visibility(
                             visible: isFiltered,
-                            child: Column(
+                            child: currentCakeType!="Others"?
+                            Column(
                               children: [
                                 StaggeredGridView.countBuilder(
                                   shrinkWrap: true,
@@ -3781,7 +3903,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ),
                                 ),
                               ],
-                            ),
+                            ):Container(),
                           )
                         : Container(),
                     //All cakes...
@@ -4290,7 +4412,274 @@ class _CakeTypesState extends State<CakeTypes> {
                                         ),
                                       );
                                     }),
-                          )
+                          ),
+                    //other products....
+                    currentCakeType=="Others"?
+                    Container(
+                      child: Column(
+                        children: [
+                          StaggeredGridView.countBuilder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.all(8.0),
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 5,
+                            crossAxisSpacing: 7,
+                            itemCount: otherProducts.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return index == 0
+                                  ? GestureDetector(
+                                onTap: () {
+                                  sendOthers(index);
+                                },
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('Found',
+                                        style: TextStyle(
+                                            color: darkBlue,
+                                            fontSize: 16,
+                                            fontFamily: "Poppins")),
+                                    Text(
+                                        otherProducts.length
+                                            .toString() +
+                                            " items",
+                                        style: TextStyle(
+                                            color: darkBlue,
+                                            fontWeight:
+                                            FontWeight.bold,
+                                            fontSize: 20,
+                                            fontFamily: "Poppins")),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Container(
+                                      margin:
+                                      EdgeInsets.only(top: 10),
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(14),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 10,
+                                              color: Colors.black12,
+                                              spreadRadius: 0)
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage: otherProducts[index]['ProductImage'] == null ||
+                                                otherProducts[index]['ProductImage'].isEmpty
+                                                ? NetworkImage(
+                                                "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
+                                                : NetworkImage(
+                                                otherProducts[index]['ProductImage'][0].toString()),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Text(
+                                              "${otherProducts[index]['ProductName'][0].toString().toUpperCase() +
+                                                  otherProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
+                                              maxLines: 2,
+                                              overflow: TextOverflow
+                                                  .ellipsis,
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontWeight:
+                                                  FontWeight.bold,
+                                                  fontSize: 13,
+                                                  fontFamily:
+                                                  "Poppins")),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment
+                                                .spaceBetween,
+                                            children: [
+
+                                              Text(
+                                                otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                  '₹ ${otherProducts[index]['MinWeightPerKg']['PricePerKg']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                  "₹ ${otherProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
+                                                  '₹ ${otherProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                  style: TextStyle(
+                                                      color:
+                                                      lightPink,
+                                                      fontWeight:
+                                                      FontWeight
+                                                          .bold,
+                                                      fontSize: 14,
+                                                      fontFamily:
+                                                      "Poppins")
+                                              ),
+                                              Container(
+                                                padding:
+                                                EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey
+                                                        .withOpacity(
+                                                        0.5),
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(
+                                                        8)),
+                                                child: Text(
+                                                    otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    "${otherProducts[index]['MinWeightPerUnit'][0]['Weight']}":
+                                                    '${otherProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
+                                                    style: TextStyle(
+                                                        color: Colors
+                                                            .black,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .bold,
+                                                        fontSize:
+                                                        12)
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                                  : GestureDetector(
+                                onTap: () {
+                                  sendOthers(index);
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin:
+                                      EdgeInsets.only(top: 10),
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(14),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 10,
+                                              color: Colors.black12,
+                                              spreadRadius: 0)
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage: otherProducts[index]['ProductImage'] == null ||
+                                                otherProducts[index]['ProductImage'].isEmpty
+                                                ? NetworkImage(
+                                                "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
+                                                : NetworkImage(
+                                                otherProducts[index]['ProductImage'][0].toString()),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Text(
+                                              "${otherProducts[index]['ProductName'][0].toString().toUpperCase() +
+                                                  otherProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
+                                              maxLines: 2,
+                                              overflow: TextOverflow
+                                                  .ellipsis,
+                                              style: TextStyle(
+                                                  color: darkBlue,
+                                                  fontWeight:
+                                                  FontWeight.bold,
+                                                  fontSize: 13,
+                                                  fontFamily:
+                                                  "Poppins")),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment
+                                                .spaceBetween,
+                                            children: [
+                                              Text(
+                                                  otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                  '₹ ${otherProducts[index]['MinWeightPerKg']['PricePerKg']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                  "₹ ${otherProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
+                                                  '₹ ${otherProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                  style: TextStyle(
+                                                      color:
+                                                      lightPink,
+                                                      fontWeight:
+                                                      FontWeight
+                                                          .bold,
+                                                      fontSize: 14,
+                                                      fontFamily:
+                                                      "Poppins")),
+                                              Container(
+                                                padding:
+                                                EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey
+                                                        .withOpacity(
+                                                        0.5),
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(
+                                                        8)),
+                                                child: Text(
+                                                    otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    "${otherProducts[index]['MinWeightPerUnit'][0]['Weight']}":
+                                                    '${otherProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
+                                                    style: TextStyle(
+                                                        color: Colors
+                                                            .black,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .bold,
+                                                        fontSize:
+                                                        12)),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                            staggeredTileBuilder: (int index) =>
+                                StaggeredTile.fit(1),
+                          ),
+                          Visibility(
+                            visible: isNetworkError ? false : true,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                cakeSearchList.length > 0
+                                    ? 'Load completed.'
+                                    : 'No results found.',
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ):
+                    Container()
                   ],
                 ),
               ),

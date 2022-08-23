@@ -999,6 +999,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       fetchProfileByPhn();
       _getUserLocation();
+      getAdminDeliveryCharge();
     });
 
     timerTrigger();
@@ -1083,7 +1084,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     getFbToken();
     getHampers();
-
   }
 
   Future<void> getFbToken() async {
@@ -1257,7 +1257,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     getCakeType();
-
   }
 
   //getting recent orders list by UserId
@@ -1436,39 +1435,51 @@ class _HomeScreenState extends State<HomeScreen> {
   //get Ads Banners
   Future<void> getHampers() async {
     hampers.clear();
-    var headers = {
-      'Authorization': '$authToken'
-    };
-    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/hamper/approvedlist'));
 
-    request.headers.addAll(headers);
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/hamper/approvedlist'));
 
-    http.StreamedResponse response = await request.send();
+      request.headers.addAll(headers);
 
-    if (response.statusCode == 200) {
-      List map = jsonDecode(await response.stream.bytesToString());
+      http.StreamedResponse response = await request.send();
 
-      setState((){
-        hampers = map;
-        // hampers = map.where((element) =>
-        // calculateDistance(
-        //     userLat,
-        //     userLong,
-        //     element['GoogleLocation']['Latitude'],
-        //     element['GoogleLocation']['Longitude']) <=
-        //     10)
-        //     .toList();
-      });
+      if (response.statusCode == 200) {
+        List map = jsonDecode(await response.stream.bytesToString());
 
-    }
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.reasonPhrase.toString()))
-      );
+        print(map);
+
+        setState((){
+
+          hampers = map;
+
+          // hampers = map.where((element) =>
+          // calculateDistance(
+          //     userLat,
+          //     userLong,
+          //     element['GoogleLocation']['Latitude'],
+          //     element['GoogleLocation']['Longitude']) <=
+          //     10)
+          //     .toList();
+
+
+          print("${hampers.length}");
+
+        });
+
+      }
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response.reasonPhrase.toString()))
+        );
+      }
+    }catch(e){
+      print(e);
     }
 
     getCakeList();
-
   }
 
   //network check
@@ -2414,7 +2425,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                     ),
                                                   );
-                                                })):Container(),
+                                                })):
+                                        Container(),
 
                                         Container(
                                           height: recentOrders.isNotEmpty
@@ -2771,7 +2783,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           .green;
                                                                     }
 
-                                                                    return recentOrders[i]['HampersName']==null?
+                                                                    return recentOrders[i]['CakeName']!=null?
                                                                     GestureDetector(
                                                                       onTap:
                                                                           () async {
@@ -2873,6 +2885,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         ),
                                                                       ),
                                                                     ):
+                                                                    recentOrders[i]['HampersName']!=null?
                                                                     GestureDetector(
                                                                       onTap:
                                                                           () async {
@@ -2974,7 +2987,112 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                    );
+                                                                    ):
+                                                                    recentOrders[i]['ProductName']!=null?
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () async {
+                                                                        Navigator.of(context)
+                                                                            .push(
+                                                                          PageRouteBuilder(
+                                                                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                                                                Profile(
+                                                                                  defindex: 1,
+                                                                                ),
+                                                                            transitionsBuilder: (context,
+                                                                                animation,
+                                                                                secondaryAnimation,
+                                                                                child) {
+                                                                              const begin = Offset(1.0, 0.0);
+                                                                              const end = Offset.zero;
+                                                                              const curve = Curves.ease;
+
+                                                                              final tween = Tween(begin: begin, end: end);
+                                                                              final curvedAnimation = CurvedAnimation(
+                                                                                parent: animation,
+                                                                                curve: curve,
+                                                                              );
+
+                                                                              return SlideTransition(
+                                                                                position: tween.animate(curvedAnimation),
+                                                                                child: child,
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                      child:
+                                                                      Card(
+                                                                        elevation:
+                                                                        0.5,
+                                                                        shape: RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                            BorderRadius.circular(20)),
+                                                                        child:
+                                                                        Container(
+                                                                          padding:
+                                                                          EdgeInsets.all(5),
+                                                                          decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(20)),
+                                                                          child:
+                                                                          Row(
+                                                                            children: [
+                                                                              recentOrders[i]['Image'] != null
+                                                                                  ? CircleAvatar(
+                                                                                backgroundImage: NetworkImage(recentOrders[i]['Image']),
+                                                                                radius: 25,
+                                                                              )
+                                                                                  : CircleAvatar(
+                                                                                backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
+                                                                                radius: 25,
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 5,
+                                                                              ),
+                                                                              Expanded(
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      recentOrders[i]['ProductName'] != null ?
+                                                                                      recentOrders[i]['ProductName']: "Customised Cake",
+                                                                                      style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
+                                                                                      maxLines: 2,
+                                                                                    ),
+                                                                                    Row(
+                                                                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          recentOrders[i]['VendorName']!=null?
+                                                                                          recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
+                                                                                          style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
+                                                                                        ),
+                                                                                        SizedBox(
+                                                                                          width: 3,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          recentOrders[i]['Status'],
+                                                                                          style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
+                                                                                        ),
+                                                                                      ],
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 6,
+                                                                              ),
+                                                                              Text(
+                                                                                "Rs." + recentOrders[i]['Total'] + " ",
+                                                                                style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ):
+                                                                    Container();
                                                                   }),
                                                         )
 
