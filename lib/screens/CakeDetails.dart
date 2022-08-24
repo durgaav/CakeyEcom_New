@@ -1621,7 +1621,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
           (calculateDistance(double.parse(userLatitude),
               double.parse(userLongtitude),
               mySelVendors[0]['GoogleLocation']['Latitude'],
-              mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()).toString();
+              mySelVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(2).toString();
     }
 
     print("deliver based km $dlintKm");
@@ -4290,11 +4290,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                               (calculateDistance(double.parse(userLatitude),
                                                                                   double.parse(userLongtitude),
                                                                                   mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                  mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()==0?
+                                                                                  mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(2)==0.00?
                                                                               Text(
                                                                                 "DELIVERY FREE",
                                                                                 style: TextStyle(
-                                                                                  fontSize: 10,
+                                                                                  fontSize: 8,
                                                                                   fontFamily: "Poppins",
                                                                                   color: Colors.orange,
                                                                                 ),
@@ -4305,16 +4305,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                     (calculateDistance(double.parse(userLatitude),
                                                                                         double.parse(userLongtitude),
                                                                                         mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                        mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                                        mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
                                                                                 } KM Charge Rs.${
-                                                                                    (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                                    ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                                         (calculateDistance(double.parse(userLatitude),
                                                                                             double.parse(userLongtitude),
                                                                                             mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                            mySelVendors[0]['GoogleLocation']['Longitude'])).toInt()
+                                                                                            mySelVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
                                                                                 }",
                                                                                 style: TextStyle(
-                                                                                  fontSize: 10,
+                                                                                  fontSize: 8,
                                                                                   fontFamily: "Poppins",
                                                                                   color: Colors.orange,
                                                                                 ),
@@ -4645,7 +4645,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                             (calculateDistance(double.parse(userLatitude),
                                                                                 double.parse(userLongtitude),
                                                                                 nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()==0?Text(
+                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)==0.00?Text(
                                                                                "DELIVERY FREE",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
                                                                             ):
@@ -4654,13 +4654,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                   (calculateDistance(double.parse(userLatitude),
                                                                                       double.parse(userLongtitude),
                                                                                       nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
                                                                               } KM Charge Rs.${
-                                                                                  (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                                  ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                                       (calculateDistance(double.parse(userLatitude),
                                                                                           double.parse(userLongtitude),
                                                                                           nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                                          nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
                                                                               }",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
                                                                             )

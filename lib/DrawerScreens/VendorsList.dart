@@ -966,13 +966,13 @@ class _VendorsListState extends State<VendorsList> {
                                                                 (calculateDistance(double.parse(userLatitude),
                                                                     double.parse(userLongtitude),
                                                                     locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
                                                             } KM Delivery Fee Rs.${
-                                                                (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                     (calculateDistance(double.parse(userLatitude),
                                                                         double.parse(userLongtitude),
                                                                     locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
                                                             }'
                                                               ,style: TextStyle(
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins

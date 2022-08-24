@@ -1371,15 +1371,22 @@ class _CakeTypesState extends State<CakeTypes> {
   //fetch others..
   Future<void> getOtherProducts() async{
 
+    var headers = {
+      'Authorization': '$authToken'
+    };
+
     try{
+
+
       var request = http.Request('GET',
           Uri.parse('https://cakey-database.vercel.app/api/otherproduct/list'));
+
+      request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
 
       if (response.statusCode == 200) {
         var map = jsonDecode(await response.stream.bytesToString());
-
 
         print("map .... $map");
 
@@ -1391,7 +1398,7 @@ class _CakeTypesState extends State<CakeTypes> {
               element['GoogleLocation']['Latitude'],
               element['GoogleLocation']['Longitude']) <=
               10)
-              .toList();;
+              .toList();
         });
 
       }

@@ -50,6 +50,8 @@ class _HamperDetailsState extends State<HamperDetails> {
   String hampVenPhn1 = "";
   String hampVenPhn2 = "";
   String hampVenAddres = "";
+  String hamTitle = "";
+  String hamWeight = "";
   String authToken = "";
   String userLatitude = "0.0";
   String userLongtitude = "0.0";
@@ -156,6 +158,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       hampVenName = pref.getString("hamperVendorName") ?? '';
       hampVenPhn1 = pref.getString("hamperVendorPhn1") ?? '';
       hampVenPhn2 = pref.getString("hamperVendorPhn2") ?? '';
+      hamTitle = pref.getString("hamperTitle") ?? '';
+      hamWeight = pref.getString("hamperWeight") ?? '';
 
       productContains = pref.getStringList('hamperProducts') ?? ['No Products'];
     });
@@ -796,46 +800,14 @@ class _HamperDetailsState extends State<HamperDetails> {
       delCharge = 0;
     }
 
-    print({
-      "HamperID": "$hampVenId",
-      "Hamper_ID": "$hamper_id",
-      "HampersName": "$hamperName",
-      "Product_Contains": productContains,
-      "HamperImage": "$hamperImage",
-      "Description": "$hamperDescription",
-      "VendorID": "$vendor_Id",
-      "Vendor_ID": "$vendorId",
-      "VendorName": "$vendrorName",
-      "VendorPhoneNumber1": "$vendrorPhone1",
-      "VendorPhoneNumber2": "$vendrorPhonr2",
-      "VendorAddress": "$vendorAddress",
-      "GoogleLocation": {
-        "Latitude": "$vendrorLat",
-        "Longitude": "$vendrorLong"
-      },
-      "UserID": "$userId",
-      "User_ID": "$user_ID",
-      "UserName": "$userName",
-      "UserPhoneNumber": "$userPhone",
-      "DeliveryAddress": "$deliveryAddress",
-      "DeliveryDate": "$deliverDate",
-      "DeliverySession": "$deliverSession",
-      "DeliveryInformation": "$fixedDelliverMethod",
-      "Price": "$hamperPrice",
-      "ItemCount": "$counts",
-      "DeliveryCharge": "$delCharge",
-      "Total": "$amount",
-      "PaymentType": "$paymentMethod",
-      "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
-    });
 
     var headers = {
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/new'));
     request.body = json.encode({
-      "HamperID": "$hampeModid",
-      "Hamper_ID": "$hamper_id",
+      "HamperID": "$hamper_id",
+      "Hamper_ID": "$hampeModid",
       "HampersName": "$hamperName",
       "Product_Contains": productContains,
       "HamperImage": "$hamperImage",
@@ -862,6 +834,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       "ItemCount": "$counts",
       "DeliveryCharge": "$delCharge",
       "Total": "$amount",
+      "Weight": "$hamWeight",
+      "Title": "$hamTitle",
       "PaymentType": "$paymentMethod",
       "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
     });

@@ -1204,8 +1204,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //Load Order Preferences...
   Future<void> confirmOrder(String ckName) async{
 
-    showAlertDialog();
-
     var tempList = [];
 
     setState((){
@@ -1233,22 +1231,31 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     });
 
+    String message = "Hi , I want this customize cake can you make this?\n"+jsonEncode({
+      'CakeType': fixedCategory,
+      'CakeName':ckName.isEmpty?"My Customized Cake":ckName,
+      'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
+      'Flavour': jsonEncode(tempList),
+      'Shape': fixedShape,
+      'Weight': fixedWeight+'kg',
+      'DeliveryAddress': deliverAddress,
+      'DeliveryDate': fixedDate,
+      'DeliverySession': fixedSession,
+      'DeliveryInformation': fixedDelliverMethod,
+    }).toString();
+
+
+
+    showAlertDialog();
+
+
+
 
     print("letsvdhgdsh "+nearestVendors.length.toString());
 
 
     print(
       {
-        'CakeType': fixedCategory,
-        'CakeName':ckName.isEmpty?"My Customized Cake":ckName,
-        'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-        'Flavour': jsonEncode(tempList),
-        'Shape': fixedShape,
-        'Weight': fixedWeight+'kg',
-        'DeliveryAddress': deliverAddress,
-        'DeliveryDate': fixedDate,
-        'DeliverySession': fixedSession,
-        'DeliveryInformation': fixedDelliverMethod,
         "User_ID":userModId,
         'UserID': userID,
         'UserName': userName,
@@ -1358,6 +1365,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
             sendNotificationToVendor(notificationId):null;
 
+            PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true , message);
+
           }else{
             checkNetwork();
             Navigator.pop(context);
@@ -1382,8 +1391,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             )
         );
       }
-
-
 
   }
 
@@ -3394,7 +3401,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                                                   if(newRegUser==true){
                                                                     showDpUpdtaeDialog();
-                                                                  }else {
+                                                                  }
+                                                                  else {
                                                                     if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
                                                                         weightCtrl.text.startsWith("0")&&
                                                                             weightCtrl.text.endsWith("0")){
@@ -3424,7 +3432,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                     }
                                                                   }
 
-                                                                  // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                                                 },
                                                                 child: Container(
                                                                   alignment: Alignment.center,
@@ -3637,22 +3644,22 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       fontFamily: "Poppins"
                                                                   ),),
                                                                   SizedBox(height: 8,),
-                                                                  (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                  ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                       (calculateDistance(double.parse(userLatitude),
                                                                           double.parse(userLongtitude),
                                                                           nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()!=0.0?
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)!=0.00?
                                                                   Text('${
                                                                       (calculateDistance(double.parse(userLatitude),
                                                                           double.parse(userLongtitude),
                                                                           nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
                                                                   } KM Delivery Fee Rs.${
-                                                                      (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                      ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                           (calculateDistance(double.parse(userLatitude),
                                                                               double.parse(userLongtitude),
                                                                               nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                              nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()
+                                                                              nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
                                                                   }',style: TextStyle(
                                                                       color: Colors.orange,
                                                                       fontSize: 10 ,

@@ -184,6 +184,15 @@ class _OthersDetailsState extends State<OthersDetails> {
       );
     }
 
+    print("Chargeeeee...");
+    print(adminDeliveryCharge);
+    print(adminDeliveryChargeKm);
+    print((calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+        double.parse(vendrorLat.toString()), double.parse(vendrorLong))));
+    print( ((adminDeliveryCharge / adminDeliveryChargeKm) *
+        (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+            double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toString());
+
 
     prefs.setString("otherOrdDeliDate",deliverDate);
     prefs.setString("otherOrdDiscount",otherDiscount);
@@ -1655,17 +1664,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                             maxLines: 1,
                                           ),
                                           SizedBox(height: 3),
-                                          (calculateDistance(
-                                              double.parse(
-                                                  userLatitude),
-                                              double.parse(
-                                                  userLongtitude),
-                                              double.parse(vendrorLat
-                                                  .toString()),
-                                              double.parse(
-                                                  vendrorLong)))
-                                              .toInt() ==
-                                              0
+                                          ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                                                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(2) ==
+                                              0.00
                                               ? Text(
                                             "DELIVERY FREE",
                                             style: TextStyle(
@@ -1677,8 +1679,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           )
                                               : Text(
                                             "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                double.parse(vendrorLong))).toInt()} KM Charge Rs.${(adminDeliveryCharge / adminDeliveryChargeKm) *
-                                                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()}",
+                                                double.parse(vendrorLong))).toStringAsFixed(2)} "
+                                                "KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(2)}",
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontFamily: "Poppins",

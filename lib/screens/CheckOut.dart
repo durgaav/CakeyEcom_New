@@ -589,13 +589,13 @@ class _CheckOutState extends State<CheckOut> {
         vendorLong = prefs.getString('customCakeVendLong')??"None";
         taxes = prefs.getInt("customCakeTaxes")??0;
 
-        deliveryChargeCustomer = ((adminDeliveryCharge/adminDeliveryChargeKm)*
+        deliveryChargeCustomer = (((adminDeliveryCharge/adminDeliveryChargeKm)*
             calculateDistance(
               double.parse(userLatitude),
               double.parse(userLongtitude),
               double.parse(vendorLat),
               double.parse(vendorLong),
-            ).toInt()).toString();
+            )).toStringAsFixed(2)).toString();
         
         if(deliverType.toString().toLowerCase()=="pickup"){
           setState((){

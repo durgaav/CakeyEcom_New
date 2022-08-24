@@ -1092,6 +1092,7 @@ class _HomeScreenState extends State<HomeScreen> {
             updateVendorsFbId(value!);
           }),
     });
+    getOrderList();
   }
 
   Future<void> updateVendorsFbId(String token) async {
@@ -1261,6 +1262,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //getting recent orders list by UserId
   Future<void> getOrderList() async {
+
+    print("entering order");
+
     recentOrders.clear();
     setState(() {
       ordersLoading = true;
@@ -1269,22 +1273,22 @@ class _HomeScreenState extends State<HomeScreen> {
       http.Response response = await http.get(
           Uri.parse(
               "https://cakey-database.vercel.app/api/ordersandhamperorders/listbyuser/$userID"),
-          headers: {"Authorization": "$authToken"});
+          headers: {"Authorization": "$authToken"}
+      );
       if (response.statusCode == 200) {
 
-        if (response.contentLength! > 50) {
+        print(response.body);
+
+        print("con length");
+        print(response.contentLength);
+
           setState(() {
             isNetworkError = false;
             ordersLoading = false;
             recentOrders = jsonDecode(response.body);
           });
-        } else {
-          setState(() {
-            recentOrders = [];
-            ordersLoading = false;
-          });
-        }
 
+        print(recentOrders.length);
 
       } else {
 
@@ -1295,6 +1299,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       }
     } catch (error) {
+      print(error);
       setState(() {
         isNetworkError = true;
         ordersLoading = false;
@@ -1429,7 +1434,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
     print("getting vendors....done...");
-    getOrderList();
   }
 
   //get Ads Banners
@@ -2360,6 +2364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       pref.setString("hamperName", hampers[i]['HampersName']??'null');
                                                       pref.setString("hamperPrice", hampers[i]['Price']??'null');
                                                       pref.setString("hamper_ID", hampers[i]['_id']??'null');
+                                                      pref.setString("hamperModID", hampers[i]['Id']??'null');
                                                       pref.setString("hamperDescription", hampers[i]['Description']??'null');
                                                       pref.setString("hamperVendorName", hampers[i]['VendorName']??'null');
                                                       pref.setString("hamperVendorID", hampers[i]['VendorID']??'null');
@@ -2367,6 +2372,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       pref.setString("hamperVendorAddress", hampers[i]['VendorAddress']??'null');
                                                       pref.setString("hamperVendorPhn1", hampers[i]['VendorPhoneNumber1']??'null');
                                                       pref.setString("hamperVendorPhn2", hampers[i]['VendorPhoneNumber2']??'null');
+                                                      pref.setString("hamperTitle", hampers[i]['Title']??'null');
+                                                      pref.setString("hamperWeight", hampers[i]['Weight']??'null');
                                                       pref.setString("hamperLat", hampers[i]['GoogleLocation']['Latitude'].toString()??'null');
                                                       pref.setString("hamperLong", hampers[i]['GoogleLocation']['Longitude'].toString()??'null');
                                                       pref.setStringList("hamperProducts", productsContains??[]);
@@ -3093,7 +3100,109 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         ),
                                                                       ),
                                                                     ):
-                                                                    Container();
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () async {
+                                                                        Navigator.of(context)
+                                                                            .push(
+                                                                          PageRouteBuilder(
+                                                                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                                                                Profile(
+                                                                                  defindex: 1,
+                                                                                ),
+                                                                            transitionsBuilder: (context,
+                                                                                animation,
+                                                                                secondaryAnimation,
+                                                                                child) {
+                                                                              const begin = Offset(1.0, 0.0);
+                                                                              const end = Offset.zero;
+                                                                              const curve = Curves.ease;
+
+                                                                              final tween = Tween(begin: begin, end: end);
+                                                                              final curvedAnimation = CurvedAnimation(
+                                                                                parent: animation,
+                                                                                curve: curve,
+                                                                              );
+
+                                                                              return SlideTransition(
+                                                                                position: tween.animate(curvedAnimation),
+                                                                                child: child,
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                      child:
+                                                                      Card(
+                                                                        elevation:
+                                                                        0.5,
+                                                                        shape: RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                            BorderRadius.circular(20)),
+                                                                        child:
+                                                                        Container(
+                                                                          padding:
+                                                                          EdgeInsets.all(5),
+                                                                          decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(20)),
+                                                                          child:
+                                                                          Row(
+                                                                            children: [
+                                                                              recentOrders[i]['Image'] != null
+                                                                                  ? CircleAvatar(
+                                                                                backgroundImage: NetworkImage(recentOrders[i]['Image']),
+                                                                                radius: 25,
+                                                                              )
+                                                                                  : CircleAvatar(
+                                                                                backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
+                                                                                radius: 25,
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 5,
+                                                                              ),
+                                                                              Expanded(
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      recentOrders[i]['ProductName'] != null ?
+                                                                                      recentOrders[i]['ProductName']: "Customised Cake",
+                                                                                      style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
+                                                                                      maxLines: 2,
+                                                                                    ),
+                                                                                    Row(
+                                                                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          recentOrders[i]['VendorName']!=null?
+                                                                                          recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
+                                                                                          style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
+                                                                                        ),
+                                                                                        SizedBox(
+                                                                                          width: 3,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          recentOrders[i]['Status'],
+                                                                                          style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
+                                                                                        ),
+                                                                                      ],
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              SizedBox(
+                                                                                width: 6,
+                                                                              ),
+                                                                              Text(
+                                                                                "Rs." + recentOrders[i]['Total'] + " ",
+                                                                                style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    );
                                                                   }),
                                                         )
 

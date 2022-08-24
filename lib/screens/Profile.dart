@@ -2733,7 +2733,622 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
-              ):Container();
+              ):
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                child: Column(
+                  children: [
+                    InkWell(
+                      onTap:(){
+                        setState(() {
+                          if(isExpands[index]==false){
+                            isExpands[index]=true;
+
+                            List note = vendorsList.where((element) =>
+                            element["Id"]==recentOrders[index]['Vendor_ID']).toList();
+
+                            if(note.isNotEmpty){
+                              setState((){
+                                note[0]['Notification_Id']!=null?
+                                notifyId = note[0]['Notification_Id']:notifyId="null";
+                              });
+                            }
+
+                            print(notifyId);
+
+                            //mins calculate
+
+                            print(recentOrders[index]['Created_On'].toString());
+
+                            year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-").last);
+                            month = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-")[1]);
+                            day = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                                .first.split("-").first);
+                            hour = int.parse(recentOrders[index]['Created_On'].toString().split(" ")[1]
+                                .split("")[1].split(":").first);
+                            min = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
+                            [1].split(":").last);
+
+                            DateTime a = DateTime(year,month,day,hour,min);
+
+                            print("a $a");
+
+                            DateTime b = DateTime.now();
+
+                            Duration difference = b.difference(a);
+
+                            print(difference);
+
+                            days = difference.inDays;
+                            hours = difference.inHours % 24;
+                            minutes = difference.inMinutes % 60;
+                            seconds = difference.inSeconds % 60;
+
+                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
+
+                            print("min : $minutes");
+
+                          }else{
+                            isExpands[index]=false;
+                          }
+                        });
+                      },
+                      child: Container(
+                          child:Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              recentOrders[index]["Image"]==null||recentOrders[index]["Image"].toString().isEmpty||
+                                  !recentOrders[index]["Image"].toString().startsWith("http")?
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                        image:AssetImage("assets/images/chefdoll.jpg"),
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                              ):
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                        image: NetworkImage('${recentOrders[index]['Image']}'),
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                              ),
+                              const SizedBox(width: 5,),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                        padding: const EdgeInsets.only(left: 3,right: 3,top: 2,bottom: 2),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Colors.grey[300]
+                                        ),
+                                        child:(recentOrders[index]['Id']!= null)?
+                                        Text('Order Id ${recentOrders[index]['Id']}',style: const TextStyle(
+                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black
+                                        ),):Text('cake id',style: const TextStyle(
+                                            fontSize: 10,fontFamily: "Poppins",color: Colors.black
+                                        ))
+                                    ),
+                                    SizedBox(height: 5,),
+                                    Container(
+                                      child:(recentOrders[index]['CakeName'] != null)
+                                          ?Text("${recentOrders[index]['CakeName']} ",style: const TextStyle(
+                                          fontSize: 12.5,fontFamily: "Poppins",
+                                          color: Colors.black,fontWeight: FontWeight.bold
+                                      ),overflow: TextOverflow.ellipsis,maxLines: 4,):
+                                      Text("My Customise Cake",style: const TextStyle(
+                                          fontSize: 12,fontFamily: "Poppins",
+                                          color: Colors.black,fontWeight: FontWeight.bold
+                                      ),overflow: TextOverflow.ellipsis,),
+                                    ),
+                                    Container(
+                                      child:Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          recentOrders[index]['CustomizeCake'].toString()=="n"?
+                                          Wrap(
+                                            children: [
+                                              Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
+                                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                                              Text("(Flavours : ",style: TextStyle(
+                                                  fontSize:10.5,fontFamily: "Poppins",
+                                                  color: Colors.grey[500]
+                                              ),),
+                                              for(var i in recentOrders[index]['Flavour'])
+                                                Text("${i['Name']})",style: TextStyle(
+                                                    fontSize:10.5,fontFamily: "Poppins",
+                                                    color:  Colors.grey[500]
+                                                ),),
+                                            ],
+                                          ):
+                                          Wrap(
+                                            children: [
+                                              Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
+                                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                                              Text("(Flavours : ",style: TextStyle(
+                                                  fontSize:10.5,fontFamily: "Poppins",
+                                                  color: Colors.grey[500]
+                                              ),),
+                                              for(var i in recentOrders[index]['Flavour'])
+                                                Text("${i['Name']}",style: TextStyle(
+                                                    fontSize:10.5,fontFamily: "Poppins",
+                                                    color:  Colors.grey[500]
+                                                ),),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3,),
+
+                                    Container(
+                                      child:
+                                      Row(
+                                        // crossAxisAlignment: CrossAxisAlignment.start,
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("₹ "
+                                          //     "${(
+                                          //  double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                          //      (double.parse(recentOrders[index]['Price'].toString())*
+                                          //          double.parse(recentOrders[index]['Weight'].toString().
+                                          //          toLowerCase().replaceAll("kg", "")))+
+                                          //          double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                          //  )
+                                          // ).toStringAsFixed(2)
+                                          // }"
+                                              "$gramAndKilo",
+                                            style: TextStyle(color: lightPink,
+                                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
+                                          Container(
+                                            child:recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                        fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
+                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                  ],
+                                                ),
+                                                Text("${recentOrders[index]['Status_Updated_On']
+                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
+                                              ],
+                                            ):
+                                            Text("${recentOrders[index]['Status']}",style: TextStyle(
+                                                color:recentOrders[index]['Status'].toString().toLowerCase()
+                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                                fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
+                                            ),),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    Visibility(
+                      visible:isExpands[index],
+                      child: AnimatedContainer(
+                        duration: const Duration(seconds: 3),
+                        curve: Curves.elasticInOut,
+                        decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)
+                            )
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: const Text('Vendor',style: const TextStyle(
+                                  fontSize: 11,fontFamily: "Poppins"
+                              ),),
+                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                                  fontSize: 14,fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,color: Colors.black
+                              ),),
+                              trailing: Container(
+                                width: 100,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    InkWell(
+                                      onTap: () async{
+                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2']);
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
+                                        ),
+                                        child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    InkWell(
+                                      onTap: () async{
+                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 35,
+                                        width: 35,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white
+                                        ),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            recentOrders[index]['CustomizeCake'].toString()=="n"?
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Cake Type',style: TextStyle(
+                                      fontSize: 11,fontFamily: "Poppins"
+                                  ),),
+                                  Text('Cakes',style: TextStyle(
+                                      fontSize: 14,fontFamily: "Poppins",
+                                      fontWeight: FontWeight.bold,color: Colors.black
+                                  ),),
+                                ],
+                              ),
+                            ):
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Cake Type',style: TextStyle(
+                                      fontSize: 11,fontFamily: "Poppins"
+                                  ),),
+                                  Text('Customized Cake',style: TextStyle(
+                                      fontSize: 14,fontFamily: "Poppins",
+                                      fontWeight: FontWeight.bold,color: Colors.black
+                                  ),),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 10,),
+
+                            recentOrders[index]['Status']!="Cancelled"
+                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                            Container(
+                              padding: EdgeInsets.only(left: 15,right: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Cancel Order In ${5-minutes} Mins",
+                                    style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13
+                                    ),),
+                                  OutlinedButton(
+                                    onPressed: (){
+
+                                      showOrderCancelDialog(
+                                          recentOrders[index]['_id'],
+                                          recentOrders[index]['UserID'],
+                                          recentOrders[index]['CakeName'],
+                                          index
+                                      );
+
+                                    },
+                                    child: Text("Cancel Order",style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 12
+                                    ),),
+                                    style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all(
+                                            Colors.transparent
+                                        ),
+                                        side: MaterialStateProperty.all(
+                                            BorderSide(width: 0.5,color: Colors.white)
+                                        )
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ):Container(),
+
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+
+                            const SizedBox(height: 15,),
+
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(width: 8,),
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 8,),
+                                Container(
+                                    width: 260,
+                                    child:Text(
+                                      recentOrders[index]['DeliveryAddress']!=null?
+                                      "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                      "Pick Up",
+                                      style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          color: Colors.black54,
+                                          fontSize: 13
+                                      ),
+                                    )
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15,),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Product Total',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  recentOrders[index]['ExtraCharges']!=null?
+                                  Text("₹ "
+                                  //     "${(
+                                  //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                  //         (double.parse(recentOrders[index]['Price'].toString())*
+                                  //             double.parse(recentOrders[index]['Weight'].toString().
+                                  //             toLowerCase().replaceAll("kg", "")))+
+                                  //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                  //     )
+                                  // ).toStringAsFixed(2)}"
+                                      "$gramAndKilo"
+                                    ,style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text(""),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Delivery charge',
+                                    style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
+                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',
+                                    style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
+                                  Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Gst',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Sgst',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10,right: 10),
+                              color: Colors.black26,
+                              height: 1,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Bill Total',style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold
+                                  ),),
+                                  Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                ],
+                              ),
+                            ),
+                            recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
+                            TextButton(onPressed: (){
+                              String rate = '1' ;
+
+                              showDialog(
+                                context: context,
+                                builder:(context)=>
+                                    StatefulBuilder(
+                                      builder:(BuildContext context , void Function(void Function()) setState)=>
+                                          AlertDialog(
+                                            title:Center(
+                                              child: Text('Give Rate To Cake',style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.5,
+                                                  fontWeight: FontWeight.bold
+                                              ),),
+                                            ),
+
+                                            content:Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                RatingBar.builder(
+                                                  initialRating: 1.0,
+                                                  minRating: 1,
+                                                  direction: Axis.horizontal,
+                                                  allowHalfRating: true,
+                                                  itemCount: 5,
+                                                  itemSize: 30,
+                                                  itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                                                  itemBuilder: (context, _) => Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  onRatingUpdate: (rating) {
+
+                                                    setState((){
+                                                      rate = rating.toString();
+                                                    });
+                                                  },
+                                                ),
+                                                SizedBox(height: 15,),
+                                                Text(rate)
+                                              ],
+                                            ),
+                                            actions: [
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child:  Text('Cancel',style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 13.5,
+                                                      color:Colors.pinkAccent
+                                                  ),)
+                                              ),
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    Navigator.pop(context);
+                                                    rateCake(double.parse(rate),
+                                                        recentOrders[index]['CakeID'].toString(), index);
+                                                  },
+                                                  child:  Text('Rate',style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 13.5,
+                                                      color:Colors.green
+                                                  ),)
+                                              ),
+                                            ],
+                                          ),
+                                    ),
+                              );
+
+
+                            },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.star_border, color: Colors.amber,),
+                                    Text(' Rate The Cake',style: TextStyle(
+                                        fontFamily: "Poppins"
+                                    ),)
+                                  ],
+                                )):
+                            Container(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
         ):
         Column(

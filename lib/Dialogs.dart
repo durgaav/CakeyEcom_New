@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class PhoneDialog{
 
-  void showPhoneDialog(BuildContext context , String phn1 , String phn2 , [bool isWhatsapp = false]){
+  void showPhoneDialog(BuildContext context , String phn1 , String phn2 , [bool isWhatsapp = false,String msg="hello"]){
     showDialog(
         context: context,
         builder: (context){
@@ -31,7 +31,7 @@ class PhoneDialog{
                       onTap: (){
                         !isWhatsapp?
                         launchPhone(context, phn1):
-                        launchWhatsapp(context, phn1);
+                        launchWhatsapp(context, phn1,msg);
                       },
                       child: Text("$phn1")
                   ),
@@ -39,7 +39,7 @@ class PhoneDialog{
                       onTap: (){
                         !isWhatsapp?
                         launchPhone(context, phn2):
-                        launchWhatsapp(context, phn2);
+                        launchWhatsapp(context, phn2,msg);
                       },
                       child: Text("$phn2")
                   ),
@@ -62,10 +62,10 @@ class PhoneDialog{
 
   }
 
-  void launchWhatsapp(BuildContext context , String num) async{
+  void launchWhatsapp(BuildContext context , String num,[String msg="hello"]) async{
     print('whatsapp');
     String whatsapp = num;
-    var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=hello";
+    var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=${msg}";
     var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
     if(Platform.isIOS){
       // for iOS phone only

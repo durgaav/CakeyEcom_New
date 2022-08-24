@@ -653,6 +653,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "DeliveryDate": deliverDate,
       "DeliverySession": deliverSession,
       "DeliveryInformation": deliverType,
+      "ItemCount": counts,
       "Discount": tempDiscountPrice,
       "DeliveryCharge": deliveryCharge,
       "Total": amount,

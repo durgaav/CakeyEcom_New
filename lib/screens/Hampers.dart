@@ -73,6 +73,8 @@ class _HampersState extends State<Hampers> {
     pref.setString("hamperVendorAddress", hampers[index]['VendorAddress']??'null');
     pref.setString("hamperVendorPhn1", hampers[index]['VendorPhoneNumber1']??'null');
     pref.setString("hamperVendorPhn2", hampers[index]['VendorPhoneNumber2']??'null');
+    pref.setString("hamperTitle", hampers[index]['Title']??'null');
+    pref.setString("hamperWeight", hampers[index]['Weight']??'null');
     pref.setString("hamperLat", hampers[index]['GoogleLocation']['Latitude'].toString()??'null');
     pref.setString("hamperLong", hampers[index]['GoogleLocation']['Longitude'].toString()??'null');
     pref.setStringList("hamperProducts", productsContains??[]);
