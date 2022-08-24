@@ -1453,19 +1453,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
         setState((){
 
-          hampers = map;
+          // hampers = map;
 
-          // hampers = map.where((element) =>
-          // calculateDistance(
-          //     userLat,
-          //     userLong,
-          //     element['GoogleLocation']['Latitude'],
-          //     element['GoogleLocation']['Longitude']) <=
-          //     10)
-          //     .toList();
+          hampers = map.where((element) =>
+          calculateDistance(
+              userLat,
+              userLong,
+              element['GoogleLocation']['Latitude'],
+              element['GoogleLocation']['Longitude']) <=
+              10)
+              .toList();
 
 
-          print("${hampers.length}");
+          print("hamper length....${hampers.length}");
 
         });
 
@@ -1968,6 +1968,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               userLocalityAdr =
                                                   deliverToCtrl.text;
                                               getVendorForDeliveryto(authToken);
+                                              getHampers();
                                               getCakeList();
                                               getCakeType();
                                             });

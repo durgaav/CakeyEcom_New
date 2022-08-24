@@ -1380,8 +1380,18 @@ class _CakeTypesState extends State<CakeTypes> {
       if (response.statusCode == 200) {
         var map = jsonDecode(await response.stream.bytesToString());
 
+
+        print("map .... $map");
+
         setState((){
-          otherProducts = map;
+          otherProducts = map.where((element) =>
+          calculateDistance(
+              double.parse(userLatitude),
+              double.parse(userLongtitude),
+              element['GoogleLocation']['Latitude'],
+              element['GoogleLocation']['Longitude']) <=
+              10)
+              .toList();;
         });
 
       }
@@ -3132,6 +3142,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                               pref.setString("userCurrentLocation", deliverToCtrl.text);
                                               // getVendorForDeliveryto(authToken);
                                               getCakeList();
+                                              getOtherProducts();
                                             });
                                           }
                                         },

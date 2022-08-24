@@ -135,6 +135,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   ];
   List nearestVendors = [];
   List mySelectdVendors = [];
+  List filteredEggList = [];
 
   var selFromVenList = false;
 
@@ -864,6 +865,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
     getShapesList();
+    getVendorsList();
     // prefs.setString('userID', userID);
     // prefs.setString('userAddress', userAddress);
     // prefs.setString('userName', userName);
@@ -967,7 +969,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       print(res.statusCode);
     }
 
-    getArticleList();
+    // getArticleList();
 
   }
 
@@ -1017,7 +1019,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     if(res.statusCode==200){
       List myList = jsonDecode(res.body);
       setState((){
-
         if(myList.isNotEmpty){
           for(int i=0;i<myList.length;i++){
             articals.add(myList[i]['Name']);
@@ -1027,14 +1028,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           articals = ["Others"];
         }
 
-
       });
     }else{
       print(res.statusCode);
     }
-
-    getVendorsList();
-
   }
 
   //geting the weight fom collection
@@ -1083,10 +1080,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){*/
               print('found .... $i');
               setState(() {
+
                 nearestVendors = vendorsList.where((element) =>
                 calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
                     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
                 ).toList();
+
+                filteredEggList = vendorsList.where((element) =>
+                calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
+                    element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+                ).toList();
+
+
               });
           }
           Navigator.pop(context);
@@ -1480,6 +1485,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       }
     });
 
+    if(egglesSwitch==true){
+      //filteredEggList
+      nearestVendors = filteredEggList.where((element) =>
+      element['EggOrEggless'] == 'Eggless' ||
+          element['EggOrEggless'] == "Egg and Eggless")
+          .toList();
+    }else{
+      filteredEggList = filteredEggList;
+    }
+
     return WillPopScope(
       onWillPop: () async{
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
@@ -1856,7 +1871,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 activeColor: Colors.green,
                               ),
                             ),
-                            Text(egglesSwitch?'Eggless':'Egg',style: TextStyle(color: darkBlue,
+                            Text('Eggless',style: TextStyle(color: darkBlue,
                                 fontFamily: "Poppins" ,fontSize: 13),),
                           ],
                         ),
@@ -3322,6 +3337,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                 color:darkBlue,
                                                               ),maxLines: 1,),
                                                             SizedBox(height:3),
+                                                            (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                (calculateDistance(double.parse(userLatitude),
+                                                                    double.parse(userLongtitude),
+                                                                    mySelectdVendors[0]['GoogleLocation']['Latitude'],
+                                                                    mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()!=0?
                                                             Text(
                                                                  "${
                                                                      (calculateDistance(double.parse(userLatitude),
@@ -3339,7 +3359,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                 fontSize:10,
                                                                 fontFamily: "Poppins" ,
                                                                 color:Colors.orange,
-                                                              ),maxLines: 1,),
+                                                              ),maxLines: 1,):
+                                                            Text("Free Delivery",
+                                                                style:TextStyle(
+                                                                  fontSize:10,
+                                                                  fontFamily: "Poppins" ,
+                                                                  color:Colors.orange,
+                                                                )),
                                                           ],
                                                         ),
                                                         Container(
@@ -3611,6 +3637,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       fontFamily: "Poppins"
                                                                   ),),
                                                                   SizedBox(height: 8,),
+                                                                  (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                      (calculateDistance(double.parse(userLatitude),
+                                                                          double.parse(userLongtitude),
+                                                                          nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()!=0.0?
                                                                   Text('${
                                                                       (calculateDistance(double.parse(userLatitude),
                                                                           double.parse(userLongtitude),
@@ -3626,7 +3657,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       color: Colors.orange,
                                                                       fontSize: 10 ,
                                                                       fontFamily: "Poppins"
-                                                                  ),),
+                                                                  ),
+                                                                  ):Text("Free Delivery",style: TextStyle(
+                                                                      color: Colors.orange,
+                                                                      fontSize: 10,
+                                                                      fontFamily: "Poppins"
+                                                                  )),
                                                                 ],
                                                               ),
                                                               selVendorIndex==index?
