@@ -235,6 +235,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           Navigator.pop(context);
 
           context.read<ContextData>().setProfileUpdated(true);
+          context.read<ContextData>().setAddress(userAddrCtrl.text);
 
           setState(() {
             file = new File('');
