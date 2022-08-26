@@ -16,6 +16,7 @@ import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../ContextData.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
@@ -723,7 +724,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   }
 
-
   void showCakeNameEdit(){
     var myCtrl = new TextEditingController(text: "My Customized Cake");
     showDialog(
@@ -846,7 +846,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     });
   }
 
-
   Future<void> loadPrefs() async{
     var pref = await SharedPreferences.getInstance();
     setState(() {
@@ -947,28 +946,32 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the flavous fom collection
   Future<void> getFlavsList() async{
 
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'),
-        headers: {"Authorization":"$authToken"}
-    );
+    try{
+      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'),
+          headers: {"Authorization":"$authToken"}
+      );
 
-    if(res.statusCode==200){
-      setState((){
-        List myList = jsonDecode(res.body);
+      if(res.statusCode==200){
+        setState((){
+          List myList = jsonDecode(res.body);
 
-        if(myList.isNotEmpty){
-          for(int i=0;i<myList.length;i++){
-            flavourList.add(myList[i]['Name']);
+          if(myList.isNotEmpty){
+            for(int i=0;i<myList.length;i++){
+              flavourList.add(myList[i]['Name']);
+            }
+            flavourList.insert(flavourList.indexWhere((element) => element==flavourList.last)+1, "Others");
+          }else{
+            flavourList = ["Others"];
           }
-          flavourList.insert(flavourList.indexWhere((element) => element==flavourList.last)+1, "Others");
-        }else{
-          flavourList = ["Others"];
-        }
 
-      });
-    }else{
-      print(res.statusCode);
+        });
+      }else{
+        print(res.statusCode);
+      }
+    }catch(e){
+
     }
-
+    
     // getArticleList();
 
   }
@@ -1005,8 +1008,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }
 
     getWeightList();
-
-
+    
   }
 
   //geting the article fom collection
@@ -1036,29 +1038,36 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //geting the weight fom collection
   Future<void> getWeightList() async{
-    print('weight...');
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/weight/list'),
-        headers: {"Authorization":"$authToken"}
-    );
-    if(res.statusCode==200){
-      setState((){
-        List myList = jsonDecode(res.body);
 
-        if(myList.isNotEmpty){
-          for(int i=0;i<myList.length;i++){
-            weight.add(myList[i]['Weight']);
+    try{
+
+      print('weight...');
+      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/weight/list'),
+          headers: {"Authorization":"$authToken"}
+      );
+      if(res.statusCode==200){
+        setState((){
+          List myList = jsonDecode(res.body);
+
+          if(myList.isNotEmpty){
+            for(int i=0;i<myList.length;i++){
+              weight.add(myList[i]['Weight']);
+            }
+            print(weight);
+          }else{
+            weight = ["1kg","2kg","3kg" , "4kg", "5kg" , "6kg"];
           }
-          print(weight);
-        }else{
-          weight = ["1kg","2kg","3kg" , "4kg", "5kg" , "6kg"];
-        }
-        
-        weight = weight.reversed.toList();
+
+          weight = weight.reversed.toList();
 
 
-      });
-    }else{
-      print(res.statusCode);
+        });
+      }else{
+        print(res.statusCode);
+      }
+
+    }catch(e){
+
     }
 
     getFlavsList();
@@ -1205,6 +1214,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Future<void> confirmOrder(String ckName) async{
 
     var tempList = [];
+    var flavMsg = [];
 
     setState((){
       if(fixedFlavList.isEmpty){
@@ -1214,6 +1224,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
         for(int i = 0;i<fixedFlavList.length;i++){
           tempList.add(fixedFlavList[i]);
+          flavMsg.add(fixedFlavList[i]['Name']);
         }
 
         tempList = tempList.toSet().toList();
@@ -1231,24 +1242,27 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     });
 
-    String message = "Hi , I want this customize cake can you make this?\n"+jsonEncode({
-      'CakeType': fixedCategory,
-      'CakeName':ckName.isEmpty?"My Customized Cake":ckName,
-      'EggOrEggless': egglesSwitch==false?'Egg':'Eggless',
-      'Flavour': jsonEncode(tempList),
-      'Shape': fixedShape,
-      'Weight': fixedWeight+'kg',
-      'DeliveryAddress': deliverAddress,
-      'DeliveryDate': fixedDate,
-      'DeliverySession': fixedSession,
-      'DeliveryInformation': fixedDelliverMethod,
-    }).toString();
+    String message = "Hi , I want this customize cake can you make this?\n\n"+
+        "Egg / Eggless : ${egglesSwitch==true?"Eggless":"Egg"}\n"
+        "Selected Category : $fixedCategory\n"
+        "Selected Shape : $fixedShape\n"
+        "Selected Flavour : ${flavMsg.toString().replaceAll("[", "").replaceAll("]","")}\n"
+        "Selected Weight : ${fixedWeight.toLowerCase().replaceAll("kg", "")}Kg\n"
+        "Deliver Method : $fixedDelliverMethod\n"
+        "Deliver Date : $fixedDate\n"
+        "Cake Message : ${msgCtrl.text.isNotEmpty?msgCtrl.text:"None"}"
+        "Deliver Session : $fixedSession\n\n"
+        "Thank You.".toString();
 
+    String whatsapp = vendorPhone1;
+    var whatsappURl_android = "whatsapp://send?phone="+whatsapp+"&text=${message}";
+    var whatappURL_ios ="https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
 
 
     showAlertDialog();
 
 
+    print(message);
 
 
     print("letsvdhgdsh "+nearestVendors.length.toString());
@@ -1365,7 +1379,25 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
             sendNotificationToVendor(notificationId):null;
 
-            PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true , message);
+            // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true , message);
+
+            if(Platform.isIOS){
+              // for iOS phone only
+              if( await canLaunch(whatappURL_ios)){
+                await launch(whatappURL_ios, forceSafariVC: false);
+              }else{
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: new Text("Whatsapp not found.")));
+              }
+            }else{
+              // android , web
+              if( await canLaunch(whatsappURl_android)){
+                await launch(whatsappURl_android);
+              }else{
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: new Text("Whatsapp not found.")));
+              }
+            }
 
           }else{
             checkNetwork();
@@ -2041,6 +2073,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
                                     ),
                                     children: [
+
+                                      shapesList.isNotEmpty?
                                       Container(
                                         color:Colors.white,
                                         child:ListView.builder(
@@ -2097,6 +2131,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 ),
                                               );
                                             }),
+                                      ):
+                                      Center(
+                                         child:Padding(
+                                           padding: const EdgeInsets.all(8.0),
+                                           child: Text("No Data Found"),
+                                         )
                                       ),
                                     ],
                                   ),
@@ -2125,6 +2165,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
                                     ),
                                     children: [
+                                      flavourList.isNotEmpty?
                                       Container(
                                         color:Colors.white,
                                         child:Column(
@@ -2238,6 +2279,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                           ],
                                         ),
+                                      ):
+                                      Center(
+                                          child:Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text("No Data Found"),
+                                          )
                                       ),
                                     ],
                                   ),
@@ -2305,6 +2352,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             style: TextStyle(color: darkBlue,fontSize: 14,fontFamily: "Poppins",),
                           ),
                         ),
+
+                        weight.isNotEmpty?
                         Container(
                             height: MediaQuery.of(context).size.height * 0.06,
                             width: MediaQuery.of(context).size.width,
@@ -2367,7 +2416,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       ),
                                     ),
                                   );
-                                })),
+                                })):Center(
+                            child:Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("No Data Found"),
+                            )
+                        ),
 
                         SizedBox(height:10),
 

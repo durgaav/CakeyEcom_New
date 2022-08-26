@@ -24,15 +24,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   PageController controll = new PageController(viewportFraction: 1, keepPage: true);
   int currentindex = 0;
   List title = [ "Customize Your cake", "Select Your vendor","On Time Delivery"];
-  List desc = ["Lorem Ipsum is simply dummy text of the printing and "
-      "typesetting industry. Lorem Ipsum has been the industry's "
-      "standard dummy text ever since the 1500s, when an unknown printer ",
-    "Lorem Ipsum is simply dummy text of the printing and "
-        "typesetting industry. Lorem Ipsum has been the industry's "
-        "standard dummy text ever since the 1500s, when an unknown printer ",
-    "Lorem Ipsum is simply dummy text of the printing and "
-        "typesetting industry. Lorem Ipsum has been the industry's "
-        "standard dummy text ever since the 1500s, when an unknown printer "];
+  List desc =
+  [
+    "Easily make your customize favourite cakes from your imagination.\n",
+    "You can choose your favourite vendor from your nearest location.\n",
+    "We giving you a great delivery at time.\n"
+  ];
 
   //this is svg
   var pics = [

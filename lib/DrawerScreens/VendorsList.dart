@@ -245,31 +245,37 @@ class _VendorsListState extends State<VendorsList> {
   //getCakesList
   Future<void> getCakeList() async{
 
-    print("enter");
-    var res = await http.get(
-        Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
-        headers: {"Authorization": "$authToken"});
+    try{
+      print("enter");
+      var res = await http.get(
+          Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
+          headers: {"Authorization": "$authToken"});
 
-    if (res.statusCode == 200) {
-      print(res.body);
+      if (res.statusCode == 200) {
+        print(res.body);
 
-      if(res.body.length<50){
+        if(res.body.length<50){
 
-      }else{
-        setState(() {
-          myCakeList = jsonDecode(res.body);
-          cakeList = myCakeList
-              .where((element) =>
-              element['CakeName'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
-              .toList();
-          print(cakeList.length);
-          getVendorsList();
-        });
+        }else{
+          setState(() {
+            myCakeList = jsonDecode(res.body);
+            cakeList = myCakeList
+                .where((element) =>
+                element['CakeName'].toString().toLowerCase().contains(cakeTypeFromCD.toLowerCase().toString()))
+                .toList();
+            print(cakeList.length);
+          });
+        }
+
+      } else {
+
       }
-
-    } else {
-
+    }catch(e){
+      
     }
+
+
+    getVendorsList();
   }
 
   //load select Vendor data to CakeTypeScreen
@@ -458,7 +464,9 @@ class _VendorsListState extends State<VendorsList> {
 
     return WillPopScope(
       onWillPop: () async{
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+        
+        !iamFromCustom?
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen())):Navigator.pop(context);
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         return Future.value(true);
       },

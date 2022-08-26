@@ -674,20 +674,20 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    if (cakeSearchList[index]['MinWeightList'].isNotEmpty ||
-        cakeSearchList[index]['MinWeightList'] != null) {
-      setState(() {
-        for (int i = 0;
-            i < cakeSearchList[index]['MinWeightList'].length;
-            i++) {
-          cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
-        }
-      });
-    } else {
-      setState(() {
-        cakeWeights = [];
-      });
-    }
+    // if (cakeSearchList[index]['MinWeightList'].isNotEmpty ||
+    //     cakeSearchList[index]['MinWeightList'] != null) {
+    //   setState(() {
+    //     for (int i = 0;
+    //         i < cakeSearchList[index]['MinWeightList'].length;
+    //         i++) {
+    //       cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
+    //     }
+    //   });
+    // } else {
+    //   setState(() {
+    //     cakeWeights = [];
+    //   });
+    // }
 
     //endregion
 

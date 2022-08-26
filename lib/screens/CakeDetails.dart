@@ -827,31 +827,47 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           ),
                                     SizedBox(width: 8),
                                     Expanded(
-                                        child: Container(
-                                      child: Text.rich(
-                                        TextSpan(
-                                          text: shapes[index]['Name'][0].toString().toUpperCase()+
-                                              shapes[index]['Name'].toString().substring(1).toLowerCase()+" - ",
-                                            style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                color: Colors.grey,
-                                                fontWeight: FontWeight.bold
-                                            ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
+                                            Container(
+                                      child: Text.rich(
                                             TextSpan(
-                                                text:shapes[index]['Price'].toString()=='0'?
-                                                "Included In Price":
-                                                "Additional Rs."+shapes[index]['Price'].toString()+"/Kg",
+                                              text: shapes[index]['Name'][0].toString().toUpperCase()+
+                                                  shapes[index]['Name'].toString().substring(1).toLowerCase()+" - ",
                                                 style: TextStyle(
                                                     fontFamily: "Poppins",
-                                                    color: Colors.black,
-
+                                                    color: Colors.grey,
+                                                    fontWeight: FontWeight.bold
                                                 ),
+                                              children: [
+                                                TextSpan(
+                                                    text:shapes[index]['Price'].toString()=='0'?
+                                                    "Included In Price":
+                                                    "Additional Rs."+shapes[index]['Price'].toString()+"/Kg",
+                                                    style: TextStyle(
+                                                        fontFamily: "Poppins",
+                                                        color: Colors.black,
+
+                                                    ),
+                                                ),
+                                              ]
                                             ),
-                                          ]
-                                        ),
-                                        )
+                                            )
                                       ),
+                                            Text(
+                                              shapes[index]['MinWeight'].toString()=='null'?
+                                              " min weight ${weight[0]}":
+                                              " min weight "+shapes[index]['MinWeight'].toString().
+                                              toLowerCase().replaceAll("kg", "")+"Kg",
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  color: Colors.black,
+                                                  fontSize: 13
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                     )
                                   ])),
                             );
@@ -1910,8 +1926,19 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   void setShapeFixed(int index){
     setState(() {
-      fixedShape = shapes[index]['Name'];
-      extraShapeCharge = int.parse(shapes[index]['Price'], onError: (e)=>0);
+
+      if(shapes[index]['MinWeight']==null){
+        fixedShape = shapes[index]['Name'];
+        extraShapeCharge = int.parse(shapes[index]['Price'], onError: (e)=>0);
+        fixedWeight = weight[0];
+      }else{
+        fixedShape = shapes[index]['Name'];
+        extraShapeCharge = int.parse(shapes[index]['Price'], onError: (e)=>0);
+        fixedWeight = shapes[index]['MinWeight'].toString();
+        customweightCtrl.text = fixedWeight.toString().toLowerCase().replaceAll("kg", "");
+        weightIndex = -1;
+      }
+
     });
   }
 
@@ -2010,12 +2037,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
         weight.clear();
 
-        if(artTempList[0]['MinWeightList'].isNotEmpty){
-          print("Exc...");
-          for(int i = 0 ; i<artTempList[0]['MinWeightList'].length;i++){
-            weight.add(artTempList[0]['MinWeightList'][i].toString());
-          }
-        }
+        // if(artTempList[0]['MinWeightList'].isNotEmpty){
+        //   print("Exc...");
+        //   for(int i = 0 ; i<artTempList[0]['MinWeightList'].length;i++){
+        //     weight.add(artTempList[0]['MinWeightList'][i].toString());
+        //   }
+        // }
 
         if(weight.isEmpty){
           weight.add(basicCakeWeight);
@@ -3054,6 +3081,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             fixedShape = "";
                                             myShapeIndex =-1;
                                             extraShapeCharge = 0;
+                                            fixedWeight = weight[0];
+                                            weightIndex = 0;
+                                            customweightCtrl.text = "";
                                           });
                                         },
                                         child: Container(
@@ -4208,7 +4238,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 Row(
                                                                                   children: [
                                                                                     RatingBar.builder(
-                                                                                      initialRating:double.parse(mySelVendors[0]['Ratings'].toString()),
+                                                                                      initialRating:double.parse(mySelVendors[0]['Ratings'].toString(),(e)=>0.0),
                                                                                       minRating: 1,
                                                                                       direction: Axis.horizontal,
                                                                                       allowHalfRating: true,
@@ -4827,6 +4857,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         if (newRegUser == true) {
                                           showDpUpdtaeDialog();
                                         } else {
+
                                           if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
                                               customweightCtrl.text.startsWith("0")&&
                                                   customweightCtrl.text.endsWith("0")){

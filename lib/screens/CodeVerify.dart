@@ -156,8 +156,6 @@ class _CodeVerifyState extends State<CodeVerify> {
   //Code verify.........
   Future<void> verify(String verId , String otpCode) async{
 
-
-
     print(otpControl.text);
 
     PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -239,28 +237,28 @@ class _CodeVerifyState extends State<CodeVerify> {
       );
       //check status code...
       if(response.statusCode==200){
-        Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
+        var map = jsonDecode(response.body);
         print(map);
         //Checking msg....(reg / login)
-        if(map['message']=="registered Successfully"){
+        if(map['message'].toString().toLowerCase()=="registered successfully"){
 
           onTimeLogin(phonenumber);
 
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeScreen()
-              ),
-              ModalRoute.withName('/HomeScreen')
-          );
+          // Navigator.pushAndRemoveUntil(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => HomeScreen()
+          //     ),
+          //     ModalRoute.withName('/HomeScreen')
+          // );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(
+          //       content: Text(map['message']),
+          //       backgroundColor: Colors.green,
+          //       behavior: SnackBarBehavior.floating,
+          //     )
+          // );
 
 
         }else if(map['message']=="Login Succeed"){
@@ -341,7 +339,7 @@ class _CodeVerifyState extends State<CodeVerify> {
         }),
       );
 
-      Map<String,dynamic> map = new Map<String , dynamic>.from(jsonDecode(response.body));
+      var map = jsonDecode(response.body);
       print(map);
 
       if(response.statusCode==200){

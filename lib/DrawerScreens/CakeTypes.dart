@@ -156,6 +156,8 @@ class _CakeTypesState extends State<CakeTypes> {
   List subCategorySearch = [];
   List vendorBasedSearch = [];
 
+  List seleVendorDetailsList = [];
+
   //endregion
 
   //region Dialogs
@@ -1359,7 +1361,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
       if (iamYourVendor == true) {
         mySelVendors = [
-          {"VendorName": vendorName}
+          {"VendorName": vendorName , "VendorPhn1":vendorPhone1,"VendorPhn2":vendorPhone2}
         ];
       } else {}
 
@@ -1571,6 +1573,43 @@ class _CakeTypesState extends State<CakeTypes> {
           }),
         ),
       ));
+      Navigator.pop(context);
+    }
+
+    iamYourVendor == true?
+    getVendor(myVendorId):null;
+
+  }
+
+  Future<void> getVendor(String venID) async{
+
+    showAlertDialog();
+
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var map = jsonDecode(await response.stream.bytesToString());
+
+
+        setState((){
+           seleVendorDetailsList = map.where((e)=>e['_id'].toString().toLowerCase()==venID).toList();
+        });
+
+        Navigator.pop(context);
+      }
+      else {
+        print(response.reasonPhrase);
+        Navigator.pop(context);
+      }
+    }catch(e){
       Navigator.pop(context);
     }
   }
@@ -1801,17 +1840,17 @@ class _CakeTypesState extends State<CakeTypes> {
     //getting cake weights
 
 
-    if (cakeSearchList[index]['MinWeightList'].isNotEmpty || cakeSearchList[index]['MinWeightList']!=null) {
-      setState(() {
-        for (int i = 0; i < cakeSearchList[index]['MinWeightList'].length; i++) {
-          cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
-        }
-      });
-    } else {
-      setState(() {
-        cakeWeights = [];
-      });
-    }
+    // if (cakeSearchList[index]['MinWeightList'].isNotEmpty || cakeSearchList[index]['MinWeightList']!=null) {
+    //   setState(() {
+    //     for (int i = 0; i < cakeSearchList[index]['MinWeightList'].length; i++) {
+    //       cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
+    //     }
+    //   });
+    // } else {
+    //   setState(() {
+    //     cakeWeights = [];
+    //   });
+    // }
 
     //endregion
 
@@ -2041,17 +2080,17 @@ class _CakeTypesState extends State<CakeTypes> {
     //getting cake weights
 
 
-    if (filterCakesSearchList[index]['MinWeightList'].isNotEmpty || filterCakesSearchList[index]['MinWeightList']!=null) {
-      setState(() {
-        for (int i = 0; i < filterCakesSearchList[index]['MinWeightList'].length; i++) {
-          cakeWeights.add(filterCakesSearchList[index]['MinWeightList'][i].toString());
-        }
-      });
-    } else {
-      setState(() {
-        cakeWeights = [];
-      });
-    }
+    // if (filterCakesSearchList[index]['MinWeightList'].isNotEmpty || filterCakesSearchList[index]['MinWeightList']!=null) {
+    //   setState(() {
+    //     for (int i = 0; i < filterCakesSearchList[index]['MinWeightList'].length; i++) {
+    //       cakeWeights.add(filterCakesSearchList[index]['MinWeightList'][i].toString());
+    //     }
+    //   });
+    // } else {
+    //   setState(() {
+    //     cakeWeights = [];
+    //   });
+    // }
 
     //endregion
 
@@ -2525,15 +2564,19 @@ class _CakeTypesState extends State<CakeTypes> {
       setState(() {
         eggOrEgglesList = cakesList.toList();
 
-        List subList = eggOrEgglesList.where((element)
-        => element['CakeSubType'].contains(cakesTypes[currentIndex])
-        ).toList();
+        if(eggOrEgglesList.isNotEmpty){
 
-        cakesByType = eggOrEgglesList.where((element)
-        => element['CakeType'].contains(cakesTypes[currentIndex])
-        ).toList();
+          List subList = eggOrEgglesList.where((element)
+          => element['CakeSubType'].contains(cakesTypes[currentIndex])
+          ).toList();
 
-        cakesByType = cakesByType + subList;
+          cakesByType = eggOrEgglesList.where((element)
+          => element['CakeType'].contains(cakesTypes[currentIndex])
+          ).toList();
+
+          cakesByType = cakesByType + subList;
+        }
+
       });
     }
 
@@ -3216,6 +3259,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                             fontFamily: 'Poppins'))
                                   ],
                                 ),
+                                seleVendorDetailsList.isNotEmpty?
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -3224,7 +3268,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       children: [
                                         Container(
                                           child: Text(
-                                            "${mySelVendors[0]['VendorName'].toString().toUpperCase()} ",
+                                            "${seleVendorDetailsList[0]['VendorName'].toString().toUpperCase()} ",
                                             style: TextStyle(
                                                 color: darkBlue,
                                                 fontFamily: "Poppins",
@@ -3248,7 +3292,9 @@ class _CakeTypesState extends State<CakeTypes> {
                                         children: [
                                           InkWell(
                                             onTap: () {
-                                              PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
+                                              PhoneDialog().showPhoneDialog(context,
+                                                  seleVendorDetailsList[0]['PhoneNumber1'].toString(),
+                                                  seleVendorDetailsList[0]['PhoneNumber2'].toString());
                                             },
                                             child: Container(
                                               alignment: Alignment.center,
@@ -3269,7 +3315,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                           ),
                                           InkWell(
                                             onTap: () {
-                                              PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+                                              PhoneDialog().showPhoneDialog(context,seleVendorDetailsList[0]['PhoneNumber1'].toString(),
+                                                  seleVendorDetailsList[0]['PhoneNumber2'].toString(), true);
                                             },
                                             child: Container(
                                               alignment: Alignment.center,
@@ -3288,7 +3335,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       ),
                                     ),
                                   ],
-                                ),
+                                ):Container(),
                               ],
                             ),
                           ),

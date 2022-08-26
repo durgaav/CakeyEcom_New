@@ -896,7 +896,7 @@ class _CheckOutState extends State<CheckOut> {
           "Gst": (tempTax/2).toString(),
           "DeliveryCharge": deliveryCharge.toString(),
           "ExtraCharges": extra.toString(),
-          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?int.parse(discountPrice.toString()):0,
+          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0,
           "ItemCount": counts,
           "Price": cakePrice.toString(),
           "DeliverySession": deliverSession,
@@ -944,7 +944,7 @@ class _CheckOutState extends State<CheckOut> {
           "Gst": (tempTax/2).toString(),
           "DeliveryCharge": deliveryCharge.toString(),
           "ExtraCharges": extra.toString(),
-          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?int.parse(discountPrice.toString()):0,
+          "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0,
           "ItemCount": counts,
           "Price": cakePrice.toString(),
           "DeliverySession": deliverSession,
@@ -1016,8 +1016,13 @@ class _CheckOutState extends State<CheckOut> {
         }
 
 
-    }catch(e){
+    } catch(e){
+      print('error...');
       print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Unable to place order!"),
+          behavior: SnackBarBehavior.floating
+      ));
       Navigator.pop(context);
     }
 
