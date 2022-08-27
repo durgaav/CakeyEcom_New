@@ -72,6 +72,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   String vendorId = "";
   String vendor_Id = "";
   String vendorAddress = "";
+  String noId = "";
 
   //user
   String userId = "";
@@ -199,6 +200,7 @@ class _HamperDetailsState extends State<HamperDetails> {
           if (vendorList.isNotEmpty) {
             vendrorName = vendorList[0]['VendorName'].toString();
             vendrorEgg = vendorList[0]['EggOrEggless'].toString();
+            noId = vendorList[0]['Notification_Id'].toString();
             vendorProfile = vendorList[0]['ProfileImage'].toString();
             vendrorSpecial = vendorList[0]['YourSpecialityCakes']
                 .toString()
@@ -847,6 +849,10 @@ class _HamperDetailsState extends State<HamperDetails> {
 
       var map = jsonDecode(await response.stream.bytesToString());
 
+      if(map['statusCode']==200){
+        sendNotificationToVendor(noId);
+      }
+
       Navigator.pop(context);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -867,6 +873,41 @@ class _HamperDetailsState extends State<HamperDetails> {
       Navigator.pop(context);
     }
 
+  }
+
+  Future<void> sendNotificationToVendor(String? NoId) async{
+
+    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
+
+    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
+
+    var headers = {
+      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+    request.body = json.encode({
+      "registration_ids": [
+        "$NoId",
+      ],
+      "notification": {
+        "title": "New Order Is Here!",
+        "body": "Hi $vendrorName , $hamperName is just Ordered By $userName."
+      },
+      "data": {
+        "msgId": "msg_12342"
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {

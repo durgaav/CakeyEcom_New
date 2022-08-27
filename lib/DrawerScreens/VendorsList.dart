@@ -213,18 +213,18 @@ class _VendorsListState extends State<VendorsList> {
       print(e);
       Navigator.pop(context);
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred'),
-            backgroundColor: Colors.amber,
-            duration: Duration(seconds: 5),
-            action: SnackBarAction(
-              label: "Retry",
-              onPressed:()=>setState(() {
-                loadPrefs();
-              }),
-            ),
-          )
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Error Occurred'),
+      //       backgroundColor: Colors.amber,
+      //       duration: Duration(seconds: 5),
+      //       action: SnackBarAction(
+      //         label: "Retry",
+      //         onPressed:()=>setState(() {
+      //           loadPrefs();
+      //         }),
+      //       ),
+      //     )
+      // );
     }
 
   }

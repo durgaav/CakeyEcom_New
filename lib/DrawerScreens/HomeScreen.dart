@@ -1502,41 +1502,60 @@ class _HomeScreenState extends State<HomeScreen> {
   //get admins delivery fee
   Future<void> getAdminDeliveryCharge() async {
     var pref = await SharedPreferences.getInstance();
-    var map = [];
 
-    var headers = {'Authorization': '$authToken'};
-    var request = http.Request('GET',
-        Uri.parse('https://cakey-database.vercel.app/api/deliverycharge/list'));
 
-    request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
+    try{
 
-    if (response.statusCode == 200) {
-      map = jsonDecode(await response.stream.bytesToString());
+      var headers = {'Authorization': '$authToken'};
+      var request = http.Request('GET',
+          Uri.parse('https://cakey-database.vercel.app/api/deliverycharge/list'));
 
-      if(map.isNotEmpty){
-        print(map[0]["Amount"]);
-        print(map[0]["Km"]);
+      request.headers.addAll(headers);
 
-        setState(() {
-          deliveryChargeFromAdmin = int.parse(map[0]["Amount"].toString());
-          deliverykmFromAdmin = int.parse(map[0]["Km"].toString());
+      http.StreamedResponse response = await request.send();
 
-          pref.setInt("todayDeliveryCharge", deliveryChargeFromAdmin);
-          pref.setInt("todayDeliveryKm", deliverykmFromAdmin);
-        });
-      }else{
-        deliveryChargeFromAdmin = int.parse("0");
-        deliverykmFromAdmin = int.parse("0");
+      if (response.statusCode == 200) {
+        var map = jsonDecode(await response.stream.bytesToString());
+
+        if(map.toString().length>27){
+
+          print("map");
+          print(map.toString().length);
+
+          print(map[0]["Amount"]);
+          print(map[0]["Km"]);
+
+          setState(() {
+            deliveryChargeFromAdmin = int.parse(map[0]["Amount"].toString());
+            deliverykmFromAdmin = int.parse(map[0]["Km"].toString());
+
+            pref.setInt("todayDeliveryCharge", deliveryChargeFromAdmin);
+            pref.setInt("todayDeliveryKm", deliverykmFromAdmin);
+          });
+        }else{
+          setState((){
+            deliveryChargeFromAdmin = 0;
+            deliverykmFromAdmin = 1;
+
+            pref.setInt("todayDeliveryCharge", deliveryChargeFromAdmin);
+            pref.setInt("todayDeliveryKm", deliverykmFromAdmin);
+          });
+        }
+
+      } else {
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+      setState((){
+        deliveryChargeFromAdmin = 0;
+        deliverykmFromAdmin = 0;
 
         pref.setInt("todayDeliveryCharge", deliveryChargeFromAdmin);
         pref.setInt("todayDeliveryKm", deliverykmFromAdmin);
-      }
-
-    } else {
-      print(response.reasonPhrase);
+      });
     }
+
   }
 
   //endregion
@@ -3739,13 +3758,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               MainAxisAlignment.spaceBetween,
                                                                           children: [
                                                                             double.parse("${(calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")==0.0?
+                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)}")==0.00?
                                                                             Text(
                                                                               'DELIVERY FREE',
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
                                                                             ):
                                                                             Text(
-                                                                              "${double.parse("${(calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'], nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")} KM Delivery Fee Rs.${(deliveryChargeFromAdmin / deliverykmFromAdmin) * (calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'], nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}",
+                                                                              "${double.parse("${(calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                  nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}")} KM Delivery Fee Rs.${(deliveryChargeFromAdmin / deliverykmFromAdmin) *
+                                                                                  (calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'], nearestVendors[index]['GoogleLocation']['Longitude'])).toInt()}",
                                                                               style: TextStyle(color: darkBlue, fontSize: 10, fontFamily: poppins, fontWeight: FontWeight.bold),
                                                                             ),
                                                                             Expanded(
@@ -4029,7 +4050,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       // width:120,
                                                       child: Text(
                                                         double.parse("${(calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
-                                                            cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}")!=0.0?
+                                                            cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}")!=0.00?
                                                         'DELIVERY CHARGE RS.${(deliveryChargeFromAdmin / deliverykmFromAdmin) *
                                                             (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
                                                                 cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}':'DELIVERY FREE',

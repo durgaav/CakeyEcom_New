@@ -918,7 +918,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     selectedFilter);
                               });
                             },
-                            child: Text(
+                            child: const Text(
                               "SEARCH",
                               style: TextStyle(
                                   color: Colors.white,
@@ -2546,7 +2546,7 @@ class _CakeTypesState extends State<CakeTypes> {
                 .contains("eggless") || element['IsEgglessOptionAvailable']
             .toString()
             .toLowerCase()
-            .contains("y")  ).toList();
+            .contains("y")).toList();
 
         List subList = eggOrEgglesList.where((element)
         => element['CakeSubType'].contains(cakesTypes[currentIndex])
@@ -2627,12 +2627,12 @@ class _CakeTypesState extends State<CakeTypes> {
                   .contains(searchCakesText.toLowerCase()))
               .toList();
         });
-      } else {
+      }
+      else {
         setState(() {
           activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         });
-
 
         /*3) Set list from search filters apply...*/
         if (cakeVendorCtrl.text.isNotEmpty ||
@@ -2697,7 +2697,6 @@ class _CakeTypesState extends State<CakeTypes> {
           });
         }
         else {
-          // activeSearch = false;
           cakeSearchList = eggOrEgglesList;
         }
       }
@@ -2718,8 +2717,8 @@ class _CakeTypesState extends State<CakeTypes> {
           filterCakesSearchList = cakesByType;
         });
       }
-
     }
+
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -2957,18 +2956,9 @@ class _CakeTypesState extends State<CakeTypes> {
                     builder: (BuildContext context) {
                       return GestureDetector(
                         onTap: () {
-                          //
                           setState((){
-                            // searchByGivenFilter("", "", "", ["Theme Cake"]);
-                            // isFiltered = true;
-                            // activeSearch = true;
-                            // print(cakeSearchList.length);
-                            //
-                            // cakesByType = cakeSearchList.where((element) =>
-                            //     element['CakeType'].toString().toLowerCase()=="theme cake"
-                            // ).toList();
-                            searchCakesText = "Theme Cake";
-                            searchControl.text = searchCakesText;
+                            selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
+                            selectedFilter = selectedFilter.toSet().toList();
                           });
                         },
                         child: Stack(
@@ -4703,7 +4693,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                                         8)),
                                                 child: Text(
                                                     otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':
+                                                    otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
                                                     "${otherProducts[index]['MinWeightPerUnit'][0]['Weight']}":
                                                     '${otherProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
                                                     style: TextStyle(

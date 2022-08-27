@@ -863,8 +863,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
     });
-    getShapesList();
     getVendorsList();
+    getShapesList();
     // prefs.setString('userID', userID);
     // prefs.setString('userAddress', userAddress);
     // prefs.setString('userName', userName);
@@ -1076,6 +1076,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //get the vendors....
   Future<void> getVendorsList() async{
+    print("vendor....");
     showAlertDialog();
     try{
       var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
@@ -1101,6 +1102,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 ).toList();
 
 
+                print("vendor length : ... ${nearestVendors.length}");
+                print("vendor length : ... ${filteredEggList.length}");
+
               });
           }
           Navigator.pop(context);
@@ -1109,20 +1113,21 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         checkNetwork();
         Navigator.pop(context);
       }
-    }on Exception catch(e){
+    }catch(e){
+      print("vendor.... $e");
       checkNetwork();
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred'),
-            backgroundColor: Colors.amber,
-            action: SnackBarAction(
-              label: "Retry",
-              onPressed:()=>setState(() {
-                loadPrefs();
-              }),
-            ),
-          )
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Error Occurred'),
+      //       backgroundColor: Colors.amber,
+      //       action: SnackBarAction(
+      //         label: "Retry",
+      //         onPressed:()=>setState(() {
+      //           loadPrefs();
+      //         }),
+      //       ),
+      //     )
+      // );
     }
 
   }
@@ -1531,7 +1536,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           element['EggOrEggless'] == "Egg and Eggless")
           .toList();
     }else{
-      filteredEggList = filteredEggList;
+      nearestVendors = filteredEggList;
     }
 
     return WillPopScope(
@@ -3836,62 +3841,62 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              double.parse(fixedWeight.toLowerCase().replaceAll("kg", ''))>=5.0?
-                              Center(
-                                child: Container(
-                                  height: 50,
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25)
-                                  ),
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25)
-                                    ),
-                                    onPressed: (){
-
-                                      if(newRegUser==true){
-                                        showDpUpdtaeDialog();
-                                      }else {
-                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                                            weightCtrl.text.startsWith("0")&&
-                                                weightCtrl.text.endsWith("0")){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please enter correct weight or select weight!")
-                                              )
-                                          );
-                                        }
-                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Invalid Address'))
-                                          );
-                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                            fixedSession.toLowerCase()=="not yet select"||
-                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
-
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please Select Deliver Date And Type'))
-                                          );
-                                        }else{
-                                          setState((){
-                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                              vendorID = "";
-                                            }
-                                          });
-                                          showCakeNameEdit();
-                                        }
-                                      }
-
-                                    },
-                                    color: lightPink,
-                                    child: Text("ORDER NOW",style: TextStyle(
-                                        color: Colors.white,fontWeight: FontWeight.bold
-                                    ),),
-                                  ),
-                                ),
-                              ):
-                              Container(),
+                              // double.parse(fixedWeight.toLowerCase().replaceAll("kg", ''))>=5.0?
+                              // Center(
+                              //   child: Container(
+                              //     height: 50,
+                              //     width: 200,
+                              //     decoration: BoxDecoration(
+                              //         borderRadius: BorderRadius.circular(25)
+                              //     ),
+                              //     child: RaisedButton(
+                              //       shape: RoundedRectangleBorder(
+                              //           borderRadius: BorderRadius.circular(25)
+                              //       ),
+                              //       onPressed: (){
+                              //
+                              //         if(newRegUser==true){
+                              //           showDpUpdtaeDialog();
+                              //         }else {
+                              //           if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                              //               weightCtrl.text.startsWith("0")&&
+                              //                   weightCtrl.text.endsWith("0")){
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(
+                              //                     content: Text("Please enter correct weight or select weight!")
+                              //                 )
+                              //             );
+                              //           }
+                              //           else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(content: Text('Invalid Address'))
+                              //             );
+                              //           }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                              //               fixedSession.toLowerCase()=="not yet select"||
+                              //               fixedDelliverMethod.toLowerCase()=="not yet select"){
+                              //
+                              //             ScaffoldMessenger.of(context).showSnackBar(
+                              //                 SnackBar(content: Text('Please Select Deliver Date And Type'))
+                              //             );
+                              //           }else{
+                              //             setState((){
+                              //               if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                              //                 vendorID = "";
+                              //               }
+                              //             });
+                              //             confirmOrder("Customized Cake");
+                              //           }
+                              //         }
+                              //
+                              //       },
+                              //       color: lightPink,
+                              //       child: Text("CHAT",style: TextStyle(
+                              //           color: Colors.white,fontWeight: FontWeight.bold
+                              //       ),),
+                              //     ),
+                              //   ),
+                              // ):
+                              // Container(),
 
                               SizedBox(height: 15,),
                             ],

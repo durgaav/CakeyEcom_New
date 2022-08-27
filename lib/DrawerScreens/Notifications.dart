@@ -408,32 +408,37 @@ class _NotificationsState extends State<Notifications> {
   }
 
   Future<void> getOrdersList() async{
-    var headers = {
-      'Authorization': '$authToken'
-    };
-    var request = http.Request('GET',
-        Uri.parse('https://cakey-database.vercel.app/api/customize/cake/listbyuserid/$userId'));
 
-    request.headers.addAll(headers);
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET',
+          Uri.parse('https://cakey-database.vercel.app/api/customize/cake/listbyuserid/$userId'));
 
-    http.StreamedResponse response = await request.send();
+      request.headers.addAll(headers);
 
-    if (response.statusCode == 200) {
-      List map = jsonDecode(await response.stream.bytesToString());
+      http.StreamedResponse response = await request.send();
 
-      setState((){
-        if(map[0]['message']=="No Orders"){
+      if (response.statusCode == 200) {
+        List map = jsonDecode(await response.stream.bytesToString());
 
-        }else{
-          ordersList = map;
-        }
+        setState((){
+          if(map[0]['message']=="No Orders"){
 
-        print(ordersList);
+          }else{
+            ordersList = map;
+          }
 
-      });
-    }
-    else {
-      print(response.reasonPhrase);
+          print(ordersList);
+
+        });
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+
     }
 
   }
