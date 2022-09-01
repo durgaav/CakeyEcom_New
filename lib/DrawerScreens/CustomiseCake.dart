@@ -3,6 +3,7 @@ import 'dart:io' as fil;
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http ;
 import 'package:cakey/DrawerScreens/VendorsList.dart';
@@ -27,6 +28,7 @@ import '../screens/Profile.dart';
 import '../screens/SingleVendor.dart';
 import 'HomeScreen.dart';
 import 'Notifications.dart';
+import 'package:google_maps_webservice/places.dart' as wbservice;
 
 
 class CustomiseCake extends StatefulWidget {
@@ -1490,6 +1492,129 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     }
   }
 
+  void showLocationChangeDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+            builder: (context,setState){
+              return AlertDialog(
+                scrollable: true,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                contentPadding: EdgeInsets.all(10),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("New Location",style: TextStyle(
+                        color: darkBlue,fontFamily: "Poppins",
+                        fontSize: 16,fontWeight: FontWeight.bold
+                    ),),
+                    SizedBox(height: 8,),
+                    TextField(
+                      controller: deliverToCtrl,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration:InputDecoration(
+                          hintText: "Type location...",
+                          hintStyle: TextStyle(
+                              color: Colors.grey[400],fontFamily: "Poppins",
+                              fontSize: 13,fontWeight: FontWeight.bold
+                          ),
+                          suffixIcon: InkWell(
+                              onTap: ()=>deliverToCtrl.text="",
+                              child: Icon(Icons.clear))
+                      ),
+                    ),
+                    SizedBox(height: 8,),
+                  ],
+                ),
+                actions: [
+                  FlatButton(
+                      onPressed: ()=>Navigator.pop(context),
+                      child: Text("Cancel",style: TextStyle(
+                          color: Colors.purple,fontFamily: "Poppins"
+                      ),)
+                  ),
+                  FlatButton(
+                      onPressed: () async{
+                        Navigator.pop(context);
+                        controllLocationResult();
+                      },
+                      child: Text("Search",style: TextStyle(
+                          color: Colors.purple,fontFamily: "Poppins"
+                      ),)
+                  ),
+                ],
+              );
+            },
+          );
+        }
+    );
+  }
+
+  Future<void> getCoordinates(String predictedAddress) async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    try{
+
+      if (predictedAddress.isNotEmpty) {
+        List<Location> location =
+        await locationFromAddress(predictedAddress);
+        print(location);
+        setState((){
+          // userLat = location[0].latitude;
+          // userLong = location[0].longitude;
+          // getVendorForDeliveryto(authToken);
+          // getCakeList();
+          userLatitude = location[0].latitude.toString();
+          userLongtitude = location[0].longitude.toString();
+          pref.setString('userLatitute', "${userLatitude}");
+          pref.setString('userLongtitude', "${userLongtitude}");
+          pref.setString("userCurrentLocation", predictedAddress);
+          userCurLocation = predictedAddress;
+          getVendorsList();
+        });
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Unable to get location details..."))
+        );
+      }
+
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Unable to get location details..."))
+      );
+    }
+
+  }
+
+  Future<void> controllLocationResult() async{
+    var pref = await SharedPreferences.getInstance();
+    FocusScope.of(context).unfocus();
+    if(deliverToCtrl.text.isNotEmpty){
+      List<Location> location =
+      await locationFromAddress(deliverToCtrl.text);
+      print(location);
+      setState((){
+        // userLat = location[0].latitude;
+        // userLong = location[0].longitude;
+        // getVendorForDeliveryto(authToken);
+        // getCakeList();
+        userLatitude = location[0].latitude.toString();
+        userLongtitude = location[0].longitude.toString();
+        pref.setString('userLatitute', "${userLatitude}");
+        pref.setString('userLongtitude', "${userLongtitude}");
+        pref.setString("userCurrentLocation", deliverToCtrl.text);
+        userCurLocation = deliverToCtrl.text;
+        getVendorsList();
+      });
+    }
+  }
+
   //endregion
 
   @override
@@ -1755,11 +1880,127 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             Container(
                               width: 200,
                               child: GestureDetector(
-                                onTap: (){
-                                  setState((){
-                                    showAddressEdit = !showAddressEdit;
-                                  });
+                                onTap: () async{
                                   FocusScope.of(context).unfocus();
+                                  var placeResult = await PlacesAutocomplete.show(
+                                    context: context,
+                                    mode: Mode.overlay,
+                                    language: "in",
+                                    hint: "Type location...",
+                                    strictbounds: false,
+                                    logo: Text(""),
+                                    // region: "in",
+                                    // types: [
+                                    //   "accounting"
+                                    //   'airport'
+                                    //   'amusement_park'
+                                    //   'aquarium'
+                                    //   'art_gallery'
+                                    //   'atm'
+                                    //   'bakery'
+                                    //   'bank'
+                                    //   'bar'
+                                    //   'beauty_salon'
+                                    //   'bicycle_store'
+                                    //   'book_store'
+                                    //   'bowling_alley'
+                                    //   'bus_station'
+                                    //   'cafe'
+                                    //   'campground'
+                                    //   'car_dealer'
+                                    //   'car_rental'
+                                    //   'car_repair'
+                                    //   'car_wash'
+                                    //   'casino'
+                                    //   'cemetery'
+                                    //   'church'
+                                    //   'city_hall'
+                                    //   'clothing_store'
+                                    //   'convenience_store'
+                                    //   'courthouse'
+                                    //   'dentist'
+                                    //   'department_store'
+                                    //   'doctor'
+                                    //   'drugstore'
+                                    //   'electrician'
+                                    //   'electronics_store'
+                                    //   'embassy'
+                                    //   'fire_station'
+                                    //   'florist'
+                                    //   'funeral_home'
+                                    //   'furniture_store'
+                                    //   'gas_station'
+                                    //   'gym'
+                                    //   'hair_care'
+                                    //   'hardware_store'
+                                    //   'hindu_temple'
+                                    //   'home_goods_store'
+                                    //   'hospital'
+                                    //   'insurance_agency'
+                                    //   'jewelry_store'
+                                    //   'laundry'
+                                    //   'lawyer'
+                                    //   'library'
+                                    //   'light_rail_station'
+                                    //   'liquor_store'
+                                    //   'local_government_office'
+                                    //   'locksmith'
+                                    //   'lodging'
+                                    //   'meal_delivery'
+                                    //   'meal_takeaway'
+                                    //   'mosque'
+                                    //   'movie_rental'
+                                    //   'movie_theater'
+                                    //   'moving_company'
+                                    //   'museum'
+                                    //   'night_club'
+                                    //   'painter'
+                                    //   'park'
+                                    //   'parking'
+                                    //   'pet_store'
+                                    //   'pharmacy'
+                                    //   'physiotherapist'
+                                    //   'plumber'
+                                    //   'police'
+                                    //   'post_office'
+                                    //   'primary_school'
+                                    //   'real_estate_agency'
+                                    //   'restaurant'
+                                    //   'roofing_contractor'
+                                    //   'rv_park'
+                                    //   'school'
+                                    //   'secondary_school'
+                                    //   'shoe_store'
+                                    //   'shopping_mall'
+                                    //   'spa'
+                                    //   'stadium'
+                                    //   'storage'
+                                    //   'store'
+                                    //   'subway_station'
+                                    //   'supermarket'
+                                    //   'synagogue'
+                                    //   'taxi_stand'
+                                    //   'tourist_attraction'
+                                    //   'train_station'
+                                    //   'transit_station'
+                                    //   'travel_agency'
+                                    //   'university'
+                                    //   'veterinary_care'
+                                    //   'zoo'
+                                    // ],
+                                    types: [],
+                                    apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                    onError: (e){
+
+                                    },
+                                    components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                  );
+
+                                  if(placeResult == null){
+
+                                  }else{
+                                    getCoordinates(placeResult!.description.toString());
+                                  }
                                 },
                                 child: Text(
                                   '$userCurLocation',
@@ -1775,110 +2016,133 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             ),
                             SizedBox(width: 5,),
                             GestureDetector(
-                              onTap: (){
-                                setState((){
-                                  showAddressEdit = !showAddressEdit;
-                                });
+                              onTap: () async{
                                 FocusScope.of(context).unfocus();
+                                var placeResult = await PlacesAutocomplete.show(
+                                  context: context,
+                                  mode: Mode.overlay,
+                                  language: "in",
+                                  hint: "Type location...",
+                                  strictbounds: false,
+                                  logo: Text(""),
+                                  // region: "in",
+                                  // types: [
+                                  //   "accounting"
+                                  //   'airport'
+                                  //   'amusement_park'
+                                  //   'aquarium'
+                                  //   'art_gallery'
+                                  //   'atm'
+                                  //   'bakery'
+                                  //   'bank'
+                                  //   'bar'
+                                  //   'beauty_salon'
+                                  //   'bicycle_store'
+                                  //   'book_store'
+                                  //   'bowling_alley'
+                                  //   'bus_station'
+                                  //   'cafe'
+                                  //   'campground'
+                                  //   'car_dealer'
+                                  //   'car_rental'
+                                  //   'car_repair'
+                                  //   'car_wash'
+                                  //   'casino'
+                                  //   'cemetery'
+                                  //   'church'
+                                  //   'city_hall'
+                                  //   'clothing_store'
+                                  //   'convenience_store'
+                                  //   'courthouse'
+                                  //   'dentist'
+                                  //   'department_store'
+                                  //   'doctor'
+                                  //   'drugstore'
+                                  //   'electrician'
+                                  //   'electronics_store'
+                                  //   'embassy'
+                                  //   'fire_station'
+                                  //   'florist'
+                                  //   'funeral_home'
+                                  //   'furniture_store'
+                                  //   'gas_station'
+                                  //   'gym'
+                                  //   'hair_care'
+                                  //   'hardware_store'
+                                  //   'hindu_temple'
+                                  //   'home_goods_store'
+                                  //   'hospital'
+                                  //   'insurance_agency'
+                                  //   'jewelry_store'
+                                  //   'laundry'
+                                  //   'lawyer'
+                                  //   'library'
+                                  //   'light_rail_station'
+                                  //   'liquor_store'
+                                  //   'local_government_office'
+                                  //   'locksmith'
+                                  //   'lodging'
+                                  //   'meal_delivery'
+                                  //   'meal_takeaway'
+                                  //   'mosque'
+                                  //   'movie_rental'
+                                  //   'movie_theater'
+                                  //   'moving_company'
+                                  //   'museum'
+                                  //   'night_club'
+                                  //   'painter'
+                                  //   'park'
+                                  //   'parking'
+                                  //   'pet_store'
+                                  //   'pharmacy'
+                                  //   'physiotherapist'
+                                  //   'plumber'
+                                  //   'police'
+                                  //   'post_office'
+                                  //   'primary_school'
+                                  //   'real_estate_agency'
+                                  //   'restaurant'
+                                  //   'roofing_contractor'
+                                  //   'rv_park'
+                                  //   'school'
+                                  //   'secondary_school'
+                                  //   'shoe_store'
+                                  //   'shopping_mall'
+                                  //   'spa'
+                                  //   'stadium'
+                                  //   'storage'
+                                  //   'store'
+                                  //   'subway_station'
+                                  //   'supermarket'
+                                  //   'synagogue'
+                                  //   'taxi_stand'
+                                  //   'tourist_attraction'
+                                  //   'train_station'
+                                  //   'transit_station'
+                                  //   'travel_agency'
+                                  //   'university'
+                                  //   'veterinary_care'
+                                  //   'zoo'
+                                  // ],
+                                  types: [],
+                                  apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                  onError: (e){
+
+                                  },
+                                  components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                );
+
+                                if(placeResult == null){
+
+                                }else{
+                                  getCoordinates(placeResult!.description.toString());
+                                }
                               },
                               child: Icon(Icons.arrow_drop_down),
                             )
                           ],
                         ),
                       ),
-
-                      showAddressEdit?
-                      Container(
-                        padding: EdgeInsets.only(right: 10 ,top: 10 , left:0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child:Container(
-                                height: 45,
-                                child: TextField(
-                                  controller: deliverToCtrl,
-                                  style: TextStyle(fontFamily: poppins,fontSize: 13 ,
-                                      fontWeight: FontWeight.bold),
-                                  onChanged: (String? text){
-
-                                    setState(() {
-
-                                    });
-
-                                  },
-                                  decoration: InputDecoration(
-                                      hintText: "Delivery location...",
-                                      hintStyle: TextStyle(fontFamily: poppins,fontSize: 13,color: Colors.grey[400]),
-                                      prefixIcon: Icon(Icons.search,color: Colors.grey[400]),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                          borderSide: BorderSide(width: 1,color: Colors.grey[200]!,style: BorderStyle.solid),
-                                          borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(width: 1.5,color: Colors.grey[300]!,style: BorderStyle.solid),
-                                          borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      contentPadding: EdgeInsets.all(5),
-                                      suffixIcon: IconButton(
-                                        onPressed: (){
-                                          FocusScope.of(context).unfocus();
-                                          setState(() {
-                                            deliverToCtrl.text = "";
-                                          });
-                                        },
-                                        icon: Icon(Icons.close),
-                                        iconSize: 16,
-                                      )
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 45,
-                              width: 45,
-                              margin: EdgeInsets.only(left: 10),
-                              decoration: BoxDecoration(
-                                  color: darkBlue,
-                                  borderRadius: BorderRadius.circular(7)
-                              ),
-                              child: Semantics(
-                                child: IconButton(
-                                    splashColor: Colors.black26,
-                                    onPressed: () async{
-                                      var pref = await SharedPreferences.getInstance();
-                                      FocusScope.of(context).unfocus();
-                                      if(deliverToCtrl.text.isNotEmpty){
-                                        List<Location> location =
-                                        await locationFromAddress(deliverToCtrl.text);
-                                        print(location);
-                                        setState((){
-                                          // userLat = location[0].latitude;
-                                          // userLong = location[0].longitude;
-                                          // pref.setString('userLatitute', "${userLat}");
-                                          // pref.setString('userLongtitude', "${userLong}");
-                                          // pref.setString("userCurrentLocation", deliverToCtrl.text);
-                                          userCurLocation = deliverToCtrl.text;
-                                          // getVendorForDeliveryto(authToken);
-                                          // getCakeList();
-                                          userLatitude = location[0].latitude.toString();
-                                          userLongtitude = location[0].longitude.toString();
-                                          getVendorsList();
-                                        });
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.download_done_outlined,
-                                      color: Colors.white,
-                                    )),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ):
-                      Container(),
-
                     ],
                   ),
                 ),

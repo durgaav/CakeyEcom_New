@@ -10,6 +10,8 @@ import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart' as wbservice;
 import 'package:http/http.dart' as http;
 import 'package:cakey/ContextData.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -193,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       for (var i = 0; i < searchCakeType.length; i++) {
         if (searchCakeType[i].toString().toLowerCase() !=
-            "customize your cake") {
+            "customise cake") {
           myList.add(searchCakeType[i]);
         }
       }
@@ -476,130 +478,178 @@ class _HomeScreenState extends State<HomeScreen> {
         context: context,
         builder: (context) {
           return Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              width: double.infinity,
-              height: 90,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                      color: lightPink, width: 1.5, style: BorderStyle.solid),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(14),
-                    bottomRight: Radius.circular(14),
-                  )),
-              padding: EdgeInsets.all(5),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                      width: 45,
-                      height: 45,
-                      decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.circular(10)),
-                      alignment: Alignment.center,
-                      child: Transform.rotate(
-                        angle: -120,
-                        child: Icon(
-                          Icons.campaign,
-                          color: darkBlue,
-                          size: 30,
-                        ),
-                      )),
-                  SizedBox(
-                    width: 7,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        child: Text(
-                          'Complete Your Profile & Easy To Take\nYour Order',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: TextStyle(
-                              color: darkBlue,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins",
-                              fontSize: 12,
-                              decoration: TextDecoration.none),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        height: 25,
-                        width: 80,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
-                          color: lightPink,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        Profile(
-                                  defindex: 0,
-                                ),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
+             alignment: Alignment.topCenter,
+             child:Container(
+               decoration: BoxDecoration(
+                 color: Colors.white,
+                 borderRadius: BorderRadius.only(
+                   bottomRight: Radius.circular(20),
+                   bottomLeft: Radius.circular(20),
+                 )
+               ),
+               padding: EdgeInsets.all(10),
+               child: Column(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   Row(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children:[
+                         Container(
+                           height : 40,
+                           width: 40,
+                           alignment: Alignment.center,
+                           decoration: BoxDecoration(
+                               color: Colors.amber,
+                               borderRadius: BorderRadius.circular(10)
+                           ),
+                           child: Icon(Icons.campaign_rounded,color:darkBlue,size: 28,),
+                         ),
+                         const SizedBox(width: 8,),
+                         Expanded(
+                           child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               Text("Complete Your Profile & Easy To Take\nYour Order",style: TextStyle(
+                                   color: darkBlue,fontFamily: "Poppins",fontWeight: FontWeight.bold,
+                                   fontSize: 14.5,decoration: TextDecoration.none
+                               ),),
+                               SizedBox(height: 5,),
+                               Container(
+                                 height: 30,
+                                 width: 100,
+                                 decoration:BoxDecoration(
+                                   borderRadius: BorderRadius.circular(20)
+                                 ),
+                                 child: RaisedButton(
+                                   shape: RoundedRectangleBorder(
+                                       borderRadius: BorderRadius.circular(20)
+                                   ),
+                                     onPressed:(){
+                                       Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
+                                     },
+                                   child: Text("PROFILE",style: TextStyle(
+                                       color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
+                                       fontSize: 12,decoration: TextDecoration.none
+                                   ),),
+                                   color: lightPink,
+                                 ),
+                               )
+                             ],
+                           ),
+                         ),
+                         GestureDetector(
+                           onTap: () => Navigator.pop(context),
+                           child: Container(
+                               width: 30,
+                               height: 30,
+                               decoration: BoxDecoration(
+                                   color: Colors.black12,
+                                   borderRadius: BorderRadius.circular(7)),
+                               alignment: Alignment.center,
+                               child: Icon(
+                                 Icons.close_outlined,
+                                 color: darkBlue,
+                               )),
+                         ),
+                       ]
+                   )
+                 ],
+               ),
+             )
+            );
+        });
+  }
 
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
-
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'PROFILE',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                                fontSize: 10),
-                          ),
+  void showLocationChangeDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+            builder: (context,setState){
+              return AlertDialog(
+                scrollable: true,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)
+                ),
+                contentPadding: EdgeInsets.all(10),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("New Location",style: TextStyle(
+                      color: darkBlue,fontFamily: "Poppins",
+                      fontSize: 16,fontWeight: FontWeight.bold
+                    ),),
+                    SizedBox(height: 8,),
+                    TextField(
+                      controller: deliverToCtrl,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration:InputDecoration(
+                        hintText: "Type location...",
+                        hintStyle: TextStyle(
+                            color: Colors.grey[400],fontFamily: "Poppins",
+                            fontSize: 13,fontWeight: FontWeight.bold
                         ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                            width: 35,
-                            height: 35,
-                            decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.circular(10)),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.close_outlined,
-                              color: darkBlue,
-                            )),
+                        suffixIcon: InkWell(
+                            onTap: ()=>deliverToCtrl.text="",
+                            child: Icon(Icons.clear))
                       ),
                     ),
-                  )
+                    SizedBox(height: 8,),
+                  ],
+                ),
+                actions: [
+                  FlatButton(
+                      onPressed: ()=>Navigator.pop(context),
+                      child: Text("Cancel",style: TextStyle(
+                        color: Colors.purple,fontFamily: "Poppins"
+                      ),)
+                  ),
+                  FlatButton(
+                      onPressed: () async{
+                        Navigator.pop(context);
+                        controllLocationResult();
+                      },
+                      child: Text("Search",style: TextStyle(
+                          color: Colors.purple,fontFamily: "Poppins"
+                      ),)
+                  ),
                 ],
-              ),
-            ),
+              );
+            },
           );
-        });
+        }
+    );
+  }
+
+  Future<void> controllLocationResult() async{
+    var pref = await SharedPreferences
+        .getInstance();
+    FocusScope.of(context).unfocus();
+    if (deliverToCtrl.text.isNotEmpty) {
+      List<geocode.Location> location =
+      await geocode
+          .locationFromAddress(
+          deliverToCtrl.text);
+      print(location);
+      setState(() {
+        userLat = location[0].latitude;
+        userLong = location[0].longitude;
+        pref.setString(
+            'userLatitute', "${userLat}");
+        pref.setString('userLongtitude',
+            "${userLong}");
+        pref.setString(
+            "userCurrentLocation",
+            deliverToCtrl.text);
+        userLocalityAdr =
+            deliverToCtrl.text;
+        getVendorForDeliveryto(authToken);
+        getHampers();
+        getCakeList();
+        getCakeType();
+      });
+    }
   }
 
   //endregion
@@ -830,6 +880,7 @@ class _HomeScreenState extends State<HomeScreen> {
         cakeFlavs,
         [],
         cakeTiers,
+        []
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
@@ -1158,7 +1209,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fetch cake types
   Future<void> getCakeType() async {
-    searchCakeType.clear();
     var mainList = [];
     List subType = [];
 
@@ -1171,6 +1221,7 @@ class _HomeScreenState extends State<HomeScreen> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+      searchCakeType.clear();
       mainList = jsonDecode(await response.stream.bytesToString());
       setState(() {
         print("CAKE TYPES : " + mainList.toString());
@@ -1192,10 +1243,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         print('Sub types>>>> $subType');
-
-        searchCakeType.insert(0, "Customize your cake");
+        searchCakeType.add("Customize your cake");
         // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
         searchCakeType.toSet().toList();
+        searchCakeType = searchCakeType.reversed.toList();
 
         print('type cake ::::: $searchCakeType');
 
@@ -1203,8 +1254,10 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       print(response.reasonPhrase);
       setState((){
-        searchCakeType.insert(0, "Customize your cake");
+        searchCakeType.clear();
+        searchCakeType.add("Customize your cake");
         searchCakeType.toSet().toList();
+        searchCakeType = searchCakeType.reversed.toList();
       });
     }
   }
@@ -1558,6 +1611,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
   }
 
+  Future<void> getCoordinates(String predictedAddress) async{
+
+    var pref = await SharedPreferences
+        .getInstance();
+
+    try{
+
+      if (predictedAddress.isNotEmpty) {
+        List<geocode.Location> location =
+        await geocode
+            .locationFromAddress(
+            predictedAddress);
+        print(location);
+        setState(() {
+          userLat = location[0].latitude;
+          userLong = location[0].longitude;
+          pref.setString(
+              'userLatitute', "${userLat}");
+          pref.setString('userLongtitude',
+              "${userLong}");
+          pref.setString(
+              "userCurrentLocation",
+              predictedAddress);
+          userLocalityAdr =
+              predictedAddress;
+          getVendorForDeliveryto(authToken);
+          getHampers();
+          getCakeList();
+          getCakeType();
+        });
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Unable to get location details..."))
+        );
+      }
+
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Unable to get location details..."))
+      );
+    }
+
+
+    print(location);
+
+    print(calculateDistance(latude, longtude, 11.1412209  , 77.21523169999999));
+
+  }
+
   //endregion
 
   //onStart
@@ -1871,11 +1974,130 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             width: 200,
                             child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  showAddressEdit = !showAddressEdit;
-                                });
+                              onTap: () async{
                                 FocusScope.of(context).unfocus();
+                                // showLocationChangeDialog();
+
+                                var placeResult = await PlacesAutocomplete.show(
+                                    context: context,
+                                    mode: Mode.overlay,
+                                    language: "in",
+                                    hint: "Type location...",
+                                    strictbounds: false,
+                                    logo: Text(""),
+                                    // region: "in",
+                                    // types: [
+                                    //   "accounting"
+                                    //   'airport'
+                                    //   'amusement_park'
+                                    //   'aquarium'
+                                    //   'art_gallery'
+                                    //   'atm'
+                                    //   'bakery'
+                                    //   'bank'
+                                    //   'bar'
+                                    //   'beauty_salon'
+                                    //   'bicycle_store'
+                                    //   'book_store'
+                                    //   'bowling_alley'
+                                    //   'bus_station'
+                                    //   'cafe'
+                                    //   'campground'
+                                    //   'car_dealer'
+                                    //   'car_rental'
+                                    //   'car_repair'
+                                    //   'car_wash'
+                                    //   'casino'
+                                    //   'cemetery'
+                                    //   'church'
+                                    //   'city_hall'
+                                    //   'clothing_store'
+                                    //   'convenience_store'
+                                    //   'courthouse'
+                                    //   'dentist'
+                                    //   'department_store'
+                                    //   'doctor'
+                                    //   'drugstore'
+                                    //   'electrician'
+                                    //   'electronics_store'
+                                    //   'embassy'
+                                    //   'fire_station'
+                                    //   'florist'
+                                    //   'funeral_home'
+                                    //   'furniture_store'
+                                    //   'gas_station'
+                                    //   'gym'
+                                    //   'hair_care'
+                                    //   'hardware_store'
+                                    //   'hindu_temple'
+                                    //   'home_goods_store'
+                                    //   'hospital'
+                                    //   'insurance_agency'
+                                    //   'jewelry_store'
+                                    //   'laundry'
+                                    //   'lawyer'
+                                    //   'library'
+                                    //   'light_rail_station'
+                                    //   'liquor_store'
+                                    //   'local_government_office'
+                                    //   'locksmith'
+                                    //   'lodging'
+                                    //   'meal_delivery'
+                                    //   'meal_takeaway'
+                                    //   'mosque'
+                                    //   'movie_rental'
+                                    //   'movie_theater'
+                                    //   'moving_company'
+                                    //   'museum'
+                                    //   'night_club'
+                                    //   'painter'
+                                    //   'park'
+                                    //   'parking'
+                                    //   'pet_store'
+                                    //   'pharmacy'
+                                    //   'physiotherapist'
+                                    //   'plumber'
+                                    //   'police'
+                                    //   'post_office'
+                                    //   'primary_school'
+                                    //   'real_estate_agency'
+                                    //   'restaurant'
+                                    //   'roofing_contractor'
+                                    //   'rv_park'
+                                    //   'school'
+                                    //   'secondary_school'
+                                    //   'shoe_store'
+                                    //   'shopping_mall'
+                                    //   'spa'
+                                    //   'stadium'
+                                    //   'storage'
+                                    //   'store'
+                                    //   'subway_station'
+                                    //   'supermarket'
+                                    //   'synagogue'
+                                    //   'taxi_stand'
+                                    //   'tourist_attraction'
+                                    //   'train_station'
+                                    //   'transit_station'
+                                    //   'travel_agency'
+                                    //   'university'
+                                    //   'veterinary_care'
+                                    //   'zoo'
+                                    // ],
+                                    types: [],
+                                    apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                    onError: (e){
+
+                                    },
+                                    components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                );
+
+                                if(placeResult == null){
+
+                                }else{
+                                  getCoordinates(placeResult!.description.toString());
+                                }
+
                               },
                               child: Text(
                                 '$userLocalityAdr',
@@ -1892,121 +2114,134 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 5,
                           ),
                           GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showAddressEdit = !showAddressEdit;
-                              });
+                            onTap: () async{
                               FocusScope.of(context).unfocus();
+                              var placeResult = await PlacesAutocomplete.show(
+                                context: context,
+                                mode: Mode.overlay,
+                                language: "in",
+                                hint: "Type location...",
+                                strictbounds: false,
+                                logo: Text(""),
+                                // region: "in",
+                                // types: [
+                                //   "accounting"
+                                //   'airport'
+                                //   'amusement_park'
+                                //   'aquarium'
+                                //   'art_gallery'
+                                //   'atm'
+                                //   'bakery'
+                                //   'bank'
+                                //   'bar'
+                                //   'beauty_salon'
+                                //   'bicycle_store'
+                                //   'book_store'
+                                //   'bowling_alley'
+                                //   'bus_station'
+                                //   'cafe'
+                                //   'campground'
+                                //   'car_dealer'
+                                //   'car_rental'
+                                //   'car_repair'
+                                //   'car_wash'
+                                //   'casino'
+                                //   'cemetery'
+                                //   'church'
+                                //   'city_hall'
+                                //   'clothing_store'
+                                //   'convenience_store'
+                                //   'courthouse'
+                                //   'dentist'
+                                //   'department_store'
+                                //   'doctor'
+                                //   'drugstore'
+                                //   'electrician'
+                                //   'electronics_store'
+                                //   'embassy'
+                                //   'fire_station'
+                                //   'florist'
+                                //   'funeral_home'
+                                //   'furniture_store'
+                                //   'gas_station'
+                                //   'gym'
+                                //   'hair_care'
+                                //   'hardware_store'
+                                //   'hindu_temple'
+                                //   'home_goods_store'
+                                //   'hospital'
+                                //   'insurance_agency'
+                                //   'jewelry_store'
+                                //   'laundry'
+                                //   'lawyer'
+                                //   'library'
+                                //   'light_rail_station'
+                                //   'liquor_store'
+                                //   'local_government_office'
+                                //   'locksmith'
+                                //   'lodging'
+                                //   'meal_delivery'
+                                //   'meal_takeaway'
+                                //   'mosque'
+                                //   'movie_rental'
+                                //   'movie_theater'
+                                //   'moving_company'
+                                //   'museum'
+                                //   'night_club'
+                                //   'painter'
+                                //   'park'
+                                //   'parking'
+                                //   'pet_store'
+                                //   'pharmacy'
+                                //   'physiotherapist'
+                                //   'plumber'
+                                //   'police'
+                                //   'post_office'
+                                //   'primary_school'
+                                //   'real_estate_agency'
+                                //   'restaurant'
+                                //   'roofing_contractor'
+                                //   'rv_park'
+                                //   'school'
+                                //   'secondary_school'
+                                //   'shoe_store'
+                                //   'shopping_mall'
+                                //   'spa'
+                                //   'stadium'
+                                //   'storage'
+                                //   'store'
+                                //   'subway_station'
+                                //   'supermarket'
+                                //   'synagogue'
+                                //   'taxi_stand'
+                                //   'tourist_attraction'
+                                //   'train_station'
+                                //   'transit_station'
+                                //   'travel_agency'
+                                //   'university'
+                                //   'veterinary_care'
+                                //   'zoo'
+                                // ],
+                                types: [],
+                                apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                onError: (e){
+
+                                },
+                                components: [new wbservice.Component(wbservice.Component.country, "in")],
+                              );
+
+                              if(placeResult == null){
+
+                              }else{
+                                getCoordinates(placeResult!.description.toString());
+                              }
                             },
                             child: Icon(Icons.arrow_drop_down),
                           )
                         ],
                       ),
                     ),
-                    showAddressEdit
-                        ? Container(
-                            padding: EdgeInsets.only(right: 8, top: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    height: 45,
-                                    child: TextField(
-                                      controller: deliverToCtrl,
-                                      style: TextStyle(
-                                          fontFamily: poppins,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold),
-                                      onChanged: (String? text) {
-                                        setState(() {});
-                                      },
-                                      decoration: InputDecoration(
-                                          hintText: "Delivery location...",
-                                          hintStyle: TextStyle(
-                                              fontFamily: poppins,
-                                              fontSize: 13,
-                                              color: Colors.grey[400]),
-                                          prefixIcon: Icon(Icons.search,
-                                              color: Colors.grey[400]),
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: 1,
-                                                  color: Colors.grey[200]!,
-                                                  style: BorderStyle.solid),
-                                              borderRadius:
-                                                  BorderRadius.circular(8)),
-                                          enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: 1.5,
-                                                  color: Colors.grey[300]!,
-                                                  style: BorderStyle.solid),
-                                              borderRadius:
-                                                  BorderRadius.circular(8)),
-                                          contentPadding: EdgeInsets.all(5),
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              FocusScope.of(context).unfocus();
-                                              setState(() {
-                                                deliverToCtrl.text = "";
-                                              });
-                                            },
-                                            icon: Icon(Icons.close),
-                                            iconSize: 16,
-                                          )),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  height: 45,
-                                  width: 45,
-                                  margin: EdgeInsets.only(left: 10),
-                                  decoration: BoxDecoration(
-                                      color: darkBlue,
-                                      borderRadius: BorderRadius.circular(7)),
-                                  child: Semantics(
-                                    child: IconButton(
-                                        splashColor: Colors.black26,
-                                        onPressed: () async {
-                                          var pref = await SharedPreferences
-                                              .getInstance();
-                                          FocusScope.of(context).unfocus();
-                                          if (deliverToCtrl.text.isNotEmpty) {
-                                            List<geocode.Location> location =
-                                                await geocode
-                                                    .locationFromAddress(
-                                                        deliverToCtrl.text);
-                                            print(location);
-                                            setState(() {
-                                              userLat = location[0].latitude;
-                                              userLong = location[0].longitude;
-                                              pref.setString(
-                                                  'userLatitute', "${userLat}");
-                                              pref.setString('userLongtitude',
-                                                  "${userLong}");
-                                              pref.setString(
-                                                  "userCurrentLocation",
-                                                  deliverToCtrl.text);
-                                              userLocalityAdr =
-                                                  deliverToCtrl.text;
-                                              getVendorForDeliveryto(authToken);
-                                              getHampers();
-                                              getCakeList();
-                                              getCakeType();
-                                            });
-                                          }
-                                        },
-                                        icon: Icon(
-                                          Icons.download_done_outlined,
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Container(
+                    Container(
                             padding: EdgeInsets.only(right: 8, top: 10),
                             child: Row(
                               children: [
@@ -4049,11 +4284,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Container(
                                                       // width:120,
                                                       child: Text(
-                                                        double.parse("${(calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
-                                                            cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}")!=0.00?
-                                                        'DELIVERY CHARGE RS.${(deliveryChargeFromAdmin / deliverykmFromAdmin) *
+                                                        'DELIVERY CHARGE RS.${((deliveryChargeFromAdmin / deliverykmFromAdmin) *
                                                             (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
-                                                                cakeSearchList[i]['GoogleLocation']['Longitude'])).toInt()}':'DELIVERY FREE',
+                                                                cakeSearchList[i]['GoogleLocation']['Longitude']))).toStringAsFixed(2)}',
                                                         style: TextStyle(
                                                             color:
                                                                 Colors.orange,
