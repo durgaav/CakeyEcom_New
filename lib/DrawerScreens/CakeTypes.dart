@@ -21,6 +21,7 @@ import 'dart:math';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../screens/Profile.dart';
+import 'CustomiseCake.dart';
 import 'HomeScreen.dart';
 import 'Notifications.dart';
 import 'package:google_maps_webservice/places.dart' as wbservice;
@@ -660,7 +661,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     setState((){
       for (var i = 0;i<cakesTypes.length;i++){
-        if(cakesTypes[i].toString().toLowerCase()!="all cakes"){
+        if(cakesTypes[i].toString().toLowerCase()!="all cakes" && cakesTypes[i].toString().toLowerCase()!="others"){
           myList.add(cakesTypes[i]);
         }
       }
@@ -1920,8 +1921,8 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeToppersPoss", cakeSearchList[index]['ToppersPossible']??"null");
     prefs.setString("cakeBasicCustom", cakeSearchList[index]['BasicCustomisationPossible']??"null");
     prefs.setString("cakeFullCustom", cakeSearchList[index]['FullCustomisationPossible']??"null");
-    // prefs.setString("cakeType", cakeSearchList[index]['CakeType']??"null");
-    // prefs.setString("cakeSubType", cakeSearchList[index]['CakeSubType']??"null");
+    prefs.setString("cakeType", cakeSearchList[index]['CakeType'].toString()??"null");
+    prefs.setString("cakeSubType", currentCakeType??"null");
     prefs.setString("cakeDescription", cakeSearchList[index]['Description']??"null");
     prefs.setString("cakeCategory", cakeSearchList[index]['CakeCategory']??"null");
     prefs.setString("cakeTopperPoss", cakeSearchList[index]['ToppersPossible']??"null");
@@ -2014,6 +2015,7 @@ class _CakeTypesState extends State<CakeTypes> {
     List cakeFlavs = [];
     List cakeShapes = [];
     List cakeTiers = [];
+    List tiersDelTimes = [];
     var prefs = await SharedPreferences.getInstance();
 
     String vendorAddress = filterCakesSearchList[index]['VendorAddress'];
@@ -2059,6 +2061,16 @@ class _CakeTypesState extends State<CakeTypes> {
     } else {
       setState(() {
         cakeTiers = [];
+      });
+    }
+
+    if (filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||filterCakesSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
+      setState(() {
+        tiersDelTimes = filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'];
+      });
+    } else {
+      setState(() {
+        tiersDelTimes = [];
       });
     }
 
@@ -2176,8 +2188,8 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeToppersPoss", filterCakesSearchList[index]['ToppersPossible']??"null");
     prefs.setString("cakeBasicCustom", filterCakesSearchList[index]['BasicCustomisationPossible']??"null");
     prefs.setString("cakeFullCustom", filterCakesSearchList[index]['FullCustomisationPossible']??"null");
-    // prefs.setString("cakeType", filterCakesSearchList[index]['CakeType']??"null");
-    // prefs.setString("cakeSubType", filterCakesSearchList[index]['CakeSubType']??"null");
+    prefs.setString("cakeType", filterCakesSearchList[index]['CakeType'].toString()??"null");
+    prefs.setString("cakeSubType", currentCakeType??"null");
     prefs.setString("cakeDescription", filterCakesSearchList[index]['Description']??"null");
     prefs.setString("cakeCategory", filterCakesSearchList[index]['CakeCategory']??"null");
     prefs.setString("cakeTopperPoss", filterCakesSearchList[index]['ToppersPossible']??"null");
@@ -2216,7 +2228,7 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeFlavs,
         [],
         cakeTiers,
-        []
+        tiersDelTimes
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
@@ -3103,10 +3115,13 @@ class _CakeTypesState extends State<CakeTypes> {
                     builder: (BuildContext context) {
                       return GestureDetector(
                         onTap: () {
-                          setState((){
-                            selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
-                            selectedFilter = selectedFilter.toSet().toList();
-                          });
+                          // setState((){
+                          //   selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
+                          //   selectedFilter = selectedFilter.toSet().toList();
+                          // });
+
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
+
                         },
                         child: Stack(
                           alignment: Alignment.center,

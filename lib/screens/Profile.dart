@@ -671,8 +671,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Widget ProfileView(){
     userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      // userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
-      // userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
+      userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
+      userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
     });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,7 +722,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     left: 50,
                     child: InkWell(
                       onTap: (){
-
                         profilePiker();
                       },
                       child: CircleAvatar(
@@ -755,13 +754,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             SizedBox(height: 10,),
             TextField(
               controller: userNameCtrl,
+              textCapitalization: TextCapitalization.sentences,
               maxLines: 1,
               keyboardType: TextInputType.text,
               style: TextStyle(
                 fontFamily: "Poppins" ,
               ),
               decoration: InputDecoration(
-                hintText: "$userName",
+                hintText: "Name",
                 border: const OutlineInputBorder(),
                 hintStyle: TextStyle(
                   fontFamily: "Poppins" ,
@@ -783,6 +783,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               style: TextStyle(
                 fontFamily: "Poppins" ,
               ),
+
               enabled: false,
               controller: TextEditingController(text: phoneNumber),
               maxLines: 1,
@@ -808,10 +809,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 fontFamily: "Poppins" ,
               ),
               controller: userAddrCtrl,
+              textCapitalization: TextCapitalization.sentences,
               maxLines: 4,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: "$userAddress",
+                hintText: "Address",
                 border: OutlineInputBorder(),
                 hintStyle: TextStyle(
                     fontFamily: "Poppins" ,

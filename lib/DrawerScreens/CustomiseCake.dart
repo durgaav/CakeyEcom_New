@@ -24,6 +24,7 @@ import 'package:http_parser/http_parser.dart';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../screens/AddressScreen.dart';
+import '../screens/CakeDetails.dart';
 import '../screens/Profile.dart';
 import '../screens/SingleVendor.dart';
 import 'HomeScreen.dart';
@@ -76,7 +77,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String userMainLocation ="";
   String profileUrl = '';
   String btnMsg = 'ORDER NOW';
-  String tier = '2tier';
+  String tier = 'No Tier';
 
 
   //Fixed Strings and Lists
@@ -115,7 +116,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String authToken = "";
 
   //main variables
-  bool egglesSwitch = true;
+  bool egglesSwitch = false;
   bool addOtherArticle = false;
   String userCurLocation = 'Searching...';
   String notificationId = "";
@@ -1060,8 +1061,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             weight = ["1kg","2kg","3kg" , "4kg", "5kg" , "6kg"];
           }
 
-          weight = weight.reversed.toList();
-
+          weight = weight.toSet().toList();
+          weight.sort();
 
         });
       }else{
@@ -2637,28 +2638,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     onTap: () {
                                       setState(() {
                                         FocusScope.of(context).unfocus();
-                                        if (weightCtrl
-                                            .text.isNotEmpty) {
-                                          weightCtrl.text = "";
-                                          isFixedWeight = index;
-                                          fixedWeight = weight[index];
-                                        } else {
-                                          isFixedWeight = index;
-                                          if(weight[index].toString().toLowerCase().endsWith("kg")){
-                                            fixedWeight =
-                                                weight[index].toString();
-                                            print("yes");
-                                          }else{
-                                            print("no"+weight[index].toString().split("g").first);
-                                            // fixedWeight = weight[index].toString().split("g")[0]+"kg";
-                                            fixedWeight = (double.parse(weight[index].toString().split("g").first)/1000).toString()+"kg";
-                                            // print(500/1000);
-                                          }
-
-                                          print(fixedWeight);
-                                        }
+                                        isFixedWeight = index;
+                                        fixedWeight = changeKilo(weight[index]);
+                                        weightCtrl.text = changeKilo(weight[index]);
                                       });
-
                                     },
                                     child:Container(
                                       width: 70,
@@ -2726,17 +2709,22 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         fontSize: 13
                                     ),
                                     onChanged: (String text){
-                                      if(weightCtrl.text.isNotEmpty){
-                                        setState((){
-                                          isFixedWeight = -1;
+
+                                      setState((){
+                                        if (weightCtrl.text.isNotEmpty) {
                                           fixedWeight = weightCtrl.text+"kg";
-                                        });
-                                      }else{
-                                        setState((){
+                                          if(weight.indexWhere((element) => element==fixedWeight)!=-1){
+                                            isFixedWeight = weight.indexWhere((element) => element==fixedWeight);
+                                          }else{
+                                            isFixedWeight = -1;
+                                          }
+                                          print("weight is $fixedWeight");
+                                        } else {
                                           isFixedWeight = 0;
-                                          fixedWeight = weight[0];
-                                        });
-                                      }
+                                          fixedWeight = weight[0].toString();
+                                        }
+                                      });
+
                                     },
                                     decoration: InputDecoration(
                                       contentPadding: EdgeInsets.all(0.0),
@@ -2810,6 +2798,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           margin: EdgeInsets.only(left:15 ,right:15 ),
                           child: DropdownButton(
                               value:'$tier',
+                              hint:Text("Select Tier"),
                               items: <DropdownMenuItem<String>>[
                                 DropdownMenuItem(
                                   child: Text("No Tier"),
@@ -2839,6 +2828,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         ):Container(),
 
                         //theme....
+                        double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=2.0?
                         Container(
                            child: Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
@@ -2853,24 +2843,39 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                ),
                                Padding(
                                  padding: const EdgeInsets.only(
-                                   left: 15 , right: 15
+                                   left: 10 , right: 10,top:8
                                  ),
-                                 child: TextField(
-                                   controller:themeCtrl,
-                                   decoration: InputDecoration(
-                                     hintText: 'Theme Name..',
-                                     contentPadding: EdgeInsets.all(8.0),
-                                     isDense: true,
-                                     hintStyle: TextStyle(fontFamily: 'Poppins' ,
-                                         fontSize: 13
-                                     ),
-                                     // border: InputBorder.none
-                                   ),
+                                 child:Row(
+                                   crossAxisAlignment:CrossAxisAlignment.center,
+                                   children: [
+                                     SizedBox(width: 8,),
+                                     Icon(Icons.cake_outlined,color: lightPink),
+                                     Expanded(
+                                       child: Container(
+                                         margin: EdgeInsets.symmetric(horizontal: 10),
+                                         child: TextField(
+                                           style:TextStyle(fontFamily: 'Poppins' ,
+                                               fontSize: 13
+                                           ),
+                                           controller:themeCtrl,
+                                           decoration: InputDecoration(
+                                             hintText: 'Type theme name here..',
+                                             contentPadding: EdgeInsets.all(0.0),
+                                             isDense: true,
+                                             hintStyle: TextStyle(fontFamily: 'Poppins' ,
+                                                 fontSize: 13
+                                             ),
+                                             // border: InputBorder.none
+                                           ),
+                                         ),
+                                       ),
+                                     )
+                                   ],
                                  ),
                                )
                              ]
                            ),  
-                        ),
+                        ):Container(),
 
                         Container(
                           //margin
@@ -3148,11 +3153,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 onTap : () async {
                                   FocusScope.of(context).unfocus();
                                   DateTime? SelDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    lastDate: DateTime(2100),
-                                    firstDate: DateTime.now()
-                                        .subtract(Duration(days: 0)),
+                                      context: context,
+                                      initialDate: DateTime(
+                                        DateTime.now().year,
+                                        DateTime.now().month,
+                                        DateTime.now().day+1,
+                                      ),
+                                      lastDate: DateTime(2100),
+                                      firstDate: DateTime(
+                                        DateTime.now().year,
+                                        DateTime.now().month,
+                                        DateTime.now().day+1,
+                                      ),
+                                      helpText: "Select Deliver Date"
                                   );
 
                                   setState(() {
@@ -3218,109 +3231,122 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     PopupMenuItem(
-                                                        child: Text('Morning 8 - 9'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Morning 8 - 9';
+                                                        child: Text(
+                                                          'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Morning 8 AM - 9 AM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Morning 9 - 10'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Morning 9 - 10';
+                                                        child: Text(
+                                                          'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Morning 9 AM- 10 AM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Morning 10 - 11'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Morning 10 - 11';
+                                                        child: Text(
+                                                          'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Morning 10 AM- 11 AM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Morning 11 - 12'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Morning 11 - 12';
+                                                        child: Text(
+                                                          'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Morning 11 PM- 12 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Afternoon 12 - 1'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Afternoon 12 - 1';
+                                                        child: Text(
+                                                          'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Afternoon 12 PM- 1 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Afternoon 1 - 2'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Afternoon 1 - 9';
+                                                        child: Text(
+                                                          'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Afternoon 1 PM- 9 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Afternoon 2 - 3'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Afternoon 8 - 9';
+                                                        child: Text(
+                                                          'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Afternoon 8 PM- 9 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Afternoon 3 - 4'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Afternoon 3 - 4';
+                                                        child: Text(
+                                                          'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Afternoon 3 PM- 4 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Afternoon 4 - 5'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Afternoon 4 - 5';
+                                                        child: Text(
+                                                          'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Afternoon 4 PM- 5 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Evening 5 - 6'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Evening 5 - 6';
+                                                        child: Text(
+                                                          'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Evening 5 PM- 6 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Evening 6 - 7'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Evening 6 - 7';
+                                                        child: Text(
+                                                          'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Evening 6 PM- 7 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Evening 7 - 8'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Evening 7 - 8';
+                                                        child: Text(
+                                                          'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Evening 7 PM- 8 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                     PopupMenuItem(
-                                                        child: Text('Evening 8 - 9'),
-                                                        onTap:(){
-                                                          setState((){
-                                                            fixedSession = 'Evening 8 - 9';
+                                                        child: Text(
+                                                          'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            fixedSession =
+                                                            'Evening 8 PM- 9 PM';
                                                           });
-                                                        }
-                                                    ),
+                                                        }),
                                                   ],
                                                 ),
                                               ),
@@ -3734,6 +3760,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                               content: Text("Please enter correct weight or select weight!")
                                                                           )
                                                                       );
+                                                                    }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
+                                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                                          SnackBar(content: Text('Please select a image file for theme...'))
+                                                                      );
                                                                     }
                                                                     else if(deliverAddress=="null"||deliverAddress.isEmpty){
                                                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -4104,65 +4134,64 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 ],
                               ),
                               SizedBox(height: 15,),
-
-                              // double.parse(fixedWeight.toLowerCase().replaceAll("kg", ''))>=5.0?
-                              // Center(
-                              //   child: Container(
-                              //     height: 50,
-                              //     width: 200,
-                              //     decoration: BoxDecoration(
-                              //         borderRadius: BorderRadius.circular(25)
-                              //     ),
-                              //     child: RaisedButton(
-                              //       shape: RoundedRectangleBorder(
-                              //           borderRadius: BorderRadius.circular(25)
-                              //       ),
-                              //       onPressed: (){
-                              //
-                              //         if(newRegUser==true){
-                              //           showDpUpdtaeDialog();
-                              //         }else {
-                              //           if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                              //               weightCtrl.text.startsWith("0")&&
-                              //                   weightCtrl.text.endsWith("0")){
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(
-                              //                     content: Text("Please enter correct weight or select weight!")
-                              //                 )
-                              //             );
-                              //           }
-                              //           else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(content: Text('Invalid Address'))
-                              //             );
-                              //           }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                              //               fixedSession.toLowerCase()=="not yet select"||
-                              //               fixedDelliverMethod.toLowerCase()=="not yet select"){
-                              //
-                              //             ScaffoldMessenger.of(context).showSnackBar(
-                              //                 SnackBar(content: Text('Please Select Deliver Date And Type'))
-                              //             );
-                              //           }else{
-                              //             setState((){
-                              //               if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                              //                 vendorID = "";
-                              //               }
-                              //             });
-                              //             confirmOrder("Customized Cake");
-                              //           }
-                              //         }
-                              //
-                              //       },
-                              //       color: lightPink,
-                              //       child: Text("CHAT",style: TextStyle(
-                              //           color: Colors.white,fontWeight: FontWeight.bold
-                              //       ),),
-                              //     ),
-                              //   ),
-                              // ):
-                              // Container(),
-
-                              SizedBox(height: 15,),
+                              
+                              Center(
+                                child: Container(
+                                  height: 50,
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25)
+                                  ),
+                                  child: RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25)
+                                    ),
+                                    onPressed: (){
+                                      if(newRegUser==true){
+                                        showDpUpdtaeDialog();
+                                      }
+                                      else {
+                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                            weightCtrl.text.startsWith("0")&&
+                                                weightCtrl.text.endsWith("0")){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please enter correct weight or select weight!")
+                                              )
+                                          );
+                                        }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Please select a image file for theme...'))
+                                          );
+                                        }
+                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Invalid Address'))
+                                          );
+                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                            fixedSession.toLowerCase()=="not yet select"||
+                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                          );
+                                        }else{
+                                          setState((){
+                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                              vendorID = "";
+                                            }
+                                          });
+                                          showCakeNameEdit();
+                                        }
+                                      }
+                                    },
+                                    color: lightPink,
+                                    child: Text(double.parse(changeKilo(fixedWeight).toLowerCase().replaceAll("kg", ""))>5.0?"ORDER":"CHAT",style: TextStyle(
+                                        color: Colors.white,fontWeight: FontWeight.bold
+                                    ),),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 30,),
                             ],
                           ),
                         ),

@@ -19,6 +19,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
+import '../DrawerScreens/CustomiseCake.dart';
 import '../DrawerScreens/Notifications.dart';
 import 'AddressScreen.dart';
 import 'Profile.dart';
@@ -83,6 +84,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
   List<bool> multiThemeList = [];
+
+  bool showThemeSheet = true;
 
   //toppers...
   List toppersList = [];
@@ -156,6 +159,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String vendorPhone2 = "";
   String vendorLatitude = "";
   String vendorLongtitude = "";
+  String estimatedDeliverTime = "";
 
   //topper
   String topperId = "";
@@ -1476,8 +1480,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       fixedWeight = basicCakeWeight;
 
       cakeDescription = prefs.getString('cakeDescription')!;
-      // cakeType = prefs.getString('cakeType')!;
-      // cakeSubType = prefs.getString('cakeSubType')!;
+      cakeType = prefs.getString('cakeType')!;
+      print("Current type ${cakeType.toLowerCase()}");
+      cakeSubType = prefs.getString('cakeSubType')!;
       cakeRatings = prefs.getDouble('cakeRating')!.toString();
       isThemePossible = prefs.getString('cakeThemePoss')!.toString();
       isTierPossible = prefs.getString('cakeTierPoss')!.toString();
@@ -1520,18 +1525,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
       if(weight.isEmpty){
         weight.add(basicCakeWeight);
-        weight.add("1kg");
-        weight.add("1.5kg");
-        weight.add("2kg");
-        weight.add("2.5kg");
-        weight.add("3kg");
-        weight.add("3.5kg");
-        weight.add("4.5kg");
-        weight.add("5kg");
-        weight.add("6.5kg");
       }else{
-        weight.insert(0, basicCakeWeight);
+        weight.insert(weight.indexOf(weight.last), basicCakeWeight);
       }
+
+      weight = weight.toSet().toList();
+      weight.sort();
 
       if(cakeImages.isEmpty){
         cakeImages.add(prefs.getString('cakeMainImage').toString());
@@ -1714,7 +1713,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         //if tier selected
       if(tierPrice!=0){
         price = double.parse(tierPrice.toString());
-        weights = 1.0;
+        weights = double.parse(changeKilo(tempCakeWeight).toLowerCase().replaceAll("kg", ""));
       }
 
         print("price $price");
@@ -2046,6 +2045,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
         thrkgdeltime = artTempList[0]['MinTimeForDeliveryOfA3KgCake'];
         fvkgdeltime = artTempList[0]['MinTimeForDeliveryOfA5KgCake'];
+        onekgdeltime = artTempList[0]['MinTimeForDeliveryOfA1KgCake'];
+        twokgdeltime = artTempList[0]['MinTimeForDeliveryOfA2KgCake'];
         cakeMindeltime = artTempList[0]['MinTimeForDeliveryOfDefaultCake'];
         // weight = artTempList[0]['MinWeightList'];
 
@@ -2064,12 +2065,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         if(weight.isEmpty){
           weight.add(basicCakeWeight);
         }else{
-          weight.insert(0, basicCakeWeight);
+          weight.insert(weight.indexOf(weight.last), basicCakeWeight);
         }
 
         weight = weight.toSet().toList();
         weight.sort();
-        fixedWeight = weight[0].toString();
+
+        weight = weight.toSet().toList();
+        weight.sort();
+        fixedWeight = basicCakeWeight;
         weightIndex = 0;
         cakeImages = cakeImages.toSet().toList();
 
@@ -2086,7 +2090,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         print("Users : $userID\n $userName\n $userModID\n $userAddress\n $newRegUser\n $userPhone\n");
 
 
-        cakeTiers = artTempList[0]['TierCakeMinWeightAndPrice'];
+        if(artTempList[0]['TierCakeMinWeightAndPrice']!=null){
+          cakeTiers = artTempList[0]['TierCakeMinWeightAndPrice'];
+          tiersDelTimes = artTempList[0]['MinTimeForDeliveryFortierCake'];
+        }else{
+          cakeTiers = [];
+          tiersDelTimes = [];
+        }
+
+
 
         if(cakeImages.isEmpty){
           cakeImages.add(artTempList[0]['MainCakeImage'].toString());
@@ -2261,6 +2273,87 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         return true;
       },
       child: Scaffold(
+        bottomSheet:showThemeSheet?
+        BottomSheet(
+            onClosing: () {
+              print('closing sheet...');
+            },
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      height: 100,
+                      color: Colors.white,
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            color: Colors.red[50]),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text.rich(TextSpan(children: [
+                              TextSpan(
+                                text: 'DO YOU WANT A ',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16),
+                              ),
+                              TextSpan(
+                                text: 'THEME CAKE ',
+                                style: TextStyle(
+                                    color: lightPink,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16),
+                              )
+                            ])),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Container(
+                                  color: Colors.transparent,
+                                  height: 70,
+                                  width: 70,
+                                  child: Image(
+                                    image: AssetImage(
+                                        'assets/images/themecake.png'),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: MediaQuery.of(context).size.width * 0.86,
+                      top: -6,
+                      child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              showThemeSheet = !showThemeSheet;
+                            });
+                          },
+                          icon: Icon(
+                            Icons.cancel_rounded,
+                            color: Colors.red,
+                            size: 30,
+                          )),
+                    )
+                  ],
+                ),
+              );
+            },
+          ):Container(height: 0,),
         body: SafeArea(
           child: NestedScrollView(
               headerSliverBuilder:
@@ -2713,18 +2806,31 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ])
                         ),
 
+                        tierPrice==0?
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
-                          child: Text("Price based on : $cakePrice X "
+                          child: Text(
+                            "Price based on : $cakePrice X "
                               "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
-                              "Flavour $flavExtraCharge , Shape $extraShapeCharge",style: TextStyle(
+                              "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
                             color:darkBlue,fontFamily: "Poppins",fontSize: 12
                           ),),
+                        ):Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            "Selected Tier Price : Rs.$tempTierPrice",style: TextStyle(
+                              color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                          ),),
                         ),
-
+                        tierPrice==0?
                         Padding(
                           padding: const EdgeInsets.only(left: 10 , top:8),
                           child: Text("Minimum weight: $basicCakeWeight",style: TextStyle(
+                              color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                          ),),
+                        ):Padding(
+                          padding: const EdgeInsets.only(left: 10 , top:8),
+                          child: Text("Tier weight: $tempCakeWeight",style: TextStyle(
                               color:darkBlue,fontFamily: "Poppins",fontSize: 12
                           ),),
                         ),
@@ -3103,7 +3209,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-
                                   Row(
                                     children: [
                                       Text(
@@ -3243,7 +3348,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   topperName.isEmpty ?
                                   GestureDetector(
                                     onTap: () {
-
                                       if(isTopperPossible.toLowerCase()=="y"){
                                         showCakeTopperSheet();
                                       }else{
@@ -3361,10 +3465,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ),
                                 child: Text(
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=3.0?
-                                  'Min Delivery Time Of Cake $thrkgdeltime':
+                                  'Min Delivery Time Of A Cake $thrkgdeltime':
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=5.0?
-                                  "Min Delivery Time Of Cake $fvkgdeltime":
-                                  'Min Delivery Time Of Cake $cakeMindeltime',
+                                  "Min Delivery Time Of A Cake $fvkgdeltime":
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=1.0?
+                                  'Min Delivery Time Of A Cake $onekgdeltime':
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=2.0?
+                                  "Min Delivery Time Of A Cake $twokgdeltime":"Min Delivery Time Of A Cake $minDelTierTime",
                                   style: TextStyle(
                                     color: lightPink,
                                     fontFamily: "Poppins",
@@ -3373,131 +3480,141 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ),
                               ),
 
-                              Padding(
-                                padding: const EdgeInsets.only(left: 15.0, top: 5),
-                                child: Text(
-                                  'Enter Weight',
-                                  style:
-                                  TextStyle(fontFamily: poppins, color: darkBlue),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Container(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 15,
+                              cakeSubType.toLowerCase().contains("tier")||cakeSubType.toLowerCase().contains("theme")
+                              ||cakeSubType.toLowerCase().contains("fondant")?
+                              Container():
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 15.0, top: 5),
+                                    child: Text(
+                                      'Enter Weight',
+                                      style:
+                                      TextStyle(fontFamily: poppins, color: darkBlue),
                                     ),
-                                    Icon(
-                                      Icons.scale_outlined,
-                                      color: lightPink,
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        margin: EdgeInsets.symmetric(horizontal: 10),
-                                        child: TextField(
-                                          keyboardType: TextInputType.number,
-                                          textInputAction: TextInputAction.next,
-                                          controller: customweightCtrl,
-                                          style: TextStyle(
-                                              fontFamily: 'Poppins', fontSize: 13),
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
-                                            FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
-                                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-                                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
-                                          ],
-                                          onChanged: (String text) {
-                                            setState((){
-                                              if (customweightCtrl.text.isNotEmpty) {
-                                                fixedWeight = customweightCtrl.text+"kg";
-                                                if(weight.indexWhere((element) => element==fixedWeight)!=-1){
-                                                  weightIndex = weight.indexWhere((element) => element==fixedWeight);
-                                                }else{
-                                                  weightIndex = -1;
-                                                }
-                                                print("weight is $fixedWeight");
-                                              } else {
-                                                weightIndex = 0;
-                                                fixedWeight = weight[0].toString();
-                                              }
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(0.0),
-                                            isDense: true,
-                                            constraints: BoxConstraints(minHeight: 5),
-                                            hintText: 'Type here..',
-                                            hintStyle: TextStyle(
-                                                fontFamily: 'Poppins', fontSize: 13),
-                                            // border: InputBorder.none
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Icon(
+                                          Icons.scale_outlined,
+                                          color: lightPink,
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                            child: TextField(
+                                              keyboardType: TextInputType.number,
+                                              textInputAction: TextInputAction.next,
+                                              controller: customweightCtrl,
+                                              style: TextStyle(
+                                                  fontFamily: 'Poppins', fontSize: 13),
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
+                                                FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
+                                              ],
+                                              onChanged: (String text) {
+                                                setState((){
+                                                  if (customweightCtrl.text.isNotEmpty) {
+                                                    fixedWeight = customweightCtrl.text+"kg";
+                                                    if(weight.indexWhere((element) => element==fixedWeight)!=-1){
+                                                      weightIndex = weight.indexWhere((element) => element==fixedWeight);
+                                                    }else{
+                                                      weightIndex = -1;
+                                                    }
+                                                    print("weight is $fixedWeight");
+                                                  } else {
+                                                    weightIndex = 0;
+                                                    fixedWeight = weight[0].toString();
+                                                  }
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.all(0.0),
+                                                isDense: true,
+                                                constraints: BoxConstraints(minHeight: 5),
+                                                hintText: 'Type here..',
+                                                hintStyle: TextStyle(
+                                                    fontFamily: 'Poppins', fontSize: 13),
+                                                // border: InputBorder.none
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        GestureDetector(
+                                          child: Container(
+                                              padding: EdgeInsets.all(4),
+                                              margin: EdgeInsets.only(right: 10),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.grey[300]!,
+                                                  borderRadius: BorderRadius.circular(5)),
+                                              child: PopupMenuButton(
+                                                  child: Row(
+                                                    children: [
+                                                      Text('$selectedDropWeight',
+                                                          style: TextStyle(
+                                                              color: darkBlue,
+                                                              fontFamily: 'Poppins')
+                                                      ),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Icon(Icons.keyboard_arrow_down,
+                                                          color: darkBlue)
+                                                    ],
+                                                  ),
+                                                  itemBuilder: (context) => [
+                                                    PopupMenuItem(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            selectedDropWeight = "Kg";
+                                                          });
+                                                        },
+                                                        child: Text('Kilo Gram',style: TextStyle(
+                                                            fontFamily: "Poppins"
+                                                        ),)
+                                                    ),
+
+                                                    // PopupMenuItem(
+                                                    //     onTap: () {
+                                                    //       setState(() {
+                                                    //         selectedDropWeight = "Ib";
+                                                    //       });
+                                                    //     },
+                                                    //     child: Text('Pounds')),
+                                                    // PopupMenuItem(
+                                                    //     onTap: () {
+                                                    //       setState(() {
+                                                    //         selectedDropWeight = "G";
+                                                    //       });
+                                                    //     },
+                                                    //     child: Text('Gram')),
+
+
+                                                  ])),
+                                        )
+                                      ],
                                     ),
-                                    GestureDetector(
-                                      child: Container(
-                                          padding: EdgeInsets.all(4),
-                                          margin: EdgeInsets.only(right: 10),
-                                          decoration: BoxDecoration(
-                                              color: Colors.grey[300]!,
-                                              borderRadius: BorderRadius.circular(5)),
-                                          child: PopupMenuButton(
-                                              child: Row(
-                                                children: [
-                                                  Text('$selectedDropWeight',
-                                                      style: TextStyle(
-                                                          color: darkBlue,
-                                                          fontFamily: 'Poppins')
-                                                  ),
-                                                  SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Icon(Icons.keyboard_arrow_down,
-                                                      color: darkBlue)
-                                                ],
-                                              ),
-                                              itemBuilder: (context) => [
-                                                PopupMenuItem(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        selectedDropWeight = "Kg";
-                                                      });
-                                                    },
-                                                    child: Text('Kilo Gram',style: TextStyle(
-                                                        fontFamily: "Poppins"
-                                                    ),)
-                                                ),
-
-                                                // PopupMenuItem(
-                                                //     onTap: () {
-                                                //       setState(() {
-                                                //         selectedDropWeight = "Ib";
-                                                //       });
-                                                //     },
-                                                //     child: Text('Pounds')),
-                                                // PopupMenuItem(
-                                                //     onTap: () {
-                                                //       setState(() {
-                                                //         selectedDropWeight = "G";
-                                                //       });
-                                                //     },
-                                                //     child: Text('Gram')),
-
-
-                                              ])),
-                                    )
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+
+
                             ],
                           ),
                         ),
 
-                        // Cake Tier
+                          // Cake Tier
                         isTierPossible.toLowerCase()=="y"?
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3829,18 +3946,38 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 GestureDetector(
                                   onTap: () async {
 
+                                    String deliTime = "";
+
+                                    if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=3.0){
+                                      deliTime = dayMinConverter(thrkgdeltime);
+                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=5.0){
+                                      deliTime = dayMinConverter(fvkgdeltime);
+                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=1.0){
+                                      deliTime = dayMinConverter(onekgdeltime);
+                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=2.0){
+                                      deliTime = dayMinConverter(twokgdeltime);
+                                    }else{
+                                      deliTime = dayMinConverter(cakeMindeltime);
+                                    }
+
+                                    if(tierPrice != 0 ){
+                                      deliTime = dayMinConverter(minDelTierTime);
+                                    }
+
+                                    print("Deliver time estimate : .... $deliTime");
+
                                     DateTime? SelDate = await showDatePicker(
                                       context: context,
                                       initialDate: DateTime(
                                         DateTime.now().year,
                                         DateTime.now().month,
-                                        DateTime.now().day+1,
+                                        DateTime.now().day+int.parse(deliTime),
                                       ),
                                       lastDate: DateTime(2100),
                                       firstDate: DateTime(
                                         DateTime.now().year,
                                         DateTime.now().month,
-                                        DateTime.now().day+1,
+                                        DateTime.now().day+int.parse(deliTime),
                                       ),
                                       helpText: "Select Deliver Date"
                                     );
@@ -3908,119 +4045,119 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                     children: [
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 8 - 9', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 8 - 9';
+                                                                  'Morning 8 AM - 9 AM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 9 - 10', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 9 - 10';
+                                                                  'Morning 9 AM- 10 AM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 10 - 11', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 10 - 11';
+                                                                  'Morning 10 AM- 11 AM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 11 - 12', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 11 - 12';
+                                                                  'Morning 11 PM- 12 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 12 - 1', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 12 - 1';
+                                                                  'Afternoon 12 PM- 1 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 1 - 2', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 1 - 9';
+                                                                  'Afternoon 1 PM- 9 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 2 - 3', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 8 - 9';
+                                                                  'Afternoon 8 PM- 9 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 3 - 4', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 3 - 4';
+                                                                  'Afternoon 3 PM- 4 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 4 - 5', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 4 - 5';
+                                                                  'Afternoon 4 PM- 5 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 5 - 6', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 5 - 6';
+                                                                  'Evening 5 PM- 6 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 6 - 7', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 6 - 7';
+                                                                  'Evening 6 PM- 7 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 7 - 8', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 7 - 8';
+                                                                  'Evening 7 PM- 8 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 8 - 9', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 8 - 9';
+                                                                  'Evening 8 PM- 9 PM';
                                                             });
                                                           }),
                                                     ],
@@ -4889,11 +5026,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
                                         if (newRegUser == true) {
                                           showDpUpdtaeDialog();
-                                          dayMinConverter("10 days ");
-                                          dayMinConverter("2 days ");
-                                          dayMinConverter("30mins ");
+                                          print(dayMinConverter("2days"));
+                                          print(dayMinConverter("26hours"));
                                         } else {
-
                                           if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
                                               customweightCtrl.text.startsWith("0")&&
                                                   customweightCtrl.text.endsWith("0")){
@@ -4964,16 +5099,20 @@ String changeKilo(String weight){
 
 String dayMinConverter(String deliverTime){
   String givenSess = deliverTime;
-
+  String finalDay = "";
   if(givenSess.toLowerCase().contains("days")){
-    print("days");
-    print(givenSess.replaceAll(new RegExp(r'[^0-9]'), ""));
-  }else if(givenSess.toLowerCase().contains("mins")){
-    print("mins");
-    print(givenSess.replaceAll(new RegExp(r'[^0-9]'), ""));
+    finalDay = givenSess.replaceAll(new RegExp(r'[^0-9]'), "");
+
+  }else if(givenSess.toLowerCase().contains("hours")){
+    int myDay = (double.parse(givenSess.replaceAll(new RegExp(r'[^0-9]'), ""))/24).toInt();
+    if(myDay > 1){
+      finalDay = myDay.toString();
+    }else{
+      finalDay = "1";
+    }
   }
 
-  return "";
+  return finalDay;
 }
 
 

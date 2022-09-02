@@ -680,7 +680,7 @@ class _CheckOutState extends State<CheckOut> {
             double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
         print(tempPrice);
         tempTax = tempPrice * (double.parse(taxes.toString())/100);
-
+        print(tempTax);
         finalTotal = counts *
             (double.parse(cakePrice)*
             double.parse(weight.replaceAll("kg", "")))+
@@ -885,6 +885,8 @@ class _CheckOutState extends State<CheckOut> {
           "EggOrEggless": eggOreggless,
           "Flavour": tempFlavList,
           "Shape": tempShapeList,
+          cakeTier!="null"||cakeTier!=null?
+          "Tier":cakeTier:null,
           "Weight": tierCakeWeight=="null"?
           weight.toLowerCase().replaceAll("kg", "")+"kg":
           tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
@@ -933,6 +935,8 @@ class _CheckOutState extends State<CheckOut> {
           "EggOrEggless": eggOreggless,
           "Flavour": tempFlavList,
           "Shape": tempShapeList,
+          cakeTier!="null"||cakeTier!=null?
+          "Tier":cakeTier:null,
           "Weight": tierCakeWeight=="null"?
           weight.toLowerCase().replaceAll("kg", "")+"kg":
           tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",

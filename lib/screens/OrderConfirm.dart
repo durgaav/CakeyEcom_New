@@ -166,6 +166,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
 
         print('Tier $cakeTier');
+        print('sgst $sgstPrice');
+        print('sgst $gstPrice');
         print('--------------');
 
       });
