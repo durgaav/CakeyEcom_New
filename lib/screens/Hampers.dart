@@ -61,9 +61,21 @@ class _HampersState extends State<Hampers> {
     pref.remove("hamperProducts");
 
 
-    pref.setString("hamperImage", hampers[index]['HamperImage']??'null');
+    List<String> extraImages = [];
+    if(hampers[index]['AdditionalHamperImage']!=null && hampers[index]['AdditionalHamperImage'].isNotEmpty){
+      for(int j = 0;j<hampers[index]['AdditionalHamperImage'].length;j++){
+        extraImages.add(hampers[index]['AdditionalHamperImage'].toString());
+      }
+    }else{
+      extraImages = [hampers[index]['HamperImage'].toString()];
+    }
+
+    pref.setStringList("hamperImages", extraImages??[]);
     pref.setString("hamperName", hampers[index]['HampersName']??'null');
     pref.setString("hamperPrice", hampers[index]['Price']??'null');
+    pref.setString("hamperStartDate", hampers[index]['StartDate']??'null');
+    pref.setString("hamperEndDate", hampers[index]['EndDate']??'null');
+    pref.setString("hamperEggreggless", hampers[index]['EggOrEggless']??'null');
     pref.setString("hamper_ID", hampers[index]['_id']??'null');
     pref.setString("hamperModID", hampers[index]['Id']??'null');
     pref.setString("hamperDescription", hampers[index]['Description']??'null');

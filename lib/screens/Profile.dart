@@ -1248,7 +1248,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               title: const Text('Vendor',style: const TextStyle(
                                   fontSize: 11,fontFamily: "Poppins"
                               ),),
-                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                              subtitle:Text(recentOrders[index]['VendorName']!=null?
+                              '${recentOrders[index]['VendorName']}':"Premium Vendor",style: TextStyle(
                                   fontSize: 14,fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,color: Colors.black
                               ),),
@@ -1259,7 +1260,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   children: [
                                     InkWell(
                                       onTap: () async{
-                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2']);
+                                        PhoneDialog().
+                                        showPhoneDialog(context,
+                                            recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2']);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,

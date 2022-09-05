@@ -386,7 +386,7 @@ class _CheckOutState extends State<CheckOut> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_339Az2MifF7NxM:LO2zHWEkcFGyfJwUv0NTILj0'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -463,7 +463,7 @@ class _CheckOutState extends State<CheckOut> {
 
 
     var options = {
-      'key': 'rzp_test_339Az2MifF7NxM',
+      'key': 'rzp_live_rmfBgI2OrqZR4j',
       'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -477,6 +477,7 @@ class _CheckOutState extends State<CheckOut> {
       "theme":{
         "color":'#E8416D'
       },
+
       // "method": {
       //   "netbanking": false,
       //   "card": true,
@@ -485,6 +486,8 @@ class _CheckOutState extends State<CheckOut> {
       //   "emi": false,
       //   "paylater": false
       // },
+
+
     };
 
     print(options);
@@ -511,7 +514,7 @@ class _CheckOutState extends State<CheckOut> {
     }
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_MyjGwTc9WHqxJZ:HN0Wocy6yeYils1HFJIaE34G'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
@@ -1051,7 +1054,7 @@ class _CheckOutState extends State<CheckOut> {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     // Do something when an external wallet is selected
-    print("wallet : "+response.toString());
+    print("wallet : "+response.walletName!);
     showPaymentDoneAlert("failed");
   }
 

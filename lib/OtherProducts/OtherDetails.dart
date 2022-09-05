@@ -14,6 +14,7 @@ import '../ContextData.dart';
 import '../Dialogs.dart';
 import '../DrawerScreens/Notifications.dart';
 import '../screens/AddressScreen.dart';
+import '../screens/CakeDetails.dart';
 import '../screens/Profile.dart';
 
 class OthersDetails extends StatefulWidget {
@@ -59,7 +60,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   String otherMainID = "";
   String otherModId = "";
   String otherDiscount = "";
-
+  String minimumDeliTime = "";
   List vendorList = [];
 
   String vendrorName = "";
@@ -246,6 +247,7 @@ class _OthersDetailsState extends State<OthersDetails> {
           vendorId = prefs.getString("otherVendorId")??"";
           otherDiscount = prefs.getString("otherDiscound")??"";
           otherShape = prefs.getString("otherShape")??"";
+          minimumDeliTime = prefs.getString("otherMiniDeliTime")??"";
 
           flavours = prefs.getStringList('otherFlavs')??[];
           cakeImages = prefs.getStringList('otherImages')??[];
@@ -1012,8 +1014,12 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         PopupMenuItem(
                                             onTap: () {
                                               setState(() {
-                                                selectedDropWeight = "Kg";
-                                                selectedWeight = customweightCtrl.text+"kg";
+
+                                                if(customweightCtrl.text.isNotEmpty){
+                                                  selectedDropWeight = "Kg";
+                                                  selectedWeight = customweightCtrl.text+"kg";
+                                                }
+
                                               });
                                             },
                                             child: Text('Kilo Gram',style: TextStyle(
@@ -1024,8 +1030,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         PopupMenuItem(
                                             onTap: () {
                                               setState(() {
-                                                selectedDropWeight = "G";
-                                                selectedWeight = customweightCtrl.text+"g";
+                                                if(customweightCtrl.text.isNotEmpty){
+                                                  selectedDropWeight = "G";
+                                                  selectedWeight = customweightCtrl.text+"g";
+                                                }
                                               });
                                             },
                                             child: Text('Gram',style: TextStyle(
@@ -1209,20 +1217,28 @@ class _OthersDetailsState extends State<OthersDetails> {
                   GestureDetector(
                     onTap: () async {
 
+                      print(minimumDeliTime);
+
+                      String deliTime = "";
+
+                      if(minimumDeliTime.isNotEmpty){
+                        deliTime = dayMinConverter(minimumDeliTime);
+                      }
+
                       DateTime? SelDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime(
                             DateTime.now().year,
                             DateTime.now().month,
-                            DateTime.now().day+1,
+                            DateTime.now().day+int.parse(deliTime),
                           ),
                           lastDate: DateTime(2100),
                           firstDate: DateTime(
                             DateTime.now().year,
                             DateTime.now().month,
-                            DateTime.now().day+1,
+                            DateTime.now().day+int.parse(deliTime),
                           ),
-                          helpText: "Select Deliver Date"
+                          helpText: "Minimum Time For Delivery $minimumDeliTime"
                       );
 
                       setState(() {

@@ -664,7 +664,9 @@ class _HomeScreenState extends State<HomeScreen> {
     List cakeFlavs = [];
     List cakeShapes = [];
     List cakeTiers = [];
+    List tiersDelTimes = [];
     var prefs = await SharedPreferences.getInstance();
+    List<String> typesOfCake = [];
 
     String vendorAddress = cakeSearchList[index]['VendorAddress'];
 
@@ -672,72 +674,112 @@ class _HomeScreenState extends State<HomeScreen> {
     //getting cake pics
     if (cakeSearchList[index]['AdditionalCakeImages'].isNotEmpty) {
       setState(() {
-        for (int i = 0;
-            i < cakeSearchList[index]['AdditionalCakeImages'].length;
-            i++) {
-          cakeImgs
-              .add(cakeSearchList[index]['AdditionalCakeImages'][i].toString());
+        for (int i = 0; i < cakeSearchList[index]['AdditionalCakeImages'].length; i++) {
+          cakeImgs.add(cakeSearchList[index]['AdditionalCakeImages'][i].toString());
         }
       });
     } else {
       setState(() {
-        cakeImgs = [cakeSearchList[index]['MainCakeImage'].toString()];
+        cakeImgs = [
+          cakeSearchList[index]['MainCakeImage'].toString()
+        ];
+      });
+    }
+
+    //getting cake types
+    if (cakeSearchList[index]['CakeType'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['CakeType'].length; i++) {
+          typesOfCake.add(cakeSearchList[index]['CakeType'][i].toString());
+        }
       });
     }
 
     // getting cake flavs
-    if (cakeSearchList[index]['CustomFlavourList'].isNotEmpty ||
-        cakeSearchList[index]['CustomFlavourList'] != null) {
+    if (cakeSearchList[index]['CustomFlavourList'].isNotEmpty||cakeSearchList[index]['CustomFlavourList']!=null) {
       setState(() {
         cakeFlavs = cakeSearchList[index]['CustomFlavourList'];
 
-        // for(int i = 0 ; i<cakesTypes[index]['CustomFlavourList'].length;i++){
-        //   cakeFlavs.add(cakesTypes[index]['CustomFlavourList'][i].toString());
+        // for(int i = 0 ; i<cakeSearchList[index]['CustomFlavourList'].length;i++){
+        //   cakeFlavs.add(cakeSearchList[index]['CustomFlavourList'][i].toString());
         // }
+
       });
     } else {
       setState(() {
-        cakeFlavs = [];
+        cakeFlavs = [
+        ];
       });
     }
 
-    // getting cake tiers
-    if (cakeSearchList[index]['TierCakeMinWeightAndPrice'] != null) {
-      setState(() {
-        cakeTiers = cakeSearchList[index]['TierCakeMinWeightAndPrice'];
-      });
-    } else {
-      setState(() {
-        cakeTiers = [];
-      });
-    }
-
-    // getting cake shapes
-    if (cakeSearchList[index]['CustomShapeList']['Info'].isNotEmpty ||
-        cakeSearchList[index]['CustomShapeList']['Info'] != null) {
-      setState(() {
-        cakeShapes = cakeSearchList[index]['CustomShapeList']['Info'];
-      });
-    } else {
-      setState(() {
-        cakeShapes = [];
-      });
-    }
-
-    // if (cakeSearchList[index]['MinWeightList'].isNotEmpty ||
-    //     cakeSearchList[index]['MinWeightList'] != null) {
+    // // getting cake tiers
+    // if (cakeSearchList[index]['TierCakeMinWeightAndPrice'].isNotEmpty||cakeSearchList[index]['TierCakeMinWeightAndPrice']!=null) {
     //   setState(() {
-    //     for (int i = 0;
-    //         i < cakeSearchList[index]['MinWeightList'].length;
-    //         i++) {
-    //       cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
-    //     }
+    //     cakeTiers = cakeSearchList[index]['TierCakeMinWeightAndPrice'];
     //   });
     // } else {
     //   setState(() {
-    //     cakeWeights = [];
+    //     cakeTiers = [];
     //   });
     // }
+
+    // if (cakeSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||cakeSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
+    //   setState(() {
+    //     tiersDelTimes = cakeSearchList[index]['MinTimeForDeliveryFortierCake'];
+    //   });
+    // } else {
+    //   setState(() {
+    //     tiersDelTimes = [];
+    //   });
+    // }
+
+    // getting cake shapes
+    if (cakeSearchList[index]['CustomShapeList']['Info'].isNotEmpty||
+        cakeSearchList[index]['CustomShapeList']['Info']!=null) {
+      setState(() {
+        cakeShapes = cakeSearchList[index]['CustomShapeList']['Info'];
+
+        // for(int i = 0 ; i<cakeSearchList[index]['CustomShapeList']['Info'].length;i++){
+        //   cakeShapes.add(cakeSearchList[index]['CustomShapeList']['Info'][i].toString());
+        // }
+
+      });
+    } else {
+      setState(() {
+        cakeShapes = [
+        ];
+      });
+    }
+
+
+    //getting cake toppings list
+    // if(cakeSearchList[index]['CakeToppings'].isNotEmpty){
+    //   setState(() {
+    //     for(int i=0;i<cakeSearchList[index]['CakeToppings'].length;i++){
+    //       cakeTopings.add(cakeSearchList[index]['CakeToppings'][i].toString());
+    //     }
+    //   });
+    // }
+    // else{
+    //   setState(() {
+    //     cakeTopings = [];
+    //   });
+    // }
+
+    //getting cake weights
+
+
+    if (cakeSearchList[index]['MinWeightList'].isNotEmpty || cakeSearchList[index]['MinWeightList']!=null) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['MinWeightList'].length; i++) {
+          cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeWeights = [];
+      });
+    }
 
     //endregion
 
@@ -785,102 +827,88 @@ class _HomeScreenState extends State<HomeScreen> {
     //API LIST DATAS
     prefs.setStringList('cakeImages', cakeImgs);
     prefs.setStringList('cakeWeights', cakeWeights);
+    prefs.setStringList('cakeMainTypes', typesOfCake);
 
     //API STRINGS AND INTS DATAS
-    prefs.setString("cake_id", cakeSearchList[index]['_id'] ?? "null");
-    prefs.setString("cakeModid", cakeSearchList[index]['Id'] ?? "null");
-    prefs.setString(
-        "cakeMainImage", cakeSearchList[index]['MainCakeImage'] ?? "null");
-    prefs.setString("cakeName", cakeSearchList[index]['CakeName'] ?? "null");
-    prefs.setString(
-        "cakeCommName", cakeSearchList[index]['CakeCommonName'] ?? "null");
-    prefs.setString(
-        "cakeBasicFlav", cakeSearchList[index]['BasicFlavour'] ?? "null");
-    prefs.setString(
-        "cakeBasicShape", cakeSearchList[index]['BasicShape'] ?? "null");
-    prefs.setString(
-        "cakeMinWeight", cakeSearchList[index]['MinWeight'] ?? "null");
-    prefs.setString(
-        "cakeMinPrice", cakeSearchList[index]['BasicCakePrice'] ?? "null");
-    prefs.setString("cakeEggorEggless",
-        cakeSearchList[index]['DefaultCakeEggOrEggless'] ?? "null");
-    prefs.setString("cakeEgglessAvail",
-        cakeSearchList[index]['IsEgglessOptionAvailable'] ?? "null");
-    prefs.setString("cakeEgglesCost",
-        cakeSearchList[index]['BasicEgglessCostPerKg'] ?? "null");
-    prefs.setString("cakeCostWithEggless",
-        cakeSearchList[index]['BasicEgglessCostPerKg'] ?? "null");
-    prefs.setString(
-        "cakeTierPoss", cakeSearchList[index]['IsTierCakePossible'] ?? "null");
-    prefs.setString(
-        "cakeThemePoss", cakeSearchList[index]['ThemeCakePossible'] ?? "null");
-    prefs.setString(
-        "cakeToppersPoss", cakeSearchList[index]['ToppersPossible'] ?? "null");
-    prefs.setString("cakeBasicCustom",
-        cakeSearchList[index]['BasicCustomisationPossible'] ?? "null");
-    prefs.setString("cakeFullCustom",
-        cakeSearchList[index]['FullCustomisationPossible'] ?? "null");
+    prefs.setString("cake_id", cakeSearchList[index]['_id']??"null");
+    prefs.setString("cakeModid", cakeSearchList[index]['Id']??"null");
+    prefs.setString("cakeMainImage", cakeSearchList[index]['MainCakeImage']??"null");
+    prefs.setString("cakeName", cakeSearchList[index]['CakeName']??"null");
+    prefs.setString("cakeCommName", cakeSearchList[index]['CakeCommonName']??"null");
+    prefs.setString("cakeBasicFlav", cakeSearchList[index]['BasicFlavour']??"null");
+    prefs.setString("cakeBasicShape", cakeSearchList[index]['BasicShape']??"null");
+    prefs.setString("cakeMinWeight", cakeSearchList[index]['MinWeight']??"null");
+    prefs.setString("cakeMinPrice", cakeSearchList[index]['BasicCakePrice']??"null");
+    prefs.setString("cakeEggorEggless", cakeSearchList[index]['DefaultCakeEggOrEggless']??"null");
+    prefs.setString("cakeEgglessAvail", cakeSearchList[index]['IsEgglessOptionAvailable']??"null");
+    prefs.setString("cakeEgglesCost", cakeSearchList[index]['BasicEgglessCostPerKg']??"null");
+    prefs.setString("cakeCostWithEggless", cakeSearchList[index]['BasicEgglessCostPerKg']??"null");
+    prefs.setString("cakeTierPoss", cakeSearchList[index]['IsTierCakePossible']??"null");
+    prefs.setString("cakeThemePoss", cakeSearchList[index]['ThemeCakePossible']??"null");
+    prefs.setString("cakeToppersPoss", cakeSearchList[index]['ToppersPossible']??"null");
+    prefs.setString("cakeBasicCustom", cakeSearchList[index]['BasicCustomisationPossible']??"null");
+    prefs.setString("cakeFullCustom", cakeSearchList[index]['FullCustomisationPossible']??"null");
+    prefs.setString("cakeType", cakeSearchList[index]['CakeType'].toString()??"null");
+    prefs.setString("cakeSubType", "currentCakeType"??"null");
+    prefs.setString("cakeDescription", cakeSearchList[index]['Description']??"null");
+    prefs.setString("cakeCategory", cakeSearchList[index]['CakeCategory']??"null");
+    prefs.setString("cakeTopperPoss", cakeSearchList[index]['ToppersPossible']??"null");
 
-    // if(selectedCakeType == ""){
-    //   prefs.setString("cakeType", cakeSearchList[index]['CakeType'] ?? "null");
-    //   prefs.setString(
-    //       "cakeSubType", cakeSearchList[index]['CakeSubType'] ?? "null");
-    // }else{
-    //   prefs.setString("cakeType", selectedCakeType ?? "null");
-    //   prefs.setString(
-    //       "cakeSubType", selectedCakeType ?? "null");
-    // }
-
-    if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
-        cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
-      prefs.setString("cake3kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
-      prefs.setString("cake5kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
-    }else{
-      prefs.setString("cake3kgminTime", 'Nf');
-      prefs.setString("cake5kgminTime", 'Nf');
-    }
-    prefs.setString("cakeminDelTime", cakeSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
-
-
+    prefs.setString("cakeVendorid", cakeSearchList[index]['VendorID']??"null");
+    prefs.setString("cakeVendorModid", cakeSearchList[index]['Vendor_ID']??"null");
+    prefs.setString("cakeVendorName", cakeSearchList[index]['VendorName']??"null");
+    prefs.setString("cakeVendorPhone1", cakeSearchList[index]['VendorPhoneNumber1']??"null");
+    prefs.setString("cakeVendorPhone2", cakeSearchList[index]['VendorPhoneNumber2']??"null");
+    prefs.setString("cakeVendorAddress", vendorAddress);
     prefs.setString("cakeVendorLatitu", cakeSearchList[index]['GoogleLocation']['Latitude'].toString());
     prefs.setString("cakeVendorLongti", cakeSearchList[index]['GoogleLocation']['Longitude'].toString());
+    prefs.setString("cakeOtherInstToCus", cakeSearchList[index]['OtherInstructions'].toString());
 
 
-    prefs.setString(
-        "cakeDescription", cakeSearchList[index]['Description'] ?? "null");
-    prefs.setString(
-        "cakeCategory", cakeSearchList[index]['CakeCategory'] ?? "null");
-    prefs.setString(
-        "cakeTopperPoss", cakeSearchList[index]['ToppersPossible'] ?? "null");
+    // //3 and 5kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
+    //     cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
+    //   prefs.setString("cake3kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
+    //   prefs.setString("cake5kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake3kgminTime", 'Nf');
+    //   prefs.setString("cake5kgminTime", 'Nf');
+    // }
+    //
+    // //1 and 2 kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null){
+    //   prefs.setString("cake1kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA1KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake1kgminTime", 'Nf');
+    // }
+    // //1 and 2 kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake']!=null){
+    //   prefs.setString("cake2kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake2kgminTime", 'Nf');
+    // }
 
-    prefs.setString(
-        "cakeVendorid", cakeSearchList[index]['VendorID'] ?? "null");
-    prefs.setString(
-        "cakeVendorModid", cakeSearchList[index]['Vendor_ID'] ?? "null");
-    prefs.setString(
-        "cakeVendorName", cakeSearchList[index]['VendorName'] ?? "null");
-    prefs.setString("cakeVendorPhone1",
-        cakeSearchList[index]['VendorPhoneNumber1'] ?? "null");
-    prefs.setString("cakeVendorPhone2",
-        cakeSearchList[index]['VendorPhoneNumber2'] ?? "null");
-    prefs.setString("cakeVendorAddress", vendorAddress);
+    prefs.setString("cakeminDelTime", cakeSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
+    prefs.setString("cakeminbetwokgTime", cakeSearchList[index]['MinTimeForDeliveryOfABelow2KgCake'].toString());
+    prefs.setString("cakemintwotoourTime", cakeSearchList[index]['MinTimeForDeliveryOfA2to4KgCake'].toString());
+    prefs.setString("cakeminfortofivTime", cakeSearchList[index]['MinTimeForDeliveryOfA4to5KgCake'].toString());
+    prefs.setString("cakeminabovfiveTime", cakeSearchList[index]['MinTimeForDeliveryOfAAbove5KgCake'].toString());
+
 
     //INTEGERS
-    prefs.setInt('cakeDiscount',
-        int.parse(cakeSearchList[index]['Discount'].toString()));
+    prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
     prefs.setInt('cakeTax', int.parse(cakeSearchList[index]['Tax'].toString()));
-    prefs.setInt('cakeDiscount',
-        int.parse(cakeSearchList[index]['Discount'].toString()));
-    prefs.setDouble("cakeRating",
-        double.parse(cakeSearchList[index]['Ratings'].toString()));
+    prefs.setInt('cakeDiscount', int.parse(cakeSearchList[index]['Discount'].toString()));
+    prefs.setDouble("cakeRating",double.parse(cakeSearchList[index]['Ratings'].toString()));
+
 
     Navigator.of(context).push(PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => CakeDetails(
-        cakeShapes,
-        cakeFlavs,
-        [],
-        cakeTiers,
-        []
+          cakeShapes,
+          cakeFlavs,
+          [],
+          cakeTiers,
+          tiersDelTimes
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
@@ -2613,11 +2641,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       pref.remove("hamperVendorPhn2");
                                                       pref.remove("hamperProducts");
 
+                                                      List<String> extraImages = [];
+                                                      if(hampers[i]['AdditionalHamperImage']!=null && hampers[i]['AdditionalHamperImage'].isNotEmpty){
+                                                        for(int j = 0;j<hampers[i]['AdditionalHamperImage'].length;j++){
+                                                          extraImages.add(hampers[i]['AdditionalHamperImage'].toString());
+                                                        }
+                                                      }else{
+                                                        extraImages = [hampers[i]['HamperImage'].toString()];
+                                                      }
 
-                                                      pref.setString("hamperImage", hampers[i]['HamperImage']??'null');
+                                                      pref.setStringList("hamperImages", extraImages??[]);
+
                                                       pref.setString("hamperName", hampers[i]['HampersName']??'null');
                                                       pref.setString("hamperPrice", hampers[i]['Price']??'null');
+                                                      pref.setString("hamperStartDate", hampers[i]['StartDate']??'null');
+                                                      pref.setString("hamperEndDate", hampers[i]['EndDate']??'null');
                                                       pref.setString("hamper_ID", hampers[i]['_id']??'null');
+                                                      pref.setString("hamperEggreggless", hampers[i]['EggOrEggless']??'null');
                                                       pref.setString("hamperModID", hampers[i]['Id']??'null');
                                                       pref.setString("hamperDescription", hampers[i]['Description']??'null');
                                                       pref.setString("hamperVendorName", hampers[i]['VendorName']??'null');

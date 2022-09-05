@@ -71,6 +71,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String onekgdeltime = "";
   String twokgdeltime = "";
   String cakeMindeltime = "";
+  String otherInstruction = "";
 
   //load context vendor...
   bool isMySelVen = false;
@@ -196,6 +197,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String fixedAddress = '';
   String fixedDelliverMethod = "";
   String selectedDropWeight = 'Kg';
+  
+  List<String> cakeTypesList = [];
 
   //for fixing the flavours
   var temp = [];
@@ -1476,6 +1479,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       cakeEgglessAvail = prefs.getString('cakeEgglessAvail')!;
       cakeEgglessPrice = prefs.getString('cakeEgglesCost')!;
       basicCakeWeight = prefs.getString('cakeMinWeight')!;
+      otherInstruction = prefs.getString('cakeOtherInstToCus')??"None";
 
       fixedWeight = basicCakeWeight;
 
@@ -1492,10 +1496,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       weight = prefs.getStringList('cakeWeights')!;
       vendorLat = prefs.getString('cakeVendorLatitu')!;
       vendorLong = prefs.getString('cakeVendorLongti')!;
-      thrkgdeltime = prefs.getString('cake3kgminTime')!;
-      fvkgdeltime = prefs.getString('cake5kgminTime')!;
-      onekgdeltime = prefs.getString('cake1kgminTime')!;
-      twokgdeltime = prefs.getString('cake2kgminTime')!;
+
+      thrkgdeltime = prefs.getString('cakeminfortofivTime')!;
+      fvkgdeltime = prefs.getString('cakeminabovfiveTime')!;
+      onekgdeltime = prefs.getString('cakeminbetwokgTime')!;
+      twokgdeltime = prefs.getString('cakemintwotoourTime')!;
       cakeMindeltime = prefs.getString('cakeminDelTime')!;
 
       //Vendor
@@ -1509,6 +1514,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       //delivery charge
       adminDeliveryCharge = prefs.getInt("todayDeliveryCharge")??0;
       adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm")??0;
+      
+      //types of cake list
+      cakeTypesList = prefs.getStringList("cakeMainTypes")??["none"];
 
       //topper fetch...
       fetchToppersById(vendorID);
@@ -1548,8 +1556,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       if(cakeEggorEgless.toLowerCase()=="eggless"){
         isFromEggless = true;
       }
-
-
+      
       print(cakeEgglessPrice);
 
       if(flavour1.isEmpty){
@@ -2048,12 +2055,25 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         onekgdeltime = artTempList[0]['MinTimeForDeliveryOfA1KgCake'];
         twokgdeltime = artTempList[0]['MinTimeForDeliveryOfA2KgCake'];
         cakeMindeltime = artTempList[0]['MinTimeForDeliveryOfDefaultCake'];
-        // weight = artTempList[0]['MinWeightList'];
+
+        weight.clear();
+
+        if (artTempList[0]['MinWeightList'].isNotEmpty || artTempList[0]['MinWeightList']!=null) {
+          setState(() {
+            for (int i = 0; i < artTempList[0]['MinWeightList'].length; i++) {
+              weight.add(artTempList[0]['MinWeightList'][i].toString());
+            }
+          });
+        } else {
+          setState(() {
+            weight = [];
+          });
+        }
 
         print("%%%%%%%%%%%%%%%");
         print(artTempList[0]['MinWeightList']);
 
-        weight.clear();
+
 
         // if(artTempList[0]['MinWeightList'].isNotEmpty){
         //   print("Exc...");
@@ -2806,34 +2826,36 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ])
                         ),
 
-                        tierPrice==0?
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text(
-                            "Price based on : $cakePrice X "
-                              "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
-                              "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
-                            color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                          ),),
-                        ):Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text(
-                            "Selected Tier Price : Rs.$tempTierPrice",style: TextStyle(
-                              color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                          ),),
-                        ),
-                        tierPrice==0?
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10 , top:8),
-                          child: Text("Minimum weight: $basicCakeWeight",style: TextStyle(
-                              color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                          ),),
-                        ):Padding(
-                          padding: const EdgeInsets.only(left: 10 , top:8),
-                          child: Text("Tier weight: $tempCakeWeight",style: TextStyle(
-                              color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                          ),),
-                        ),
+                        // tierPrice==0?
+                        // Padding(
+                        //   padding: const EdgeInsets.only(left: 10),
+                        //   child: Text(
+                        //     "Price based on : $cakePrice X "
+                        //       "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
+                        //       "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
+                        //     color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                        //   ),),
+                        // ):
+                        // Padding(
+                        //   padding: const EdgeInsets.only(left: 10),
+                        //   child: Text(
+                        //     "Selected Tier Price : Rs.$tempTierPrice",style: TextStyle(
+                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                        //   ),),
+                        // ),
+                        // tierPrice==0?
+                        // Padding(
+                        //   padding: const EdgeInsets.only(left: 10 , top:8),
+                        //   child: Text("Minimum weight: $basicCakeWeight",style: TextStyle(
+                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                        //   ),),
+                        // ):
+                        // Padding(
+                        //   padding: const EdgeInsets.only(left: 10 , top:8),
+                        //   child: Text("Tier weight: $tempCakeWeight",style: TextStyle(
+                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
+                        //   ),),
+                        // ),
 
                         Container(
                             margin: EdgeInsets.all(10),
@@ -3393,7 +3415,45 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             ],
                           ),
                         ),
-
+                        
+                        ExpansionTile(
+                               title: Text("Other Details For This Cake.",style: TextStyle(
+                                fontFamily: poppins, color: darkBlue,
+                                fontSize: 13,fontWeight: FontWeight.bold
+                            ),),
+                            expandedAlignment: Alignment.centerLeft,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(left:12,right:12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Instructions",style: TextStyle(
+                                        fontFamily: poppins, color: darkBlue,
+                                        fontSize: 14,fontWeight: FontWeight.bold
+                                    ),),
+                                    SizedBox(height:5),
+                                    Text(otherInstruction,style:TextStyle(
+                                      color:Colors.black,
+                                      fontFamily: "Poppins",fontSize: 13,
+                                    ),),
+                                    SizedBox(height:5),
+                                    Text(
+                                      "Price based on : $cakePrice X "
+                                          "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
+                                          "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
+                                        color:darkBlue,fontFamily: "Poppins",fontSize: 13
+                                    ),),
+                                    SizedBox(height:5),
+                                    Text("Minimum weight: $basicCakeWeight",style: TextStyle(
+                                        color:darkBlue,fontFamily: "Poppins",fontSize: 13
+                                    ),),
+                                    SizedBox(height:10),
+                                  ],  
+                                ),
+                              )
+                            ],
+                        ),
 
                         //Weight Area
                         Visibility(
@@ -3423,6 +3483,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         selwIndex.add(false);
                                         return InkWell(
                                             onTap: () {
+
+                                              print("mini deli time :${dayMinConverter(cakeMindeltime)}");
+                                              print("mini deli time :${cakeMindeltime}");
+
                                               setState(() {
                                                 FocusScope.of(context).unfocus();
                                                 weightIndex = index;
@@ -3464,14 +3528,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   left: 15,bottom: 8,top: 8
                                 ),
                                 child: Text(
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=3.0?
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
                                   'Min Delivery Time Of A Cake $thrkgdeltime':
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=5.0?
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
                                   "Min Delivery Time Of A Cake $fvkgdeltime":
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=1.0?
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0?
                                   'Min Delivery Time Of A Cake $onekgdeltime':
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=2.0?
-                                  "Min Delivery Time Of A Cake $twokgdeltime":"Min Delivery Time Of A Cake $minDelTierTime",
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0?
+                                  "Min Delivery Time Of A Cake $twokgdeltime":
+                                  "Min Delivery Time Of A Cake $cakeMindeltime",
                                   style: TextStyle(
                                     color: lightPink,
                                     fontFamily: "Poppins",
@@ -3481,7 +3546,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               ),
 
                               cakeSubType.toLowerCase().contains("tier")||cakeSubType.toLowerCase().contains("theme")
-                              ||cakeSubType.toLowerCase().contains("fondant")?
+                              ||cakeSubType.toLowerCase().contains("fondant")||
+                              cakeTypesList.toString().toLowerCase().contains("tier")||
+                                  cakeTypesList.toString().toLowerCase().contains("theme")||
+                              cakeTypesList.toString().toLowerCase().contains("fondant")?
                               Container():
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -3614,88 +3682,90 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                           ),
                         ),
 
-                          // Cake Tier
-                        isTierPossible.toLowerCase()=="y"?
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10.0, bottom: 5, left: 15),
-                              child: Text(
-                                'Cake Tier',
-                                style: TextStyle(
-                                    color: darkBlue, fontFamily: "Poppins"),
-                              ),
-                            ),
-                            Container(
-                                height: MediaQuery.of(context).size.height * 0.057,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                //  color: Colors.grey,
-                                child: ListView.builder(
-                                    itemCount: cakeTiers.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) {
-                                      selwIndex.add(false);
-                                      return InkWell(
-                                          onTap: () {
-                                            print(cakeTiers[index]);
-                                            print(tiersDelTimes);
-                                            FocusScope.of(context).unfocus();
-                                            setState(() {
-                                              if(tierSelIndex==index){
-                                                tierSelIndex = -1;
-                                                tierPrice = 0;
-                                                tempTierPrice = 0;
-                                                tempCakeWeight = "0.0";
-                                                minDelTierTime = "";
-                                              }else{
-                                                tierSelIndex = index;
-                                                tierPrice = double
-                                                    .parse(cakeTiers[index]['Price'].toString());
-                                                tempTierPrice = tierPrice;
-                                                tempCakeWeight = cakeTiers[index]['Weight'].toString();
-                                                var myList = tiersDelTimes.where((element) => element['Tier']==cakeTiers[index]['Tier']).toList();
-                                                minDelTierTime = myList[0]['MinTime'].toString();
-                                              }
-                                            });
-                                          },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            height: 25,
-                                            width: 70,
-                                            margin: EdgeInsets.only(left: 9, ),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.circular(20),
-                                                border: Border.all(
-                                                    color: lightPink, width: 1),
-                                                color: tierSelIndex == index
-                                                    ? Colors.pink
-                                                    : Colors.white),
-                                            child: Text(
-                                              "${cakeTiers[index]['Tier']}",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: poppins,
-                                                color: tierSelIndex == index
-                                                    ? Colors.white
-                                                    : darkBlue,
-                                                fontSize: 13.5,
-                                              ),
-                                            ),
-                                          ));
-                                    })),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10,top:5),
-                              child: Text("Tier Minimum Delivery Time : "
-                                  "${minDelTierTime}",style: TextStyle(
-                                  color: lightPink, fontFamily: "Poppins",fontSize: 12.5),),
-                            ),
-                          ],
-                        ):
-                        Container(),
+                        // Cake Tier
+                        // isTierPossible.toLowerCase()=="y"?
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     Padding(
+                        //       padding: const EdgeInsets.only(
+                        //           top: 10.0, bottom: 5, left: 15),
+                        //       child: Text(
+                        //         'Cake Tier',
+                        //         style: TextStyle(
+                        //             color: darkBlue, fontFamily: "Poppins"),
+                        //       ),
+                        //     ),
+                        //     Container(
+                        //         height: MediaQuery.of(context).size.height * 0.057,
+                        //         width: MediaQuery.of(context).size.width,
+                        //         margin: EdgeInsets.symmetric(horizontal: 10),
+                        //         //  color: Colors.grey,
+                        //         child: ListView.builder(
+                        //             itemCount: cakeTiers.length,
+                        //             scrollDirection: Axis.horizontal,
+                        //             itemBuilder: (context, index) {
+                        //               selwIndex.add(false);
+                        //               return InkWell(
+                        //                   onTap: () {
+                        //                     print(cakeTiers[index]);
+                        //                     print(tiersDelTimes);
+                        //                     FocusScope.of(context).unfocus();
+                        //                     setState(() {
+                        //                       if(tierSelIndex==index){
+                        //                         tierSelIndex = -1;
+                        //                         tierPrice = 0;
+                        //                         tempTierPrice = 0;
+                        //                         tempCakeWeight = "0.0";
+                        //                         minDelTierTime = "";
+                        //                       }else{
+                        //                         tierSelIndex = index;
+                        //                         tierPrice = double
+                        //                             .parse(cakeTiers[index]['Price'].toString());
+                        //                         tempTierPrice = tierPrice;
+                        //                         tempCakeWeight = cakeTiers[index]['Weight'].toString();
+                        //                         var myList = tiersDelTimes.where((element) => element['Tier']==cakeTiers[index]['Tier']).toList();
+                        //                         minDelTierTime = myList[0]['MinTime'].toString();
+                        //                       }
+                        //                     });
+                        //                   },
+                        //                   child: Container(
+                        //                     alignment: Alignment.center,
+                        //                     height: 25,
+                        //                     width: 70,
+                        //                     margin: EdgeInsets.only(left: 9, ),
+                        //                     decoration: BoxDecoration(
+                        //                         borderRadius:
+                        //                         BorderRadius.circular(20),
+                        //                         border: Border.all(
+                        //                             color: lightPink, width: 1),
+                        //                         color: tierSelIndex == index
+                        //                             ? Colors.pink
+                        //                             : Colors.white),
+                        //                     child: Text(
+                        //                       "${cakeTiers[index]['Tier']}",
+                        //                       style: TextStyle(
+                        //                         fontWeight: FontWeight.bold,
+                        //                         fontFamily: poppins,
+                        //                         color: tierSelIndex == index
+                        //                             ? Colors.white
+                        //                             : darkBlue,
+                        //                         fontSize: 13.5,
+                        //                       ),
+                        //                     ),
+                        //                   ));
+                        //             })),
+                        //     Padding(
+                        //       padding: const EdgeInsets.only(left: 10,top:5),
+                        //       child: Text("Tier Minimum Delivery Time : "
+                        //           "${minDelTierTime}",style: TextStyle(
+                        //           color: lightPink, fontFamily: "Poppins",fontSize: 12.5),),
+                        //     ),
+                        //   ],
+                        // ):
+                        // Container(),
+
+
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 15),
                             child: Divider(
@@ -3946,22 +4016,28 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 GestureDetector(
                                   onTap: () async {
 
-                                    String deliTime = "";
+                                    print(dayMinConverter(cakeMindeltime));
 
-                                    if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=3.0){
-                                      deliTime = dayMinConverter(thrkgdeltime);
-                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=5.0){
-                                      deliTime = dayMinConverter(fvkgdeltime);
-                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=1.0){
-                                      deliTime = dayMinConverter(onekgdeltime);
-                                    }else if(double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>=2.0){
-                                      deliTime = dayMinConverter(twokgdeltime);
-                                    }else{
-                                      deliTime = dayMinConverter(cakeMindeltime);
-                                    }
+                                    String deliTime = "1";
 
-                                    if(tierPrice != 0 ){
-                                      deliTime = dayMinConverter(minDelTierTime);
+                                    try{
+                                      if(thrkgdeltime!=null && thrkgdeltime.toLowerCase()!="n/a" &&
+                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0){
+                                        deliTime = dayMinConverter(thrkgdeltime);
+                                      }else if(fvkgdeltime!=null && fvkgdeltime.toLowerCase()!="n/a" &&
+                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0){
+                                        deliTime = dayMinConverter(fvkgdeltime);
+                                      }else if(onekgdeltime!=null && onekgdeltime.toLowerCase()!="n/a" &&
+                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0){
+                                        deliTime = dayMinConverter(onekgdeltime);
+                                      }else if(twokgdeltime!=null && twokgdeltime.toLowerCase()!="n/a" &&
+                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0){
+                                        deliTime = dayMinConverter(twokgdeltime);
+                                      }else{
+                                        deliTime = dayMinConverter(cakeMindeltime);
+                                      }
+                                    }catch(e){
+                                      deliTime = "1";
                                     }
 
                                     print("Deliver time estimate : .... $deliTime");
@@ -5028,8 +5104,18 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           showDpUpdtaeDialog();
                                           print(dayMinConverter("2days"));
                                           print(dayMinConverter("26hours"));
+                                          print(basicCakeWeight);
+                                          print(customweightCtrl.text);
                                         } else {
-                                          if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
+                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
+                                              <double.parse(basicCakeWeight
+                                          .toLowerCase().replaceAll("kg", ""))){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text("Minimum weight is $basicCakeWeight...")
+                                                )
+                                            );
+                                          }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
                                               customweightCtrl.text.startsWith("0")&&
                                                   customweightCtrl.text.endsWith("0")){
                                             ScaffoldMessenger.of(context).showSnackBar(
@@ -5100,7 +5186,7 @@ String changeKilo(String weight){
 String dayMinConverter(String deliverTime){
   String givenSess = deliverTime;
   String finalDay = "";
-  if(givenSess.toLowerCase().contains("days")){
+  if(givenSess.toLowerCase().contains("day")||givenSess.toLowerCase().contains("days")){
     finalDay = givenSess.replaceAll(new RegExp(r'[^0-9]'), "");
 
   }else if(givenSess.toLowerCase().contains("hours")){

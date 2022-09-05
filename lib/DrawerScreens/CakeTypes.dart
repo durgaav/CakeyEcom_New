@@ -1713,6 +1713,14 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("otherVenPhn1" , otherProducts[index]['VendorPhoneNumber1']);
     prefs.setString("otherVenPhn2" , otherProducts[index]['VendorPhoneNumber2']);
 
+    if(otherProducts[index]['MinTimeForDelivery']!=null){
+      prefs.setString("otherMiniDeliTime" , otherProducts[index]['MinTimeForDelivery']);
+    }else{
+      prefs.setString("otherMiniDeliTime" ,"1days");
+    }
+
+
+
 
     prefs.setStringList("otherFlavs" , flavs);
     prefs.setStringList("otherImages" , images);
@@ -1750,6 +1758,7 @@ class _CakeTypesState extends State<CakeTypes> {
     List cakeTiers = [];
     List tiersDelTimes = [];
     var prefs = await SharedPreferences.getInstance();
+    List<String> typesOfCake = [];
 
     String vendorAddress = cakeSearchList[index]['VendorAddress'];
 
@@ -1766,6 +1775,15 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeImgs = [
           cakeSearchList[index]['MainCakeImage'].toString()
         ];
+      });
+    }
+
+    //getting cake types
+    if (cakeSearchList[index]['CakeType'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['CakeType'].length; i++) {
+          typesOfCake.add(cakeSearchList[index]['CakeType'][i].toString());
+        }
       });
     }
 
@@ -1786,26 +1804,26 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
-    // getting cake tiers
-    if (cakeSearchList[index]['TierCakeMinWeightAndPrice'].isNotEmpty||cakeSearchList[index]['TierCakeMinWeightAndPrice']!=null) {
-      setState(() {
-        cakeTiers = cakeSearchList[index]['TierCakeMinWeightAndPrice'];
-      });
-    } else {
-      setState(() {
-        cakeTiers = [];
-      });
-    }
+    // // getting cake tiers
+    // if (cakeSearchList[index]['TierCakeMinWeightAndPrice'].isNotEmpty||cakeSearchList[index]['TierCakeMinWeightAndPrice']!=null) {
+    //   setState(() {
+    //     cakeTiers = cakeSearchList[index]['TierCakeMinWeightAndPrice'];
+    //   });
+    // } else {
+    //   setState(() {
+    //     cakeTiers = [];
+    //   });
+    // }
 
-    if (cakeSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||cakeSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
-      setState(() {
-        tiersDelTimes = cakeSearchList[index]['MinTimeForDeliveryFortierCake'];
-      });
-    } else {
-      setState(() {
-        tiersDelTimes = [];
-      });
-    }
+    // if (cakeSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||cakeSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
+    //   setState(() {
+    //     tiersDelTimes = cakeSearchList[index]['MinTimeForDeliveryFortierCake'];
+    //   });
+    // } else {
+    //   setState(() {
+    //     tiersDelTimes = [];
+    //   });
+    // }
 
     // getting cake shapes
     if (cakeSearchList[index]['CustomShapeList']['Info'].isNotEmpty||
@@ -1843,17 +1861,17 @@ class _CakeTypesState extends State<CakeTypes> {
     //getting cake weights
 
 
-    // if (cakeSearchList[index]['MinWeightList'].isNotEmpty || cakeSearchList[index]['MinWeightList']!=null) {
-    //   setState(() {
-    //     for (int i = 0; i < cakeSearchList[index]['MinWeightList'].length; i++) {
-    //       cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
-    //     }
-    //   });
-    // } else {
-    //   setState(() {
-    //     cakeWeights = [];
-    //   });
-    // }
+    if (cakeSearchList[index]['MinWeightList'].isNotEmpty || cakeSearchList[index]['MinWeightList']!=null) {
+      setState(() {
+        for (int i = 0; i < cakeSearchList[index]['MinWeightList'].length; i++) {
+          cakeWeights.add(cakeSearchList[index]['MinWeightList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeWeights = [];
+      });
+    }
 
     //endregion
 
@@ -1901,6 +1919,7 @@ class _CakeTypesState extends State<CakeTypes> {
     //API LIST DATAS
     prefs.setStringList('cakeImages', cakeImgs);
     prefs.setStringList('cakeWeights', cakeWeights);
+    prefs.setStringList('cakeMainTypes', typesOfCake);
 
     //API STRINGS AND INTS DATAS
     prefs.setString("cake_id", cakeSearchList[index]['_id']??"null");
@@ -1935,32 +1954,36 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeVendorAddress", vendorAddress);
     prefs.setString("cakeVendorLatitu", cakeSearchList[index]['GoogleLocation']['Latitude'].toString());
     prefs.setString("cakeVendorLongti", cakeSearchList[index]['GoogleLocation']['Longitude'].toString());
+    prefs.setString("cakeOtherInstToCus", cakeSearchList[index]['OtherInstructions'].toString());
 
-    //3 and 5kg
-    if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
-        cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
-      prefs.setString("cake3kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
-      prefs.setString("cake5kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
-    }else{
-      prefs.setString("cake3kgminTime", 'Nf');
-      prefs.setString("cake5kgminTime", 'Nf');
-    }
-
-    //1 and 2 kg
-    if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null){
-      prefs.setString("cake1kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA1KgCake'].toString());
-    }else{
-      prefs.setString("cake1kgminTime", 'Nf');
-    }
-    //1 and 2 kg
-    if(cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake']!=null){
-      prefs.setString("cake2kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake'].toString());
-    }else{
-      prefs.setString("cake2kgminTime", 'Nf');
-    }
+    // //3 and 5kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
+    //     cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
+    //   prefs.setString("cake3kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
+    //   prefs.setString("cake5kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake3kgminTime", 'Nf');
+    //   prefs.setString("cake5kgminTime", 'Nf');
+    // }
+    //
+    // //1 and 2 kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null){
+    //   prefs.setString("cake1kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA1KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake1kgminTime", 'Nf');
+    // }
+    // //1 and 2 kg
+    // if(cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake']!=null){
+    //   prefs.setString("cake2kgminTime", cakeSearchList[index]['MinTimeForDeliveryOfA2KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake2kgminTime", 'Nf');
+    // }
 
     prefs.setString("cakeminDelTime", cakeSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
-
+    prefs.setString("cakeminbetwokgTime", cakeSearchList[index]['MinTimeForDeliveryOfABelow2KgCake'].toString());
+    prefs.setString("cakemintwotoourTime", cakeSearchList[index]['MinTimeForDeliveryOfA2to4KgCake'].toString());
+    prefs.setString("cakeminfortofivTime", cakeSearchList[index]['MinTimeForDeliveryOfA4to5KgCake'].toString());
+    prefs.setString("cakeminabovfiveTime", cakeSearchList[index]['MinTimeForDeliveryOfAAbove5KgCake'].toString());
 
 
     //INTEGERS
@@ -2016,6 +2039,7 @@ class _CakeTypesState extends State<CakeTypes> {
     List cakeShapes = [];
     List cakeTiers = [];
     List tiersDelTimes = [];
+    List<String> typesOfCake = [];
     var prefs = await SharedPreferences.getInstance();
 
     String vendorAddress = filterCakesSearchList[index]['VendorAddress'];
@@ -2033,6 +2057,15 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeImgs = [
           filterCakesSearchList[index]['MainCakeImage'].toString()
         ];
+      });
+    }
+
+    //getting cake types
+    if (filterCakesSearchList[index]['CakeType'].isNotEmpty) {
+      setState(() {
+        for (int i = 0; i < filterCakesSearchList[index]['CakeType'].length; i++) {
+          typesOfCake.add(filterCakesSearchList[index]['CakeType'][i].toString());
+        }
       });
     }
 
@@ -2054,25 +2087,25 @@ class _CakeTypesState extends State<CakeTypes> {
     }
 
     // getting cake tiers
-    if (filterCakesSearchList[index]['TierCakeMinWeightAndPrice'].isNotEmpty||filterCakesSearchList[index]['TierCakeMinWeightAndPrice']!=null) {
-      setState(() {
-        cakeTiers = filterCakesSearchList[index]['TierCakeMinWeightAndPrice'];
-      });
-    } else {
-      setState(() {
-        cakeTiers = [];
-      });
-    }
-
-    if (filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||filterCakesSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
-      setState(() {
-        tiersDelTimes = filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'];
-      });
-    } else {
-      setState(() {
-        tiersDelTimes = [];
-      });
-    }
+    // if (filterCakesSearchList[index]['TierCakeMinWeightAndPrice'].isNotEmpty||filterCakesSearchList[index]['TierCakeMinWeightAndPrice']!=null) {
+    //   setState(() {
+    //     cakeTiers = filterCakesSearchList[index]['TierCakeMinWeightAndPrice'];
+    //   });
+    // } else {
+    //   setState(() {
+    //     cakeTiers = [];
+    //   });
+    // }
+    //
+    // if (filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'].isNotEmpty||filterCakesSearchList[index]['MinTimeForDeliveryFortierCake']!=null) {
+    //   setState(() {
+    //     tiersDelTimes = filterCakesSearchList[index]['MinTimeForDeliveryFortierCake'];
+    //   });
+    // } else {
+    //   setState(() {
+    //     tiersDelTimes = [];
+    //   });
+    // }
 
     // getting cake shapes
     if (filterCakesSearchList[index]['CustomShapeList']['Info'].isNotEmpty||
@@ -2110,17 +2143,17 @@ class _CakeTypesState extends State<CakeTypes> {
     //getting cake weights
 
 
-    // if (filterCakesSearchList[index]['MinWeightList'].isNotEmpty || filterCakesSearchList[index]['MinWeightList']!=null) {
-    //   setState(() {
-    //     for (int i = 0; i < filterCakesSearchList[index]['MinWeightList'].length; i++) {
-    //       cakeWeights.add(filterCakesSearchList[index]['MinWeightList'][i].toString());
-    //     }
-    //   });
-    // } else {
-    //   setState(() {
-    //     cakeWeights = [];
-    //   });
-    // }
+    if (filterCakesSearchList[index]['MinWeightList'].isNotEmpty || filterCakesSearchList[index]['MinWeightList']!=null) {
+      setState(() {
+        for (int i = 0; i < filterCakesSearchList[index]['MinWeightList'].length; i++) {
+          cakeWeights.add(filterCakesSearchList[index]['MinWeightList'][i].toString());
+        }
+      });
+    } else {
+      setState(() {
+        cakeWeights = [];
+      });
+    }
 
     //endregion
 
@@ -2168,6 +2201,7 @@ class _CakeTypesState extends State<CakeTypes> {
     //API LIST DATAS
     prefs.setStringList('cakeImages', cakeImgs);
     prefs.setStringList('cakeWeights', cakeWeights);
+    prefs.setStringList('cakeMainTypes', typesOfCake);
 
     //API STRINGS AND INTS DATAS
     prefs.setString("cake_id", filterCakesSearchList[index]['_id']??"null");
@@ -2202,17 +2236,21 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("cakeVendorAddress", vendorAddress);
     prefs.setString("cakeVendorLatitu", filterCakesSearchList[index]['GoogleLocation']['Latitude'].toString());
     prefs.setString("cakeVendorLongti", filterCakesSearchList[index]['GoogleLocation']['Longitude'].toString());
+    prefs.setString("cakeOtherInstToCus", filterCakesSearchList[index]['OtherInstructions'].toString());
 
-    if(filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
-        filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
-      prefs.setString("cake3kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
-      prefs.setString("cake5kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
-    }else{
-      prefs.setString("cake3kgminTime", 'Nf');
-      prefs.setString("cake5kgminTime", 'Nf');
-    }
+    // if(filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake']!=null&&
+    //     filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake']!=null){
+    //   prefs.setString("cake3kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA3KgCake'].toString());
+    //   prefs.setString("cake5kgminTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA5KgCake'].toString());
+    // }else{
+    //   prefs.setString("cake3kgminTime", 'Nf');
+    //   prefs.setString("cake5kgminTime", 'Nf');
+    // }
     prefs.setString("cakeminDelTime", filterCakesSearchList[index]['MinTimeForDeliveryOfDefaultCake'].toString());
-
+    prefs.setString("cakeminbetwokgTime", filterCakesSearchList[index]['MinTimeForDeliveryOfABelow2KgCake'].toString());
+    prefs.setString("cakemintwotoourTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA2to4KgCake'].toString());
+    prefs.setString("cakeminfortofivTime", filterCakesSearchList[index]['MinTimeForDeliveryOfA4to5KgCake'].toString());
+    prefs.setString("cakeminabovfiveTime", filterCakesSearchList[index]['MinTimeForDeliveryOfAAbove5KgCake'].toString());
 
 
     //INTEGERS
@@ -2508,8 +2546,9 @@ class _CakeTypesState extends State<CakeTypes> {
   void activeSearchClear() {
     setState(() {
       isFiltered = false;
-      selIndex[0] = true;
       currentCakeType = "All cakes";
+      selIndex[cakesTypes.indexWhere((element) => element=="All Cakes")] = true;
+      print("Sel>>> ${cakesTypes.indexWhere((element) => element=="All Cakes")}");
       searchCakesText = '';
       searchControl.text = '';
       cakeCategoryCtrl.text = '';
@@ -2720,17 +2759,18 @@ class _CakeTypesState extends State<CakeTypes> {
       setState(() {
         eggOrEgglesList = cakesList.toList();
 
-        if(eggOrEgglesList.isNotEmpty){
+        if(eggOrEgglesList.isNotEmpty && cakesTypes.isNotEmpty){
 
-          List subList = eggOrEgglesList.where((element)
-          => element['CakeSubType'].contains(cakesTypes[currentIndex])
-          ).toList();
+            List subList = eggOrEgglesList.where((element)
+            => element['CakeSubType'].contains(cakesTypes[currentIndex])
+            ).toList();
 
-          cakesByType = eggOrEgglesList.where((element)
-          => element['CakeType'].contains(cakesTypes[currentIndex])
-          ).toList();
+            cakesByType = eggOrEgglesList.where((element)
+            => element['CakeType'].contains(cakesTypes[currentIndex])
+            ).toList();
 
-          cakesByType = cakesByType + subList;
+            cakesByType = cakesByType + subList;
+
         }
 
       });
@@ -3894,7 +3934,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 i < selIndex.length;
                                                 i++) {
                                               if (i == index) {
-                                                if (i == 0) {
+                                                if (cakesTypes[index].toString().toLowerCase().contains("all cakes")) {
                                                   isFiltered = false;
                                                   selIndex[i] = true;
                                                   currentCakeType = "All cakes";

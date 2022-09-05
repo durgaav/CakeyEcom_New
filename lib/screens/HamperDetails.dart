@@ -59,6 +59,8 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   List<String> productContains = [];
   List vendorList = [];
+  List<String> hamImages = [];
+  String eggOregless = "";
 
   String vendrorName = "";
   String vendrorEgg = "";
@@ -79,6 +81,9 @@ class _HamperDetailsState extends State<HamperDetails> {
   String user_ID = "";
   String userName = "";
   String userPhone = "";
+
+  String startDate = "";
+  String endDate = "";
 
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
@@ -143,12 +148,13 @@ class _HamperDetailsState extends State<HamperDetails> {
       userLongtitude = pref.getString("userLongtitude") ?? '';
       adminDeliveryCharge = pref.getInt("todayDeliveryCharge") ?? 0;
       adminDeliveryChargeKm = pref.getInt("todayDeliveryKm") ?? 0;
+      hamImages = pref.getStringList("hamperImages")??[];
       userId = pref.getString("userID") ?? '';
       user_ID = pref.getString("userModId") ?? '';
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
       deliveryAddress = pref.getString("userAddress") ?? 'null';
-      hamperImage = pref.getString("hamperImage") ?? '';
+      //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
       hamper_id = pref.getString("hamper_ID") ?? '';
       hampeModid = pref.getString("hamperModID") ?? '';
@@ -161,6 +167,9 @@ class _HamperDetailsState extends State<HamperDetails> {
       hampVenPhn2 = pref.getString("hamperVendorPhn2") ?? '';
       hamTitle = pref.getString("hamperTitle") ?? '';
       hamWeight = pref.getString("hamperWeight") ?? '';
+      startDate = pref.getString("hamperStartDate") ?? '';
+      endDate = pref.getString("hamperEndDate") ?? '';
+      eggOregless = pref.getString("hamperEggreggless") ?? '';
 
       productContains = pref.getStringList('hamperProducts') ?? ['No Products'];
     });
@@ -648,7 +657,7 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_339Az2MifF7NxM:LO2zHWEkcFGyfJwUv0NTILj0'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -707,7 +716,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     var amount = 0;
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_MyjGwTc9WHqxJZ:HN0Wocy6yeYils1HFJIaE34G'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
@@ -736,7 +745,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     var amount = 0;
 
     var options = {
-      'key': 'rzp_test_339Az2MifF7NxM',
+      'key': 'rzp_live_rmfBgI2OrqZR4j',
       'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -850,11 +859,12 @@ class _HamperDetailsState extends State<HamperDetails> {
       "Hamper_ID": "$hampeModid",
       "HampersName": "$hamperName",
       "Product_Contains": productContains,
-      "HamperImage": "$hamperImage",
+      "HamperImage": "${hamImages[0]}",
       "Description": "$hamperDescription",
       "VendorID": "$vendor_Id",
       "Vendor_ID": "$vendorId",
       "VendorName": "$vendrorName",
+      "EggOrEggless": "$eggOregless",
       "VendorPhoneNumber1": "$vendrorPhone1",
       "VendorPhoneNumber2": "$vendrorPhonr2",
       "VendorAddress": "$vendorAddress",
@@ -1017,16 +1027,20 @@ class _HamperDetailsState extends State<HamperDetails> {
                 ),
                 backgroundColor: lightGrey,
                 flexibleSpace: FlexibleSpaceBar(
-                  background: hamperImage.length > 7
-                      ? Container(
+                  background: hamImages.isNotEmpty
+                      ? PageView.builder(
+                        itemCount: hamImages.length,
+                        itemBuilder: (c,i){
+                        return Container(
                           margin: EdgeInsets.all(5),
                           decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(15),
                               image: DecorationImage(
-                                  image: NetworkImage("$hamperImage"),
+                                  image: NetworkImage("${hamImages[i]}"),
                                   fit: BoxFit.cover)),
-                        )
+                        );
+                      })
                       : Container(
                           alignment: Alignment.center,
                           margin: EdgeInsets.all(5),
@@ -1176,6 +1190,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                       style:
                           TextStyle(color: Colors.grey, fontFamily: "Poppins"),
                     )),
+
 
                 //product contains
                 Padding(
@@ -1580,8 +1595,38 @@ class _HamperDetailsState extends State<HamperDetails> {
                       )
                     : Container(),
 
+
+                //sale start end date
                 Padding(
-                  padding: EdgeInsets.only(top: 5, left: 10),
+                  padding: EdgeInsets.only(top: 10, left: 6),
+                  child: Text(
+                    'Sale Started On : $startDate',
+                    style: TextStyle(
+                        fontFamily: poppins, color: Colors.black, fontSize: 13),
+                  ),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.only(top: 10, left: 6),
+                  child: Text(
+                    'Sale Ends In : $endDate',
+                    style: TextStyle(
+                        fontFamily: poppins, color: Colors.black, fontSize: 13),
+                  ),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.only(top: 10, left: 6),
+                  child: Text(
+                    'Egg / Eggless : $eggOregless',
+                    style: TextStyle(
+                        fontFamily: poppins, color: Colors.black, fontSize: 13),
+                  ),
+                ),
+
+
+                Padding(
+                  padding: EdgeInsets.only(top:15, left: 10),
                   child: Text(
                     'Selected Vendor',
                     style: TextStyle(
