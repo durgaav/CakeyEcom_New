@@ -712,17 +712,6 @@ class _CheckOutState extends State<CheckOut> {
 
     print(discountPr);
 
-    print({
-      "PaymentType": "$paymentType",
-      "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
-      "DeliveryCharge": "$deliveryCharge",
-      "Total": billTot.toString(),
-      "Discount": discountPr.toString(),
-      "Gst": gstPrice.toString(),
-      "Sgst": sgstPrice.toString(),
-      "ExtraCharges": extraCharges.toString(),
-    });
-
     showAlertDialog();
 
     var headers = {
@@ -733,7 +722,7 @@ class _CheckOutState extends State<CheckOut> {
         Uri.parse('https://cakey-database.vercel.app/api/customize/cake/order/new/$cakeID'));
     request.body = json.encode({
       "PaymentType": "$paymentType",
-      "PaymentStatus": paymentType=="Cash On Delivery"?"Cash On Delivery":'Paid',
+      "PaymentStatus":paymentType.toLowerCase()=="online payment"?"Paid":'Cash On Delivery',
       "DeliveryCharge": "$deliveryCharge",
       "Total": billTot.toString(),
       "Discount": discountPr.toString(),
