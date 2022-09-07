@@ -519,9 +519,9 @@ class _SingleVendorState extends State<SingleVendor> {
                               InkWell(
                                 onTap: (){
                                   print('whatsapp : ');
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context)=>ChatScreen()));
-                                  // PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2" , true);
+                                  // Navigator.push(context,
+                                  //     MaterialPageRoute(builder: (context)=>ChatScreen()));
+                                  PhoneDialog().showPhoneDialog(context, "$phone1", "$phone2" , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

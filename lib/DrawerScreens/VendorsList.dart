@@ -188,6 +188,14 @@ class _VendorsListState extends State<VendorsList> {
             ).toList();
             locationBySearch = locationBySearch.toSet().toList();
 
+            locationBySearch.sort((a,b)=>calculateDistance(
+                double.parse(userLatitude), double.parse(userLongtitude),
+                a['GoogleLocation']['Latitude'],
+                a['GoogleLocation']['Longitude']).toStringAsFixed(1).compareTo(calculateDistance(
+                double.parse(userLatitude), double.parse(userLongtitude),
+                b['GoogleLocation']['Latitude'],
+                b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
+
             Navigator.pop(context);
 
           });
@@ -201,6 +209,15 @@ class _VendorsListState extends State<VendorsList> {
             calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
                 element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
             ).toList();
+
+
+            locationBySearch.sort((a,b)=>calculateDistance(
+                double.parse(userLatitude), double.parse(userLongtitude),
+                a['GoogleLocation']['Latitude'],
+                a['GoogleLocation']['Longitude']).toStringAsFixed(1).compareTo(calculateDistance(
+                double.parse(userLatitude), double.parse(userLongtitude),
+                b['GoogleLocation']['Latitude'],
+                b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
 
             Navigator.pop(context);
           });
@@ -1131,21 +1148,24 @@ class _VendorsListState extends State<VendorsList> {
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            //index==0?
-                                                            // Text('DELIVERY FREE',style: TextStyle(
-                                                            //     color: Colors.orange,fontSize: 10,fontFamily: poppins
-                                                            // ),):
+                                                            (calculateDistance(double.parse(userLatitude),
+                                                                double.parse(userLongtitude),
+                                                                locationBySearch[index]['GoogleLocation']['Latitude'],
+                                                                locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1)=="0.0"?
+                                                            Text('DELIVERY FREE',style: TextStyle(
+                                                                color: Colors.orange,fontSize: 10,fontFamily: poppins
+                                                            ),):
                                                             Text('${
                                                                 (calculateDistance(double.parse(userLatitude),
                                                                     double.parse(userLongtitude),
                                                                     locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1)
                                                             } KM Delivery Fee Rs.${
                                                                 ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                     (calculateDistance(double.parse(userLatitude),
                                                                         double.parse(userLongtitude),
                                                                     locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
+                                                                    locationBySearch[index]['GoogleLocation']['Longitude']))).toStringAsFixed(1)
                                                             }'
                                                               ,style: TextStyle(
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins
@@ -1203,247 +1223,6 @@ class _VendorsListState extends State<VendorsList> {
                       ),
                     ),
                   )
-                  //:
-                  /**Search text not empt....**/
-                  // Container(
-                  //   height: height*0.71,
-                  //   child: RefreshIndicator(
-                  //     onRefresh: () async{
-                  //       print(height);
-                  //       print(height*0.73);
-                  //       setState(() {
-                  //         loadPrefs();
-                  //       });
-                  //     },
-                  //     child: SingleChildScrollView(
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           //Other vendor title...
-                  //           Padding(
-                  //               padding: const EdgeInsets.all(10),
-                  //               child:Text("Search Result : ${searchLocation}",
-                  //                 style: TextStyle(color: Colors.grey,fontSize: 12,
-                  //                     fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                  //               )
-                  //           ),
-                  //           //Other vendors list....
-                  //           Container(
-                  //             padding: EdgeInsets.only(bottom: 8),
-                  //             child: ListView.builder(
-                  //                 itemCount: locationBySearch.length,
-                  //                 shrinkWrap: true,
-                  //                 physics: NeverScrollableScrollPhysics(),
-                  //                 itemBuilder: (context,index){
-                  //                   return GestureDetector(
-                  //                     onTap: (){
-                  //                       if(iamFromCustom==true){
-                  //
-                  //                         context.read<ContextData>().addMyVendor(true);
-                  //                         context.read<ContextData>().setMyVendors([locationBySearch[index]]);
-                  //
-                  //                         ScaffoldMessenger.of(context).showSnackBar(
-                  //                             SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                  //                             ['VendorName']}'))
-                  //                         );
-                  //
-                  //                       }else{
-                  //                         sendDataToScreen(index);
-                  //                       }
-                  //                       },
-                  //                     child: Card(
-                  //                       margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
-                  //                       shape: RoundedRectangleBorder(
-                  //                           borderRadius: BorderRadius.circular(15)
-                  //                       ),
-                  //                       child: Container(
-                  //                         // margin: EdgeInsets.all(5),
-                  //                         padding: EdgeInsets.all(6),
-                  //                         height: 130,
-                  //                         decoration: BoxDecoration(
-                  //                             borderRadius: BorderRadius.circular(15)
-                  //                         ),
-                  //                         child: Row(
-                  //                           children: [
-                  //                             locationBySearch[index]['ProfileImage']!=null?
-                  //                             Container(
-                  //                               height: 120,
-                  //                               width: 90,
-                  //                               decoration: BoxDecoration(
-                  //                                   borderRadius: BorderRadius.circular(15),
-                  //                                   image: DecorationImage(
-                  //                                       fit: BoxFit.cover,
-                  //                                       image: NetworkImage('${locationBySearch[index]['ProfileImage']}')
-                  //                                   )
-                  //                               ),
-                  //                             ):
-                  //                             Container(
-                  //                               height: 120,
-                  //                               width: 90,
-                  //                               decoration: BoxDecoration(
-                  //                                   borderRadius: BorderRadius.circular(15),
-                  //                                   image: DecorationImage(
-                  //                                       fit: BoxFit.cover,
-                  //                                       image: AssetImage('assets/images/vendorimage.jpeg')
-                  //                                   )
-                  //                               ),
-                  //                             ),
-                  //                             SizedBox(width: 8,),
-                  //                             Expanded(
-                  //                               child: Container(
-                  //                                 // padding: EdgeInsets.all(8),
-                  //                                 child: Column(
-                  //                                   crossAxisAlignment: CrossAxisAlignment.start,
-                  //                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  //                                   children: [
-                  //                                     Container(
-                  //                                       // width:width*0.63,
-                  //                                       child: Row(
-                  //                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //                                         children: [
-                  //                                           Column(
-                  //                                             crossAxisAlignment: CrossAxisAlignment.start,
-                  //                                             children: [
-                  //                                               Container(
-                  //                                                 // width:width*0.5,
-                  //                                                 child: Text(locationBySearch[index]['VendorName'].toString().isEmpty||
-                  //                                                     locationBySearch[index]['VendorName']==null
-                  //                                                     ?
-                  //                                                 'Un name':'${locationBySearch[index]['VendorName'][0].toString().toUpperCase()+
-                  //                                                     locationBySearch[index]['VendorName'].toString().substring(1).toLowerCase()
-                  //                                                 }'
-                  //                                                   ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                  //                                                       color: darkBlue,fontWeight: FontWeight.bold,fontSize: 14,fontFamily: poppins
-                  //                                                   ),),
-                  //                                               ),
-                  //                                               Row(
-                  //                                                 children: [
-                  //                                                   RatingBar.builder(
-                  //                                                     initialRating:double.parse(locationBySearch[index]['Ratings'].toString()),
-                  //                                                     minRating: 1,
-                  //                                                     direction: Axis.horizontal,
-                  //                                                     allowHalfRating: true,
-                  //                                                     itemCount: 5,
-                  //                                                     itemSize: 14,
-                  //                                                     itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                  //                                                     itemBuilder: (context, _) => Icon(
-                  //                                                       Icons.star,
-                  //                                                       color: Colors.amber,
-                  //                                                     ),
-                  //                                                     onRatingUpdate: (rating) {
-                  //                                                       print(rating);
-                  //                                                     },
-                  //                                                   ),
-                  //                                                   Text(' ${double.parse(locationBySearch[index]['Ratings'].toString())}',style: TextStyle(
-                  //                                                       color: Colors.black54,fontWeight: FontWeight.bold,fontSize: 13,fontFamily: poppins
-                  //                                                   ),)
-                  //                                                 ],
-                  //                                               ),
-                  //                                             ],
-                  //                                           ),
-                  //                                           (locationBySearch[index]['_id']==currentValue)?
-                  //                                           Container(
-                  //                                               margin: EdgeInsets.only(right: 10),
-                  //                                               alignment: Alignment.center,
-                  //                                               height: 20,
-                  //                                               width: 20,
-                  //                                               decoration: BoxDecoration(
-                  //                                                   color:Colors.green,
-                  //                                                   shape: BoxShape.circle
-                  //                                               ),
-                  //                                               child:Icon(Icons.done_sharp , color:Colors.white , size: 12,)
-                  //                                           )
-                  //                                               : TextButton(
-                  //                                             onPressed: () async{
-                  //                                               setState(() {
-                  //                                                 // selectVendor = true;
-                  //                                                 // currentIndex = index;
-                  //                                                 currentValue = locationBySearch[index]['_id'];
-                  //                                                 print('indexx value... $currentIndex');
-                  //                                                 if(iamFromCustom==true){
-                  //
-                  //                                                   context.read<ContextData>().addMyVendor(true);
-                  //                                                   context.read<ContextData>().setMyVendors(
-                  //                                                       [locationBySearch[index]]
-                  //                                                   );
-                  //
-                  //                                                   ScaffoldMessenger.of(context).showSnackBar(
-                  //                                                       SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                  //                                                       ['VendorName']}'))
-                  //                                                   );
-                  //                                                 }
-                  //                                                 print(locationBySearch[index]['_id']);
-                  //                                                 loadSelVendorDataToCTscreen(index);
-                  //                                               });
-                  //                                             },
-                  //                                             child:Text('Select',style: TextStyle(
-                  //                                                 color: Colors.black,fontSize: 10,fontWeight:
-                  //                                             FontWeight.bold,fontFamily: poppins,
-                  //                                                 decoration: TextDecoration.underline
-                  //                                             ),),
-                  //                                           )
-                  //                                         ],
-                  //                                       ),
-                  //                                     ),
-                  //                                     Container(
-                  //                                       // width: width*0.63,
-                  //                                       child: Text("Speciality in "+nearestVendors[index]['YourSpecialityCakes'].toString().
-                  //                                       replaceAll("[", "").replaceAll("]", "")
-                  //                                         ,overflow: TextOverflow.ellipsis,style: TextStyle(
-                  //                                             color: Colors.black54,fontFamily: poppins,fontSize: 13
-                  //                                         ),maxLines: 1,),
-                  //                                     ),
-                  //                                     Container(
-                  //                                       height: 1,
-                  //                                       // width: width*0.63,
-                  //                                       color: Color(0xffeeeeee),
-                  //                                     ),
-                  //                                     Container(
-                  //                                       // width: width*0.63,
-                  //                                       child: Row(
-                  //                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //                                         children: [
-                  //                                           index==0?
-                  //                                           Text('DELIVERY FREE',style: TextStyle(
-                  //                                               color: Colors.orange,fontSize: 10,fontFamily: poppins
-                  //                                           ),):Text('${
-                  //                                               (calculateDistance(double.parse(userLatitude),
-                  //                                                   double.parse(userLongtitude),
-                  //                                                   locationBySearch[index]['GoogleLocation']['Latitude'],
-                  //                                                   locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
-                  //                                           } KM Delivery Fee Rs.${
-                  //                                               (adminDeliveryCharge/adminDeliveryChargeKm)*
-                  //                                                   (calculateDistance(double.parse(userLatitude),
-                  //                                                       double.parse(userLongtitude),
-                  //                                                       locationBySearch[index]['GoogleLocation']['Latitude'],
-                  //                                                       locationBySearch[index]['GoogleLocation']['Longitude'])).toInt()
-                  //                                           }'
-                  //                                             ,style: TextStyle(
-                  //                                                 color: darkBlue,fontSize: 10,fontFamily: poppins
-                  //                                             ),),
-                  //                                           // currentIndex==index?
-                  //
-                  //                                           // :Icon(Icons.check_circle,color: Colors.green,)
-                  //                                         ],
-                  //                                       ),
-                  //                                     )
-                  //                                   ],
-                  //                                 ),
-                  //                               ),
-                  //                             )
-                  //                           ],
-                  //                         ),
-                  //                       ),
-                  //                     ),
-                  //                   );
-                  //                 }
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 )
               ],
             ),

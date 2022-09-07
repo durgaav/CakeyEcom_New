@@ -55,6 +55,9 @@ class _CakeTypesState extends State<CakeTypes> {
   String authToken = "";
   String currentCakeType = "";
 
+  var adminDeliveryCharge = 0;
+  var adminDeliveryChargeKm = 0;
+
   //get caketype from home....
   String searchCakesText = '';
   int homeCTindex = 0;
@@ -118,6 +121,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //other products
   List otherProducts = [];
+  List otherEggProducts = [];
 
   //For filters bottom
   List filterCakesFlavList = [];
@@ -1342,8 +1346,8 @@ class _CakeTypesState extends State<CakeTypes> {
       userLatitude = pref.getString('userLatitute')??'Not Found';
       userLongtitude = pref.getString('userLongtitude')??'Not Found';
       //delivery charge
-      // adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
-      // adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
+      adminDeliveryCharge = pref.getInt("todayDeliveryCharge")??0;
+      adminDeliveryChargeKm = pref.getInt("todayDeliveryKm")??0;
       myVendorId = pref.getString('myVendorId') ?? 'Not Found';
       vendorName = pref.getString('myVendorName') ?? 'Un Name';
       vendorPhone = pref.getString('myVendorPhone') ?? '0000000000';
@@ -1385,14 +1389,33 @@ class _CakeTypesState extends State<CakeTypes> {
         print("map .... $map");
 
         setState((){
-          otherProducts = map.where((element) =>
-          calculateDistance(
-              double.parse(userLatitude),
-              double.parse(userLongtitude),
-              element['GoogleLocation']['Latitude'],
-              element['GoogleLocation']['Longitude']) <=
-              10)
-              .toList();
+
+          if(iamYourVendor == true){
+
+            List myList = map.where((element) =>
+            calculateDistance(
+                double.parse(userLatitude),
+                double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],
+                element['GoogleLocation']['Longitude']) <=
+                10)
+                .toList();
+
+
+            otherProducts = myList.where((element) => element['VendorName'].toString().toLowerCase()==
+                seleVendorDetailsList[0]['VendorName'].toString().toLowerCase()).toList();
+
+          }else{
+            otherProducts = map.where((element) =>
+            calculateDistance(
+                double.parse(userLatitude),
+                double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],
+                element['GoogleLocation']['Longitude']) <=
+                10)
+                .toList();
+          }
+
         });
 
       }
@@ -1463,7 +1486,6 @@ class _CakeTypesState extends State<CakeTypes> {
     }
 
     getOtherProducts();
-
   }
 
   //Fetching cake list API...
@@ -1658,7 +1680,9 @@ class _CakeTypesState extends State<CakeTypes> {
   }
 
   //send others
-  Future<void> sendOthers(int index) async{
+  Future<void> sendOthers(String id) async{
+
+    int index = otherProducts.indexWhere((element) => element['_id'].toString()==id);
 
     var prefs = await SharedPreferences.getInstance();
     List weight = [];
@@ -1702,7 +1726,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("otherEggOr" , otherProducts[index]['EggOrEggless'].toString());
     prefs.setString("otherMinDel" , otherProducts[index]['MinTimeForDelivery'].toString());
     prefs.setString("otherBestUse" , otherProducts[index]['BestUsedBefore'].toString());
-    prefs.setString("otherStoredIn" , otherProducts[index]['ToBeStoredIn'].toString());
+    prefs.setString("otherStoredIn" , otherProducts[index]['ToBeStoredIn'].toString()??"");
     // prefs.setString("otherKeepInRoom" , otherProducts[index]['KeepTheCakeInRoomTemperature'].toString());
     prefs.setString("otherDescrip" , otherProducts[index]['Description'].toString());
     prefs.setString("otherRatings" , otherProducts[index]['Ratings'].toString());
@@ -1711,7 +1735,7 @@ class _CakeTypesState extends State<CakeTypes> {
     prefs.setString("otherVenModId" , otherProducts[index]['Vendor_ID']);
     prefs.setString("otherVenName" , otherProducts[index]['VendorName']);
     prefs.setString("otherVenPhn1" , otherProducts[index]['VendorPhoneNumber1']);
-    prefs.setString("otherVenPhn2" , otherProducts[index]['VendorPhoneNumber2']);
+    prefs.setString("otherVenPhn2" , otherProducts[index]['VendorPhoneNumber2']??"");
 
     if(otherProducts[index]['MinTimeForDelivery']!=null){
       prefs.setString("otherMiniDeliTime" , otherProducts[index]['MinTimeForDelivery']);
@@ -1749,7 +1773,10 @@ class _CakeTypesState extends State<CakeTypes> {
   }
 
   //Send prefs to next screen....
-  Future<void> sendDetailsToScreen(int index) async {
+  Future<void> sendDetailsToScreen(String id) async {
+
+    int index = cakeSearchList.indexWhere((element) => element['_id'].toString()==id);
+
     //Local Vars
     List<String> cakeImgs = [];
     List<String> cakeWeights = [];
@@ -1826,6 +1853,7 @@ class _CakeTypesState extends State<CakeTypes> {
     // }
 
     // getting cake shapes
+
     if (cakeSearchList[index]['CustomShapeList']['Info'].isNotEmpty||
         cakeSearchList[index]['CustomShapeList']['Info']!=null) {
       setState(() {
@@ -2776,6 +2804,20 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
+    if(currentCakeType.toLowerCase().contains("others")){
+      if(egglesSwitch==true){
+        otherEggProducts= otherProducts.where((element){
+          if(element['EggOrEggless']==null){
+            return false;
+          }
+
+          return element['EggOrEggless'].toString().toLowerCase()=="eggless";
+        }).toList();
+      }else{
+        otherEggProducts = otherProducts;
+      }
+    }
+
 
     /*2) if search and filter modes is on..*/
     if (isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true) {
@@ -2785,7 +2827,15 @@ class _CakeTypesState extends State<CakeTypes> {
       if (searchCakesText.isNotEmpty) {
         setState(() {
           activeSearch = true;
-          cakeSearchList = filteredListByUser
+
+          List sub = otherProducts
+              .where((element) => element["ProductName"]
+              .toString()
+              .toLowerCase()
+              .contains(searchCakesText.toLowerCase()))
+              .toList();
+
+          cakeSearchList = sub + filteredListByUser
               .where((element) => element['CakeName']
                   .toString()
                   .toLowerCase()
@@ -2817,7 +2867,14 @@ class _CakeTypesState extends State<CakeTypes> {
       if (searchCakesText.isNotEmpty) {
         setState(() {
           activeSearch = true;
-          cakeSearchList = eggOrEgglesList
+          List sub = otherProducts
+              .where((element) => element["ProductName"]
+              .toString()
+              .toLowerCase()
+              .contains(searchCakesText.toLowerCase()))
+              .toList();
+
+          cakeSearchList = sub + eggOrEgglesList
               .where((element) => element['CakeName']
                   .toString()
                   .toLowerCase()
@@ -2897,23 +2954,17 @@ class _CakeTypesState extends State<CakeTypes> {
           cakeSearchList = eggOrEgglesList;
         }
       }
+    }
 
-      //4) if caketype and search is active
-      if (isFiltered == true && searchCakesText.isNotEmpty) {
-        setState(() {
-          filterCakesSearchList = cakesByType
-              .where((element) => element['CakeName']
-                  .toString()
-                  .toLowerCase()
-                  .contains(searchCakesText.toLowerCase()))
-              .toList();
-        });
+    if(isFiltered == true){
+      if(isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true){
+        filterCakesSearchList = filteredListByUser.where((element) => element['CakeType'].contains(currentCakeType)).toList();
+      }else{
+        List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+        filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
       }
-      else {
-        setState(() {
-          filterCakesSearchList = cakesByType;
-        });
-      }
+    }else{
+      filterCakesSearchList = cakesByType.toList();
     }
 
 
@@ -4267,7 +4318,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                                       .circular(
                                                                           8)),
                                                           child: Text(
-                                                              filterCakesSearchList[index]['MinWeightList']==null||filterCakesSearchList[index]['MinWeightList']==null
+                                                              filterCakesSearchList[index]['MinWeightList']==null||filterCakesSearchList[index]['MinWeightList'].isEmpty
                                                                   ? 'NF'
                                                                   : '${filterCakesSearchList[index]['MinWeightList'][0].toString().split(',').first}',
                                                               style: TextStyle(
@@ -4325,7 +4376,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     return index == 0
                                         ? GestureDetector(
                                             onTap: () {
-                                              sendDetailsToScreen(index);
+                                              sendDetailsToScreen(cakeSearchList[index]['_id'].toString());
                                             },
                                             child: Column(
                                               children: [
@@ -4446,7 +4497,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                           )
                                         : GestureDetector(
                                             onTap: () {
-                                              sendDetailsToScreen(index);
+                                              sendDetailsToScreen(cakeSearchList[index]['_id'].toString());
                                             },
                                             child: Column(
                                               children: [
@@ -4570,7 +4621,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 ? Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
-                                      "No Similar data found!",
+                                      "No data found!",
                                       style: TextStyle(
                                         fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold,
@@ -4582,6 +4633,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                     physics: NeverScrollableScrollPhysics(),
                                     itemCount: cakeSearchList.length,
                                     itemBuilder: (c, i) {
+
+                                      var deliverCharge = double.parse("${(( adminDeliveryCharge / adminDeliveryChargeKm) *
+                                          (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                              cakeSearchList[i]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+                                      var betweenKm = (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude) ,
+                                          cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                          cakeSearchList[i]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
+
                                       return Container(
                                         margin: EdgeInsets.only(
                                             left: 15,
@@ -4595,7 +4654,9 @@ class _CakeTypesState extends State<CakeTypes> {
                                             border: Border.all(
                                                 color: Colors.grey[400]!,
                                                 width: 0.5)),
-                                        child: Column(
+                                        child:
+                                        cakeSearchList[i]['CakeName']!=null?
+                                        Column(
                                           mainAxisSize: MainAxisSize.min,
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
@@ -4671,8 +4732,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                               .centerRight,
                                                           child: InkWell(
                                                             onTap: () {
-                                                              sendDetailsToScreen(
-                                                                  i);
+                                                              sendDetailsToScreen(cakeSearchList[i]['_id'].toString());
                                                             },
                                                             child: Container(
                                                                 alignment:
@@ -4698,7 +4758,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                             InkWell(
                                               splashColor: Colors.red[100],
                                               onTap: () {
-                                                sendDetailsToScreen(i);
+                                                sendDetailsToScreen(cakeSearchList[i]['_id'].toString());
                                               },
                                               child: Container(
                                                   padding: EdgeInsets.all(8),
@@ -4794,7 +4854,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                           SizedBox(height: 5),
                                                           Container(
                                                             // width:120,
-                                                            child:Text(i.isOdd?'FREE DELIVERY':'DELIVERY FEE RS.20',
+                                                            child:Text('DELIVERY CHARGE Rs.$deliverCharge',
                                                               style: TextStyle(
                                                                   color: Colors.orange,
                                                                   fontWeight:
@@ -4810,12 +4870,297 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   ])),
                                             )
                                           ],
+                                        ):
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            //header text (name , stars)
+                                            Container(
+                                                padding: EdgeInsets.only(
+                                                    top: 4,
+                                                    bottom: 4,
+                                                    left: 10,
+                                                    right: 10),
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.only(
+                                                      topLeft: Radius.circular(15),
+                                                      topRight: Radius.circular(15),
+                                                    ),
+                                                    color: Colors.grey[300]),
+                                                child: Row(children: [
+                                                  Container(
+                                                    width: cakeSearchList[i]
+                                                    ['VendorName'].toString().length >
+                                                        25
+                                                        ? 130
+                                                        : 60,
+                                                    child: Text(
+                                                      '${cakeSearchList[i]['VendorName']}',
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontFamily: 'Poppins',
+                                                          fontSize: 13),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      RatingBar.builder(
+                                                        initialRating: double.parse(
+                                                            cakeSearchList[i]
+                                                            ['Ratings']
+                                                                .toString()),
+                                                        minRating: 1,
+                                                        direction: Axis.horizontal,
+                                                        allowHalfRating: true,
+                                                        itemCount: 5,
+                                                        itemSize: 14,
+                                                        itemPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 1.0),
+                                                        itemBuilder: (context, _) =>
+                                                            Icon(
+                                                              Icons.star,
+                                                              color: Colors.amber,
+                                                            ),
+                                                        onRatingUpdate: (rating) {},
+                                                      ),
+                                                      Text(
+                                                        ' ${cakeSearchList[i]['Ratings'].toString()}',
+                                                        style: TextStyle(
+                                                            color: Colors.black54,
+                                                            fontWeight:
+                                                            FontWeight.bold,
+                                                            fontSize: 12,
+                                                            fontFamily: poppins),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Expanded(
+                                                      child: Container(
+                                                          alignment:
+                                                          Alignment.centerRight,
+                                                          child: InkWell(
+                                                            onTap: () {
+                                                              sendOthers(cakeSearchList[i]['_id'].toString());
+                                                            },
+                                                            child: Container(
+                                                                alignment:
+                                                                Alignment.center,
+                                                                height: 25,
+                                                                width: 25,
+                                                                decoration:
+                                                                BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: Colors
+                                                                        .white),
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .arrow_forward_ios_sharp,
+                                                                  color: lightPink,
+                                                                  size: 15,
+                                                                )),
+                                                          )))
+                                                ])),
+                                            //body (image , cake name)
+                                            InkWell(
+                                              splashColor: Colors.red[100],
+                                              onTap: () {
+                                                sendOthers(cakeSearchList[i]['_id'].toString());
+                                              },
+                                              child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  child: Row(children: [
+                                                    cakeSearchList[i]['ProductImage']
+                                                        .isEmpty
+                                                        ? Container(
+                                                      height: 85,
+                                                      width: 85,
+                                                      alignment:
+                                                      Alignment.center,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                        BorderRadius
+                                                            .circular(15),
+                                                        color: Colors.pink[100],
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.cake_outlined,
+                                                        size: 50,
+                                                        color: lightPink,
+                                                      ),
+                                                    )
+                                                        : Container(
+                                                      height: 85,
+                                                      width: 85,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                          BorderRadius
+                                                              .circular(15),
+                                                          color: Colors.blue,
+                                                          image: DecorationImage(
+                                                              image: NetworkImage(
+                                                                  cakeSearchList[i]['ProductImage'][0]),
+                                                              fit: BoxFit
+                                                                  .cover)),
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Expanded(
+                                                        child: Container(
+                                                            child: Column(
+                                                                crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                                children: [
+                                                                  Container(
+                                                                    // width:120,
+                                                                    child: Text(
+                                                                      '${cakeSearchList[i]['ProductName']}',
+                                                                      style: TextStyle(
+                                                                          color: darkBlue,
+                                                                          fontWeight:
+                                                                          FontWeight.bold,
+                                                                          fontFamily:
+                                                                          'Poppins',
+                                                                          fontSize: 12),
+                                                                      maxLines: 2,
+                                                                      overflow: TextOverflow
+                                                                          .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(height: 5),
+                                                                  Container(
+                                                                    // width:120,
+                                                                    child: Text.rich(
+                                                                      cakeSearchList[i]['Type'].toString().toLowerCase()=="kg"?
+                                                                      TextSpan(
+                                                                          text:
+                                                                          'Minimum Price : Rs.${cakeSearchList[i]['MinWeightPerKg']['PricePerKg']}/'
+                                                                              '${cakeSearchList[i]['MinWeightPerKg']['Weight']}',
+                                                                          style: TextStyle(
+                                                                              color:
+                                                                              Colors.grey,
+                                                                              fontWeight:
+                                                                              FontWeight
+                                                                                  .bold,
+                                                                              fontFamily:
+                                                                              'Poppins',
+                                                                              fontSize: 10),
+                                                                          children: [
+                                                                            TextSpan(
+                                                                              text : "",
+                                                                              style: TextStyle(
+                                                                                  color: Colors
+                                                                                      .grey,
+                                                                                  fontWeight:
+                                                                                  FontWeight
+                                                                                      .bold,
+                                                                                  fontFamily:
+                                                                                  'Poppins',
+                                                                                  fontSize:
+                                                                                  10),
+                                                                            )
+                                                                          ]):
+                                                                      cakeSearchList[i]['Type'].toString().toLowerCase()=="unit"?
+                                                                      TextSpan(
+                                                                          text:
+                                                                          'Minimum Price : Rs.${cakeSearchList[i]['MinWeightPerUnit'][0]['PricePerUnit']}/'
+                                                                              '${cakeSearchList[i]['MinWeightPerUnit'][0]['Weight']}',
+                                                                          style: TextStyle(
+                                                                              color:
+                                                                              Colors.grey,
+                                                                              fontWeight:
+                                                                              FontWeight
+                                                                                  .bold,
+                                                                              fontFamily:
+                                                                              'Poppins',
+                                                                              fontSize: 10),
+                                                                          children: [
+                                                                            TextSpan(
+                                                                              text : "",
+                                                                              style: TextStyle(
+                                                                                  color: Colors
+                                                                                      .grey,
+                                                                                  fontWeight:
+                                                                                  FontWeight
+                                                                                      .bold,
+                                                                                  fontFamily:
+                                                                                  'Poppins',
+                                                                                  fontSize:
+                                                                                  10),
+                                                                            )
+                                                                          ]):
+                                                                      cakeSearchList[i]['Type'].toString().toLowerCase()=="box"?
+                                                                      TextSpan(
+                                                                          text:
+                                                                          'Minimum Price : Rs.${cakeSearchList[i]['MinWeightPerBox'][0]['PricePerBox']} / Box',
+                                                                          style: TextStyle(
+                                                                              color:
+                                                                              Colors.grey,
+                                                                              fontWeight:
+                                                                              FontWeight
+                                                                                  .bold,
+                                                                              fontFamily:
+                                                                              'Poppins',
+                                                                              fontSize: 10),
+                                                                          children: [
+                                                                            TextSpan(
+                                                                              text : "",
+                                                                              style: TextStyle(
+                                                                                  color: Colors
+                                                                                      .grey,
+                                                                                  fontWeight:
+                                                                                  FontWeight
+                                                                                      .bold,
+                                                                                  fontFamily:
+                                                                                  'Poppins',
+                                                                                  fontSize:
+                                                                                  10),
+                                                                            )
+                                                                          ]):TextSpan(
+                                                                          text: ""
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(height: 5),
+                                                                  Container(
+                                                                      height: 0.5,
+                                                                      color:
+                                                                      Color(0xffdddddd)),
+                                                                  SizedBox(height: 5),
+                                                                  Container(
+                                                                    // width:120,
+                                                                    child: Text(
+                                                                      'DELIVERY CHARGE RS.${deliverCharge}',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                          Colors.orange,
+                                                                          fontWeight:
+                                                                          FontWeight.bold,
+                                                                          fontFamily:
+                                                                          'Poppins',
+                                                                          fontSize: 10),
+                                                                      maxLines: 1,
+                                                                      overflow: TextOverflow
+                                                                          .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ])))
+                                                  ])),
+                                            )
+                                          ],
                                         ),
                                       );
                                     }),
                           ),
                     //other products....
-                    currentCakeType=="Others"?
+                    currentCakeType=="Others" && activeSearch!=true?
                     Container(
                       child: Column(
                         children: [
@@ -4826,12 +5171,12 @@ class _CakeTypesState extends State<CakeTypes> {
                             crossAxisCount: 2,
                             mainAxisSpacing: 5,
                             crossAxisSpacing: 7,
-                            itemCount: otherProducts.length,
+                            itemCount: otherEggProducts.length,
                             itemBuilder: (BuildContext context, int index) {
                               return index == 0
                                   ? GestureDetector(
                                 onTap: () {
-                                  sendOthers(index);
+                                  sendOthers(otherEggProducts[index]["_id"].toString());
                                 },
                                 child: Column(
                                   children: [
@@ -4844,7 +5189,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                             fontSize: 16,
                                             fontFamily: "Poppins")),
                                     Text(
-                                        otherProducts.length
+                                        otherEggProducts.length
                                             .toString() +
                                             " items",
                                         style: TextStyle(
@@ -4875,19 +5220,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                         children: [
                                           CircleAvatar(
                                             radius: 50,
-                                            backgroundImage: otherProducts[index]['ProductImage'] == null ||
-                                                otherProducts[index]['ProductImage'].isEmpty
+                                            backgroundImage: otherEggProducts[index]['ProductImage'] == null ||
+                                                otherEggProducts[index]['ProductImage'].isEmpty
                                                 ? NetworkImage(
                                                 "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
                                                 : NetworkImage(
-                                                otherProducts[index]['ProductImage'][0].toString()),
+                                                otherEggProducts[index]['ProductImage'][0].toString()),
                                           ),
                                           SizedBox(
                                             height: 8,
                                           ),
                                           Text(
-                                              "${otherProducts[index]['ProductName'][0].toString().toUpperCase() +
-                                                  otherProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
+                                              "${otherEggProducts[index]['ProductName'][0].toString().toUpperCase() +
+                                                  otherEggProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
                                               maxLines: 2,
                                               overflow: TextOverflow
                                                   .ellipsis,
@@ -4906,12 +5251,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                             MainAxisAlignment
                                                 .spaceBetween,
                                             children: [
-
                                               Text(
-                                                otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                  '₹ ${otherProducts[index]['MinWeightPerKg']['PricePerKg']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                  "₹ ${otherProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
-                                                  '₹ ${otherProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                  '₹ ${otherEggProducts[index]['MinWeightPerKg']['PricePerKg']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                  "₹ ${otherEggProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
+                                                  '₹ ${otherEggProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
                                                   style: TextStyle(
                                                       color:
                                                       lightPink,
@@ -4934,10 +5278,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                         .circular(
                                                         8)),
                                                 child: Text(
-                                                    otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                    "${otherProducts[index]['MinWeightPerUnit'][0]['Weight']}":
-                                                    '${otherProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
+                                                    otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                    '${otherEggProducts[index]['MinWeightPerKg']['Weight']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    "${otherEggProducts[index]['MinWeightPerUnit'][0]['Weight']}":
+                                                    '${otherEggProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
                                                     style: TextStyle(
                                                         color: Colors
                                                             .black,
@@ -4955,10 +5299,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                     )
                                   ],
                                 ),
-                              )
-                                  : GestureDetector(
+                              ):
+                              GestureDetector(
                                 onTap: () {
-                                  sendOthers(index);
+                                  sendOthers(otherEggProducts[index]['_id'].toString());
                                 },
                                 child: Column(
                                   children: [
@@ -4981,19 +5325,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                         children: [
                                           CircleAvatar(
                                             radius: 50,
-                                            backgroundImage: otherProducts[index]['ProductImage'] == null ||
-                                                otherProducts[index]['ProductImage'].isEmpty
+                                            backgroundImage: otherEggProducts[index]['ProductImage'] == null ||
+                                                otherEggProducts[index]['ProductImage'].isEmpty
                                                 ? NetworkImage(
                                                 "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
                                                 : NetworkImage(
-                                                otherProducts[index]['ProductImage'][0].toString()),
+                                                otherEggProducts[index]['ProductImage'][0].toString()),
                                           ),
                                           SizedBox(
                                             height: 8,
                                           ),
                                           Text(
-                                              "${otherProducts[index]['ProductName'][0].toString().toUpperCase() +
-                                                  otherProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
+                                              "${otherEggProducts[index]['ProductName'][0].toString().toUpperCase() +
+                                                  otherEggProducts[index]['ProductName'].toString().substring(1).toLowerCase()}",
                                               maxLines: 2,
                                               overflow: TextOverflow
                                                   .ellipsis,
@@ -5013,10 +5357,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 .spaceBetween,
                                             children: [
                                               Text(
-                                                  otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                  '₹ ${otherProducts[index]['MinWeightPerKg']['PricePerKg']}':otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                  "₹ ${otherProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
-                                                  '₹ ${otherProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                  otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                  '₹ ${otherEggProducts[index]['MinWeightPerKg']['PricePerKg']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                  "₹ ${otherEggProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
+                                                  '₹ ${otherEggProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
                                                   style: TextStyle(
                                                       color:
                                                       lightPink,
@@ -5038,11 +5382,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                                         .circular(
                                                         8)),
                                                 child: Text(
-                                                    otherProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                    '${otherProducts[index]['MinWeightPerKg']['Weight']}':
-                                                    otherProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                    "${otherProducts[index]['MinWeightPerUnit'][0]['Weight']}":
-                                                    '${otherProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
+                                                    otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                                                    '${otherEggProducts[index]['MinWeightPerKg']['Weight']}':
+                                                    otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    "${otherEggProducts[index]['MinWeightPerUnit'][0]['Weight']}":
+                                                    '${otherEggProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
                                                     style: TextStyle(
                                                         color: Colors
                                                             .black,
@@ -5081,7 +5425,10 @@ class _CakeTypesState extends State<CakeTypes> {
                         ],
                       ),
                     ):
-                    Container()
+                    Container(),
+
+                    SizedBox(height: 10,)
+
                   ],
                 ),
               ),
