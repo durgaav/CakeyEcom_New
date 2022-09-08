@@ -288,6 +288,18 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     int index = 0;
     var payType = "Online Payment";
+    double delCharge = 0.0;
+
+    if(fixedDelliverMethod.toLowerCase()=="pickup"){
+      delCharge = 0.0;
+    }else{
+      delCharge = double.parse(
+          ((adminDeliveryCharge / adminDeliveryChargeKm) *
+      (calculateDistance(double.parse(userLatitude),
+      double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
+      );
+    }
+
 
     showModalBottomSheet(
       isScrollControlled: true,
@@ -381,7 +393,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                                   ),
                                 ),
                                 Text(
-                                  " ${double.parse(hamperPrice) * counts}",
+                                  " ${(double.parse(hamperPrice)+delCharge) * counts}",
                                   style: TextStyle(
                                     color: lightPink,
                                     fontWeight: FontWeight.bold,
@@ -625,9 +637,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Navigator.pop(context);
 
                             if(payType.toLowerCase()=="cash on delivery"){
-                              proceedOrder(((int.parse(hamperPrice) * counts) + charge).toInt().toString());
+                              proceedOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
                             }else{
-                              _handleOrder(((int.parse(hamperPrice) * counts) + charge).toInt().toString());
+                              _handleOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
                             }
 
                           },
@@ -839,12 +851,14 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     showAlertDialog();
 
-    int delCharge = 0;
+    double delCharge = 0.0;
 
     if(fixedDelliverMethod.toLowerCase() == "delivery"){
-      delCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
-          (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-              double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
+      delCharge = double.parse(
+          ((adminDeliveryCharge / adminDeliveryChargeKm) *
+              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
+      );
     }else{
       delCharge = 0;
     }
@@ -1798,8 +1812,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                             .toString()),
                                                         double.parse(
                                                             vendrorLong)))
-                                                    .toInt() ==
-                                                0
+                                                    .toStringAsFixed(1) == "0.0"
+
                                             ? Text(
                                                 "DELIVERY FREE",
                                                 style: TextStyle(
@@ -1811,8 +1825,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                                               )
                                             : Text(
                                                 "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                    double.parse(vendrorLong))).toInt()} KM Charge Rs.${(adminDeliveryCharge / adminDeliveryChargeKm) *
-                                                    (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toInt()}",
+                                                    double.parse(vendrorLong))).toStringAsFixed(1)} KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                    (calculateDistance(double.parse(userLatitude),
+                                                        double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
                                                 style: TextStyle(
                                                   fontSize: 10,
                                                   fontFamily: "Poppins",

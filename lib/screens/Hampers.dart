@@ -159,14 +159,14 @@ class _HampersState extends State<Hampers> {
 
       setState((){
         hampers = map;
-        // hampers = map.where((element) =>
-        // calculateDistance(
-        //     double.parse(userLat),
-        //     double.parse(userLong),
-        //     element['GoogleLocation']['Latitude'],
-        //     element['GoogleLocation']['Longitude']) <=
-        //     10)
-        //     .toList();
+        hampers = map.where((element) =>
+        calculateDistance(
+            double.parse(userLat),
+            double.parse(userLong),
+            element['GoogleLocation']['Latitude'],
+            element['GoogleLocation']['Longitude']) <=
+            10)
+            .toList();
       });
 
       Navigator.pop(context);

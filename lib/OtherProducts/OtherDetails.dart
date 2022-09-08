@@ -181,7 +181,7 @@ class _OthersDetailsState extends State<OthersDetails> {
       prefs.setString("otherOrdDeliveryCharge",
           ((adminDeliveryCharge / adminDeliveryChargeKm) *
               (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toString()
+                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
       );
     }
 
@@ -1682,8 +1682,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           SizedBox(height: 3),
                                           ((adminDeliveryCharge / adminDeliveryChargeKm) *
                                               (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(2) ==
-                                              0.00
+                                                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1) == "0.0"
                                               ? Text(
                                             "DELIVERY FREE",
                                             style: TextStyle(
@@ -1695,10 +1694,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           )
                                               : Text(
                                             "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                double.parse(vendrorLong))).toStringAsFixed(2)} "
+                                                double.parse(vendrorLong))).toStringAsFixed(1)} "
                                                 "KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
                                                 (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(2)}",
+                                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontFamily: "Poppins",

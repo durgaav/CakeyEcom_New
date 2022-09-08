@@ -1128,6 +1128,10 @@ class _HomeScreenState extends State<HomeScreen> {
   //Fetching user details from API....
   Future<void> fetchProfileByPhn() async {
 
+    setState((){
+      isAllLoading = true;
+    });
+
     var prefs = await SharedPreferences.getInstance();
     try {
       http.Response response = await http.get(
@@ -1313,59 +1317,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fetch cake types
   Future<void> getCakeType() async {
-    var mainList = [];
-    List subType = [];
 
-    var headers = {'Authorization': '$authToken'};
-    var request = http.Request('GET',
-        Uri.parse('https://cakey-database.vercel.app/api/caketype/list'));
+    try{
+      var mainList = [];
+      List subType = [];
 
-    request.headers.addAll(headers);
+      var headers = {'Authorization': '$authToken'};
+      var request = http.Request('GET',
+          Uri.parse('https://cakey-database.vercel.app/api/caketype/list'));
 
-    http.StreamedResponse response = await request.send();
+      request.headers.addAll(headers);
 
-    if (response.statusCode == 200) {
-      searchCakeType.clear();
-      mainList = jsonDecode(await response.stream.bytesToString());
-      setState(() {
-        print("CAKE TYPES : " + mainList.toString());
-        if (mainList.length > 1) {
-          for (int i = 0; i < mainList.length; i++) {
+      http.StreamedResponse response = await request.send();
 
-            if (mainList[i]['Type'] != null) {
-              searchCakeType.add(mainList[i]['Type'].toString());
-            }
-
-            if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
-              for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
-                print(mainList[i]['SubType'][k]);
-                searchCakeType.add(mainList[i]['SubType'][k].toString());
-              }
-            }
-
-          }
-        }
-
-        print('Sub types>>>> $subType');
-        searchCakeType.add("Others");
-        searchCakeType.add("Customize your cake");
-        // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
-        searchCakeType.toSet().toList();
-        searchCakeType = searchCakeType.reversed.toList();
-
-
-        print('type cake ::::: $searchCakeType');
-
-      });
-    } else {
-      print(response.reasonPhrase);
-      setState((){
+      if (response.statusCode == 200) {
         searchCakeType.clear();
-        searchCakeType.add("Customize your cake");
-        searchCakeType.toSet().toList();
-        searchCakeType = searchCakeType.reversed.toList();
+        mainList = jsonDecode(await response.stream.bytesToString());
+        setState(() {
+          print("CAKE TYPES : " + mainList.toString());
+          if (mainList.length > 1) {
+            for (int i = 0; i < mainList.length; i++) {
+
+              if (mainList[i]['Type'] != null) {
+                searchCakeType.add(mainList[i]['Type'].toString());
+              }
+
+              if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
+                for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
+                  print(mainList[i]['SubType'][k]);
+                  searchCakeType.add(mainList[i]['SubType'][k].toString());
+                }
+              }
+
+            }
+          }
+
+          print('Sub types>>>> $subType');
+          searchCakeType.add("Others");
+          searchCakeType.add("Customize your cake");
+          // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
+          searchCakeType.toSet().toList();
+          searchCakeType = searchCakeType.reversed.toList();
+
+
+          setState((){
+            isAllLoading = false;
+          });
+
+
+          print('type cake ::::: $searchCakeType');
+
+        });
+      }
+      else {
+        print(response.reasonPhrase);
+        setState((){
+          searchCakeType.clear();
+          searchCakeType.add("Customize your cake");
+          searchCakeType.toSet().toList();
+          searchCakeType = searchCakeType.reversed.toList();
+        });
+        setState((){
+          isAllLoading = false;
+        });
+      }
+    }catch(e){
+      setState((){
+        isAllLoading = false;
       });
     }
+
   }
 
   //Fetching cake list API...
@@ -2774,14 +2795,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              hampers.length>3?
                                               InkWell(
                                                 onTap: () async {
-                                                  var pr = Navigator.push(
+                                                  Navigator.push(
                                                       context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Hampers()));
+                                                      MaterialPageRoute(builder: (context) =>Hampers()));
                                                 },
                                                 child: Row(
                                                   children: [
@@ -2800,7 +2818,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     )
                                                   ],
                                                 ),
-                                              ):Container(),
+                                              ),
                                             ],
                                           ),
                                         ):Container(),
