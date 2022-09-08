@@ -1353,13 +1353,14 @@ class _CakeTypesState extends State<CakeTypes> {
       vendorPhone = pref.getString('myVendorPhone') ?? '0000000000';
       vendorPhone1 = pref.getString('myVendorPhone1')??'null';
       vendorPhone2 = pref.getString('myVendorPhone2')??'null';
+
       iamYourVendor = pref.getBool('iamYourVendor')?? false;
 
-      if (iamYourVendor == true) {
-        mySelVendors = [
-          {"VendorName": vendorName , "VendorPhn1":vendorPhone1,"VendorPhn2":vendorPhone2}
-        ];
-      } else {}
+      // if (iamYourVendor == true) {
+      //   mySelVendors = [
+      //     {"VendorName": vendorName , "VendorPhn1":vendorPhone1,"VendorPhn2":vendorPhone2}
+      //   ];
+      // } else {}
 
       getCakeType();
       getCakeList();
@@ -1403,7 +1404,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
             otherProducts = myList.where((element) => element['VendorName'].toString().toLowerCase()==
-                seleVendorDetailsList[0]['VendorName'].toString().toLowerCase()).toList();
+                mySelVendors[0]['VendorName'].toString().toLowerCase()).toList();
 
           }else{
             otherProducts = map.where((element) =>
@@ -1590,8 +1591,8 @@ class _CakeTypesState extends State<CakeTypes> {
       Navigator.pop(context);
     }
 
-    iamYourVendor == true?
-    getVendor(myVendorId):null;
+    // iamYourVendor == true?
+    // getVendor(myVendorId):null;
 
   }
 
@@ -2742,6 +2743,8 @@ class _CakeTypesState extends State<CakeTypes> {
   void dispose() {
     Future.delayed(Duration.zero, () async {
       var pr = await SharedPreferences.getInstance();
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
       pr.remove('iamYourVendor');
       pr.remove('vendorCakeMode');
       pr.remove('naveToHome');
@@ -2752,6 +2755,13 @@ class _CakeTypesState extends State<CakeTypes> {
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
+
+    if(iamYourVendor == true){
+      mySelVendors = context.watch<ContextData>().getMyVendorsList();
+    }else{
+      mySelVendors = [];
+    }
+
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -2979,8 +2989,6 @@ class _CakeTypesState extends State<CakeTypes> {
             activeSearchClear();
             return Future.value(false);
           }else{
-            context.read<ContextData>().setMyVendors([]);
-            context.read<ContextData>().addMyVendor(false);
             if (iamYourVendor == true) {
               Navigator.pop(context);
               return false;
@@ -3173,14 +3181,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                 );
                               },
                               child: profileUrl != "null"
-                                  ? CircleAvatar(
-                                      radius: 14.7,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                          radius: 13,
-                                          backgroundImage:
-                                              NetworkImage("$profileUrl")),
-                                    )
+                                  ? Container(
+                                  height:27,width:27,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color:Colors.red,
+                                      image: DecorationImage(
+                                          image: NetworkImage("${profileUrl}"),
+                                          fit: BoxFit.fill
+                                      )
+                                  )
+                                   )
                                   : CircleAvatar(
                                       radius: 14.7,
                                       backgroundColor: Colors.white,
@@ -3646,7 +3657,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                             fontFamily: 'Poppins'))
                                   ],
                                 ),
-                                seleVendorDetailsList.isNotEmpty?
+                                mySelVendors.isNotEmpty?
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -3655,7 +3666,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       children: [
                                         Container(
                                           child: Text(
-                                            "${seleVendorDetailsList[0]['VendorName'].toString().toUpperCase()} ",
+                                            "${mySelVendors[0]['VendorName'].toString().toUpperCase()} ",
                                             style: TextStyle(
                                                 color: darkBlue,
                                                 fontFamily: "Poppins",
@@ -3680,8 +3691,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                           InkWell(
                                             onTap: () {
                                               PhoneDialog().showPhoneDialog(context,
-                                                  seleVendorDetailsList[0]['PhoneNumber1'].toString(),
-                                                  seleVendorDetailsList[0]['PhoneNumber2'].toString());
+                                                  mySelVendors[0]['PhoneNumber1'].toString(),
+                                                  mySelVendors[0]['PhoneNumber2'].toString());
                                             },
                                             child: Container(
                                               alignment: Alignment.center,
@@ -3702,8 +3713,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                           ),
                                           InkWell(
                                             onTap: () {
-                                              PhoneDialog().showPhoneDialog(context,seleVendorDetailsList[0]['PhoneNumber1'].toString(),
-                                                  seleVendorDetailsList[0]['PhoneNumber2'].toString(), true);
+                                              PhoneDialog().showPhoneDialog(context,mySelVendors[0]['PhoneNumber1'].toString(),
+                                                  mySelVendors[0]['PhoneNumber2'].toString(), true);
                                             },
                                             child: Container(
                                               alignment: Alignment.center,

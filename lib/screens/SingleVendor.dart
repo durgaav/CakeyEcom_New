@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
@@ -46,7 +48,10 @@ class _SingleVendorState extends State<SingleVendor> {
   String deliverCharge = '';
   String profileImage = '';
   String vendorEggOrEggless = '';
+  String authToken = "";
   String goBacktoVenList= '';
+  String userLatitude= '';
+  String userLongtitude = '';
   String phone1 = "", phone2 = "";
 
   bool ordersNull = false;
@@ -54,6 +59,9 @@ class _SingleVendorState extends State<SingleVendor> {
 
   List<bool> isExpands = [];
   List vendorOrders = [];
+
+  List nearestVendors = [];
+  List vendorsList = [];
   
   //key
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -113,23 +121,96 @@ class _SingleVendorState extends State<SingleVendor> {
 
       rate = pref.getString('singleVendorRate')??'0.0';
       vendorID = pref.getString('singleVendorID')??'';
+      authToken = pref.getString('authToken')??'';
       vendorName = pref.getString('singleVendorName')??'No name';
       description = pref.getString('singleVendorDesc')??'No Description';
       deliverCharge = pref.getString('singleVendorDelivery')??'';
       vendorSpecial = pref.getString('singleVendorSpecial')??'';
       profileImage = pref.getString('singleVendorDpImage')??'';
       vendorLocalAddres = pref.getString('singleVendorAddress')??'';
+      userLatitude = pref.getString('userLatitute')??'';
+      userLongtitude = pref.getString('userLongtitude')??'';
       vendorEggOrEggless = pref.getString('singleVendorEggs')??'';
 
       isFromCD = pref.getBool('singleVendorFromCd')??false;
       phone1 = pref.getString('singleVendorPhone1')??'';
       phone2 = pref.getString('singleVendorPhone2')??'';
       speciality = pref.getString('singleVendorSpecial')??'';
-
     });
 
     print('Spel $speciality');
 
+
+    getVendorsList();
+
+  }
+
+  //Distance calculator
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
+  //geting the vendors list
+  Future<void> getVendorsList() async{
+
+    nearestVendors.clear();
+    vendorsList.clear();
+    showAlertDialog();
+
+    try{
+
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          headers: {"Authorization":"$authToken"}
+      );
+
+      if(res.statusCode==200){
+          setState(() {
+            List myList = jsonDecode(res.body);
+
+            nearestVendors = myList.where((element) =>
+            calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
+            ).toList();
+
+
+            nearestVendors = nearestVendors.where((element) => element['_id'].toString()==vendorID).toList();
+
+            Navigator.pop(context);
+
+            print("selected ven len : ${nearestVendors.length}");
+
+          });
+
+      }else{
+        checkNetwork();
+        Navigator.pop(context);
+      }
+
+    }catch(e){
+      print(e);
+      Navigator.pop(context);
+      checkNetwork();
+
+    }
+
+  }
+
+  //network check
+  Future<void> checkNetwork() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      NetworkDialog().showNoNetworkAlert(context);
+      print('not connected');
+    }
   }
 
   //getting oreders by id
@@ -176,24 +257,14 @@ class _SingleVendorState extends State<SingleVendor> {
     pref.setString('myVendorDeliverChrg', deliverCharge);
     pref.setString('myVendorAddress', deliverCharge);
     pref.setString('myVendorEggs', vendorEggOrEggless);
+
     pref.setBool('iamYourVendor', true);
     pref.setBool('vendorCakeMode',true);
 
-
     context.read<ContextData>().addMyVendor(true);
-    context.read<ContextData>().setMyVendors(
-        [
-          {
-            "VendorId":vendorID,
-            "VendorName":vendorName,
-            "VendorDesc":description,
-            "VendorProfile":profileImage,
-            "VendorPhone":vendorPhone,
-            "VendorDelCharge":deliverCharge,
-            "VendorEgg":vendorEggOrEggless,
-          }
-        ]
-    );
+    context.read<ContextData>().setMyVendors([
+      nearestVendors[0]
+    ]);
 
     Navigator.push(context, MaterialPageRoute(builder: (context)=>CakeTypes()));
 

@@ -796,6 +796,8 @@ class _HomeScreenState extends State<HomeScreen> {
     prefs.remove("cake_id");
     prefs.remove("cakeModid");
     prefs.remove("cakeName");
+    prefs.remove('firstVenDelCharge');
+    prefs.remove('firstVenIndex');
     prefs.remove("cakeCommName");
     prefs.remove("cakeBasicFlav");
     prefs.remove("cakeBasicShape");
@@ -1039,10 +1041,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //send nearest vendor details.
-  Future<void> sendNearVendorDataToScreen(int index) async {
+  Future<void> sendNearVendorDataToScreen(int index , [String amount="0.0", String km = "0.0"]) async {
     var pref = await SharedPreferences.getInstance();
 
+    print(amount);
+    print(km);
+
     pref.remove('singleVendorID');
+    pref.remove('firstVenDelCharge');
+    pref.remove('firstVenIndex');
     pref.remove('singleVendorFromCd');
     pref.remove('singleVendorRate');
     pref.remove('singleVendorName');
@@ -1052,6 +1059,16 @@ class _HomeScreenState extends State<HomeScreen> {
     pref.remove('singleVendorDpImage');
     pref.remove('singleVendorAddress');
     pref.remove('singleVendorSpeciality');
+
+    //store 1st two vendor deliver charge
+    if(index == 0 && double.parse(km)<2.0 || index == 1 && double.parse(km)<2.0){
+      amount = "0.0";
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', index.toString() ?? 'null');
+    }else{
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', "2" ?? 'null');
+    }
 
     //common keyword single****
     pref.setString('singleVendorID', nearestVendors[index]['_id'] ?? 'null');
@@ -1665,8 +1682,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getAdminDeliveryCharge() async {
     var pref = await SharedPreferences.getInstance();
 
-
-
     try{
 
       var headers = {'Authorization': '$authToken'};
@@ -2122,14 +2137,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                           child: profileUrl != "null"
-                              ? CircleAvatar(
-                                  radius: 14.7,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                      radius: 13,
-                                      backgroundImage:
-                                          NetworkImage("$profileUrl")),
-                                )
+                              ? Container(
+                                 height:27,width:27,
+                                 decoration: BoxDecoration(
+                                   shape: BoxShape.circle,
+                                   color:Colors.red,
+                                   image: DecorationImage(
+                                     image: NetworkImage("${profileUrl}"),
+                                     fit: BoxFit.fill
+                                   )
+                                 )
+                              )
                               : CircleAvatar(
                                   radius: 14.7,
                                   backgroundColor: Colors.white,
@@ -2950,12 +2968,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     searchCakeType.length>3?
                                                     InkWell(
                                                       onTap: () async {
-                                                        var pr = Navigator.push(
+                                                        var prefs = await SharedPreferences.getInstance();
+                                                        prefs.setBool('iamYourVendor', false);
+                                                        prefs.setBool('vendorCakeMode',false);
+                                                        context.read<ContextData>().setMyVendors([]);
+                                                        context.read<ContextData>().addMyVendor(false);
+                                                        Navigator.push(
                                                             context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        CakeTypes()));
+                                                            MaterialPageRoute(builder: (context) => CakeTypes()));
                                                       },
                                                       child: Row(
                                                         children: [
@@ -4549,7 +4569,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           splashColor:
                                                               Colors.pink[100],
                                                           onTap: () =>
-                                                              sendNearVendorDataToScreen(index),
+                                                              sendNearVendorDataToScreen(index , deliverCharge,betweenKm),
                                                           child: Card(
                                                             margin:
                                                                 EdgeInsets.only(
@@ -4670,10 +4690,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 alignment: Alignment.centerRight,
                                                                                 child: InkWell(
                                                                                   onTap: () {
-                                                                                    sendNearVendorDataToScreen(index);
-                                                                                    print(double.parse("${((deliveryChargeFromAdmin / deliverykmFromAdmin) *
-                                                                                        (calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                            nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1));
+                                                                                    sendNearVendorDataToScreen(index, deliverCharge,betweenKm);
                                                                                   },
                                                                                   child: Container(
                                                                                     decoration: BoxDecoration(color: lightGrey, shape: BoxShape.circle),
@@ -4722,10 +4739,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           mainAxisAlignment:
                                                                               MainAxisAlignment.spaceBetween,
                                                                           children: [
-                                                                            double.parse("${((calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                    nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)=="3.0"||
+                                                                            index==1&&double.parse(
                                                                                 double.parse("${((calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                    nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)=="0.0"?
+                                                                                    nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                                                )<2.0||index==0&&double.parse(
+                                                                                double.parse("${((calculateDistance(userLat, userLong, nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                                    nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                                                 )<2.0||
+                                                                                double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
                                                                             Text(
                                                                               'DELIVERY FREE',
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
@@ -4745,7 +4766,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     )
                                                                                   : Text(
                                                                                       '${nearestVendors[index]['EggOrEggless']}',
-                                                                                      style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold, fontFamily: poppins),
+                                                                                      style: TextStyle(
+                                                                                          color: Colors.black,
+                                                                                          fontSize: 9,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                          fontFamily: poppins
+                                                                                      ),
                                                                                       overflow: TextOverflow.ellipsis,
                                                                                     ),
                                                                             ))
@@ -4776,325 +4802,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   : Visibility(
                       visible: isFiltered ? true : false,
                       child:
-                      // selectedCakeType.toLowerCase()=="others"&& otherProdList.length == 0?
-                      // Text(
-                      //   'No Similar Data Found',
-                      //   style: TextStyle(
-                      //       fontFamily: "Poppins",
-                      //       fontWeight: FontWeight.bold),
-                      // ):cakeSearchList.length == 0?
-                      // Text(
-                      //   'No Similar Data Found',
-                      //   style: TextStyle(
-                      //       fontFamily: "Poppins",
-                      //       fontWeight: FontWeight.bold),
-                      // ):
-                      // selectedCakeType.toLowerCase()=="others"?
-                      //     ListView.builder(
-                      //     shrinkWrap: true,
-                      //     physics: NeverScrollableScrollPhysics(),
-                      //     itemCount: otherProdList.length,
-                      //     itemBuilder: (c, i) {
-                      //       return Container(
-                      //         margin: EdgeInsets.only(
-                      //             left: 15, right: 15, top: 5, bottom: 5),
-                      //         decoration: BoxDecoration(
-                      //             borderRadius: BorderRadius.circular(15),
-                      //             color: Colors.white,
-                      //             border: Border.all(
-                      //                 color: Colors.grey[400]!,
-                      //                 width: 0.5)),
-                      //         child: Column(
-                      //           mainAxisSize: MainAxisSize.min,
-                      //           mainAxisAlignment: MainAxisAlignment.start,
-                      //           crossAxisAlignment:
-                      //           CrossAxisAlignment.start,
-                      //           children: [
-                      //             //header text (name , stars)
-                      //             Container(
-                      //                 padding: EdgeInsets.only(
-                      //                     top: 4,
-                      //                     bottom: 4,
-                      //                     left: 10,
-                      //                     right: 10),
-                      //                 decoration: BoxDecoration(
-                      //                     borderRadius: BorderRadius.only(
-                      //                       topLeft: Radius.circular(15),
-                      //                       topRight: Radius.circular(15),
-                      //                     ),
-                      //                     color: Colors.grey[300]),
-                      //                 child: Row(children: [
-                      //                   Container(
-                      //                     width: otherProdList[i]
-                      //                     ['VendorName']
-                      //                         .toString()
-                      //                         .length >
-                      //                         25
-                      //                         ? 130
-                      //                         : 60,
-                      //                     child: Text(
-                      //                       '${otherProdList[i]['VendorName']}',
-                      //                       style: TextStyle(
-                      //                           color: Colors.black,
-                      //                           fontWeight: FontWeight.bold,
-                      //                           fontFamily: 'Poppins',
-                      //                           fontSize: 13),
-                      //                       maxLines: 1,
-                      //                       overflow: TextOverflow.ellipsis,
-                      //                     ),
-                      //                   ),
-                      //                   Row(
-                      //                     children: [
-                      //                       RatingBar.builder(
-                      //                         initialRating: double.parse(
-                      //                             otherProdList[i]
-                      //                             ['Ratings']
-                      //                                 .toString()),
-                      //                         minRating: 1,
-                      //                         direction: Axis.horizontal,
-                      //                         allowHalfRating: true,
-                      //                         itemCount: 5,
-                      //                         itemSize: 14,
-                      //                         itemPadding:
-                      //                         EdgeInsets.symmetric(
-                      //                             horizontal: 1.0),
-                      //                         itemBuilder: (context, _) =>
-                      //                             Icon(
-                      //                               Icons.star,
-                      //                               color: Colors.amber,
-                      //                             ),
-                      //                         onRatingUpdate: (rating) {},
-                      //                       ),
-                      //                       Text(
-                      //                         ' ${otherProdList[i]['Ratings'].toString()}',
-                      //                         style: TextStyle(
-                      //                             color: Colors.black54,
-                      //                             fontWeight:
-                      //                             FontWeight.bold,
-                      //                             fontSize: 12,
-                      //                             fontFamily: poppins),
-                      //                       )
-                      //                     ],
-                      //                   ),
-                      //                   Expanded(
-                      //                       child: Container(
-                      //                           alignment:
-                      //                           Alignment.centerRight,
-                      //                           child: InkWell(
-                      //                             onTap: () {
-                      //                               // sendDetailsToScreen(i);
-                      //                             },
-                      //                             child: Container(
-                      //                                 alignment:
-                      //                                 Alignment.center,
-                      //                                 height: 25,
-                      //                                 width: 25,
-                      //                                 decoration:
-                      //                                 BoxDecoration(
-                      //                                     shape: BoxShape
-                      //                                         .circle,
-                      //                                     color: Colors
-                      //                                         .white),
-                      //                                 child: Icon(
-                      //                                   Icons
-                      //                                       .arrow_forward_ios_sharp,
-                      //                                   color: lightPink,
-                      //                                   size: 15,
-                      //                                 )),
-                      //                           )))
-                      //                 ])),
-                      //             //body (image , cake name)
-                      //             InkWell(
-                      //               splashColor: Colors.red[100],
-                      //               onTap: () {
-                      //                 sendOthers(i);
-                      //               },
-                      //               child: Container(
-                      //                   padding: EdgeInsets.all(8),
-                      //                   child: Row(children: [
-                      //                     otherProdList[i]['ProductImage']
-                      //                         .isEmpty
-                      //                         ? Container(
-                      //                       height: 85,
-                      //                       width: 85,
-                      //                       alignment:
-                      //                       Alignment.center,
-                      //                       decoration: BoxDecoration(
-                      //                         borderRadius:
-                      //                         BorderRadius
-                      //                             .circular(15),
-                      //                         color: Colors.pink[100],
-                      //                       ),
-                      //                       child: Icon(
-                      //                         Icons.cake_outlined,
-                      //                         size: 50,
-                      //                         color: lightPink,
-                      //                       ),
-                      //                     )
-                      //                         : Container(
-                      //                       height: 85,
-                      //                       width: 85,
-                      //                       decoration: BoxDecoration(
-                      //                           borderRadius:
-                      //                           BorderRadius
-                      //                               .circular(15),
-                      //                           color: Colors.blue,
-                      //                           image: DecorationImage(
-                      //                               image: NetworkImage(
-                      //                                   otherProdList[i]['ProductImage'][0]),
-                      //                               fit: BoxFit
-                      //                                   .cover)),
-                      //                     ),
-                      //                     SizedBox(width: 8),
-                      //                     Expanded(
-                      //                         child: Container(
-                      //                             child: Column(
-                      //                                 crossAxisAlignment:
-                      //                                 CrossAxisAlignment
-                      //                                     .start,
-                      //                                 children: [
-                      //                                   Container(
-                      //                                     // width:120,
-                      //                                     child: Text(
-                      //                                       '${otherProdList[i]['ProductName']}',
-                      //                                       style: TextStyle(
-                      //                                           color: darkBlue,
-                      //                                           fontWeight:
-                      //                                           FontWeight.bold,
-                      //                                           fontFamily:
-                      //                                           'Poppins',
-                      //                                           fontSize: 12),
-                      //                                       maxLines: 2,
-                      //                                       overflow: TextOverflow
-                      //                                           .ellipsis,
-                      //                                     ),
-                      //                                   ),
-                      //                                   SizedBox(height: 5),
-                      //                                   Container(
-                      //                                     // width:120,
-                      //                                     child: Text.rich(
-                      //                                       otherProdList[i]['Type'].toString().toLowerCase()=="kg"?
-                      //                                       TextSpan(
-                      //                                           text:
-                      //                                           'Minimum Price : Rs.${otherProdList[i]['MinWeightPerKg']['PricePerKg']}/'
-                      //                                               '${otherProdList[i]['MinWeightPerKg']['Weight']}',
-                      //                                           style: TextStyle(
-                      //                                               color:
-                      //                                               Colors.grey,
-                      //                                               fontWeight:
-                      //                                               FontWeight
-                      //                                                   .bold,
-                      //                                               fontFamily:
-                      //                                               'Poppins',
-                      //                                               fontSize: 10),
-                      //                                           children: [
-                      //                                             TextSpan(
-                      //                                               text : "",
-                      //                                               style: TextStyle(
-                      //                                                   color: Colors
-                      //                                                       .grey,
-                      //                                                   fontWeight:
-                      //                                                   FontWeight
-                      //                                                       .bold,
-                      //                                                   fontFamily:
-                      //                                                   'Poppins',
-                      //                                                   fontSize:
-                      //                                                   10),
-                      //                                             )
-                      //                                           ]):
-                      //                                       otherProdList[i]['Type'].toString().toLowerCase()=="unit"?
-                      //                                       TextSpan(
-                      //                                           text:
-                      //                                           'Minimum Price : Rs.${otherProdList[i]['MinWeightPerUnit'][0]['PricePerUnit']}/'
-                      //                                               '${otherProdList[i]['MinWeightPerUnit'][0]['Weight']}',
-                      //                                           style: TextStyle(
-                      //                                               color:
-                      //                                               Colors.grey,
-                      //                                               fontWeight:
-                      //                                               FontWeight
-                      //                                                   .bold,
-                      //                                               fontFamily:
-                      //                                               'Poppins',
-                      //                                               fontSize: 10),
-                      //                                           children: [
-                      //                                             TextSpan(
-                      //                                               text : "",
-                      //                                               style: TextStyle(
-                      //                                                   color: Colors
-                      //                                                       .grey,
-                      //                                                   fontWeight:
-                      //                                                   FontWeight
-                      //                                                       .bold,
-                      //                                                   fontFamily:
-                      //                                                   'Poppins',
-                      //                                                   fontSize:
-                      //                                                   10),
-                      //                                             )
-                      //                                           ]):
-                      //                                       otherProdList[i]['Type'].toString().toLowerCase()=="box"?
-                      //                                       TextSpan(
-                      //                                           text:
-                      //                                           'Minimum Price : Rs.${otherProdList[i]['MinWeightPerBox'][0]['PricePerBox']} / Box',
-                      //                                           style: TextStyle(
-                      //                                               color:
-                      //                                               Colors.grey,
-                      //                                               fontWeight:
-                      //                                               FontWeight
-                      //                                                   .bold,
-                      //                                               fontFamily:
-                      //                                               'Poppins',
-                      //                                               fontSize: 10),
-                      //                                           children: [
-                      //                                             TextSpan(
-                      //                                               text : "",
-                      //                                               style: TextStyle(
-                      //                                                   color: Colors
-                      //                                                       .grey,
-                      //                                                   fontWeight:
-                      //                                                   FontWeight
-                      //                                                       .bold,
-                      //                                                   fontFamily:
-                      //                                                   'Poppins',
-                      //                                                   fontSize:
-                      //                                                   10),
-                      //                                             )
-                      //                                           ]):TextSpan(
-                      //                                         text: ""
-                      //                                       ),
-                      //                                     ),
-                      //                                   ),
-                      //                                   SizedBox(height: 5),
-                      //                                   Container(
-                      //                                       height: 0.5,
-                      //                                       color:
-                      //                                       Color(0xffdddddd)),
-                      //                                   SizedBox(height: 5),
-                      //                                   Container(
-                      //                                     // width:120,
-                      //                                     child: Text(
-                      //                                       'DELIVERY CHARGE RS.${((deliveryChargeFromAdmin / deliverykmFromAdmin) *
-                      //                                           (calculateDistance(userLat, userLong, otherProdList[i]['GoogleLocation']['Latitude'],
-                      //                                               otherProdList[i]['GoogleLocation']['Longitude']))).toStringAsFixed(2)}',
-                      //                                       style: TextStyle(
-                      //                                           color:
-                      //                                           Colors.orange,
-                      //                                           fontWeight:
-                      //                                           FontWeight.bold,
-                      //                                           fontFamily:
-                      //                                           'Poppins',
-                      //                                           fontSize: 10),
-                      //                                       maxLines: 1,
-                      //                                       overflow: TextOverflow
-                      //                                           .ellipsis,
-                      //                                     ),
-                      //                                   ),
-                      //                                 ])))
-                      //                   ])),
-                      //             )
-                      //           ],
-                      //         ),
-                      //       );
-                      //      }):
                       cakeSearchList.isNotEmpty?
                       ListView.builder(
                               shrinkWrap: true,

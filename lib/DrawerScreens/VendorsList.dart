@@ -263,7 +263,6 @@ class _VendorsListState extends State<VendorsList> {
 
   //getCakesList
   Future<void> getCakeList() async{
-
     try{
       print("enter");
       var res = await http.get(
@@ -293,14 +292,26 @@ class _VendorsListState extends State<VendorsList> {
       
     }
 
-
     getVendorsList();
   }
 
   //load select Vendor data to CakeTypeScreen
-  Future<void> loadSelVendorDataToCTscreen(int index) async{
+  Future<void> loadSelVendorDataToCTscreen(int index,[String amount="0.0", String km = "0.0"]) async{
+    print(index);
 
     var pref = await SharedPreferences.getInstance();
+
+    pref.remove('firstVenDelCharge');
+    pref.remove('firstVenIndex');
+
+    if(index == 0 && double.parse(km)<2.0 || index == 1 && double.parse(km)<2.0){
+      amount = "0.0";
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', index.toString() ?? 'null');
+    }else{
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', "2" ?? 'null');
+    }
 
     pref.setString('myVendorId', locationBySearch[index]['_id']);
     pref.setBool('iamYourVendor', true);
@@ -314,52 +325,26 @@ class _VendorsListState extends State<VendorsList> {
     pref.setString('myVendorAddress',locationBySearch[index]['Address']??'null');
     pref.setBool('vendorCakeMode',true);
 
+
     context.read<ContextData>().addMyVendor(true);
-    context.read<ContextData>().setMyVendors(
-        [
-          {
-            "VendorId":locationBySearch[index]['_id'],
-            "VendorModId":locationBySearch[index]['Id'],
-            "VendorName":locationBySearch[index]['VendorName'],
-            "VendorDesc":locationBySearch[index]['Description'],
-            "VendorProfile":locationBySearch[index]['ProfileImage'],
-            "VendorPhone":locationBySearch[index]['PhoneNumber1'],
-            "VendorDelCharge":locationBySearch[index]['DeliveryCharge'],
-            "VendorEgg":locationBySearch[index]['EggOrEggless'],
-            "VendorAddress":locationBySearch[index]['Address'],
-          }
-        ]
-    );
-
-    print(locationBySearch[index]['VendorName']);
-    print(locationBySearch[index]['Address']);
-    print(locationBySearch[index]['_id']);
-    print(locationBySearch[index]['Id']);
-    print(locationBySearch[index]['Description']);
-    print(locationBySearch[index]['ProfileImage']);
-    print(locationBySearch[index]['PhoneNumber1']);
-    print(locationBySearch[index]['DeliveryCharge']);
-    print(locationBySearch[index]['EggOrEggless']);
-
+    context.read<ContextData>().setMyVendors([
+      locationBySearch[index]
+    ]);
 
    Navigator.push(context,MaterialPageRoute(builder: (context)=>CakeTypes()));
 
   }
 
-
-  //send nearest vendor details.
-  Future<void> sendNearVendorDataToScreen(int index) async{
-
-    String address = "${nearestVendors[index]['Address']['Street']} , "
-        "${nearestVendors[index]['Address']['City']} , "
-        "${nearestVendors[index]['Address']['District']} , "
-        "${nearestVendors[index]['Address']['Pincode']} , ";
-
+  Future<void> sendDataToScreen(int index,[String amount="0.0", String km = "0.0"]) async{
 
     var pref = await SharedPreferences.getInstance();
 
-    //common keyword single****
+    print(amount);
+    print(km);
+
     pref.remove('singleVendorID');
+    pref.remove('firstVenDelCharge');
+    pref.remove('firstVenIndex');
     pref.remove('singleVendorFromCd');
     pref.remove('singleVendorRate');
     pref.remove('singleVendorName');
@@ -370,66 +355,40 @@ class _VendorsListState extends State<VendorsList> {
     pref.remove('singleVendorAddress');
     pref.remove('singleVendorSpeciality');
 
-    //common keyword single****
-    pref.setString('singleVendorID', nearestVendors[index]['_id']??'null');
-    pref.setBool('singleVendorFromCd', true);
-    pref.setString('singleVendorRate', nearestVendors[index]['Ratings'].toString()??'null');
-    pref.setString('singleVendorName', nearestVendors[index]['VendorName']??'null');
-    pref.setString('singleVendorDesc', nearestVendors[index]['Description']??'null');
-    pref.setString('singleVendorPhone1', nearestVendors[index]['PhoneNumber1']??'null');
-    pref.setString('singleVendorPhone2', nearestVendors[index]['PhoneNumber2']??'null');
-    pref.setString('singleVendorDpImage', nearestVendors[index]['ProfileImage']??'null');
-    pref.setString('singleVendorAddress', nearestVendors[index]['Address']['FullAddress']??'null');
-    pref.setString('singleVendorSpeciality', nearestVendors[index]['YourSpecialityCakes'].toString()??'null');
-
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleVendor()));
-  }
-
-
-  Future<void> sendDataToScreen(int index) async{
-
-    String address = "${locationBySearch[index]['Address']}";
-
-    var pref = await SharedPreferences.getInstance();
+    //store 1st two vendor deliver charge
+    if(index == 0 && double.parse(km)<2.0 || index == 1 && double.parse(km)<2.0){
+      amount = "0.0";
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', index.toString() ?? 'null');
+    }else{
+      pref.setString('firstVenDelCharge', amount ?? 'null');
+      pref.setString('firstVenIndex', "2" ?? 'null');
+    }
 
     //common keyword single****
-    pref.setString('singleVendorID', locationBySearch[index]['_id']);
-    pref.setString('singleVendorName', locationBySearch[index]['PreferredNameOnTheApp']??
-        '${locationBySearch[index]['VendorName']}');
-    pref.setString('singleVendorDesc', locationBySearch[index]['Description']??'No Description');
-    pref.setString('singleVendorPhone', locationBySearch[index]['PhoneNumber']??'0000000000');
-    pref.setString('singleVendorDpImage', locationBySearch[index]['ProfileImage']??'null');
-    pref.setString('singleVendorDelivery', locationBySearch[index]['DeliveryCharge']??'null');
-    pref.setString('singleVendorEggs', locationBySearch[index]['EggOrEggless']??'null');
-    pref.setString('singleVendorAddress', address??'null');
-    pref.setString('singleVendorSpecial', locationBySearch[index]['YourSpecialityCakes'].toString());
-    pref.setString('singleVendorRate', locationBySearch[index]['Ratings'].toString()??'null');
-    pref.setString('ventosingleven', 'yes');
+    pref.setString('singleVendorID', locationBySearch[index]['_id'] ?? 'null');
+    pref.setBool('singleVendorFromCd', false);
+    pref.setString('singleVendorRate',
+        locationBySearch[index]['Ratings'].toString() ?? '0.0');
+    pref.setString('singleVendorName',
+        locationBySearch[index]['PreferredNameOnTheApp'] ?? 'null');
+    pref.setString(
+        'singleVendorDesc', locationBySearch[index]['Description'] ?? 'null');
+    pref.setString(
+        'singleVendorPhone1', locationBySearch[index]['PhoneNumber1'] ?? 'null');
+    pref.setString(
+        'singleVendorPhone2', locationBySearch[index]['PhoneNumber2'] ?? 'null');
+    pref.setString(
+        'singleVendorDpImage', locationBySearch[index]['ProfileImage'] ?? 'null');
+    pref.setString(
+        'singleVendorAddress', locationBySearch[index]['Address'] ?? 'null');
+    pref.setString('singleVendorSpecial',
+        locationBySearch[index]['YourSpecialityCakes'].toString());
 
     print(locationBySearch[index]['YourSpecialityCakes']);
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SingleVendor(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-
-        },
-      ),
-    );
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SingleVendor()));
 
     // Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleVendor()));
 
@@ -485,7 +444,8 @@ class _VendorsListState extends State<VendorsList> {
       onWillPop: () async{
         
         !iamFromCustom?
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen())):Navigator.pop(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen())):
+        Navigator.pop(context);
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         return Future.value(true);
       },
@@ -525,9 +485,14 @@ class _VendorsListState extends State<VendorsList> {
                           ),
                         ):
                         InkWell(
-                          onTap: () {
+                          onTap: () async{
                             FocusScope.of(context).unfocus();
                             _scaffoldKey.currentState!.openDrawer();
+                            var prefs = await SharedPreferences.getInstance();
+                            prefs.setBool('iamYourVendor', false);
+                            prefs.setBool('vendorCakeMode',false);
+                            context.read<ContextData>().setMyVendors([]);
+                            context.read<ContextData>().addMyVendor(false);
                           },
                           child: Container(
                             child: Column(
@@ -662,13 +627,16 @@ class _VendorsListState extends State<VendorsList> {
                                 ),
                               );
                             },
-                            child: profileUrl!="null"?CircleAvatar(
-                              radius: 14.7,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                  radius: 13,
-                                  backgroundImage:NetworkImage("$profileUrl")
-                              ),
+                            child: profileUrl!="null"?Container(
+                                height:27,width:27,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color:Colors.red,
+                                    image: DecorationImage(
+                                        image: NetworkImage("${profileUrl}"),
+                                        fit: BoxFit.fill
+                                    )
+                                )
                             ):CircleAvatar(
                               radius: 14.7,
                               backgroundColor: Colors.white,
@@ -711,7 +679,8 @@ class _VendorsListState extends State<VendorsList> {
                       Container(
                         padding: EdgeInsets.only(left: 8),
                         alignment: Alignment.centerLeft,
-                        child: Text('$userCurLocation',style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
+                        child: Text('$userCurLocation',maxLines:1,
+                          style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
                       ),
                     ],
                   ),
@@ -858,7 +827,7 @@ class _VendorsListState extends State<VendorsList> {
                     height: 45,
                     margin: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(5),
                       border: Border.all(
                         color: Colors.grey[400]!,
                         width: 1
@@ -867,10 +836,10 @@ class _VendorsListState extends State<VendorsList> {
                     child: Row(
                       children: [
                         SizedBox(width: 5,),
-                        Icon(Icons.location_on , color: Colors.grey[600],),
+                        Icon(Icons.location_on , color: Colors.grey[400],),
                         SizedBox(width: 5,),
                         Text("Search Location" , style:TextStyle(
-                          color: Colors.grey[400],fontFamily: "Poppins",
+                          color: Colors.grey[300],fontFamily: "Poppins",
                           fontWeight: FontWeight.bold,
                           fontSize: 13
                         ))
@@ -878,84 +847,6 @@ class _VendorsListState extends State<VendorsList> {
                     ),
                   ),
                 ),
-
-                //Search bar...
-                // Container(
-                //   margin: EdgeInsets.all(10),
-                //   height: 50,
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: TextField(
-                //           style:TextStyle(fontFamily: "Poppins" , fontSize: 13),
-                //           controller: searchCtrl,
-                //           onChanged: (String? text){
-                //             setState(() {
-                //               searchLocation = text!;
-                //             });
-                //           },
-                //           decoration: InputDecoration(
-                //             hintText: "Search location",
-                //             hintStyle: TextStyle(fontFamily: "Poppins" , fontSize: 13 ),
-                //             prefixIcon: Icon(Icons.location_on),
-                //             suffixIcon:IconButton(
-                //               onPressed: (){
-                //                 FocusScope.of(context).unfocus();
-                //                 setState(() {
-                //                   searchLocation = "";
-                //                   searchCtrl = new TextEditingController(text: "");
-                //                 });
-                //               },
-                //               icon: Icon(Icons.close,size: 20,),
-                //             ),
-                //             border: OutlineInputBorder(
-                //                 borderRadius: BorderRadius.circular(5)
-                //             ),
-                //             contentPadding: EdgeInsets.all(5),
-                //           ),
-                //         ),
-                //       ),
-                //       Container(
-                //         height: 45,
-                //         width: 45,
-                //         margin: EdgeInsets.only(left: 10),
-                //         decoration: BoxDecoration(
-                //             color: lightPink,
-                //             borderRadius: BorderRadius.circular(7)
-                //         ),
-                //         child: Semantics(
-                //           child: IconButton(
-                //               splashColor: Colors.black26,
-                //               onPressed: () async{
-                //                 var pref = await SharedPreferences.getInstance();
-                //                 FocusScope.of(context).unfocus();
-                //                 if(searchCtrl.text.isNotEmpty){
-                //                   List<Location> location =
-                //                   await locationFromAddress(searchCtrl.text);
-                //                   print(location);
-                //                   setState(() {
-                //                     // userLat = location[0].latitude;
-                //                     // userLong = location[0].longitude;
-                //                     // pref.setString("userCurrentLocation", deliverToCtrl.text);
-                //                     userCurLocation = searchCtrl.text;
-                //                     userLatitude = location[0].latitude.toString();
-                //                     userLongtitude = location[0].longitude.toString();
-                //                     pref.setString('userLatitute', "$userLatitude");
-                //                     pref.setString('userLongtitude', "$userLongtitude");
-                //                     pref.setString("userCurrentLocation", searchCtrl.text);
-                //                     getVendorsList();
-                //                   });
-                //                 }
-                //               },
-                //               icon: Icon(
-                //                 Icons.search,
-                //                 color: Colors.white,
-                //               )),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
 
                 Container(
                   // child: (searchLocation.isEmpty)?
@@ -988,6 +879,15 @@ class _VendorsListState extends State<VendorsList> {
                                   shrinkWrap: true,
                                   physics: NeverScrollableScrollPhysics(),
                                   itemBuilder: (context,index){
+
+                                    var deliverCharge = double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                        (calculateDistance(double.parse(userLatitude),
+                                            double.parse(userLongtitude), locationBySearch[index]['GoogleLocation']['Latitude'],
+                                            locationBySearch[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+                                    var betweenKm = (calculateDistance(double.parse(userLatitude),
+                                        double.parse(userLongtitude),locationBySearch[index]['GoogleLocation']['Latitude'],
+                                        locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
+
                                     return GestureDetector(
                                       onTap: (){
                                         if(iamFromCustom==true){
@@ -999,11 +899,9 @@ class _VendorsListState extends State<VendorsList> {
                                               ['VendorName']}'))
                                           );
                                         }else{
-                                          sendDataToScreen(index);
+                                          sendDataToScreen(index , deliverCharge , betweenKm);
                                         }
-
                                         print(locationBySearch[index]['PreferredNameOnTheApp']);
-
                                       },
                                       child: Card(
                                         margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 5),
@@ -1108,9 +1006,8 @@ class _VendorsListState extends State<VendorsList> {
                                                                       SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
                                                                       ['VendorName']}'))
                                                                   );
-
                                                                 }else{
-                                                                  sendDataToScreen(index);
+                                                                  sendDataToScreen(index , deliverCharge , betweenKm);
                                                                 }
                                                               },
                                                               child: Container(
@@ -1148,25 +1045,12 @@ class _VendorsListState extends State<VendorsList> {
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            (calculateDistance(double.parse(userLatitude),
-                                                                double.parse(userLongtitude),
-                                                                locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1)=="0.0"?
+                                                            index==1&&double.parse(betweenKm)<2.0||index==0&&double.parse(betweenKm)<2.0||
+                                                                double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
                                                             Text('DELIVERY FREE',style: TextStyle(
                                                                 color: Colors.orange,fontSize: 10,fontFamily: poppins
                                                             ),):
-                                                            Text('${
-                                                                (calculateDistance(double.parse(userLatitude),
-                                                                    double.parse(userLongtitude),
-                                                                    locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1)
-                                                            } KM Delivery Fee Rs.${
-                                                                ((adminDeliveryCharge/adminDeliveryChargeKm)*
-                                                                    (calculateDistance(double.parse(userLatitude),
-                                                                        double.parse(userLongtitude),
-                                                                    locationBySearch[index]['GoogleLocation']['Latitude'],
-                                                                    locationBySearch[index]['GoogleLocation']['Longitude']))).toStringAsFixed(1)
-                                                            }'
+                                                            Text('${betweenKm} KM Delivery Fee Rs.${deliverCharge}'
                                                               ,style: TextStyle(
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins
                                                               ),),
@@ -1187,7 +1071,7 @@ class _VendorsListState extends State<VendorsList> {
                                                                     Navigator.pop(context);
 
                                                                   }else{
-                                                                    loadSelVendorDataToCTscreen(index);
+                                                                    loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
                                                                   }
 
                                                                 },

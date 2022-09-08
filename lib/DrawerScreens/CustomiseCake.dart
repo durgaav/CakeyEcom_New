@@ -88,6 +88,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   List flavTempList = [];
   List<bool> fixedFlavChecks = [];
 
+  bool vendorListClicked = false;
+
   String fixedFlavour = 'Vanilla';
   String fixedExtraArticle = '';
   String fixedCakeTower = '';
@@ -1258,7 +1260,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         "Selected Weight : ${fixedWeight.toLowerCase().replaceAll("kg", "")}Kg\n"
         "Deliver Method : $fixedDelliverMethod\n"
         "Deliver Date : $fixedDate\n"
-        "Cake Message : ${msgCtrl.text.isNotEmpty?msgCtrl.text:"None"}"
+        "Cake Message : ${msgCtrl.text.isNotEmpty?msgCtrl.text:"None"}\n"
         "Deliver Session : $fixedSession\n\n"
         "Thank You.".toString();
 
@@ -1632,6 +1634,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    Future.delayed(
+      Duration.zero, () async{
+      // context.read<ContextData>().addMyVendor(false);
+      // context.read<ContextData>().setMyVendors([]);
+    }
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
@@ -1691,9 +1705,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
                           FocusScope.of(context).unfocus();
                           _scaffoldKey.currentState?.openDrawer();
+                          vendorListClicked = false;
+                          var prefs = await SharedPreferences.getInstance();
+                          prefs.setBool('iamYourVendor', false);
+                          prefs.setBool('vendorCakeMode',false);
+                          context.read<ContextData>().setMyVendors([]);
+                          context.read<ContextData>().addMyVendor(false);
                         },
                         child: Container(
                           child: Column(
@@ -1826,13 +1846,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                             );
                           },
-                          child: profileUrl!="null"?CircleAvatar(
-                            radius: 14.7,
-                            backgroundColor: Colors.white,
-                            child: CircleAvatar(
-                                radius: 13,
-                                backgroundImage:NetworkImage("$profileUrl")
-                            ),
+                          child: profileUrl!="null"?Container(
+                              height:27,width:27,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:Colors.red,
+                                  image: DecorationImage(
+                                      image: NetworkImage("${profileUrl}"),
+                                      fit: BoxFit.fill
+                                  )
+                              )
                           ):CircleAvatar(
                             radius: 14.7,
                             backgroundColor: Colors.white,
@@ -3867,6 +3890,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                       setState((){
 
                                                         nearVendorClicked = true;
+                                                        vendorListClicked = true;
 
                                                         selVendorIndex = index;
 
@@ -4001,18 +4025,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       (calculateDistance(double.parse(userLatitude),
                                                                           double.parse(userLongtitude),
                                                                           nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                          nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)!=0.00?
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(1)!="0.0"?
                                                                   Text('${
                                                                       (calculateDistance(double.parse(userLatitude),
                                                                           double.parse(userLongtitude),
                                                                           nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
+                                                                          nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1)
                                                                   } KM Delivery Fee Rs.${
                                                                       ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                           (calculateDistance(double.parse(userLatitude),
                                                                               double.parse(userLongtitude),
                                                                               nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                              nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
+                                                                              nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(1)
                                                                   }',style: TextStyle(
                                                                       color: Colors.orange,
                                                                       fontSize: 10 ,
@@ -4134,7 +4158,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 ],
                               ),
                               SizedBox(height: 15,),
-                              
+
+                              vendorListClicked?
                               Center(
                                 child: Container(
                                   height: 50,
@@ -4190,7 +4215,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     ),),
                                   ),
                                 ),
-                              ),
+                              ):
+                              Container(),
                               SizedBox(height: 30,),
                             ],
                           ),

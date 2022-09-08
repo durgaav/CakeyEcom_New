@@ -73,6 +73,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String cakeMindeltime = "";
   String otherInstruction = "";
 
+  String firstVenIndex = "";
+  String firstVenAmount = "";
+
+
   //load context vendor...
   bool isMySelVen = false;
   List mySelVendors = [];
@@ -1464,6 +1468,23 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       userLatitude = prefs.getString('userLatitute')??'Not Found';
       userLongtitude = prefs.getString('userLongtitude')??'Not Found';
 
+      firstVenIndex = prefs.getString('firstVenIndex')??'2';
+      firstVenAmount = prefs.getString('firstVenDelCharge')??'0';
+
+      print("del free ven :$firstVenIndex");
+
+      // if(cakeType.contains("Regular") || cakeType.contains("regular") ||
+      //     cakeType.contains("Regular Cake") ||
+      //     cakeType.contains("Regular Cakes") ||
+      //     cakeType.contains("Regular cakes") || cakeType.contains("Normal") ||
+      //     cakeType.contains("Normal Cakes") || cakeType.contains("Normal cakes") || cakeType.contains("normal")){
+      //
+      //   firstVenIndex = "0";
+      //
+      // }else{
+      //   firstVenIndex = "-1";
+      // }
+
       vendorCakeMode = prefs.getBool('vendorCakeMode')??false;
 
       cakeImages = prefs.getStringList('cakeImages')!;
@@ -1574,15 +1595,39 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       shapes = shapes.reversed.toList();
 
 
+      print(cakeType);
+
+      if(cakeType.contains("Regular") || cakeType.contains("Normal")){
+
+        if(firstVenIndex=="2"){
+          firstVenIndex = "-1";
+        }else{
+          firstVenIndex = "0";
+        }
+
+      }else{
+        firstVenIndex = "-1";
+      }
+
+      print("1st ven...");
+      print(firstVenIndex);
+      print(firstVenAmount);
+
+
       getCakesList();
     });
-    context.read<ContextData>().addMyVendor(false);
-    context.read<ContextData>().setMyVendors([]);
+    // context.read<ContextData>().addMyVendor(false);
+    // context.read<ContextData>().setMyVendors([]);
   }
 
   //***load prefs to ORDER.....***
   Future<void> loadOrderPreference() async {
     var prefs = await SharedPreferences.getInstance();
+
+
+    print("My cake type $cakeType");
+
+
 
     print('*****removing.... ');
 
@@ -1651,16 +1696,28 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     print('.....removed****');
 
+    var deliverCharge = double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
+        (calculateDistance(double.parse(userLatitude),
+            double.parse(userLongtitude),nearestVendors[0]['GoogleLocation']['Latitude'],
+            nearestVendors[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+    var betweenKm = (calculateDistance(double.parse(userLatitude),
+        double.parse(userLongtitude), nearestVendors[0]['GoogleLocation']['Latitude'],
+        nearestVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
+
     String dlintKm = "";
 
     if(mySelVendors.isEmpty||nearestVendors.isEmpty){
-      dlintKm = "0";
+      dlintKm = "0.0";
     }else{
-      dlintKm =  ((adminDeliveryCharge/adminDeliveryChargeKm)*
-          (calculateDistance(double.parse(userLatitude),
-              double.parse(userLongtitude),
-              mySelVendors[0]['GoogleLocation']['Latitude'],
-              mySelVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(2).toString();
+      dlintKm = deliverCharge;
+    }
+
+    if(cakeType.contains("Regular") || cakeType.contains("Normal")){
+
+      if(firstVenIndex=="0"||firstVenIndex=="1"){
+        dlintKm = "0";
+      }
+
     }
 
     print("deliver based km $dlintKm");
@@ -1740,8 +1797,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         discountedPrice = (price*cakeDiscounts)/100;
 
         print("Dis Price $discountedPrice");
-
-
 
     });
 
@@ -2050,10 +2105,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         vendorLat = artTempList[0]['GoogleLocation']['Latitude'].toString();
         vendorLong = artTempList[0]['GoogleLocation']['Longitude'].toString();
 
-        thrkgdeltime = artTempList[0]['MinTimeForDeliveryOfA3KgCake'];
-        fvkgdeltime = artTempList[0]['MinTimeForDeliveryOfA5KgCake'];
-        onekgdeltime = artTempList[0]['MinTimeForDeliveryOfA1KgCake'];
-        twokgdeltime = artTempList[0]['MinTimeForDeliveryOfA2KgCake'];
+        thrkgdeltime = artTempList[0]['MinTimeForDeliveryOfA4to5KgCake'];
+        fvkgdeltime = artTempList[0]['MinTimeForDeliveryOfAAbove5KgCake'];
+        onekgdeltime = artTempList[0]['MinTimeForDeliveryOfABelow2KgCake'];
+        twokgdeltime = artTempList[0]['MinTimeForDeliveryOfA2to4KgCake'];
         cakeMindeltime = artTempList[0]['MinTimeForDeliveryOfDefaultCake'];
 
         weight.clear();
@@ -2272,12 +2327,14 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
+
     selVendor = context.watch<ContextData>().getAddedMyVendor();
     if(selVendor == true){
       mySelVendors = context.watch<ContextData>().getMyVendorsList();
       loadCakeDetailsByVendor(mySelVendors[0]['_id'] , cakeName , 0);
       isNearVendrClicked = true;
     }
+
     if(context.watch<ContextData>().getDpUpdate()==true){
       newRegUser = false;
     }
@@ -2514,14 +2571,17 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             );
                           },
                           child: profileUrl != "null"
-                              ? CircleAvatar(
-                                  radius: 17.5,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage:
-                                          NetworkImage("$profileUrl")),
-                                )
+                              ? Container(
+                              height:30,width:30,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:Colors.red,
+                                  image: DecorationImage(
+                                      image: NetworkImage("${profileUrl}"),
+                                      fit: BoxFit.fill
+                                  )
+                              )
+                          )
                               : CircleAvatar(
                                   radius: 17.5,
                                   backgroundColor: Colors.white,
@@ -2690,7 +2750,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             child: Divider(
                               color: Colors.pink[100],
                             )),
-
                         Container(
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child: Text(
@@ -2704,7 +2763,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             ),
                           ),
                         ),
-
                         Container(
                             padding: EdgeInsets.only(left: 10, right: 10),
                             alignment: Alignment.bottomLeft,
@@ -2825,7 +2883,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   ])
                                 ])
                         ),
-
                         // tierPrice==0?
                         // Padding(
                         //   padding: const EdgeInsets.only(left: 10),
@@ -2856,7 +2913,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
                         //   ),),
                         // ),
-
                         Container(
                             margin: EdgeInsets.all(10),
                             child: ExpandableText(
@@ -2868,13 +2924,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               style: TextStyle(
                                   color: Colors.grey, fontFamily: "Poppins"),
                         )),
-
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 15),
                             child: Divider(
                               color: Colors.pink[100],
                             )),
-
                         Container(
                           child: Row(
                             children: [
@@ -2945,7 +2999,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             ],
                           ),
                         ),
-
                         Container(
                           margin: EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
@@ -3415,7 +3468,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             ],
                           ),
                         ),
-                        
                         ExpansionTile(
                                title: Text("Other Details For This Cake.",style: TextStyle(
                                 fontFamily: poppins, color: darkBlue,
@@ -3454,7 +3506,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               )
                             ],
                         ),
-
                         //Weight Area
                         Visibility(
                           visible: tierSelIndex==-1?true:false,
@@ -3528,19 +3579,22 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   left: 15,bottom: 8,top: 8
                                 ),
                                 child: Text(
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
-                                  'Min Delivery Time Of A Cake $thrkgdeltime':
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
-                                  "Min Delivery Time Of A Cake $fvkgdeltime":
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>0.5&&
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0?
-                                  'Min Delivery Time Of A Cake $onekgdeltime':
+                                  "Min Delivery Time Of A Cake $onekgdeltime (default $cakeMindeltime)":
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>2.0&&
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0?
-                                  "Min Delivery Time Of A Cake $twokgdeltime":
+                                  "Min Delivery Time Of A Cake $twokgdeltime (default $cakeMindeltime)":
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>4.0&&
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
+                                  "Min Delivery Time Of A Cake $thrkgdeltime (default $cakeMindeltime)":
+                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
+                                  "Min Delivery Time Of A Cake $fvkgdeltime (default $cakeMindeltime)":
                                   "Min Delivery Time Of A Cake $cakeMindeltime",
                                   style: TextStyle(
                                     color: lightPink,
                                     fontFamily: "Poppins",
-                                    fontSize: 13
+                                    fontSize: 12
                                   ),
                                 ),
                               ),
@@ -3681,7 +3735,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             ],
                           ),
                         ),
-
                         // Cake Tier
                         // isTierPossible.toLowerCase()=="y"?
                         // Column(
@@ -3763,15 +3816,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         //     ),
                         //   ],
                         // ):
-                        // Container(),
-
-
+                        // Container()
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 15),
                             child: Divider(
                               color: Colors.pink[100],
                             )),
-
                         Container(
                             //margin
                             margin: EdgeInsets.all(10),
@@ -4021,16 +4071,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     String deliTime = "1";
 
                                     try{
-                                      if(thrkgdeltime!=null && thrkgdeltime.toLowerCase()!="n/a" &&
+                                      if(thrkgdeltime!=null && thrkgdeltime!="null"  && thrkgdeltime.toLowerCase()!="n/a" &&
                                           double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0){
                                         deliTime = dayMinConverter(thrkgdeltime);
-                                      }else if(fvkgdeltime!=null && fvkgdeltime.toLowerCase()!="n/a" &&
+                                      }else if(fvkgdeltime!=null && fvkgdeltime!="null" && fvkgdeltime.toLowerCase()!="n/a" &&
                                           double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0){
                                         deliTime = dayMinConverter(fvkgdeltime);
-                                      }else if(onekgdeltime!=null && onekgdeltime.toLowerCase()!="n/a" &&
+                                      }else if(onekgdeltime!=null && onekgdeltime!="null" && onekgdeltime.toLowerCase()!="n/a" &&
                                           double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0){
                                         deliTime = dayMinConverter(onekgdeltime);
-                                      }else if(twokgdeltime!=null && twokgdeltime.toLowerCase()!="n/a" &&
+                                      }else if(twokgdeltime!=null && twokgdeltime!="null"  && twokgdeltime.toLowerCase()!="n/a" &&
                                           double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0){
                                         deliTime = dayMinConverter(twokgdeltime);
                                       }else{
@@ -4271,7 +4321,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ),
                               ],
                             )),
-
                         fixedDelliverMethod.toLowerCase()=="delivery"?
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -4344,7 +4393,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  isNearVendrClicked == true ?
+                                                  
                                                   Text('Selected Vendor',
                                                           style: TextStyle(
                                                               fontSize: 15,
@@ -4354,14 +4403,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                       .bold,
                                                               fontFamily:
                                                                   poppins),
-                                                        ) : Container(),
+                                                  ),
 
-                                                  isNearVendrClicked == true ?
                                                   SizedBox(
                                                     height: 10,
-                                                  ):Container(),
+                                                  ),
 
-                                                  isNearVendrClicked == true ?
                                                   InkWell(
                                                           onTap: () async{
 
@@ -4563,10 +4610,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 maxLines: 1,
                                                                               ),
                                                                               SizedBox(height: 3),
-                                                                              (calculateDistance(double.parse(userLatitude),
-                                                                                  double.parse(userLongtitude),
-                                                                                  mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                  mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(2)==0.00?
+                                                                              firstVenIndex!="-1"?
                                                                               Text(
                                                                                 "DELIVERY FREE",
                                                                                 style: TextStyle(
@@ -4579,15 +4623,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                               Text(
                                                                                 "${
                                                                                     (calculateDistance(double.parse(userLatitude),
-                                                                                        double.parse(userLongtitude),
-                                                                                        mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                        mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
+                                                                                        double.parse(userLongtitude), mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                        mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(1)
                                                                                 } KM Charge Rs.${
-                                                                                    ((adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                                    double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
                                                                                         (calculateDistance(double.parse(userLatitude),
-                                                                                            double.parse(userLongtitude),
-                                                                                            mySelVendors[0]['GoogleLocation']['Latitude'],
-                                                                                            mySelVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
+                                                                                            double.parse(userLongtitude),mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                            mySelVendors[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
                                                                                 }",
                                                                                 style: TextStyle(
                                                                                   fontSize: 8,
@@ -4655,7 +4697,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                               ],
                                                             ),
                                                           ),
-                                                        ) : Container(),
+                                                        ),
 
                                                   SizedBox(
                                                     height: 10,
@@ -4733,7 +4775,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                         ),
                                                       ),
                                                     ],
-                                                  ):Container(),
+                                                  ):
+                                                  Container(),
                                                   !vendorCakeMode?
                                                   SizedBox(
                                                     height: 10,
@@ -4747,6 +4790,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                         itemCount: nearestVendors.length > 5?5:nearestVendors.length,
                                                         itemBuilder:
                                                             (context, index) {
+
+                                                              var deliverCharge = double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                                  (calculateDistance(double.parse(userLatitude),
+                                                                      double.parse(userLongtitude),nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+                                                              var betweenKm = (calculateDistance(double.parse(userLatitude),
+                                                                  double.parse(userLongtitude), nearestVendors[index]['GoogleLocation']['Latitude'],
+                                                                  nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
+
                                                           return Card(
                                                             shape: RoundedRectangleBorder(
                                                                 borderRadius:
@@ -4918,26 +4970,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                             SizedBox(
                                                                               height: 8,
                                                                             ),
-                                                                            (calculateDistance(double.parse(userLatitude),
-                                                                                double.parse(userLongtitude),
-                                                                                nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)==0.00?Text(
+                                                                            deliverCharge=="0.0"?Text(
                                                                                "DELIVERY FREE",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
                                                                             ):
                                                                             Text(
-                                                                              "${
-                                                                                  (calculateDistance(double.parse(userLatitude),
-                                                                                      double.parse(userLongtitude),
-                                                                                      nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                      nearestVendors[index]['GoogleLocation']['Longitude'])).toStringAsFixed(2)
-                                                                              } KM Charge Rs.${
-                                                                                  ((adminDeliveryCharge/adminDeliveryChargeKm)*
-                                                                                      (calculateDistance(double.parse(userLatitude),
-                                                                                          double.parse(userLongtitude),
-                                                                                          nearestVendors[index]['GoogleLocation']['Latitude'],
-                                                                                          nearestVendors[index]['GoogleLocation']['Longitude']))).toStringAsFixed(2)
-                                                                              }",
+                                                                              "${betweenKm} KM Charge Rs.${deliverCharge}",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
                                                                             )
                                                                           ],
@@ -5087,6 +5125,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 SizedBox(
                                   height: 15,
                                 ),
+                                //final Button
                                 Center(
                                   child: Container(
                                     height: 50,
