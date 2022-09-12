@@ -910,12 +910,12 @@ class _CheckOutState extends State<CheckOut> {
           "VendorPhoneNumber2":vendorPhone2,
           "VendorAddress":vendorAddress,
           "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
-          cakeMessage!="null"?"MessageOnTheCake":cakeMessage:null,
-          cakeSplReq!="null"?"SpecialRequest":cakeSplReq:null,
-          topperPrice!=0?"TopperId":topperId:null,
-          topperPrice!=0?"TopperName":topperName:null,
-          topperPrice!=0?"TopperImage":topperImg:null,
-          topperPrice!=0?"TopperPrice":'$topperPrice':null,
+          "MessageOnTheCake":cakeMessage,
+          "SpecialRequest":cakeSplReq,
+          // topperPrice!=0?"TopperId":topperId:null,
+          // topperPrice!=0?"TopperName":topperName:null,
+          // topperPrice!=0?"TopperImage":topperImg:null,
+          // topperPrice!=0?"TopperPrice":'$topperPrice':null,
         };
 
         var premiumData = {
@@ -983,7 +983,11 @@ class _CheckOutState extends State<CheckOut> {
 
         if(response.statusCode == 200){
 
+          Navigator.pop(context);
+
           if(map['statusCode'].toString()=="200"){
+
+            showOrderCompleteSheet();
 
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(map['message']),
@@ -992,14 +996,9 @@ class _CheckOutState extends State<CheckOut> {
 
             NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
 
-            premiumVendor=="no"?
-            sendNotificationToVendor(notificationTid):null;
-            showOrderCompleteSheet();
-
-            Navigator.pop(context);
           }
 
-          Navigator.pop(context);
+
 
         }else{
 

@@ -1467,10 +1467,12 @@ class _CakeTypesState extends State<CakeTypes> {
 
         print('Sub types>>>> $subType');
 
-        cakesTypes.add("All Cakes");
+        // cakesTypes.add("All Cakes");
+        List sub = ["All Cakes"];
         cakesTypes.add("Others");
         cakesTypes.sort();
-        cakesTypes = cakesTypes.toSet().toList();
+        cakesTypes = sub + cakesTypes.toSet().toList();
+        currentIndex = cakesTypes.indexWhere((element) => element.toString().toLowerCase()=="all cakes");
 
         // searchCakeType.insert(0, "Customize your cake");
         // // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
@@ -4004,7 +4006,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   selIndex[i] = true;
                                                   isFiltered = true;
                                                   currentIndex = index;
-
                                                   // for(int i =0;i<eggOrEgglesList.length;i++){
                                                   //   if(eggOrEgglesList[i]['CakeType'].contains(cakesTypes[index])){
                                                   //     print("Yessss....");

@@ -3961,7 +3961,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              vendorListClicked?
+                              vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0?
                               Center(
                                 child: Container(
                                   height: 50,

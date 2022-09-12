@@ -1851,8 +1851,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setDouble('orderCakeDiscountedPrice',discountedPrice ??0);
 
     //optionals
-    prefs.setString('orderCakeMessage', messageCtrl.text.isNotEmpty?messageCtrl.text:"null");//ops
-    prefs.setString('orderCakeRequest', specialReqCtrl.text.isNotEmpty?specialReqCtrl.text:"null");//ops
+    prefs.setString('orderCakeMessage', messageCtrl.text.isNotEmpty?messageCtrl.text:"None");//ops
+    prefs.setString('orderCakeRequest', specialReqCtrl.text.isNotEmpty?specialReqCtrl.text:"None");//ops
     prefs.setString('orderCakeVendorId', vendorID??'null');//ops
     prefs.setString('orderCakeVendorModId', vendorModID??'null');//ops
     prefs.setString('orderCakeVendorPh1', vendorPhone1??'null');//ops
@@ -3239,7 +3239,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       Container(),
                                     ],
                                   ),
-
                                   Expanded(
                                       child: Container(
                                         alignment: Alignment.centerRight,
@@ -3279,7 +3278,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   )
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -3370,7 +3369,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           )),
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
@@ -3464,7 +3463,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       )),
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              SizedBox(height: 12),
                             ],
                           ),
                         ),
@@ -3581,15 +3580,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 child: Text(
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>0.5&&
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0?
-                                  "Min Delivery Time Of A Cake $onekgdeltime (default $cakeMindeltime)":
+                                  "Min Delivery Time Of A Cake $onekgdeltime":
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>2.0&&
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0?
-                                  "Min Delivery Time Of A Cake $twokgdeltime (default $cakeMindeltime)":
+                                  "Min Delivery Time Of A Cake $twokgdeltime":
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>4.0&&
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
-                                  "Min Delivery Time Of A Cake $thrkgdeltime (default $cakeMindeltime)":
+                                  "Min Delivery Time Of A Cake $thrkgdeltime":
                                   double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
-                                  "Min Delivery Time Of A Cake $fvkgdeltime (default $cakeMindeltime)":
+                                  "Min Delivery Time Of A Cake $fvkgdeltime":
                                   "Min Delivery Time Of A Cake $cakeMindeltime",
                                   style: TextStyle(
                                     color: lightPink,

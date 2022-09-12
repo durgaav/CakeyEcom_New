@@ -671,8 +671,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Widget ProfileView(){
     userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      userNameCtrl = TextEditingController(text: userName=="null"?"No name":userName);
-      userAddrCtrl = TextEditingController(text: userAddress=="null"?"No address":userAddress);
+      userNameCtrl = TextEditingController(text: userName.toString()=="null"?"No name":userName);
+      userAddrCtrl = TextEditingController(text: userAddress.toString()=="null"?"No address":userAddress);
     });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -842,7 +842,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               crossAxisAlignment:CrossAxisAlignment.center,
               children:[
                 Expanded(
-                  child:Text('$selectedAdres',
+                  child:Text(selectedAdres.toString()=="null"?"No Address":'$selectedAdres',
                     style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontSize: 13),
                   ),
                 ),
