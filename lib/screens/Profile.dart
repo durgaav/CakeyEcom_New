@@ -1935,7 +1935,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             SizedBox(height: 10,),
 
                             recentOrders[index]['Status']!="Cancelled"
-                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                                &&days <1 &&minutes<=10&&
+                                recentOrders[index]['Status']=="New"?
                             Container(
                               padding: EdgeInsets.only(left: 15,right: 15),
                               child: Row(
