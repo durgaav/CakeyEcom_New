@@ -121,6 +121,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //other products
   List otherProducts = [];
+  List otherFilteredProducts = [];
   List otherEggProducts = [];
 
   //For filters bottom
@@ -156,7 +157,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
   List mySelVendors = [];
   bool activeSearch = false;
-  List<int> rangeValuesList = [];
+  List<double> rangeValuesList = [];
 
   //for search filter
   List categorySearch = [];
@@ -290,7 +291,7 @@ class _CakeTypesState extends State<CakeTypes> {
                               SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
                                   trackHeight: 2.0,
-                                  minThumbSeparation: 2,
+                                  minThumbSeparation: 3,
                                   thumbColor: lightPink,
                                   thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
                                   inactiveTickMarkColor:Colors.transparent,
@@ -616,11 +617,21 @@ class _CakeTypesState extends State<CakeTypes> {
                               color: lightPink,
                               onPressed: () {
                                 //Going to Aply filters....
+                                // if(currentCakeType.toLowerCase()=="others"){
+                                //   applyOthersFilter(
+                                //     priceRangeStart,
+                                //     priceRangeEnd,
+                                //     fixedFilterShapes,
+                                //     fixedFilterFlav,
+                                //   );
+                                // }else{
+                                //
+                                // }
                                 applyFilters(
                                     priceRangeStart,
                                     priceRangeEnd,
                                     fixedFilterFlav,
-                                    fixedFilterShapes,
+                                    filterShapes,
                                     fixedFilterTopping
                                 );
                               },
@@ -674,7 +685,8 @@ class _CakeTypesState extends State<CakeTypes> {
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-              topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+              topRight: Radius.circular(20),
+              topLeft: Radius.circular(20)),
         ),
         context: context,
         isScrollControlled: true,
@@ -770,6 +782,7 @@ class _CakeTypesState extends State<CakeTypes> {
                             });
                           },
                           controller: cakeSubCategoryCtrl,
+                          textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
                               hintText: "Occasion Cake",
@@ -911,7 +924,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                     cakeCategoryCtrl.text,
                                     cakeSubCategoryCtrl.text,
                                     cakeVendorCtrl.text,
-                                    selectedFilter);
+                                    selectedFilter
+                                );
                               });
                             },
                             child: const Text(
@@ -956,7 +970,11 @@ class _CakeTypesState extends State<CakeTypes> {
   //Show shapes bottom sheet
   void showShapesSheet() {
     showModalBottomSheet(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20),
+              topLeft: Radius.circular(20)),
+        ),
         context: context,
         builder: (context) {
           return StatefulBuilder(
@@ -1296,14 +1314,16 @@ class _CakeTypesState extends State<CakeTypes> {
       if (subCategory.isNotEmpty) {
         //CakeSubType
         setState((){
+          b = cakesList.where((element) => element['CakeSubType'].contains(subCategory)).toList();
+          // for (int i = 0; i < cakesList.length; i++) {
+          //   if(cakesList[i]['CakeSubType'].isNotEmpty && cakesList[i]['CakeSubType'].contains(subCategory)){
+          //     b.add(cakesList[i]);
+          //   }
+          // }
           isFiltered = true;
-          for (int i = 0; i < cakesList.length; i++) {
-            if(cakesList[i]['CakeSubType'].isNotEmpty && cakesList[i]['CakeSubType'].contains(subCategory)){
-              b.add(cakesList[i]);
-            }
-          }
         });
       }
+
 
       if (vendorName.isNotEmpty) {
         setState(() {
@@ -1313,7 +1333,7 @@ class _CakeTypesState extends State<CakeTypes> {
                   .toLowerCase()
                   .contains(vendorName.toLowerCase()))
               .toList();
-          activeSearch = true;
+          isFiltered = true;
         });
       }
 
@@ -1333,6 +1353,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
       cakeSearchList = a + b + c + d.toList();
       cakeSearchList = cakeSearchList.toSet().toList();
+
+      print("b len : ${b.length}");
+      print("cakeSearchList len : ${cakeSearchList.length}");
 
     });
   }
@@ -1531,7 +1554,7 @@ class _CakeTypesState extends State<CakeTypes> {
             // cakesList = cakesList.reversed.toList();
 
             for (int i = 0; i < cakList.length; i++) {
-              rangeValuesList.add(int.parse(cakList[i]['BasicCakePrice']));
+              rangeValuesList.add(double.parse(cakList[i]['BasicCakePrice']));
               print(cakList[i]['CakeCategory']);
               // cakesTypes.add(cakList[i]['CakeType'].toString());
             }
@@ -1579,23 +1602,10 @@ class _CakeTypesState extends State<CakeTypes> {
         Navigator.pop(context);
       }
     } catch (error) {
+      print(error);
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error Occurred'),
-        duration: Duration(seconds: 5),
-        action: SnackBarAction(
-          label: "Retry",
-          onPressed: () => setState(() {
-            loadPrefs();
-          }),
-        ),
-      ));
       Navigator.pop(context);
     }
-
-    // iamYourVendor == true?
-    // getVendor(myVendorId):null;
-
   }
 
   Future<void> getVendor(String venID) async{
@@ -2318,6 +2328,78 @@ class _CakeTypesState extends State<CakeTypes> {
     ));
   }
 
+  void applyOthersFilter(String start , String end , List shape , List flavs){
+
+   // otherProducts;
+    List a = [] , b = [] , c = [] , d = [];
+
+    setState((){
+      if(start.isEmpty && end.isEmpty && shape.isEmpty && flavs.isEmpty){
+        Navigator.pop(context);
+      }else{
+
+        //price
+        if(start.isNotEmpty && end.isNotEmpty){
+
+          List a1 = [];
+          List b1 = [];
+          List c1 = [];
+
+          for(int i = 0 ;i<otherProducts.length;i++){
+
+            if(otherProducts[i]['MinWeightPerKg']!=null){
+              a1 = otherProducts
+                  .where((element) =>
+              double.parse(element['MinWeightPerKg']['PricePerKg']) >=
+                  double.parse(start, (e) => 0)&&
+                  double.parse(element['MinWeightPerKg']['PricePerKg']) <=
+                      double.parse(end, (e) => 0))
+                  .toList();
+            }else if(otherProducts[i]['MinWeightPerUnit']!=null || otherProducts[i]['MinWeightPerUnit'].isNotEmpty){
+              b1 = otherProducts
+                  .where((element) =>
+              double.parse(element['MinWeightPerUnit']['PricePerUnit']) >=
+                  double.parse(start, (e) => 0)&&
+                  double.parse(element['MinWeightPerUnit']['PricePerUnit']) <=
+                      double.parse(end, (e) => 0))
+                  .toList();
+            }else if(otherProducts[i]['MinWeightPerBox']!=null || otherProducts[i]['MinWeightPerBox'].isNotEmpty){
+              c1 = otherProducts
+                  .where((element) =>
+              double.parse(element['MinWeightPerBox']['PricePerBox']) >=
+                  double.parse(start, (e) => 0)&&
+                  double.parse(element['MinWeightPerBox']['PricePerBox']) <=
+                      double.parse(end, (e) => 0))
+                  .toList();
+            }
+
+          }
+
+          a = a1 + b1 + c1;
+
+        }
+
+        //shape
+        if(shape.isNotEmpty){
+          for(int i =0;i<otherProducts.length;i++){
+            if(otherProducts[i]['Shape']!=null){
+              for(int j = 0 ; j < shape.length;j++){
+                b = b + otherProducts.where((element) => element['Shape'].toString().toLowerCase().
+                contains(shape[i].toString().toLowerCase())).toList();
+              }
+            }
+          }
+        }
+
+        isFilterisOn = true;
+        otherFilteredProducts = a + b + [];
+        otherFilteredProducts = otherFilteredProducts.toSet().toList();
+      }
+
+    });
+
+  }
+
   //Applying the filters...
   void applyFilters(String priceStart, String priceEnd, List flavours,
       List shapes, List topings) {
@@ -2348,10 +2430,10 @@ class _CakeTypesState extends State<CakeTypes> {
             for (int i = 0; i < eggOrEgglesList.length; i++) {
               priceFilter = eggOrEgglesList
                   .where((element) =>
-                      int.parse(element['BasicCakePrice'], onError: (e) => 0) >=
-                          double.parse(priceRangeStart, (e) => 0).toInt() &&
-                      int.parse(element['BasicCakePrice']) <=
-                          double.parse(priceRangeEnd, (e) => 0).toInt())
+                      double.parse(element['BasicCakePrice']) >=
+                          double.parse(priceRangeStart, (e) => 0)&&
+                      double.parse(element['BasicCakePrice']) <=
+                          double.parse(priceRangeEnd, (e) => 0))
                   .toList();
 
               isFilterisOn = true;
@@ -2396,7 +2478,37 @@ class _CakeTypesState extends State<CakeTypes> {
         }
 
         //shapes list ok
-        if (shapes.isNotEmpty) {
+        // if (shapes.isNotEmpty) {
+        //   setState(() {
+        //     for (int i=0 ; i < eggOrEgglesList.length; i++) {
+        //       if (eggOrEgglesList[i]['CustomShapeList']['Info'] != null &&
+        //           eggOrEgglesList[i]['CustomShapeList']['Info'].isNotEmpty) {
+        //         for (int j = 0;
+        //         j < eggOrEgglesList[i]['CustomShapeList']['Info'].length;
+        //         j++) {
+        //           if (eggOrEgglesList[i]['CustomShapeList']['Info'][j]['Name'] != null) {
+        //             for (int k = 0; k < shapes.length; k++) {
+        //               if (eggOrEgglesList[i]['CustomShapeList']['Info'][j]['Name']
+        //                   .toString()
+        //                   .toLowerCase()
+        //                   .contains(shapes[k].toString().toLowerCase())) {
+        //                 setState(() {
+        //                   shapeFilter1.add(eggOrEgglesList[i]);
+        //                   isFilterisOn = true;
+        //                 });
+        //               } else {}
+        //             }
+        //           } else {}
+        //         }
+        //       } else {}
+        //     }
+        //   });
+        //   shapeOnlyFilter = true;
+        // }
+
+        //apply basic shape
+
+        if(shapes.isNotEmpty){
           setState(() {
             for (int i=0 ; i < eggOrEgglesList.length; i++) {
               if (eggOrEgglesList[i]['CustomShapeList']['Info'] != null &&
@@ -2411,8 +2523,8 @@ class _CakeTypesState extends State<CakeTypes> {
                           .toLowerCase()
                           .contains(shapes[k].toString().toLowerCase())) {
                         setState(() {
-                          shapeFilter1.add(eggOrEgglesList[i]);
-                          isFilterisOn = true;
+                          myShapesFilter.add(eggOrEgglesList[i]);
+                          shapeOnlyFilter = true;
                         });
                       } else {}
                     }
@@ -2420,16 +2532,19 @@ class _CakeTypesState extends State<CakeTypes> {
                 }
               } else {}
             }
-          });
-        }
 
-        //apply basic shape
-        if(shapes.isNotEmpty){
-          for (int i = 0; i < shapes.length; i++) {
-            shapeFilter2 = shapeFilter2.toList() + eggOrEgglesList.where((element) => element['BasicShape'].toString()
-                .toLowerCase().contains(shapes[i].toString().toLowerCase())).toList();
-          }
-          isFilterisOn = true;
+
+            if(shapes.isNotEmpty){
+              for (int i = 0; i < shapes.length; i++) {
+                shapeFilter1 = shapeFilter1.toList() + eggOrEgglesList.where((element) => element['BasicShape'].toString()
+                    .toLowerCase().contains(shapes[i].toString().toLowerCase())).toList();
+                // print(b[i]['BasicFlavour'].toString()+" Flav");
+              }
+              shapeOnlyFilter = true;
+            }
+
+            shapeOnlyFilter = true;
+          });
         }
 
         //topings list ok
@@ -2483,6 +2598,11 @@ class _CakeTypesState extends State<CakeTypes> {
       filteredListByUser = filteredListByUser.toSet().toList();
       filteredListByUser = filteredListByUser.reversed.toList();
 
+      myShapesFilter.clear();
+      filterShapesCheck.clear();
+      filterShapes.clear();
+      shapeOnlyFilter = false;
+
       isFilterisOn = false;
     });
 
@@ -2498,7 +2618,8 @@ class _CakeTypesState extends State<CakeTypes> {
       if (shapes.isEmpty) {
         Navigator.pop(context);
         shapeOnlyFilter = false;
-      } else {
+      }
+      else {
         myShapesFilter.clear();
         setState(() {
           for (int i=0 ; i < eggOrEgglesList.length; i++) {
@@ -2906,6 +3027,9 @@ class _CakeTypesState extends State<CakeTypes> {
             cakeSubCategoryCtrl.text.isNotEmpty ||
             selectedFilter.isNotEmpty) {
 
+          List sub = [];
+          List sub2 = [];
+
           setState(() {
             categorySearch = [];
             subCategorySearch = [];
@@ -2920,14 +3044,21 @@ class _CakeTypesState extends State<CakeTypes> {
                       .toLowerCase()
                       .contains(cakeCategoryCtrl.text.toLowerCase()))
                   .toList();
+
+              sub = otherProducts
+                  .where((element) => element["ProductName"]
+                  .toString()
+                  .toLowerCase()
+                  .contains(cakeCategoryCtrl.text.toLowerCase()))
+                  .toList();
+
             }
+
 
             if (cakeSubCategoryCtrl.text.isNotEmpty) {
               subCategorySearch = eggOrEgglesList
-                  .where((element) => element['CakeName']
-                      .toString()
-                      .toLowerCase()
-                      .contains(cakeSubCategoryCtrl.text.toLowerCase()))
+                  .where((element) => element['CakeSubType']
+                      .contains(cakeSubCategoryCtrl.text))
                   .toList();
             }
 
@@ -2938,6 +3069,14 @@ class _CakeTypesState extends State<CakeTypes> {
                       .toLowerCase()
                       .contains(cakeVendorCtrl.text.toLowerCase()))
                   .toList();
+
+              sub2 = otherProducts
+              .where((element) => element["VendorName"]
+              .toString()
+              .toLowerCase()
+              .contains(cakeVendorCtrl.text.toLowerCase()))
+              .toList();
+
             }
 
             if (selectedFilter.isNotEmpty) {
@@ -2955,7 +3094,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
             // cakeSearchList.clear();
 
-            cakeSearchList = categorySearch.toList() +
+            cakeSearchList = sub + sub2 + categorySearch.toList() +
                 subCategorySearch.toList() +
                 vendorBasedSearch.toList() +
                 cakeTypeList.toList();
@@ -2968,9 +3107,12 @@ class _CakeTypesState extends State<CakeTypes> {
       }
     }
 
-    if(isFiltered == true){
+    if(isFiltered == true || shapeOnlyFilter == true ){
       if(isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true){
-        filterCakesSearchList = filteredListByUser.where((element) => element['CakeType'].contains(currentCakeType)).toList();
+        List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+        filterCakesSearchList =
+            list + filteredListByUser.where((element) =>
+            element['CakeType'].contains(currentCakeType)).toList();
       }else{
         List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
         filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
@@ -4173,17 +4315,22 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   ),
                                                   child: Column(
                                                     children: [
-                                                      CircleAvatar(
-                                                        radius: 50,
-                                                        backgroundImage: filterCakesSearchList[
-                                                                        index]
-                                                                    ['MainCakeImage']
-                                                                .isEmpty
-                                                            ? NetworkImage(
-                                                                "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
-                                                            : NetworkImage(
-                                                                filterCakesSearchList[index]['MainCakeImage']
-                                                                    .toString()),
+                                                      Container(
+                                                        height: 100,
+                                                        width: 100,
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            shape: BoxShape.circle,
+                                                            border: Border.all(
+                                                                width: 1,
+                                                                color: Colors.grey[300]!
+                                                            ),
+                                                            image: DecorationImage(
+                                                                image: NetworkImage(
+                                                                  filterCakesSearchList[index]['MainCakeImage'].toString(),
+                                                                ),fit: BoxFit.fill
+                                                            )
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                         height: 8,
@@ -4276,15 +4423,22 @@ class _CakeTypesState extends State<CakeTypes> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    CircleAvatar(
-                                                      radius: 50,
-                                                      backgroundImage: filterCakesSearchList[
-                                                                  index]['MainCakeImage']
-                                                              .isEmpty
-                                                          ? NetworkImage(
-                                                              "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
-                                                          : NetworkImage(
-                                                              filterCakesSearchList[index]['MainCakeImage'].toString()),
+                                                    Container(
+                                                      height: 100,
+                                                      width: 100,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          shape: BoxShape.circle,
+                                                          border: Border.all(
+                                                            width: 1,
+                                                            color: Colors.grey[300]!
+                                                          ),
+                                                          image: DecorationImage(
+                                                              image: NetworkImage(
+                                                                filterCakesSearchList[index]['MainCakeImage'].toString(),
+                                                              ),fit: BoxFit.fill
+                                                          )
+                                                      ),
                                                     ),
                                                     SizedBox(
                                                       height: 8,
@@ -4430,14 +4584,22 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   ),
                                                   child: Column(
                                                     children: [
-                                                      CircleAvatar(
-                                                        radius: 50,
-                                                        backgroundImage: cakeSearchList[index]['MainCakeImage'] == null ||
-                                                                cakeSearchList[index]['MainCakeImage'].isEmpty
-                                                            ? NetworkImage(
-                                                                "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
-                                                            : NetworkImage(
-                                                                cakeSearchList[index]['MainCakeImage'].toString()),
+                                                      Container(
+                                                        height: 100,
+                                                        width: 100,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          shape: BoxShape.circle,
+                                                            border: Border.all(
+                                                                width: 1,
+                                                                color: Colors.grey[300]!
+                                                            ),
+                                                          image: DecorationImage(
+                                                            image: NetworkImage(
+                                                               cakeSearchList[index]['MainCakeImage'].toString(),
+                                                            ),fit: BoxFit.fill
+                                                          )
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                         height: 8,
@@ -4530,14 +4692,22 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   ),
                                                   child: Column(
                                                     children: [
-                                                      CircleAvatar(
-                                                        radius: 50,
-                                                        backgroundImage: cakeSearchList[index]['MainCakeImage'] == null ||
-                                                            cakeSearchList[index]['MainCakeImage'].isEmpty
-                                                            ? NetworkImage(
-                                                            "https://w0.peakpx.com/wallpaper/863/651/HD-wallpaper-red-cake-pastries-desserts-cakes-strawberry-cake-berry-cake.jpg")
-                                                            : NetworkImage(
-                                                            cakeSearchList[index]['MainCakeImage'].toString()),
+                                                      Container(
+                                                        height: 100,
+                                                        width: 100,
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            border: Border.all(
+                                                                width: 1,
+                                                                color: Colors.grey[300]!
+                                                            ),
+                                                            shape: BoxShape.circle,
+                                                            image: DecorationImage(
+                                                                image: NetworkImage(
+                                                                  cakeSearchList[index]['MainCakeImage'].toString(),
+                                                                ),fit: BoxFit.fill
+                                                            )
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                         height: 8,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:cakey/screens/HamperCheckout.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
   int counts = 1;
-  int deliveryCharge = 0;
+  double deliveryCharge = 0;
   int amount = 0;
 
   //Distance calculator
@@ -223,9 +224,11 @@ class _HamperDetailsState extends State<HamperDetails> {
             vendorId = vendorList[0]['Id'].toString();
             vendor_Id = vendorList[0]['_id'].toString();
             vendorAddress = vendorList[0]['Address'].toString();
-            deliveryCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
+            deliveryCharge = double.parse(
+                ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                    (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                        double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
+            );
           }
         });
 
@@ -620,27 +623,27 @@ class _HamperDetailsState extends State<HamperDetails> {
                           color: Colors.pink,
                           onPressed: () {
 
-                            int charge = 0;
+                            // int charge = 0;
+                            //
+                            // if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                            //   charge = deliveryCharge;
+                            // }else{
+                            //   charge = 0;
+                            // }
 
-                            if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                              charge = deliveryCharge;
-                            }else{
-                              charge = 0;
-                            }
+                            // print('total...... $charge');
 
-                            print('total...... $charge');
-
-                            print(
-                                ((int.parse(hamperPrice) * counts) + charge).toInt().toString()
-                            );
+                            // print(
+                            //     ((int.parse(hamperPrice) * counts) + charge).toInt().toString()
+                            // );
 
                             Navigator.pop(context);
 
-                            if(payType.toLowerCase()=="cash on delivery"){
-                              proceedOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
-                            }else{
-                              _handleOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
-                            }
+                            // if(payType.toLowerCase()=="cash on delivery"){
+                            //   proceedOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
+                            // }else{
+                            //   _handleOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
+                            // }
 
                           },
                           child: Text(
@@ -984,6 +987,67 @@ class _HamperDetailsState extends State<HamperDetails> {
     showPaymentDoneAlert("failed");
   }
 
+  Future<void> passToCheckout() async{
+
+    print(user_ID);
+    print(productContains);
+
+    double charge = 0.0;
+    double total = 0.0;
+
+    if(fixedDelliverMethod.toLowerCase()=="delivery"){
+      charge = double.parse(deliveryCharge.toString());
+    }else{
+      charge = 0;
+    }
+
+    total = double.parse(((double.parse(hamperPrice) * counts) + charge).toStringAsFixed(1));
+
+    var prefs = await SharedPreferences.getInstance();
+
+    //hampers...
+    prefs.setString("hampOrdName", hamperName);
+    prefs.setString("hampOrdId", hamper_id);
+    prefs.setString("hampOrdModId", hampeModid);
+    prefs.setString("hamOrdPrice", hamperPrice);
+    prefs.setString("hamOrdImage", hamImages[0]);
+    prefs.setString("hamOrdDescription", hamperDescription);
+    prefs.setStringList("hamOrdProducts", productContains);
+    prefs.setString("hamOrdEggorEggless", eggOregless);
+    prefs.setString("hamOrdWeight", hamWeight);
+    prefs.setString("hamOrdTitle", hamTitle);
+
+    //vendor...
+    prefs.setString("hampOrdVenName", vendrorName);
+    prefs.setString("hampOrdVenId", vendor_Id);
+    prefs.setString("hampOrdVenModId", vendorId);
+    prefs.setString("hampOrdVenAddress", vendorAddress);
+    prefs.setString("hampOrdVenPhone1", vendrorPhone1);
+    prefs.setString("hampOrdVenPhone2", vendrorPhonr2);
+    prefs.setString("hampOrdVenLatt", vendrorLat);
+    prefs.setString("hampOrdVenLong", vendrorLong);
+    prefs.setString("hampOrdVenNotId", noId);
+
+    //deliver user...
+    prefs.setString("hampOrdDeliDate", deliverDate);
+    prefs.setString("hampOrdDeliSession", deliverSession);
+    prefs.setString("hampOrdDeliAddress", deliveryAddress);
+    prefs.setString("hampOrdDeliType", fixedDelliverMethod);
+    prefs.setString("hampOrdDeliUser", userName);
+    prefs.setString("hampOrdDeliPhone", userPhone);
+    prefs.setString("hampOrdDeliUserId", userId);
+    prefs.setString("hampOrdDeliUserModId", user_ID);
+
+    //for calculations...
+    prefs.setInt("hamOrdCount", counts);
+    prefs.setDouble("hamOrdDeliCharge", charge);
+    prefs.setDouble("hamOrdTotal", total);
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => HamperCheckout([], [])));
+
+  }
+
+
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
@@ -1079,6 +1143,80 @@ class _HamperDetailsState extends State<HamperDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //name
+                Container(
+                  margin: EdgeInsets.only(left: 20, right: 20, top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Row(
+                      //   children: [
+                      //     RatingBar.builder(
+                      //       initialRating:
+                      //       double.parse(cakeRatings, (e) => 1.5),
+                      //       minRating: 1,
+                      //       direction: Axis.horizontal,
+                      //       allowHalfRating: true,
+                      //       itemCount: 5,
+                      //       itemSize: 15,
+                      //       itemPadding:
+                      //       EdgeInsets.symmetric(horizontal: 1.0),
+                      //       itemBuilder: (context, _) => Icon(
+                      //         Icons.star,
+                      //         color: Colors.amber,
+                      //       ),
+                      //       onRatingUpdate: (rating) {
+                      //         print(rating);
+                      //       },
+                      //     ),
+                      //     Container(
+                      //       padding: EdgeInsets.only(left: 5),
+                      //       child: (cakeRatings != null)
+                      //           ? (cakeRatings != 'null')
+                      //           ? Text(
+                      //         ' $cakeRatings',
+                      //         style: TextStyle(
+                      //             color: Colors.black54,
+                      //             fontWeight: FontWeight.bold,
+                      //             fontSize: 13,
+                      //             fontFamily: poppins),
+                      //       )
+                      //           : Text('3.5',
+                      //           style: TextStyle(
+                      //               color: Colors.black54,
+                      //               fontWeight: FontWeight.bold,
+                      //               fontSize: 13,
+                      //               fontFamily: poppins))
+                      //           : Text(cakeRatings),
+                      //     )
+                      //   ],
+                      // ),
+                      GestureDetector(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Transform.rotate(
+                              angle: 120,
+                              child: Icon(
+                                Icons.egg_outlined,
+                                color: Colors.amber,
+                              ),
+                            ),
+                            Text(
+                              '$eggOregless',
+                              style: TextStyle(
+                                  color: Colors.amber,
+                                  fontFamily: poppins,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10,),
                 Container(
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Text(
@@ -1205,6 +1343,77 @@ class _HamperDetailsState extends State<HamperDetails> {
                           TextStyle(color: Colors.grey, fontFamily: "Poppins"),
                     )),
 
+
+                Container(
+                  child: Row(
+                    children: [
+                      Expanded(child:Container(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sale Started On',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedFlavList.isEmpty
+                            //     ?
+                            Text("$startDate",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600),
+                            )
+
+                          ],
+                        ),
+                      ),),
+                      Container(
+                        height: 45,
+                        width: 1,
+                        color: Colors.pink[100],
+                      )
+                      ,
+                      Expanded(child: Container(
+                        padding: EdgeInsets.only(left : 15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sale End Date',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedShape.isEmpty
+                            //     ?
+                            Text("$endDate",
+                              style: TextStyle(
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins"
+                              ),
+                            )
+                          ],
+                        ),
+                      ),),
+                    ],
+                  ),
+                ),
 
                 //product contains
                 Padding(
@@ -1609,36 +1818,6 @@ class _HamperDetailsState extends State<HamperDetails> {
                       )
                     : Container(),
 
-
-                //sale start end date
-                Padding(
-                  padding: EdgeInsets.only(top: 10, left: 6),
-                  child: Text(
-                    'Sale Started On : $startDate',
-                    style: TextStyle(
-                        fontFamily: poppins, color: Colors.black, fontSize: 13),
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(top: 10, left: 6),
-                  child: Text(
-                    'Sale Ends In : $endDate',
-                    style: TextStyle(
-                        fontFamily: poppins, color: Colors.black, fontSize: 13),
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(top: 10, left: 6),
-                  child: Text(
-                    'Egg / Eggless : $eggOregless',
-                    style: TextStyle(
-                        fontFamily: poppins, color: Colors.black, fontSize: 13),
-                  ),
-                ),
-
-
                 Padding(
                   padding: EdgeInsets.only(top:15, left: 10),
                   child: Text(
@@ -1803,15 +1982,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                                           maxLines: 1,
                                         ),
                                         SizedBox(height: 3),
-                                        (calculateDistance(
-                                                        double.parse(
-                                                            userLatitude),
-                                                        double.parse(
-                                                            userLongtitude),
-                                                        double.parse(vendrorLat
-                                                            .toString()),
-                                                        double.parse(
-                                                            vendrorLong)))
+                                        ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                            (calculateDistance(double.parse(userLatitude),
+                                                double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))))
                                                     .toStringAsFixed(1) == "0.0"
 
                                             ? Text(
@@ -1921,19 +2094,19 @@ class _HamperDetailsState extends State<HamperDetails> {
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
 
-                        int charge = 0;
-
-                        if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                          charge = deliveryCharge;
-                        }else{
-                          charge = 0;
-                        }
-
-                        print('total...... $charge');
-
-                        amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
-
-                        print("Final $amount");
+                        // int charge = 0;
+                        //
+                        // if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                        //   charge = deliveryCharge;
+                        // }else{
+                        //   charge = 0;
+                        // }
+                        //
+                        // print('total...... $charge');
+                        //
+                        // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
+                        //
+                        // print("Final $amount");
 
                         if(deliverDate.toLowerCase()=="not yet select" ||
                             deliverSession.toLowerCase()=="not yet select")
@@ -1944,7 +2117,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                                   behavior: SnackBarBehavior.floating,
                               ));
                         }else{
-                          showConfirmOrder();
+                          passToCheckout();
                         }
 
                       },

@@ -357,187 +357,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     );
   }
 
-  //Add new Address Alert...
-  void showAddAddressAlert(){
-
-    //region private variables
-
-    //Controls
-    var streetNameCtrl = new TextEditingController();
-    var cityNameCtrl = new TextEditingController();
-    var districtNameCtrl = new TextEditingController();
-    var pinCodeCtrl = new TextEditingController();
-
-    //Validation (bool)
-    bool streetVal = false;
-    bool cityVal = false;
-    bool districtVal = false;
-    bool pincodeVal = false;
-
-    bool loading = false;
-
-    //endregion
-
-    showDialog(
-        context: context,
-        builder: (context){
-          return StatefulBuilder(
-              builder:(BuildContext context , void Function(void Function()) setState){
-                return AlertDialog(
-                  scrollable: true,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
-                  ),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Add New Address' , style: TextStyle(
-                          color: lightPink , fontFamily: "Poppins" , fontSize: 13
-                      ),),
-                      IconButton(
-                          onPressed:()=>Navigator.pop(context),
-                          icon:Icon(Icons.close , color:Colors.red)
-                      )
-                    ],
-                  ),
-                  content: Container(
-                    width: 250,
-                    color: Colors.white,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          loading?LinearProgressIndicator():Container(),
-                          TextField(
-                            controller: streetNameCtrl,
-                            decoration: InputDecoration(
-                                hintText: 'Street No.',
-                                hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                                errorText: streetVal?'required street no. & name!':null
-                            ),
-                          ),
-                          SizedBox(height: 15,),
-                          TextField(
-                            controller: cityNameCtrl,
-                            decoration: InputDecoration(
-                                hintText: 'City/Area/Town',
-                                hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                                errorText: cityVal?'required city name!':null
-                            ),
-                          ),SizedBox(height: 15,),
-
-                          TextField(
-                            controller: districtNameCtrl,
-                            decoration: InputDecoration(
-                                hintText: 'District',
-                                hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                                errorText: districtVal?'required district name!':null
-                            ),
-                          ),
-                          SizedBox(height: 15,),
-                          TextField(
-                            maxLength: 6,
-                            controller: pinCodeCtrl,
-                            decoration: InputDecoration(
-                                hintText: 'Pin Code',
-                                hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13),
-                                errorText: pincodeVal?'required pin code!':null
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  actions: [
-                    FlatButton(
-                        onPressed: () async{
-
-                          setState((){
-                            loading = true;
-                          });
-
-                          Position position = await _getGeoLocationPosition();
-                          List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-
-                          Placemark place = placemarks[1];
-                          // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
-
-                          setState(()  {
-                            streetNameCtrl = new TextEditingController(text: place.street);
-                            cityNameCtrl = new TextEditingController(text: place.subLocality);
-                            districtNameCtrl = new TextEditingController(text: place.locality);
-                            pinCodeCtrl = new TextEditingController(text: place.postalCode);
-                          });
-
-                          setState((){
-                            loading = false;
-                          });
-
-                        },
-                        child: Text('Current',style: TextStyle(
-                            color: darkBlue,fontFamily: "Poppins"
-                        ),)
-                    ),
-                    FlatButton(
-                        onPressed: (){
-                          setState((){
-                            //street
-                            if(streetNameCtrl.text.isEmpty){
-                              streetVal = true;
-                            }else{
-                              streetVal = false;
-                            }
-
-                            //city
-                            if(cityNameCtrl.text.isEmpty){
-                              cityVal = true;
-                            }else{
-                              cityVal = false;
-                            }
-
-                            //dist
-                            if(districtNameCtrl.text.isEmpty){
-                              districtVal = true;
-                            }else{
-                              districtVal = false;
-                            }
-
-                            //pin
-                            if(pinCodeCtrl.text.isEmpty||pinCodeCtrl.text.length <6){
-                              pincodeVal = true;
-                            }else{
-                              pincodeVal = false;
-                            }
-
-                            print(
-
-                                'Street no : ${streetNameCtrl.text}\n'
-                                    'City : ${cityNameCtrl.text}\n'
-                                    'District : ${districtNameCtrl.text}\n'
-                                    'Pincode : ${pinCodeCtrl.text}\n'
-
-                            );
-
-                            if(streetNameCtrl.text.isNotEmpty&&cityNameCtrl.text.isNotEmpty&&
-                                districtNameCtrl.text.isNotEmpty&&pinCodeCtrl.text.isNotEmpty)
-                            {
-                              saveNewAddress(streetNameCtrl.text , cityNameCtrl.text , districtNameCtrl.text,
-                                  pinCodeCtrl.text);
-                            }
-
-                          });
-                        },
-                        child:Text('Save',style: TextStyle(
-                            color: Colors.green,fontFamily: "Poppins"
-                        ),)
-                    ),
-                  ],
-                );
-              }
-          );
-        }
-    );
-  }
-
   //add other category
   void showOthersCateDialog(){
 
@@ -2172,8 +1991,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       shapesList.isNotEmpty?
                                       Container(
                                         color:Colors.white,
+                                        height: 300,
                                         child:ListView.builder(
-                                            physics: NeverScrollableScrollPhysics(),
                                             itemCount: shapesList.length,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
@@ -2263,116 +2082,116 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       flavourList.isNotEmpty?
                                       Container(
                                         color:Colors.white,
-                                        child:Column(
-                                          children: [
-                                            ListView.builder(
-                                                physics: NeverScrollableScrollPhysics(),
-                                                itemCount: flavourList.length,
-                                                shrinkWrap: true,
-                                                itemBuilder: (context, index) {
-                                                  fixedFlavChecks.add(false);
-                                                  return InkWell(
-                                                    onTap: (){
-                                                      if(flavourList[index].toString().contains('Others')){
-                                                        print('Index is $index');
-                                                        showOthersFlavourDialog(index);
-                                                      }else{
-                                                        setState((){
-                                                          if(fixedFlavChecks[index]==false){
-                                                            fixedFlavChecks[index] = true;
-                                                            if(fixedFlavList.contains(flavourList[index].toString())){
-                                                              print('exists...');
+                                        height: 300,
+                                        child:SingleChildScrollView(
+                                          child: Column(
+                                            children: [
+                                              ListView.builder(
+                                                  itemCount: flavourList.length,
+                                                  physics: NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemBuilder: (context, index) {
+                                                    fixedFlavChecks.add(false);
+                                                    return InkWell(
+                                                      onTap: (){
+                                                        if(flavourList[index].toString().contains('Others')){
+                                                          print('Index is $index');
+                                                          showOthersFlavourDialog(index);
+                                                        }else{
+                                                          setState((){
+                                                            if(fixedFlavChecks[index]==false){
+                                                              fixedFlavChecks[index] = true;
+                                                              if(fixedFlavList.contains(flavourList[index].toString())){
+                                                                print('exists...');
+                                                              }else{
+                                                                fixedFlavList.add({
+                                                                  "Name": flavourList[index]
+                                                                      .toString(),
+                                                                  "Price": "0"
+                                                                });
+                                                              }
                                                             }else{
-                                                              fixedFlavList.add({
-                                                                "Name": flavourList[index]
-                                                                    .toString(),
-                                                                "Price": "0"
+                                                              fixedFlavChecks[index] = false;
+                                                              fixedFlavList.removeWhere((element) => element['Name']==flavourList[index].toString());
+                                                            }
+                                                          });
+                                                        }
+                                                      },
+                                                      child: Container(
+                                                        padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
+                                                        child:
+                                                        flavourList[index]=="Others"?
+                                                        Row(
+                                                          children: [
+                                                            flavTempList.isEmpty?
+                                                            Icon(Icons.add_circle_outline_rounded, color: Colors.green,):
+                                                            Icon(Icons.check_circle, color: Colors.green,),
+                                                            SizedBox(width: 5,),
+                                                            Expanded(child: Text(
+                                                              "${flavourList[index]}",
+                                                              style: TextStyle(
+                                                                  fontFamily: "Poppins", color: darkBlue,
+                                                                  fontSize: 13,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),),
+                                                          ],
+                                                        ):
+                                                        Row(
+                                                          children: [
+                                                            fixedFlavChecks[index]!=true?
+                                                            Icon(Icons.radio_button_unchecked, color: Colors.green,):
+                                                            Icon(Icons.check_circle, color: Colors.green,),
+                                                            SizedBox(width: 5,),
+                                                            Expanded(child: Text(
+                                                              "${flavourList[index]}",
+                                                              style: TextStyle(
+                                                                  fontFamily: "Poppins", color: darkBlue,
+                                                                  fontWeight: FontWeight.bold,fontSize: 13,
+                                                              ),
+                                                            ),),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+
+                                                  }),
+                                              flavTempList.isNotEmpty?
+                                              Container(
+                                                width: MediaQuery.of(context).size.width,
+                                                height: 55,
+                                                child: ListView.builder(
+                                                    scrollDirection: Axis.horizontal,
+                                                    itemCount: flavTempList.length,
+                                                    shrinkWrap: true,
+                                                    itemBuilder: (c, i)=>Container(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(4.0),
+                                                        child: ActionChip(
+                                                            label:Row(
+                                                              children: [
+                                                                Text(flavTempList[i]['Name']),
+                                                                SizedBox(width: 4,),
+                                                                Icon(Icons.close , size: 20,)
+                                                              ],
+                                                            ),
+                                                            onPressed: (){
+                                                              setState((){
+                                                                if(flavTempList.contains(flavTempList[i])){
+                                                                  flavTempList.removeWhere((element) => element['Name']==flavTempList[i]['Name']);
+                                                                }else{
+                                                                  print('Nope...');
+                                                                }
                                                               });
                                                             }
-                                                          }else{
-                                                            fixedFlavChecks[index] = false;
-                                                            fixedFlavList.removeWhere((element) => element['Name']==flavourList[index].toString());
-                                                          }
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
-                                                      child:
-                                                      flavourList[index]=="Others"?
-                                                      Row(
-                                                        children: [
-                                                          flavTempList.isEmpty?
-                                                          Icon(Icons.add_circle_outline_rounded, color: Colors.green,):
-                                                          Icon(Icons.check_circle, color: Colors.green,),
-                                                          SizedBox(width: 5,),
-                                                          Expanded(child: Text(
-                                                            "${flavourList[index]}",
-                                                            style: TextStyle(
-                                                                fontFamily: "Poppins", color: darkBlue,
-                                                                fontSize: 13,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),),
-                                                        ],
-                                                      ):
-                                                      Row(
-                                                        children: [
-                                                          fixedFlavChecks[index]!=true?
-                                                          Icon(Icons.radio_button_unchecked, color: Colors.green,):
-                                                          Icon(Icons.check_circle, color: Colors.green,),
-                                                          SizedBox(width: 5,),
-                                                          Expanded(child: Text(
-                                                            "${flavourList[index]}",
-                                                            style: TextStyle(
-                                                                fontFamily: "Poppins", color: darkBlue,
-                                                                fontWeight: FontWeight.bold,fontSize: 13,
-                                                            ),
-                                                          ),),
-                                                        ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
-
-                                                }),
-
-                                            flavTempList.isNotEmpty?
-                                            Container(
-                                              width: MediaQuery.of(context).size.width,
-                                              height: 55,
-                                              child: ListView.builder(
-                                                  scrollDirection: Axis.horizontal,
-                                                  //
-                                                  itemCount: flavTempList.length,
-                                                  shrinkWrap: true,
-                                                  itemBuilder: (c, i)=>Container(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(4.0),
-                                                      child: ActionChip(
-                                                          label:Row(
-                                                            children: [
-                                                              Text(flavTempList[i]['Name']),
-                                                              SizedBox(width: 4,),
-                                                              Icon(Icons.close , size: 20,)
-                                                            ],
-                                                          ),
-                                                          onPressed: (){
-                                                            setState((){
-                                                              if(flavTempList.contains(flavTempList[i])){
-                                                                flavTempList.removeWhere((element) => element['Name']==flavTempList[i]['Name']);
-                                                              }else{
-                                                                print('Nope...');
-                                                              }
-                                                            });
-                                                          }
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            ):
-                                            Container(),
-
-                                          ],
+                                                    )
+                                                ),
+                                              ):
+                                              Container()
+                                            ],
+                                          ),
                                         ),
                                       ):
                                       Center(

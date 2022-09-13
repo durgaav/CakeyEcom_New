@@ -3573,30 +3573,30 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       })),
 
                               //sho
-                              Container(
-                                padding: EdgeInsets.only(
-                                  left: 15,bottom: 8,top: 8
-                                ),
-                                child: Text(
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>0.5&&
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0?
-                                  "Min Delivery Time Of A Cake $onekgdeltime":
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>2.0&&
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0?
-                                  "Min Delivery Time Of A Cake $twokgdeltime":
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>4.0&&
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
-                                  "Min Delivery Time Of A Cake $thrkgdeltime":
-                                  double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
-                                  "Min Delivery Time Of A Cake $fvkgdeltime":
-                                  "Min Delivery Time Of A Cake $cakeMindeltime",
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontFamily: "Poppins",
-                                    fontSize: 12
-                                  ),
-                                ),
-                              ),
+                              // Container(
+                              //   padding: EdgeInsets.only(
+                              //     left: 15,bottom: 8,top: 8
+                              //   ),
+                              //   child: Text(
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>0.5&&
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0?
+                              //     "Min Delivery Time Of A Cake $onekgdeltime":
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>2.0&&
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0?
+                              //     "Min Delivery Time Of A Cake $twokgdeltime":
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>4.0&&
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0?
+                              //     "Min Delivery Time Of A Cake $thrkgdeltime":
+                              //     double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0?
+                              //     "Min Delivery Time Of A Cake $fvkgdeltime":
+                              //     "Min Delivery Time Of A Cake $cakeMindeltime",
+                              //     style: TextStyle(
+                              //       color: lightPink,
+                              //       fontFamily: "Poppins",
+                              //       fontSize: 12
+                              //     ),
+                              //   ),
+                              // ),
 
                               cakeSubType.toLowerCase().contains("tier")||cakeSubType.toLowerCase().contains("theme")
                               ||cakeSubType.toLowerCase().contains("fondant")||
@@ -4083,10 +4083,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0){
                                         deliTime = dayMinConverter(twokgdeltime);
                                       }else{
-                                        deliTime = dayMinConverter(cakeMindeltime);
+                                        if(cakeMindeltime.toLowerCase()!="n/a"){
+                                          deliTime = dayMinConverter(cakeMindeltime);
+                                        }else{
+                                          deliTime = dayMinConverter("1 day");
+                                        }
+
                                       }
                                     }catch(e){
-                                      deliTime = "1";
+                                      deliTime = dayMinConverter("1 day");
                                     }
 
                                     print("Deliver time estimate : .... $deliTime");
@@ -4104,7 +4109,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         DateTime.now().month,
                                         DateTime.now().day+int.parse(deliTime),
                                       ),
-                                      helpText: "Select Deliver Date"
+                                      helpText: "Min Delivery Time : $deliTime day(s)",
                                     );
 
                                     setState(() {

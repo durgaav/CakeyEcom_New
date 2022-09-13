@@ -495,7 +495,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     image: DecorationImage(
                                         image: NetworkImage(
                                             "${cakeImages[index]}"),
-                                        fit: BoxFit.cover)),
+                                        fit: BoxFit.fill)),
                               );
                             }),
                         Align(
@@ -964,12 +964,13 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
                                   ],
                                   onChanged: (String text) {
+                                    print(text+selectedDropWeight);
                                     setState((){
                                       if (customweightCtrl.text.isNotEmpty) {
                                         selectedWeightIndex = -1;
-                                        selectedWeight = customweightCtrl.text;
+                                        selectedWeight = text+selectedDropWeight;
                                         changeWeight(selectedWeight);
-                                        print("weight is $selectedWeight");
+                                        print("weight is ${selectedWeight+selectedDropWeight}");
                                       } else {
                                         selectedWeightIndex = 0;
                                         selectedWeight = weight[0]['Weight'].toString();
@@ -1881,14 +1882,10 @@ double changeWeight(String weight) {
 
   if(givenWeight.toLowerCase().endsWith("kg")){
 
-    print("true");
-
     givenWeight = givenWeight.toLowerCase().replaceAll("kg", "");
     converetedWeight = double.parse(givenWeight);
 
   }else{
-
-    print("false");
 
     givenWeight = givenWeight.toLowerCase().replaceAll("g", "");
     converetedWeight = double.parse(givenWeight)/1000;

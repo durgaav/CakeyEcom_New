@@ -17,19 +17,19 @@ import '../DrawerScreens/Notifications.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 
-class OtherCheckout extends StatefulWidget {
+class HamperCheckout extends StatefulWidget {
 
   List artic , flavs ;
-  OtherCheckout(this.artic, this.flavs);
+  HamperCheckout(this.artic, this.flavs);
 
   @override
-  State<OtherCheckout> createState() => _OtherCheckoutState(artic: artic,flavs: flavs);
+  State<HamperCheckout> createState() => _HamperCheckoutState(artic: artic,flavs: flavs);
 }
 
-class _OtherCheckoutState extends State<OtherCheckout> {
+class _HamperCheckoutState extends State<HamperCheckout> {
 
   List artic , flavs ;
-  _OtherCheckoutState({required this.artic, required this.flavs});
+  _HamperCheckoutState({required this.artic, required this.flavs});
 
   //Colors
   Color lightGrey = Color(0xffF5F5F5);
@@ -82,9 +82,11 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   double finalTotal = 0;
   String otherType = "";
   String pricePerKg = "";
+  String hamTitle = "";
 
 
   List<String> toppings = [];
+  List<String> productContains = [];
 
   //HYVOOB9SJFHMFA8L
 
@@ -259,6 +261,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
   //Confirm order
   void showConfirmOrder(){
+    var amount = ( ((
+        (double.parse(cakePrice)*counts) + deliveryCharge
+    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
     showDialog(
       context: context,
       builder: (context)=>
@@ -290,7 +295,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                     if(paymentType.toLowerCase()=="online payment"){
                       _handleOrder();
                     }else{
-                      handleOrderKgs();
+                      proceedOrder(amount);
                     }
                   },
                   child: Text('Order Now')
@@ -368,7 +373,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     showAlertDialog();
 
     var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
+        (double.parse(cakePrice)*counts) + deliveryCharge
     ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
 
     var headers = {
@@ -402,29 +407,6 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           +response.reasonPhrase.toString())));
     }
 
-    //{id: order_K1RKAn7G9lnanu, entity: order, amount: "700", amount_paid: "0",
-    // amount_due: "700", currency: INR, receipt: Receipt, offer_id: null, status: created,
-    // attempts: "0", notes: {notes_key_1: Order for Vanilla Cake}, created_at: "1659590700"}
-
-
-    // var amount = 0.0;
-    //
-    // if(orderFromCustom!="no"){
-    //   amount = ((((double.parse(cakePrice)*
-    //       double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-    //       extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-    //       tempDiscountPrice);
-    // }else{
-    //   amount = ((counts * (
-    //       double.parse(cakePrice)*
-    //           double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-    //           (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-    //   ) + double.parse((tempTax).toString()) +
-    //       deliveryCharge)
-    //       - tempDiscountPrice);
-    // }
-    //
-
   }
 
   //handle razorpay payment here...
@@ -433,7 +415,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     print("Test ord id : $orderId");
 
     var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
+        (double.parse(cakePrice)*counts) + deliveryCharge
     ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
 
     var options = {
@@ -523,51 +505,54 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     setState((){
       //user
-      userID = prefs.getString("userID") ?? '';
-      userModId = prefs.getString("userModId") ?? '';
-      userName = prefs.getString("userName") ?? '';
-      userPhone = prefs.getString("phoneNumber") ?? '';
-      userAddress = prefs.getString("otherOrdDeliveryAdrs") ?? 'null';
+      userID = prefs.getString("hampOrdDeliUserId") ?? '';
+      userModId = prefs.getString("hampOrdDeliUserModId") ?? '';
+      userName = prefs.getString("hampOrdDeliUser") ?? '';
+      userPhone = prefs.getString("hampOrdDeliPhone") ?? '';
+      userAddress = prefs.getString("hampOrdDeliAddress") ?? 'null';
 
-      cakeName = prefs.getString("otherOrdName")??"";
-      pricePerKg = prefs.getString("otherOrdPricePerKg")??"";
-      cakeCommonName = prefs.getString("otherOrdCommonName")??"";
-      shape = prefs.getString("otherOrdShape")??"";
-      cakeID = prefs.getString("otherOrdMainId")??"";
-      cakeModId = prefs.getString("otherOrdModID")??"";
-      cakeDesc = prefs.getString("otherOrdDescrip")??"";
-      cakeImage = prefs.getString("otherOrdImage")??"";
-      cakePrice = prefs.getString("otherOrdPrice")??"";
-      eggOreggless = prefs.getString("otherOrdEgg")??"";
-      weight = prefs.getString("otherOrdWeight")??"";
+      //product
+      cakeName = prefs.getString("hampOrdName")??"";
+      cakeID = prefs.getString("hampOrdId")??"";
+      cakeModId = prefs.getString("hampOrdModId")??"";
+      cakeDesc = prefs.getString("hamOrdDescription")??"";
+      cakeImage = prefs.getString("hamOrdImage")??"";
+      cakePrice = prefs.getString("hamOrdPrice")??"";
+      eggOreggless = prefs.getString("hamOrdEggorEggless")??"";
+      productContains = prefs.getStringList("hamOrdProducts")??[];
+      weight = prefs.getString("hamOrdWeight")??"";
+      hamTitle = prefs.getString("hamOrdTitle")??"";
 
 
       //vendor
-      vendorName = prefs.getString("otherOrdVenName")??"";
-      vendorID = prefs.getString("otherOrdVenMainID")??"";
-      vendorModId = prefs.getString("otherOrdVenModId")??"";
-      vendorAddress = prefs.getString("otherOrdVenAddress")??"";
-      vendorPhone1 = prefs.getString("otherOrdVenPhn1")??"";
-      vendorPhone2 = prefs.getString("otherOrdVenPhn2")??"";
-      vendorLat = prefs.getString("otherOrdVenLat")??"";
-      vendorLong = prefs.getString("otherOrdVenLong")??"";
-      notificationTid = prefs.getString("otherOrdVenNotiID")??"";
+      vendorName = prefs.getString("hampOrdVenName")??"";
+      vendorID = prefs.getString("hampOrdVenId")??"";
+      vendorModId = prefs.getString("hampOrdVenModId")??"";
+      vendorAddress = prefs.getString("hampOrdVenAddress")??"";
+      vendorPhone1 = prefs.getString("hampOrdVenPhone1")??"";
+      vendorPhone2 = prefs.getString("hampOrdVenPhone2")??"";
+      vendorLat = prefs.getString("hampOrdVenLatt")??"";
+      vendorLong = prefs.getString("hampOrdVenLong")??"";
+      notificationTid = prefs.getString("hampOrdVenNotId")??"";
 
 
-      deliverDate = prefs.getString("otherOrdDeliDate")??"";
-      deliverType = prefs.getString("otherOrdPickOrDel")??"";
-      deliverSession = prefs.getString("otherOrdDeliSession")??"";
-      counts = prefs.getInt("otherOrdCounter")??1;
-      deliveryCharge = double.parse(prefs.getString("otherOrdDeliveryCharge")??"0.0");
+      deliverDate = prefs.getString("hampOrdDeliDate")??"";
+      deliverType = prefs.getString("hampOrdDeliType")??"";
+      deliverSession = prefs.getString("hampOrdDeliSession")??"";
+      counts = prefs.getInt("hamOrdCount")??1;
+      deliveryCharge = prefs.getDouble("hamOrdDeliCharge")??0.0;
 
-      discount = int.parse(prefs.getString("otherOrdDiscount")??"0");
-      otherType =  prefs.getString("otherOrdKgType")??"";
-      cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
+      // prefs.setInt("hamOrdCount", counts);
+      //     prefs.setDouble("hamOrdDeliCharge", charge);
+      //     prefs.setDouble("hamOrdTotal", charge);
+
+      // discount = int.parse(prefs.getString("otherOrdDiscount")??"0");
+      // otherType =  prefs.getString("otherOrdKgType")??"";
+      // cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
 
     });
 
   }
-
 
   Future<void> sendNotificationToVendor(String? NoId) async{
 
@@ -604,322 +589,15 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     }
   }
 
-  //confirm order
-  Future<void> orderTypeKg() async{
-
-    showAlertDialog();
-
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
-
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST',
-        Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerKg": {
-        "Weight": weight,
-        "PricePerKg": pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "ItemCount": counts,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Total": amount,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      print(map);
-
-      if(map['statusCode']=="200"){
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-
-        sendNotificationToVendor(notificationTid);
-        showOrderCompleteSheet();
-
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-      }
-    }
-    else {
-      Navigator.pop(context);
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
-    }
-
-  }
-
-  //confirm unit order
-  Future<void> confirmUnitOrd() async{
-
-    showAlertDialog();
-
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerUnit": {
-        "Weight": weight,
-        "ProductCount": counts,
-        "PricePerUnit": pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Total": amount,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      print(map);
-
-      if(map['statusCode']=="200"){
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-        sendNotificationToVendor(notificationTid);
-        showOrderCompleteSheet();
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-      }
-    }
-    else {
-      Navigator.pop(context);
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
-    }
-
-  }
-
-  //confirm unit order
-  Future<void> confirmBoxOrd() async{
-
-    showAlertDialog();
-
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerBox": {
-        "Piece":weight,
-        "ProductCount":counts,
-        "PricePerBox":pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Total": amount,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      print(map);
-
-      if(map['statusCode'].toString()=="200"){
-
-        showOrderCompleteSheet();
-        sendNotificationToVendor(notificationTid);
-
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-      }
-    }
-    else {
-      Navigator.pop(context);
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
-    }
-
-  }
-
-  //confirm
-  handleOrderKgs() {
-    if(otherType=="Kg"){
-      orderTypeKg();
-    }else if(otherType=="Unit"){
-      confirmUnitOrd();
-    }else{
-      confirmBoxOrd();
-    }
-  }
-
   //payment handlers...
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Do something when payment succeeds
     print("Pay success : "+response.paymentId.toString());
     // _capturePayment(response.paymentId.toString());
-    handleOrderKgs();
+    var amount = ( ((
+        (double.parse(cakePrice)*counts) + deliveryCharge
+    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    proceedOrder(amount);
     // showPaymentDoneAlert("done");
   }
 
@@ -933,6 +611,98 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     // Do something when an external wallet is selected
     print("wallet : "+response.toString());
     // showPaymentDoneAlert("failed");
+  }
+
+  ///make the order
+  Future<void> proceedOrder(amount) async{
+
+    showAlertDialog();
+
+    double delCharge = 0.0;
+
+    if(deliverType.toLowerCase() == "delivery"){
+      delCharge = double.parse(
+          ((adminDeliveryCharge / adminDeliveryChargeKm) *
+              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+                  double.parse(vendorLat.toString()), double.parse(vendorLong)))).toStringAsFixed(1)
+      );
+    }else{
+      delCharge = 0;
+    }
+
+    print(amount);
+
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/new'));
+    request.body = json.encode({
+      "HamperID": "$cakeID",
+      "Hamper_ID": "$cakeModId",
+      "HampersName": "$cakeName",
+      "Product_Contains": productContains,
+      "HamperImage": "${cakeImage}",
+      "Description": "$cakeDesc",
+      "VendorID": "$vendorID",
+      "Vendor_ID": "$vendorModId",
+      "VendorName": "$vendorName",
+      "EggOrEggless": "$eggOreggless",
+      "VendorPhoneNumber1": "$vendorPhone1",
+      "VendorPhoneNumber2": "$vendorPhone2",
+      "VendorAddress": "$vendorAddress",
+      "GoogleLocation": {
+        "Latitude": "$vendorLat",
+        "Longitude": "$vendorLong"
+      },
+      "UserID": "$userID",
+      "User_ID": "$userModId",
+      "UserName": "$userName",
+      "UserPhoneNumber": "$userPhone",
+      "DeliveryAddress": "$userAddress",
+      "DeliveryDate": "$deliverDate",
+      "DeliverySession": "$deliverSession",
+      "DeliveryInformation": "$deliverType",
+      "Price": "$cakePrice",
+      "ItemCount": "$counts",
+      "DeliveryCharge": "$delCharge",
+      "Total": "$amount",
+      "Weight": "$weight",
+      "Title": "$hamTitle",
+      "PaymentType": "$paymentType",
+      "PaymentStatus":paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      var map = jsonDecode(await response.stream.bytesToString());
+
+      if(map['statusCode']==200){
+        sendNotificationToVendor(notificationTid);
+      }
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(map['message'].toString()),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ));
+
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.reasonPhrase.toString()),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ));
+      Navigator.pop(context);
+    }
+
   }
 
   //endregion
@@ -1097,7 +867,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                 ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('(Shape - $shape)',style: TextStyle(
+                            Text('(Egg Or Eggless - $eggOreggless)',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                             ),overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
@@ -1114,7 +884,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             ),
                             Text.rich(
                                 TextSpan(
-                                    text:'₹ $cakePrice',
+                                    text:'₹ ${(double.parse(cakePrice)*counts).toStringAsFixed(2)}',
                                     style: TextStyle(
                                         fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                         fontFamily: "Poppins"),
@@ -1197,7 +967,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             Text('Cake Type',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('Other Products',style: TextStyle(
+                            Text('Hamper',style: TextStyle(
                                 fontSize: 14,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),
@@ -1324,9 +1094,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             Tooltip(
                                 margin: EdgeInsets.only(left: 15,right: 15),
                                 padding: EdgeInsets.all(15),
-                                message: "Item total depends on itemcount/selected shape,flavour,article,weight",
+                                message: "Item total depends on item count/selected shape,flavour,article,weight",
                                 child:
-                                Text('₹ ${double.parse(cakePrice).toStringAsFixed(2)}'
+                                Text('₹ ${(double.parse(cakePrice)*counts).toStringAsFixed(2)}'
                                   ,style: const TextStyle(fontWeight: FontWeight.bold),)
 
                             ),
@@ -1389,7 +1159,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
                             Text('₹ ${
                                 ( ((
-                                    double.parse(cakePrice) + deliveryCharge
+                                    (double.parse(cakePrice)*counts) + deliveryCharge
                                 ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2)
                             }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
                           ],

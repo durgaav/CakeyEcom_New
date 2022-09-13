@@ -912,10 +912,10 @@ class _CheckOutState extends State<CheckOut> {
           "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
           "MessageOnTheCake":cakeMessage,
           "SpecialRequest":cakeSplReq,
-          // topperPrice!=0?"TopperId":topperId:null,
-          // topperPrice!=0?"TopperName":topperName:null,
-          // topperPrice!=0?"TopperImage":topperImg:null,
-          // topperPrice!=0?"TopperPrice":'$topperPrice':null,
+          topperPrice!=0?"TopperId":topperId:null,
+          topperPrice!=0?"TopperName":topperName:null,
+          topperPrice!=0?"TopperImage":topperImg:null,
+          topperPrice!=0?"TopperPrice":'$topperPrice':null,
         };
 
         var premiumData = {
@@ -953,8 +953,8 @@ class _CheckOutState extends State<CheckOut> {
           "DeliveryInformation": deliverType,
           "DeliveryAddress": userAddress,
           "PremiumVendor":premiumVendor=="no"?"n":'y',
-          cakeMessage!="null"?"MessageOnTheCake":cakeMessage:null,
-          cakeSplReq!="null"?"SpecialRequest":cakeSplReq:null,
+          "MessageOnTheCake":cakeMessage,
+          "SpecialRequest":cakeSplReq,
           topperPrice!=0?"TopperId":topperId:null,
           topperPrice!=0?"TopperName":topperName:null,
           topperPrice!=0?"TopperImage":topperImg:null,
