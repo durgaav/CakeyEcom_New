@@ -434,7 +434,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                               Column(
                                 children: [
                                   Text(
-                                    '$counts',
+                                    counts<10?
+                                    '0${counts}':
+                                    "${counts}",
                                     style: TextStyle(
                                       color: lightPink,
                                       fontWeight: FontWeight.bold,
@@ -1067,6 +1069,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       deliveryAddress = deliveryAddress;
     }
 
+    print(hamImages);
+
     return Scaffold(
       body: SafeArea(
         child: NestedScrollView(
@@ -1109,13 +1113,15 @@ class _HamperDetailsState extends State<HamperDetails> {
                       ? PageView.builder(
                         itemCount: hamImages.length,
                         itemBuilder: (c,i){
+                        var imageUrl = hamImages[i].toString().replaceAll("[", "")
+                            .replaceAll("]", "");
                         return Container(
-                          margin: EdgeInsets.all(5),
+                          margin: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(15),
                               image: DecorationImage(
-                                  image: NetworkImage("${hamImages[i]}"),
+                                  image: NetworkImage("${imageUrl}"),
                                   fit: BoxFit.cover)),
                         );
                       })
@@ -1344,6 +1350,84 @@ class _HamperDetailsState extends State<HamperDetails> {
                     )),
 
 
+                //product contains
+                Padding(
+                  padding: EdgeInsets.only(top: 5, left: 6),
+                  child: Text(
+                    'Product Contains',
+                    style: TextStyle(
+                        fontFamily: poppins, color: darkBlue, fontSize: 15),
+                  ),
+                ),
+
+                SizedBox(
+                  height: 8,
+                ),
+
+                //product contains
+                Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(14)),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        title: Text(
+                          'Products',
+                          style:
+                          TextStyle(color: darkBlue, fontFamily: "Poppins"),
+                        ),
+                        trailing: Container(
+                          alignment: Alignment.center,
+                          height: 25,
+                          width: 25,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: darkBlue,
+                            size: 25,
+                          ),
+                        ),
+                        children: productContains.map((e) {
+                          return Container(
+                            padding: EdgeInsets.all(6),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  e,
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: darkBlue
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 2),
+                                    child: Divider(
+                                      color: Colors.black,
+                                    )),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    )),
+
+                //deliver infos
+                Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15),
+                    child: Divider(
+                      color: Colors.pink[100],
+                    )),
+
+
                 Container(
                   child: Row(
                     children: [
@@ -1415,79 +1499,6 @@ class _HamperDetailsState extends State<HamperDetails> {
                   ),
                 ),
 
-                //product contains
-                Padding(
-                  padding: EdgeInsets.only(top: 5, left: 6),
-                  child: Text(
-                    'Product Contains',
-                    style: TextStyle(
-                        fontFamily: poppins, color: darkBlue, fontSize: 15),
-                  ),
-                ),
-
-                SizedBox(
-                  height: 8,
-                ),
-
-                //product contains
-                Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(14)),
-                      child: ExpansionTile(
-                        title: Text(
-                          'Products',
-                          style:
-                              TextStyle(color: darkBlue, fontFamily: "Poppins"),
-                        ),
-                        trailing: Container(
-                          alignment: Alignment.center,
-                          height: 25,
-                          width: 25,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: darkBlue,
-                            size: 25,
-                          ),
-                        ),
-                        children: productContains.map((e) {
-                          return Container(
-                            padding: EdgeInsets.all(6),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  e,
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins', color: darkBlue),
-                                ),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 2),
-                                    child: Divider(
-                                      color: Colors.black,
-                                    )),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    )),
-
-                //deliver infos
-                Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15),
-                    child: Divider(
-                      color: Colors.pink[100],
-                    )),
                 Padding(
                   padding: EdgeInsets.only(top: 10, left: 6),
                   child: Text(
@@ -1564,7 +1575,42 @@ class _HamperDetailsState extends State<HamperDetails> {
                           DateTime.now().month,
                           DateTime.now().day + 1,
                         ),
-                        helpText: "Select Deliver Date");
+                        helpText: "Select Deliver Date",
+                        builder: (c,child){
+                          return Theme(
+                              data:ThemeData(
+                                  dialogTheme: DialogTheme(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20)
+                                      )
+                                  ),
+                                  colorScheme: ColorScheme.light(
+                                      onPrimary: Colors.white,
+                                      onSurface: Colors.pink,
+                                      primary: Colors.pink
+                                  ),
+                                  textTheme: const TextTheme(
+                                      headline5: TextStyle(
+                                          fontSize: 17,
+                                          fontFamily: "Poppins",
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                      headline4: TextStyle(
+                                          fontSize: 17,
+                                          fontFamily: "Poppins",
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                      overline: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: "Poppins",
+                                          fontWeight: FontWeight.bold
+                                      )
+                                  )
+                              ),
+                              child:child!
+                          );
+                        }
+                    );
 
                     setState(() {
                       deliverDate = simplyFormat(time: SelDate, dateOnly: true);

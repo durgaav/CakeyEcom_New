@@ -861,7 +861,7 @@ class _CakeTypesState extends State<CakeTypes> {
                       ),
 
                       Wrap(
-                        runSpacing: 5,
+                        runSpacing: -5,
                         spacing: 5,
                         children: myList.map((e) {
                           bool clicked = false;
@@ -1491,8 +1491,8 @@ class _CakeTypesState extends State<CakeTypes> {
         print('Sub types>>>> $subType');
 
         // cakesTypes.add("All Cakes");
-        List sub = ["All Cakes"];
-        cakesTypes.add("Others");
+        List sub = ["All Cakes","Others"];
+        //cakesTypes.add("Others");
         cakesTypes.sort();
         cakesTypes = sub + cakesTypes.toSet().toList();
         currentIndex = cakesTypes.indexWhere((element) => element.toString().toLowerCase()=="all cakes");
@@ -3107,16 +3107,17 @@ class _CakeTypesState extends State<CakeTypes> {
       }
     }
 
-    if(isFiltered == true || shapeOnlyFilter == true ){
-      if(isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true){
-        List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
-        filterCakesSearchList =
-            list + filteredListByUser.where((element) =>
-            element['CakeType'].contains(currentCakeType)).toList();
-      }else{
-        List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
-        filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
-      }
+    if(isFiltered == true && isFilterisOn == true || shapeOnlyFilter == true ){
+      List list = filteredListByUser.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+      filterCakesSearchList =
+          list + filteredListByUser.where((element) =>
+              element['CakeType'].contains(currentCakeType)).toList();
+      // if(|| searchModeis == true){
+      //
+      // }else{
+      //   List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+      //   filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
+      // }
     }else{
       filterCakesSearchList = cakesByType.toList();
     }
@@ -3361,12 +3362,13 @@ class _CakeTypesState extends State<CakeTypes> {
                     builder: (BuildContext context) {
                       return GestureDetector(
                         onTap: () {
-                          // setState((){
-                          //   selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
-                          //   selectedFilter = selectedFilter.toSet().toList();
-                          // });
+                          setState((){
+                            selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
+                            selectedFilter = selectedFilter.toSet().toList();
+                            cakeCategoryCtrl.text = "Theme Cake";
+                          });
 
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
+                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
 
                         },
                         child: Stack(
@@ -3391,14 +3393,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 16),
+                                            fontSize: 14),
                                       ),
                                       TextSpan(
-                                        text: 'THEME CAKE ',
+                                        text: 'THEME CAKE ? ',
                                         style: TextStyle(
                                             color: lightPink,
                                             fontWeight: FontWeight.w900,
-                                            fontSize: 16),
+                                            fontSize: 14),
                                       )
                                     ])),
                                     Expanded(
@@ -3462,9 +3464,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                 Icon(
                                   Icons.location_on,
                                   color: Colors.red,
+                                  size: 18,
                                 ),
                                 SizedBox(
-                                  width: 5,
+                                  width: 3,
                                 ),
                                 Text(
                                   'Delivery to',
@@ -3611,7 +3614,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       maxLines: 1 ,
                                       style: TextStyle(
                                           fontFamily: poppins,
-                                          fontSize: 15,
+                                          fontSize: 13.5,
                                           color: darkBlue,
                                           fontWeight: FontWeight.bold
                                       ),
@@ -4288,7 +4291,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 Text(
                                                     filterCakesSearchList.length
                                                             .toString() +
-                                                        " items",
+                                                        " Results",
                                                     style: TextStyle(
                                                         color: darkBlue,
                                                         fontWeight:
@@ -4356,7 +4359,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                                 .spaceBetween,
                                                         children: [
                                                           Text(
-                                                              '₹ ${filterCakesSearchList[index]['BasicCakePrice']}',
+                                                              '₹ ${
+                                                                  (double.parse(filterCakesSearchList[index]['BasicCakePrice'].toString())*
+                                                                      changeWeight(filterCakesSearchList[index]['MinWeight'].toString())).toStringAsFixed(1)
+                                                              }',
                                                               style: TextStyle(
                                                                   color:
                                                                       lightPink,
@@ -4463,7 +4469,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                               .spaceBetween,
                                                       children: [
                                                         Text(
-                                                            '₹ ${filterCakesSearchList[index]['BasicCakePrice']}',
+                                                            '₹ ${
+                                                                (double.parse(filterCakesSearchList[index]['BasicCakePrice'].toString())*
+                                                                    changeWeight(filterCakesSearchList[index]['MinWeight'].toString())).toStringAsFixed(1)
+                                                            }',
                                                             style: TextStyle(
                                                                 color: lightPink,
                                                                 fontWeight:
@@ -4557,7 +4566,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 Text(
                                                     cakeSearchList.length
                                                             .toString() +
-                                                        " items",
+                                                        " Results",
                                                     style: TextStyle(
                                                         color: darkBlue,
                                                         fontWeight:
@@ -4625,7 +4634,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                                 .spaceBetween,
                                                         children: [
                                                           Text(
-                                                              '₹ ${cakeSearchList[index]['BasicCakePrice']}',
+                                                              '₹ ${
+                                                              (double.parse(cakeSearchList[index]['BasicCakePrice'].toString())*
+                                                               changeWeight(cakeSearchList[index]['MinWeight'].toString())).toStringAsFixed(1)
+                                                              }',
                                                               style: TextStyle(
                                                                   color:
                                                                       lightPink,
@@ -4733,7 +4745,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                                             .spaceBetween,
                                                         children: [
                                                           Text(
-                                                              '₹ ${cakeSearchList[index]['BasicCakePrice']}',
+                                                              '₹ ${
+                                                                  (double.parse(cakeSearchList[index]['BasicCakePrice'].toString())*
+                                                                   changeWeight(cakeSearchList[index]['MinWeight'].toString())).toStringAsFixed(1)
+                                                              }',
                                                               style: TextStyle(
                                                                   color:
                                                                   lightPink,
@@ -4860,7 +4875,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                       topRight:
                                                           Radius.circular(15),
                                                     ),
-                                                    color: Colors.grey[300]),
+                                                    color: lightGrey),
                                                 child: Row(children: [
                                                   Container(
                                                     child: Text(
@@ -5373,7 +5388,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                     Text(
                                         otherEggProducts.length
                                             .toString() +
-                                            " items",
+                                            " Results",
                                         style: TextStyle(
                                             color: darkBlue,
                                             fontWeight:
@@ -5619,4 +5634,28 @@ class _CakeTypesState extends State<CakeTypes> {
       ),
     );
   }
+}
+
+double changeWeight(String weight) {
+
+  print(weight);
+
+  String givenWeight = weight;
+  double converetedWeight = 0.0;
+
+  if(givenWeight.toLowerCase().endsWith("kg")){
+
+    givenWeight = givenWeight.toLowerCase().replaceAll("kg", "");
+    converetedWeight = double.parse(givenWeight);
+
+  }else{
+
+    givenWeight = givenWeight.toLowerCase().replaceAll("g", "");
+    converetedWeight = double.parse(givenWeight)/1000;
+
+  }
+
+  print("Converted : $converetedWeight");
+
+  return converetedWeight;
 }

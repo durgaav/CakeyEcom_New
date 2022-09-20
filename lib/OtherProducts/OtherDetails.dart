@@ -733,7 +733,9 @@ class _OthersDetailsState extends State<OthersDetails> {
                               Column(
                                 children: [
                                   Text(
-                                    ' $counter',
+                                    counter<10?
+                                    '0${counter}':
+                                    "${counter}",
                                     style: TextStyle(
                                       color: lightPink,
                                       fontWeight: FontWeight.bold,
@@ -1239,7 +1241,41 @@ class _OthersDetailsState extends State<OthersDetails> {
                             DateTime.now().month,
                             DateTime.now().day+int.parse(deliTime),
                           ),
-                          helpText: "Minimum Time For Delivery $minimumDeliTime"
+                          helpText: "Min Delivery Time $minimumDeliTime",
+                          builder: (c,child){
+                            return Theme(
+                                data:ThemeData(
+                                    dialogTheme: DialogTheme(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20)
+                                        )
+                                    ),
+                                    colorScheme: ColorScheme.light(
+                                        onPrimary: Colors.white,
+                                        onSurface: Colors.pink,
+                                        primary: Colors.pink
+                                    ),
+                                    textTheme: const TextTheme(
+                                        headline5: TextStyle(
+                                            fontSize: 17,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                        headline4: TextStyle(
+                                            fontSize: 17,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                        overline: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        )
+                                    )
+                                ),
+                                child:child!
+                            );
+                          }
                       );
 
                       setState(() {

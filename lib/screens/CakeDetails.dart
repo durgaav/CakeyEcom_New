@@ -2200,8 +2200,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
           shapes1.add({"Name":"$cakeBaseShape","Price":"0"});
         }
 
-        context.read<ContextData>().addMyVendor(false);
-
         flavour.clear();
         shapes.clear();
         flavour = artTempList[0]['CustomFlavourList'];
@@ -2214,7 +2212,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         shapes = shapes.reversed.toList();
       });
 
-
+    context.read<ContextData>().addMyVendor(false);
     print("....updated");
 
   }
@@ -2333,6 +2331,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       mySelVendors = context.watch<ContextData>().getMyVendorsList();
       loadCakeDetailsByVendor(mySelVendors[0]['_id'] , cakeName , 0);
       isNearVendrClicked = true;
+      selVendor = false;
     }
 
     if(context.watch<ContextData>().getDpUpdate()==true){
@@ -2350,87 +2349,87 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         return true;
       },
       child: Scaffold(
-        bottomSheet:showThemeSheet?
-        BottomSheet(
-            onClosing: () {
-              print('closing sheet...');
-            },
-            builder: (BuildContext context) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
-                },
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(15),
-                      height: 100,
-                      color: Colors.white,
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            color: Colors.red[50]),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text.rich(TextSpan(children: [
-                              TextSpan(
-                                text: 'DO YOU WANT A ',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16),
-                              ),
-                              TextSpan(
-                                text: 'THEME CAKE ',
-                                style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 16),
-                              )
-                            ])),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  color: Colors.transparent,
-                                  height: 70,
-                                  width: 70,
-                                  child: Image(
-                                    image: AssetImage(
-                                        'assets/images/themecake.png'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: MediaQuery.of(context).size.width * 0.86,
-                      top: -6,
-                      child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              showThemeSheet = !showThemeSheet;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.cancel_rounded,
-                            color: Colors.red,
-                            size: 30,
-                          )),
-                    )
-                  ],
-                ),
-              );
-            },
-          ):Container(height: 0,),
+        // bottomSheet:showThemeSheet?
+        // BottomSheet(
+        //     onClosing: () {
+        //       print('closing sheet...');
+        //     },
+        //     builder: (BuildContext context) {
+        //       return GestureDetector(
+        //         onTap: () {
+        //           Navigator.pop(context);
+        //           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
+        //         },
+        //         child: Stack(
+        //           alignment: Alignment.center,
+        //           children: [
+        //             Container(
+        //               padding: EdgeInsets.all(15),
+        //               height: 100,
+        //               color: Colors.white,
+        //               child: Container(
+        //                 padding: EdgeInsets.all(10),
+        //                 decoration: BoxDecoration(
+        //                     borderRadius: BorderRadius.circular(18),
+        //                     color: Colors.red[50]),
+        //                 child: Row(
+        //                   mainAxisAlignment: MainAxisAlignment.center,
+        //                   crossAxisAlignment: CrossAxisAlignment.center,
+        //                   children: [
+        //                     Text.rich(TextSpan(children: [
+        //                       TextSpan(
+        //                         text: 'DO YOU WANT A ',
+        //                         style: TextStyle(
+        //                             color: Colors.black,
+        //                             fontWeight: FontWeight.w600,
+        //                             fontSize: 16),
+        //                       ),
+        //                       TextSpan(
+        //                         text: 'THEME CAKE ',
+        //                         style: TextStyle(
+        //                             color: lightPink,
+        //                             fontWeight: FontWeight.w900,
+        //                             fontSize: 16),
+        //                       )
+        //                     ])),
+        //                     Expanded(
+        //                       child: Align(
+        //                         alignment: Alignment.centerRight,
+        //                         child: Container(
+        //                           color: Colors.transparent,
+        //                           height: 70,
+        //                           width: 70,
+        //                           child: Image(
+        //                             image: AssetImage(
+        //                                 'assets/images/themecake.png'),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               ),
+        //             ),
+        //             Positioned(
+        //               left: MediaQuery.of(context).size.width * 0.86,
+        //               top: -6,
+        //               child: IconButton(
+        //                   onPressed: () {
+        //                     setState(() {
+        //                       showThemeSheet = !showThemeSheet;
+        //                     });
+        //                   },
+        //                   icon: Icon(
+        //                     Icons.cancel_rounded,
+        //                     color: Colors.red,
+        //                     size: 30,
+        //                   )),
+        //             )
+        //           ],
+        //         ),
+        //       );
+        //     },
+        //   ):Container(height: 0,),
         body: SafeArea(
           child: NestedScrollView(
               headerSliverBuilder:
@@ -2839,7 +2838,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     Column(
                                       children: [
                                         Text(
-                                          '${counts}',
+                                          counts<10?
+                                          '0${counts}':
+                                          "${counts}",
                                           style: TextStyle(
                                             color: lightPink,
                                             fontWeight: FontWeight.bold,
@@ -2865,6 +2866,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         setState(() {
                                           counts++;
                                         });
+
                                       },
                                       child: Container(
                                           height: 30,
@@ -2913,6 +2915,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
                         //   ),),
                         // ),
+                        SizedBox(height:5),
+                        Padding(
+                          padding: const EdgeInsets.only(left:10),
+                          child: Text("Minimum weight: $basicCakeWeight",style: TextStyle(
+                              color:Colors.grey,fontFamily: "Poppins",fontSize: 11
+                          ),),
+                        ),
                         Container(
                             margin: EdgeInsets.all(10),
                             child: ExpandableText(
@@ -3598,139 +3607,138 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               //   ),
                               // ),
 
-                              cakeSubType.toLowerCase().contains("tier")||cakeSubType.toLowerCase().contains("theme")
-                              ||cakeSubType.toLowerCase().contains("fondant")||
-                              cakeTypesList.toString().toLowerCase().contains("tier")||
-                                  cakeTypesList.toString().toLowerCase().contains("theme")||
-                              cakeTypesList.toString().toLowerCase().contains("fondant")?
-                              Container():
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 15.0, top: 5),
-                                    child: Text(
-                                      'Enter Weight',
-                                      style:
-                                      TextStyle(fontFamily: poppins, color: darkBlue),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 15,
-                                        ),
-                                        Icon(
-                                          Icons.scale_outlined,
-                                          color: lightPink,
-                                        ),
-                                        Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 10),
-                                            child: TextField(
-                                              keyboardType: TextInputType.number,
-                                              textInputAction: TextInputAction.next,
-                                              controller: customweightCtrl,
-                                              style: TextStyle(
-                                                  fontFamily: 'Poppins', fontSize: 13),
-                                              inputFormatters: <TextInputFormatter>[
-                                                FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
-                                                FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
-                                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-                                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
-                                              ],
-                                              onChanged: (String text) {
-                                                setState((){
-                                                  if (customweightCtrl.text.isNotEmpty) {
-                                                    fixedWeight = customweightCtrl.text+"kg";
-                                                    if(weight.indexWhere((element) => element==fixedWeight)!=-1){
-                                                      weightIndex = weight.indexWhere((element) => element==fixedWeight);
-                                                    }else{
-                                                      weightIndex = -1;
-                                                    }
-                                                    print("weight is $fixedWeight");
-                                                  } else {
-                                                    weightIndex = 0;
-                                                    fixedWeight = weight[0].toString();
-                                                  }
-                                                });
-                                              },
-                                              decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.all(0.0),
-                                                isDense: true,
-                                                constraints: BoxConstraints(minHeight: 5),
-                                                hintText: 'Type here..',
-                                                hintStyle: TextStyle(
-                                                    fontFamily: 'Poppins', fontSize: 13),
-                                                // border: InputBorder.none
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          child: Container(
-                                              padding: EdgeInsets.all(4),
-                                              margin: EdgeInsets.only(right: 10),
-                                              decoration: BoxDecoration(
-                                                  color: Colors.grey[300]!,
-                                                  borderRadius: BorderRadius.circular(5)),
-                                              child: PopupMenuButton(
-                                                  child: Row(
-                                                    children: [
-                                                      Text('$selectedDropWeight',
-                                                          style: TextStyle(
-                                                              color: darkBlue,
-                                                              fontFamily: 'Poppins')
-                                                      ),
-                                                      SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                      Icon(Icons.keyboard_arrow_down,
-                                                          color: darkBlue)
-                                                    ],
-                                                  ),
-                                                  itemBuilder: (context) => [
-                                                    PopupMenuItem(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            selectedDropWeight = "Kg";
-                                                          });
-                                                        },
-                                                        child: Text('Kilo Gram',style: TextStyle(
-                                                            fontFamily: "Poppins"
-                                                        ),)
-                                                    ),
-
-                                                    // PopupMenuItem(
-                                                    //     onTap: () {
-                                                    //       setState(() {
-                                                    //         selectedDropWeight = "Ib";
-                                                    //       });
-                                                    //     },
-                                                    //     child: Text('Pounds')),
-                                                    // PopupMenuItem(
-                                                    //     onTap: () {
-                                                    //       setState(() {
-                                                    //         selectedDropWeight = "G";
-                                                    //       });
-                                                    //     },
-                                                    //     child: Text('Gram')),
-
-
-                                                  ])),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-
+                              // cakeSubType.toLowerCase().contains("tier")||cakeSubType.toLowerCase().contains("theme")
+                              // ||cakeSubType.toLowerCase().contains("fondant")||
+                              // cakeTypesList.toString().toLowerCase().contains("tier")||
+                              //     cakeTypesList.toString().toLowerCase().contains("theme")||
+                              // cakeTypesList.toString().toLowerCase().contains("fondant")?
+                              // Container():
+                              // Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 15.0, top: 5),
+                              //       child: Text(
+                              //         'Enter Weight',
+                              //         style:
+                              //         TextStyle(fontFamily: poppins, color: darkBlue),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 5,
+                              //     ),
+                              //     Container(
+                              //       child: Row(
+                              //         crossAxisAlignment: CrossAxisAlignment.center,
+                              //         children: [
+                              //           SizedBox(
+                              //             width: 15,
+                              //           ),
+                              //           Icon(
+                              //             Icons.scale_outlined,
+                              //             color: lightPink,
+                              //           ),
+                              //           Expanded(
+                              //             child: Container(
+                              //               margin: EdgeInsets.symmetric(horizontal: 10),
+                              //               child: TextField(
+                              //                 keyboardType: TextInputType.number,
+                              //                 textInputAction: TextInputAction.next,
+                              //                 controller: customweightCtrl,
+                              //                 style: TextStyle(
+                              //                     fontFamily: 'Poppins', fontSize: 13),
+                              //                 inputFormatters: <TextInputFormatter>[
+                              //                   FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
+                              //                   FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
+                              //                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                              //                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
+                              //                 ],
+                              //                 onChanged: (String text) {
+                              //                   setState((){
+                              //                     if (customweightCtrl.text.isNotEmpty) {
+                              //                       fixedWeight = customweightCtrl.text+"kg";
+                              //                       if(weight.indexWhere((element) => element==fixedWeight)!=-1){
+                              //                         weightIndex = weight.indexWhere((element) => element==fixedWeight);
+                              //                       }else{
+                              //                         weightIndex = -1;
+                              //                       }
+                              //                       print("weight is $fixedWeight");
+                              //                     } else {
+                              //                       weightIndex = 0;
+                              //                       fixedWeight = weight[0].toString();
+                              //                     }
+                              //                   });
+                              //                 },
+                              //                 decoration: InputDecoration(
+                              //                   contentPadding: EdgeInsets.all(0.0),
+                              //                   isDense: true,
+                              //                   constraints: BoxConstraints(minHeight: 5),
+                              //                   hintText: 'Type here..',
+                              //                   hintStyle: TextStyle(
+                              //                       fontFamily: 'Poppins', fontSize: 13),
+                              //                   // border: InputBorder.none
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //           GestureDetector(
+                              //             child: Container(
+                              //                 padding: EdgeInsets.all(4),
+                              //                 margin: EdgeInsets.only(right: 10),
+                              //                 decoration: BoxDecoration(
+                              //                     color: Colors.grey[300]!,
+                              //                     borderRadius: BorderRadius.circular(5)),
+                              //                 child: PopupMenuButton(
+                              //                     child: Row(
+                              //                       children: [
+                              //                         Text('$selectedDropWeight',
+                              //                             style: TextStyle(
+                              //                                 color: darkBlue,
+                              //                                 fontFamily: 'Poppins')
+                              //                         ),
+                              //                         SizedBox(
+                              //                           width: 5,
+                              //                         ),
+                              //                         Icon(Icons.keyboard_arrow_down,
+                              //                             color: darkBlue)
+                              //                       ],
+                              //                     ),
+                              //                     itemBuilder: (context) => [
+                              //                       PopupMenuItem(
+                              //                           onTap: () {
+                              //                             setState(() {
+                              //                               selectedDropWeight = "Kg";
+                              //                             });
+                              //                           },
+                              //                           child: Text('Kilo Gram',style: TextStyle(
+                              //                               fontFamily: "Poppins"
+                              //                           ),)
+                              //                       ),
+                              //
+                              //                       // PopupMenuItem(
+                              //                       //     onTap: () {
+                              //                       //       setState(() {
+                              //                       //         selectedDropWeight = "Ib";
+                              //                       //       });
+                              //                       //     },
+                              //                       //     child: Text('Pounds')),
+                              //                       // PopupMenuItem(
+                              //                       //     onTap: () {
+                              //                       //       setState(() {
+                              //                       //         selectedDropWeight = "G";
+                              //                       //       });
+                              //                       //     },
+                              //                       //     child: Text('Gram')),
+                              //
+                              //
+                              //                     ])),
+                              //           )
+                              //         ],
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
+                              
                             ],
                           ),
                         ),
@@ -4110,6 +4118,40 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         DateTime.now().day+int.parse(deliTime),
                                       ),
                                       helpText: "Min Delivery Time : $deliTime day(s)",
+                                      builder: (c,child){
+                                        return Theme(
+                                          data:ThemeData(
+                                            dialogTheme: DialogTheme(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20)
+                                              )
+                                            ),
+                                            colorScheme: ColorScheme.light(
+                                                onPrimary: Colors.white,
+                                                onSurface: Colors.pink,
+                                                primary: Colors.pink
+                                            ),
+                                            textTheme: const TextTheme(
+                                              headline5: TextStyle(
+                                                  fontSize: 17,
+                                                  fontFamily: "Poppins",
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                              headline4: TextStyle(
+                                                  fontSize: 17,
+                                                  fontFamily: "Poppins",
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                              overline: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: "Poppins",
+                                                fontWeight: FontWeight.bold
+                                              )
+                                            )
+                                          ),
+                                          child:child!
+                                        );
+                                      }
                                     );
 
                                     setState(() {
@@ -5242,6 +5284,19 @@ String dayMinConverter(String deliverTime){
   }
 
   return finalDay;
+}
+
+int addZeroBefSingleDigit(int count){
+  String befZero = "0";
+  int finalCount = 0;
+  if(count < 10){
+    var temp = befZero+count.toString();
+    print(temp);
+  }else{
+    finalCount = count;
+  }
+
+  return finalCount;
 }
 
 

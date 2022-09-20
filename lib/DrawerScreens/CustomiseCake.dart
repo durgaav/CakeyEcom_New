@@ -1210,23 +1210,23 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
             // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true , message);
 
-            if(Platform.isIOS){
-              // for iOS phone only
-              if( await canLaunch(whatappURL_ios)){
-                await launch(whatappURL_ios, forceSafariVC: false);
-              }else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: new Text("Whatsapp not found.")));
-              }
-            }else{
-              // android , web
-              if( await canLaunch(whatsappURl_android)){
-                await launch(whatsappURl_android);
-              }else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: new Text("Whatsapp not found.")));
-              }
-            }
+            // if(Platform.isIOS){
+            //   // for iOS phone only
+            //   if( await canLaunch(whatappURL_ios)){
+            //     await launch(whatappURL_ios, forceSafariVC: false);
+            //   }else{
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //         SnackBar(content: new Text("Whatsapp not found.")));
+            //   }
+            // }else{
+            //   // android , web
+            //   if( await canLaunch(whatsappURl_android)){
+            //     await launch(whatsappURl_android);
+            //   }else{
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //         SnackBar(content: new Text("Whatsapp not found.")));
+            //   }
+            // }
 
           }else{
             checkNetwork();
@@ -1707,8 +1707,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       Container(
                         child: Row(
                           children: [
-                            Icon(Icons.location_on,color: Colors.red,),
-                            SizedBox(width: 5,),
+                            Icon(Icons.location_on,color: Colors.red,size: 18,),
+                            SizedBox(width: 3,),
                             Text('Delivery to',style: TextStyle(color: Colors.black54,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,fontFamily: "Poppins"),)
@@ -1748,9 +1748,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 },
                                 child: Text(
                                   '$userCurLocation',
+                                  maxLines: 1,
                                   style: TextStyle(
                                       fontFamily: poppins,
-                                      fontSize: 15,
+                                      fontSize: 13.5,
                                       color: darkBlue,
                                       fontWeight: FontWeight.bold,
                                       overflow: TextOverflow.ellipsis
@@ -1804,7 +1805,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text("What Makes Yours Tastier Than The Rest? Customize To Your Heart's",
-                            style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins"),
+                            style: TextStyle(color: darkBlue,fontSize: 15,fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
 
@@ -1973,7 +1975,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         fontFamily: "Poppins",fontSize: 13,color: Colors.grey
                                     ),),
                                     subtitle:Text(fixedShape.isEmpty?"Select shape":'$fixedShape',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                        fontFamily: "Poppins",fontSize: 13,
                                         color: darkBlue
                                     ),),
                                     trailing: Container(
@@ -2065,7 +2067,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     ),),
                                     subtitle:Text(fixedFlavList.isEmpty&&flavTempList.isEmpty?'Select flavours':
                                     '${fixedFlavList.length+flavTempList.length} Selected Flavours',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.w900,
+                                        fontFamily: "Poppins",fontSize: 13,
                                         color: darkBlue
                                     ),),
                                     trailing: Container(
@@ -2271,7 +2273,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         Container(
                             height: MediaQuery.of(context).size.height * 0.06,
                             width: MediaQuery.of(context).size.width,
-                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            margin: EdgeInsets.symmetric(horizontal: 5),
                             //  color: Colors.grey,
                             child: ListView.builder(
                                 itemCount: weight.length,
@@ -2290,7 +2292,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     child:Container(
                                       width: 70,
                                       alignment: Alignment.center,
-                                      margin: EdgeInsets.all(5),
+                                      margin: EdgeInsets.all(3),
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(18),
                                           border: Border.all(
@@ -2319,7 +2321,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             )
                         ),
 
-                        SizedBox(height:10),
+                        SizedBox(height:7),
 
                         Padding(
                           padding: const EdgeInsets.only(left :15.0 , top:15),
@@ -3780,7 +3782,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0?
+                              vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
                               Center(
                                 child: Container(
                                   height: 50,
@@ -3839,7 +3841,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       }
                                     },
                                     color: lightPink,
-                                    child: Text(double.parse(changeKilo(fixedWeight).toLowerCase().replaceAll("kg", ""))>5.0?"ORDER":"CHAT",style: TextStyle(
+                                    child: Text(double.parse(changeKilo(fixedWeight).toLowerCase().replaceAll("kg", ""))>5.0?"ORDER NOW":"ORDER NOW",style: TextStyle(
                                         color: Colors.white,fontWeight: FontWeight.bold
                                     ),),
                                   ),

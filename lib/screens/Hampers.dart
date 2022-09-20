@@ -66,9 +66,9 @@ class _HampersState extends State<Hampers> {
       for(int j = 0;j<hampers[index]['AdditionalHamperImage'].length;j++){
         extraImages.add(hampers[index]['AdditionalHamperImage'].toString());
       }
-    }else{
-      extraImages = [hampers[index]['HamperImage'].toString()];
     }
+
+    extraImages.add(hampers[index]['HamperImage'].toString());
 
     pref.setStringList("hamperImages", extraImages??[]);
     pref.setString("hamperName", hampers[index]['HampersName']??'null');
@@ -216,7 +216,7 @@ class _HampersState extends State<Hampers> {
           ),
         ),
         title: Text(
-          "HAMPERS",
+          "GIFT HAMPERS",
           style: TextStyle(color: darkBlue, fontFamily: poppins, fontSize: 16),
         ),
       ),

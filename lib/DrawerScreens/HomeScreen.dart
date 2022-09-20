@@ -370,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       Wrap(
-                        runSpacing: 5,
+                        runSpacing: -5,
                         spacing: 5,
                         children: myList.map((e) {
                           bool clicked = false;
@@ -2203,9 +2203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           Icon(
                             Icons.location_on,
                             color: Colors.red,
+                            size: 18,
                           ),
                           SizedBox(
-                            width: 5,
+                            width: 3,
                           ),
                           Text(
                             'Delivery to',
@@ -2353,12 +2354,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: Text(
                                 '$userLocalityAdr',
+                                maxLines: 1,
                                 style: TextStyle(
                                     fontFamily: poppins,
-                                    fontSize: 15,
+                                    fontSize: 13.5,
                                     color: darkBlue,
                                     fontWeight: FontWeight.bold,
-                                    overflow: TextOverflow.ellipsis),
+                                    overflow: TextOverflow.ellipsis
+                                ),
                               ),
                             ),
                           ),
@@ -2781,19 +2784,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Colors.white,
                                                     BlendMode.darken)),
                                           ),
-                                          padding: EdgeInsets.all(15),
+                                          padding: EdgeInsets.only(left: 15,right: 10,top: 10),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                'Hampers',
+                                                'Gift Hampers',
                                                 style: TextStyle(
                                                     fontFamily: poppins,
-                                                    fontSize: 15,
+                                                    fontSize: 13.5,
                                                     color: darkBlue,
                                                     fontWeight:
-                                                        FontWeight.bold),
+                                                        FontWeight.bold
+                                                ),
                                               ),
                                               InkWell(
                                                 onTap: () async {
@@ -2808,6 +2812,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       style: TextStyle(
                                                           color: lightPink,
                                                           fontFamily: poppins,
+                                                          fontSize: 13,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
@@ -2833,7 +2838,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       Colors.white,
                                                       BlendMode.darken)),
                                             ),
-                                            height: 140,
+                                            height: 115,
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
@@ -2867,12 +2872,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         for(int j = 0;j<hampers[i]['AdditionalHamperImage'].length;j++){
                                                           extraImages.add(hampers[i]['AdditionalHamperImage'].toString());
                                                         }
-                                                      }else{
-                                                        extraImages = [hampers[i]['HamperImage'].toString()];
                                                       }
 
+                                                      extraImages.add(hampers[i]['HamperImage'].toString());
                                                       pref.setStringList("hamperImages", extraImages??[]);
-
                                                       pref.setString("hamperName", hampers[i]['HampersName']??'null');
                                                       pref.setString("hamperPrice", hampers[i]['Price']??'null');
                                                       pref.setString("hamperStartDate", hampers[i]['StartDate']??'null');
@@ -2910,14 +2913,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ? BoxDecoration(
                                                               border: Border.all(
                                                                   color: Colors
-                                                                      .white,
+                                                                      .grey[300]!,
                                                                   style: BorderStyle
                                                                       .solid,
                                                                   width: 1.5),
                                                               color: Colors.white,
-                                                              // boxShadow: [
-                                                              //
-                                                              // ],
                                                               borderRadius: BorderRadius.circular(
                                                                   22),
                                                               image: DecorationImage(
@@ -2927,12 +2927,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                       .cover))
                                                           : BoxDecoration(
                                                               border: Border.all(
-                                                                  color: Colors.white,
+                                                                  color: Colors.grey[200]!,
                                                                   style: BorderStyle.solid,
                                                                   width: 1.5),
                                                               color: Colors.white,
                                                               borderRadius: BorderRadius.circular(22),
-                                                              image: DecorationImage(image: NetworkImage(hampers[i]['HamperImage'].toString()), fit: BoxFit.cover)),
+                                                              image: DecorationImage(image: NetworkImage(hampers[i]['HamperImage'].toString()),
+                                                                  fit: BoxFit.cover)),
                                                       child: Padding(
                                                         padding:
                                                             const EdgeInsets.only(
@@ -2953,7 +2954,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         Container(
                                           height: recentOrders.isNotEmpty
-                                              ? 480
+                                              ? 430
                                               : 200,
                                           decoration: const BoxDecoration(
                                             image: DecorationImage(
@@ -2968,7 +2969,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               Container(
                                                 alignment: Alignment.centerLeft,
-                                                padding: EdgeInsets.all(15),
+                                                padding: EdgeInsets.only(left: 15,right: 10,top: 10,bottom: 10),
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -2978,7 +2979,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       'Type of Cakes',
                                                       style: TextStyle(
                                                           fontFamily: poppins,
-                                                          fontSize: 15,
+                                                          fontSize: 13.5,
                                                           color: darkBlue,
                                                           fontWeight:
                                                               FontWeight.bold),
@@ -3004,6 +3005,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     lightPink,
                                                                 fontFamily:
                                                                     poppins,
+                                                                fontSize: 13,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold),
@@ -3022,7 +3024,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Container(
                                                 padding: EdgeInsets.all(5),
                                                 alignment: Alignment.centerLeft,
-                                                height: 145,
+                                                height: 140,
                                                 child: searchCakeType.isEmpty
                                                     ? Center(
                                                         child: Text(
@@ -3052,7 +3054,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   .contains(
                                                                       'customize your cake')
                                                               ? Container(
-                                                                  width: 100,
+                                                                  width: 130,
                                                                   child:
                                                                       InkWell(
                                                                     onTap:
@@ -3069,7 +3071,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           height:
                                                                               80,
                                                                           width:
-                                                                              80,
+                                                                              125,
                                                                           decoration: BoxDecoration(
                                                                               borderRadius: BorderRadius.circular(20),
                                                                               border: Border.all(color: Colors.white, width: 2),
@@ -3094,7 +3096,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   ),
                                                                 )
                                                               : Container(
-                                                                  width: 100,
+                                                                  width: 130,
                                                                   child:
                                                                       InkWell(
                                                                     onTap: () {
@@ -3119,8 +3121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         Container(
                                                                           height:
                                                                               80,
-                                                                          width:
-                                                                              80,
+                                                                          width: 125,
                                                                           decoration: BoxDecoration(
                                                                               borderRadius: BorderRadius.circular(20),
                                                                               border: Border.all(color: Colors.white, width: 2),
@@ -3165,9 +3166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ? Column(
                                                       children: [
                                                         Container(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  15),
+                                                          padding: EdgeInsets.only(left:15,right:10,top:10),
                                                           width:
                                                               double.infinity,
                                                           alignment: Alignment
@@ -3183,7 +3182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     fontFamily:
                                                                         poppins,
                                                                     fontSize:
-                                                                        15,
+                                                                        13.5,
                                                                     color:
                                                                         darkBlue,
                                                                     fontWeight:
@@ -3249,6 +3248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               lightPink,
                                                                           fontFamily:
                                                                               poppins,
+                                                                          fontSize: 13,
                                                                           fontWeight:
                                                                               FontWeight.bold),
                                                                     ),
@@ -3726,9 +3726,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         //             );
                                                         //           }),
                                                         // )
-
                                                         Container(
-                                                            height: 200,
+                                                            height: 180,
                                                             child: ListView.builder(
                                                                 itemCount: recentOrders
                                                                     .length <
@@ -4460,7 +4459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         //Vendors........
                                         Container(
-                                          padding: EdgeInsets.all(15),
+                                          padding: EdgeInsets.only(left:15,right:10,top:10,bottom: 10),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -4470,14 +4469,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Text(
                                                     'Vendors list',
                                                     style: TextStyle(
-                                                        fontSize: 15,
+                                                        fontSize: 13.5,
                                                         color: darkBlue,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         fontFamily: poppins),
                                                   ),
                                                   Text(
-                                                    '  (10km radius)',
+                                                    '',
                                                     style: TextStyle(
                                                         color: Colors.black45,
                                                         fontFamily: poppins),
@@ -4498,6 +4497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       'See All',
                                                       style: TextStyle(
                                                           color: lightPink,
+                                                          fontSize: 13,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontFamily: poppins),
@@ -4641,7 +4641,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               color: index.isOdd ? Colors.purple : Colors.teal),
                                                                           child:
                                                                               Text(
-                                                                            nearestVendors[index]['PreferredNameOnTheApp'][0].toString().toUpperCase(),
+                                                                            nearestVendors[index]['VendorName'][0].toString().toUpperCase(),
                                                                             style: TextStyle(
                                                                                 color: Colors.white,
                                                                                 fontWeight: FontWeight.bold,
@@ -4654,14 +4654,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   Expanded(
                                                                       child:
                                                                           Container(
+                                                                    // color:Colors.red,
                                                                     padding:
                                                                         EdgeInsets
                                                                             .all(5),
-                                                                    child:
-                                                                        Column(
+                                                                    child: Column(
+                                                                      mainAxisSize: MainAxisSize.max,
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
-                                                                              .spaceBetween,
+                                                                              .spaceAround,
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
                                                                               .start,
@@ -4674,9 +4675,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 Container(
                                                                                   width: width * 0.5,
                                                                                   child: Text(
-                                                                                    '${nearestVendors[index]['PreferredNameOnTheApp'][0].toString().toUpperCase() + "${nearestVendors[index]['PreferredNameOnTheApp'].toString().substring(1).toLowerCase()}"}',
+                                                                                    '${nearestVendors[index]['VendorName'][0].toString().toUpperCase() + "${nearestVendors[index]['VendorName'].toString().substring(1).toLowerCase()}"}',
                                                                                     overflow: TextOverflow.ellipsis,
-                                                                                    style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: poppins),
+                                                                                    style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold, fontSize: 13, fontFamily: poppins),
                                                                                   ),
                                                                                 ),
                                                                                 Row(
@@ -4862,7 +4863,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 topLeft: Radius.circular(15),
                                                 topRight: Radius.circular(15),
                                               ),
-                                              color: Colors.grey[300]),
+                                              color: lightGrey),
                                           child: Row(children: [
                                             Container(
                                               width: cakeSearchList[i]
@@ -5099,7 +5100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 topLeft: Radius.circular(15),
                                                 topRight: Radius.circular(15),
                                               ),
-                                              color: Colors.grey[300]),
+                                              color: lightGrey),
                                           child: Row(children: [
                                             Container(
                                               width: cakeSearchList[i]

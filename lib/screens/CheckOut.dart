@@ -1456,14 +1456,14 @@ class _CheckOutState extends State<CheckOut> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Item Total',style: TextStyle(
+                            const Text('Product Total',style: TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
                             Tooltip(
                               margin: EdgeInsets.only(left: 15,right: 15),
                               padding: EdgeInsets.all(15),
-                              message: "Item total depends on itemcount/selected shape,flavour,article,weight",
+                              message: "Item total depends on item count/selected shape,flavour,article,weight",
                               child: orderFromCustom!="yes"?
                               Text('₹ ${(counts * (double.parse(cakePrice.toString()) +
                                   double.parse(extraCharges.toString()))*
