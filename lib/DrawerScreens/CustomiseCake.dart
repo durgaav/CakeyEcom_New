@@ -903,7 +903,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     print("vendor....");
     showAlertDialog();
     try{
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
       if(res.statusCode==200){
@@ -914,7 +914,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 vendorsList[i]['Address']['City'].toString().toLowerCase()==userMainLocation.toLowerCase()){*/
               print('found .... $i');
               setState(() {
-
                 nearestVendors = vendorsList.where((element) =>
                 calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
                     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
@@ -1720,41 +1719,43 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         alignment: Alignment.centerLeft,
                         child: Row(
                           children: [
-                            Container(
-                              width: 200,
-                              child: GestureDetector(
-                                onTap: () async{
-                                  FocusScope.of(context).unfocus();
-                                  var placeResult = await PlacesAutocomplete.show(
-                                    context: context,
-                                    mode: Mode.overlay,
-                                    language: "in",
-                                    hint: "Type location...",
-                                    strictbounds: false,
-                                    logo: Text(""),
-                                    types: [],
-                                    apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
-                                    onError: (e){
+                            Expanded(
+                              child: Container(
+                                width: 200,
+                                child: GestureDetector(
+                                  onTap: () async{
+                                    FocusScope.of(context).unfocus();
+                                    var placeResult = await PlacesAutocomplete.show(
+                                      context: context,
+                                      mode: Mode.overlay,
+                                      language: "in",
+                                      hint: "Type location...",
+                                      strictbounds: false,
+                                      logo: Text(""),
+                                      types: [],
+                                      apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                      onError: (e){
 
-                                    },
-                                    components: [new wbservice.Component(wbservice.Component.country, "in")],
-                                  );
+                                      },
+                                      components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                    );
 
-                                  if(placeResult == null){
+                                    if(placeResult == null){
 
-                                  }else{
-                                    getCoordinates(placeResult!.description.toString());
-                                  }
-                                },
-                                child: Text(
-                                  '$userCurLocation',
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                      fontFamily: poppins,
-                                      fontSize: 13.5,
-                                      color: darkBlue,
-                                      fontWeight: FontWeight.bold,
-                                      overflow: TextOverflow.ellipsis
+                                    }else{
+                                      getCoordinates(placeResult!.description.toString());
+                                    }
+                                  },
+                                  child: Text(
+                                    '$userCurLocation',
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        fontSize: 13.5,
+                                        color: darkBlue,
+                                        fontWeight: FontWeight.bold,
+                                        overflow: TextOverflow.ellipsis
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1785,7 +1786,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 }
                               },
                               child: Icon(Icons.arrow_drop_down),
-                            )
+                            ),
+                            SizedBox(width: 10,),
                           ],
                         ),
                       ),

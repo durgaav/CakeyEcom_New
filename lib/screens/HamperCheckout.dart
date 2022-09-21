@@ -684,6 +684,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
       }
 
       Navigator.pop(context);
+      showOrderCompleteSheet();
 
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -940,7 +941,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+                                  //PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

@@ -672,7 +672,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       print(map);
 
-      if(map['statusCode']=="200"){
+      if(map['statusCode']==200){
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(map['message']),
@@ -774,7 +774,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       print(map);
 
-      if(map['statusCode']=="200"){
+      if(map['statusCode']==200){
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(map['message']),
@@ -874,7 +874,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       print(map);
 
-      if(map['statusCode'].toString()=="200"){
+      if(map['statusCode'].toString()==200){
 
         showOrderCompleteSheet();
         sendNotificationToVendor(notificationTid);
@@ -1170,7 +1170,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+                                  //PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

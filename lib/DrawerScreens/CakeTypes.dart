@@ -1302,43 +1302,65 @@ class _CakeTypesState extends State<CakeTypes> {
 
     setState(() {
       if (category.isNotEmpty) {
+
+        List sub = otherProducts
+            .where((element) => element["ProductName"]
+            .toString()
+            .toLowerCase()
+            .contains(category.toLowerCase()))
+            .toList();
+
         a = eggOrEgglesList
             .where((element) => element['CakeName']
                 .toString()
                 .toLowerCase()
                 .contains(category.toLowerCase()))
             .toList();
+        a = sub + a;
+        searchModeis = true;
         activeSearch = true;
       }
 
       if (subCategory.isNotEmpty) {
         //CakeSubType
         setState((){
-          b = cakesList.where((element) => element['CakeSubType'].contains(subCategory)).toList();
+          b = eggOrEgglesList.where((element) => element['CakeSubType'].contains(subCategory)).toList();
           // for (int i = 0; i < cakesList.length; i++) {
           //   if(cakesList[i]['CakeSubType'].isNotEmpty && cakesList[i]['CakeSubType'].contains(subCategory)){
           //     b.add(cakesList[i]);
           //   }
           // }
-          isFiltered = true;
+          searchModeis = true;
+          activeSearch = true;
         });
       }
 
-
       if (vendorName.isNotEmpty) {
         setState(() {
+
+          List sub = otherProducts
+              .where((element) => element["VendorName"]
+              .toString()
+              .toLowerCase()
+              .contains(vendorName.toLowerCase()))
+              .toList();
+
           c = eggOrEgglesList
               .where((element) => element['VendorName']
                   .toString()
                   .toLowerCase()
                   .contains(vendorName.toLowerCase()))
               .toList();
-          isFiltered = true;
+
+          c = c+sub;
+
+          searchModeis = true;
+          activeSearch = true;
         });
       }
 
       if (filterCType.isNotEmpty) {
-        isFiltered = true;
+        // isFiltered = true;
         for (int i = 0; i < cakesList.length; i++) {
           if (cakesList[i]['CakeType'].isNotEmpty || cakesList[i]['CakeSubType'].isNotEmpty) {
             for (int j = 0; j < filterCType.length; j++) {
@@ -1349,13 +1371,15 @@ class _CakeTypesState extends State<CakeTypes> {
             }
           }
         }
+        searchModeis = true;
+        activeSearch = true;
       }
 
-      cakeSearchList = a + b + c + d.toList();
-      cakeSearchList = cakeSearchList.toSet().toList();
+      filteredListByUser = a + b + c + d.toList();
+      filteredListByUser = filteredListByUser.toSet().toList();
 
-      print("b len : ${b.length}");
-      print("cakeSearchList len : ${cakeSearchList.length}");
+      print("cakeSearchList len : ${filteredListByUser.length}");
+      print("cakeSearchList len : ${eggOrEgglesList.length}");
 
     });
   }
@@ -1401,7 +1425,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/list'));
+          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1524,7 +1548,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     print("Ven iddd : $myVendorId");
 
-    String commonCake = 'https://cakey-database.vercel.app/api/cake/list';
+    String commonCake = 'https://cakey-database.vercel.app/api/cakes/activevendors/list';
     String vendorCake =
         'https://cakey-database.vercel.app/api/cake/listbyIdandstatus/$myVendorId';
 
@@ -2439,6 +2463,7 @@ class _CakeTypesState extends State<CakeTypes> {
               isFilterisOn = true;
             }
           });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Price Filter Based On Minimum Price/Kg")));
         }
 
         //flav list ok
@@ -2670,9 +2695,9 @@ class _CakeTypesState extends State<CakeTypes> {
         //   filterCakesSearchList = filterCakesSearchList.toSet().toList();
         //   filterCakesSearchList = filterCakesSearchList.reversed.toList();
         // }
-
       }
     });
+
   }
 
   //Clr shapes filter..
@@ -2697,34 +2722,29 @@ class _CakeTypesState extends State<CakeTypes> {
 
   void activeSearchClear() {
     setState(() {
+      searchModeis = false;
+      activeSearch = false;
+      filteredListByUser = [];
+      //selIndex[cakesTypes.indexWhere((element) => element=="All Cakes")] = true;
+      selIndex = [];
+      for(int i = 0; i<cakesTypes.length;i++){
+        selIndex.add(false);
+      }
       isFiltered = false;
+      selIndex[cakesTypes.indexWhere((element) => element.toString().toLowerCase()=="all cakes")] = true;
       currentCakeType = "All cakes";
-      selIndex[cakesTypes.indexWhere((element) => element=="All Cakes")] = true;
-      print("Sel>>> ${cakesTypes.indexWhere((element) => element=="All Cakes")}");
+      cakeSearchList = eggOrEgglesList;
       searchCakesText = '';
       searchControl.text = '';
       cakeCategoryCtrl.text = '';
       cakeSubCategoryCtrl.text = '';
       cakeVendorCtrl.text = '';
       selectedFilter.clear();
-      eggOrEgglesList = cakesList.toList();
     });
+    print(cakeSearchList.length);
+    print(filterCakesSearchList.length);
   }
 
-  //clear the search
-  void clearTheSearch() {
-    setState(() {
-      searchModeis = false;
-      isFiltered = false;
-      selIndex[0] = true;
-      currentCakeType = "All cakes";
-      searchCakeCate = '';
-      searchCakeSubType = '';
-      searchCakeVendor = '';
-      searchCakeLocation = '';
-      eggOrEgglesList = cakesList.toList();
-    });
-  }
 
   void showLocationChangeDialog(){
     showDialog(
@@ -2937,6 +2957,7 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
+    //set others eggless
     if(currentCakeType.toLowerCase().contains("others")){
       if(egglesSwitch==true){
         otherEggProducts= otherProducts.where((element){
@@ -2951,177 +2972,222 @@ class _CakeTypesState extends State<CakeTypes> {
       }
     }
 
+    //filter and all cakes
+    if(searchCakesText.isNotEmpty){
+      activeSearch = true;
+      List sub = otherProducts
+          .where((element) => element["ProductName"]
+          .toString()
+          .toLowerCase()
+          .contains(searchCakesText.toLowerCase()))
+          .toList();
 
-    /*2) if search and filter modes is on..*/
-    if (isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true) {
-      setState(() {
-        cakeSearchList = filteredListByUser.toList();
-      });
-      if (searchCakesText.isNotEmpty) {
-        setState(() {
-          activeSearch = true;
-
-          List sub = otherProducts
-              .where((element) => element["ProductName"]
-              .toString()
-              .toLowerCase()
-              .contains(searchCakesText.toLowerCase()))
-              .toList();
-
-          cakeSearchList = sub + filteredListByUser
-              .where((element) => element['CakeName']
-                  .toString()
-                  .toLowerCase()
-                  .contains(searchCakesText.toLowerCase()))
-              .toList();
-        });
-      } else {
-        setState(() {
-          activeSearch = false;
-          cakeSearchList = filteredListByUser.toList();
-        });
-      }
-      if (isFiltered == true && searchCakesText.isNotEmpty) {
-        setState(() {
-          filterCakesSearchList = cakesByType
-              .where((element) => element['CakeName']
-                  .toString()
-                  .toLowerCase()
-                  .contains(searchCakesText.toLowerCase()))
-              .toList();
-        });
-      } else {
-        setState(() {
-          filterCakesSearchList = cakesByType;
-        });
-      }
+      cakeSearchList = sub + eggOrEgglesList
+          .where((element) => element['CakeName']
+          .toString()
+          .toLowerCase()
+          .contains(searchCakesText.toLowerCase()))
+          .toList();
     }
-    else {
-      if (searchCakesText.isNotEmpty) {
-        setState(() {
-          activeSearch = true;
-          List sub = otherProducts
-              .where((element) => element["ProductName"]
-              .toString()
-              .toLowerCase()
-              .contains(searchCakesText.toLowerCase()))
-              .toList();
+    else{
 
-          cakeSearchList = sub + eggOrEgglesList
-              .where((element) => element['CakeName']
-                  .toString()
-                  .toLowerCase()
-                  .contains(searchCakesText.toLowerCase()))
-              .toList();
-        });
-      }
-      else {
-        setState(() {
-          activeSearch = false;
+      if(searchModeis==true){
+        activeSearch = true;
+        cakeSearchList = filteredListByUser;
+      }else{
+        activeSearch = false;
+        if(currentCakeType.toLowerCase()=="all cakes"){
           cakeSearchList = eggOrEgglesList;
-        });
-
-        /*3) Set list from search filters apply...*/
-        if (cakeVendorCtrl.text.isNotEmpty ||
-            cakeCategoryCtrl.text.isNotEmpty ||
-            cakeSubCategoryCtrl.text.isNotEmpty ||
-            selectedFilter.isNotEmpty) {
-
-          List sub = [];
-          List sub2 = [];
-
-          setState(() {
-            categorySearch = [];
-            subCategorySearch = [];
-            vendorBasedSearch = [];
-            cakeTypeList = [];
-            activeSearch = true;
-
-            if (cakeCategoryCtrl.text.isNotEmpty) {
-              categorySearch = eggOrEgglesList
-                  .where((element) => element['CakeName']
-                      .toString()
-                      .toLowerCase()
-                      .contains(cakeCategoryCtrl.text.toLowerCase()))
-                  .toList();
-
-              sub = otherProducts
-                  .where((element) => element["ProductName"]
-                  .toString()
-                  .toLowerCase()
-                  .contains(cakeCategoryCtrl.text.toLowerCase()))
-                  .toList();
-
-            }
-
-
-            if (cakeSubCategoryCtrl.text.isNotEmpty) {
-              subCategorySearch = eggOrEgglesList
-                  .where((element) => element['CakeSubType']
-                      .contains(cakeSubCategoryCtrl.text))
-                  .toList();
-            }
-
-            if (cakeVendorCtrl.text.isNotEmpty) {
-              vendorBasedSearch = eggOrEgglesList
-                  .where((element) => element['VendorName']
-                      .toString()
-                      .toLowerCase()
-                      .contains(cakeVendorCtrl.text.toLowerCase()))
-                  .toList();
-
-              sub2 = otherProducts
-              .where((element) => element["VendorName"]
-              .toString()
-              .toLowerCase()
-              .contains(cakeVendorCtrl.text.toLowerCase()))
-              .toList();
-
-            }
-
-            if (selectedFilter.isNotEmpty) {
-              for (int i = 0; i < eggOrEgglesList.length; i++) {
-                if (eggOrEgglesList[i]['CakeType'].isNotEmpty) {
-                  for (int j = 0; j < selectedFilter.length; j++) {
-                    if (eggOrEgglesList[i]['CakeType']
-                        .contains(selectedFilter[j])) {
-                      cakeTypeList.add(eggOrEgglesList[i]);
-                    }
-                  }
-                }
-              }
-            }
-
-            // cakeSearchList.clear();
-
-            cakeSearchList = sub + sub2 + categorySearch.toList() +
-                subCategorySearch.toList() +
-                vendorBasedSearch.toList() +
-                cakeTypeList.toList();
-            cakeSearchList = cakeSearchList.toSet().toList();
-          });
+        }else{
+          //filterCakesSearchList = cakesByType;
+          List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+          filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
         }
-        else {
+
+        //filter selected
+        if(filteredListByUser.isNotEmpty){
+          cakeSearchList = filteredListByUser;
+          List list = filteredListByUser.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+          filterCakesSearchList = list + filteredListByUser.where((element) => element['CakeType'].contains(currentCakeType)).toList();
+        }else{
           cakeSearchList = eggOrEgglesList;
+          List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+          filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
         }
       }
+
     }
 
-    if(isFiltered == true && isFilterisOn == true || shapeOnlyFilter == true ){
-      List list = filteredListByUser.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
-      filterCakesSearchList =
-          list + filteredListByUser.where((element) =>
-              element['CakeType'].contains(currentCakeType)).toList();
-      // if(|| searchModeis == true){
-      //
-      // }else{
-      //   List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
-      //   filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
-      // }
-    }else{
-      filterCakesSearchList = cakesByType.toList();
-    }
-
+    // /*2) if search and filter modes is on..*/
+    // if (isFilterisOn == true || shapeOnlyFilter == true || searchModeis == true) {
+    //   setState(() {
+    //     cakeSearchList = filteredListByUser.toList();
+    //   });
+    //   if (searchCakesText.isNotEmpty) {
+    //     setState(() {
+    //       activeSearch = true;
+    //
+    //       List sub = otherProducts
+    //           .where((element) => element["ProductName"]
+    //           .toString()
+    //           .toLowerCase()
+    //           .contains(searchCakesText.toLowerCase()))
+    //           .toList();
+    //
+    //       cakeSearchList = sub + filteredListByUser
+    //           .where((element) => element['CakeName']
+    //               .toString()
+    //               .toLowerCase()
+    //               .contains(searchCakesText.toLowerCase()))
+    //           .toList();
+    //     });
+    //   }
+    //   else {
+    //     setState(() {
+    //       activeSearch = false;
+    //       cakeSearchList = filteredListByUser.toList();
+    //     });
+    //   }
+    //   if (isFiltered == true && searchCakesText.isNotEmpty) {
+    //     setState(() {
+    //       filterCakesSearchList = cakesByType
+    //           .where((element) => element['CakeName']
+    //               .toString()
+    //               .toLowerCase()
+    //               .contains(searchCakesText.toLowerCase()))
+    //           .toList();
+    //     });
+    //   } else {
+    //     setState(() {
+    //       filterCakesSearchList = cakesByType;
+    //     });
+    //   }
+    // }
+    // else {
+    //   if (searchCakesText.isNotEmpty) {
+    //     setState(() {
+    //       activeSearch = true;
+    //       List sub = otherProducts
+    //           .where((element) => element["ProductName"]
+    //           .toString()
+    //           .toLowerCase()
+    //           .contains(searchCakesText.toLowerCase()))
+    //           .toList();
+    //
+    //       cakeSearchList = sub + eggOrEgglesList
+    //           .where((element) => element['CakeName']
+    //               .toString()
+    //               .toLowerCase()
+    //               .contains(searchCakesText.toLowerCase()))
+    //           .toList();
+    //     });
+    //   }
+    //   else {
+    //     setState(() {
+    //       activeSearch = false;
+    //       cakeSearchList = eggOrEgglesList;
+    //     });
+    //
+    //     /*3) Set list from search filters apply...*/
+    //     if (cakeVendorCtrl.text.isNotEmpty ||
+    //         cakeCategoryCtrl.text.isNotEmpty ||
+    //         cakeSubCategoryCtrl.text.isNotEmpty ||
+    //         selectedFilter.isNotEmpty) {
+    //
+    //       List sub = [];
+    //       List sub2 = [];
+    //
+    //       setState(() {
+    //         categorySearch = [];
+    //         subCategorySearch = [];
+    //         vendorBasedSearch = [];
+    //         cakeTypeList = [];
+    //         activeSearch = true;
+    //
+    //         if (cakeCategoryCtrl.text.isNotEmpty) {
+    //           categorySearch = eggOrEgglesList
+    //               .where((element) => element['CakeName']
+    //                   .toString()
+    //                   .toLowerCase()
+    //                   .contains(cakeCategoryCtrl.text.toLowerCase()))
+    //               .toList();
+    //
+    //           sub = otherProducts
+    //               .where((element) => element["ProductName"]
+    //               .toString()
+    //               .toLowerCase()
+    //               .contains(cakeCategoryCtrl.text.toLowerCase()))
+    //               .toList();
+    //
+    //         }
+    //
+    //
+    //         if (cakeSubCategoryCtrl.text.isNotEmpty) {
+    //           subCategorySearch = eggOrEgglesList
+    //               .where((element) => element['CakeSubType']
+    //                   .contains(cakeSubCategoryCtrl.text))
+    //               .toList();
+    //         }
+    //
+    //         if (cakeVendorCtrl.text.isNotEmpty) {
+    //           vendorBasedSearch = eggOrEgglesList
+    //               .where((element) => element['VendorName']
+    //                   .toString()
+    //                   .toLowerCase()
+    //                   .contains(cakeVendorCtrl.text.toLowerCase()))
+    //               .toList();
+    //
+    //           sub2 = otherProducts
+    //           .where((element) => element["VendorName"]
+    //           .toString()
+    //           .toLowerCase()
+    //           .contains(cakeVendorCtrl.text.toLowerCase()))
+    //           .toList();
+    //
+    //         }
+    //
+    //         if (selectedFilter.isNotEmpty) {
+    //           for (int i = 0; i < eggOrEgglesList.length; i++) {
+    //             if (eggOrEgglesList[i]['CakeType'].isNotEmpty) {
+    //               for (int j = 0; j < selectedFilter.length; j++) {
+    //                 if (eggOrEgglesList[i]['CakeType']
+    //                     .contains(selectedFilter[j])) {
+    //                   cakeTypeList.add(eggOrEgglesList[i]);
+    //                 }
+    //               }
+    //             }
+    //           }
+    //         }
+    //
+    //         // cakeSearchList.clear();
+    //
+    //         cakeSearchList = sub + sub2 + categorySearch.toList() +
+    //             subCategorySearch.toList() +
+    //             vendorBasedSearch.toList() +
+    //             cakeTypeList.toList();
+    //         cakeSearchList = cakeSearchList.toSet().toList();
+    //       });
+    //     }
+    //     else {
+    //       cakeSearchList = eggOrEgglesList;
+    //     }
+    //   }
+    // }
+    //
+    // if(isFiltered == true && isFilterisOn == true || shapeOnlyFilter == true ){
+    //   List list = filteredListByUser.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+    //   filterCakesSearchList =
+    //       list + filteredListByUser.where((element) =>
+    //           element['CakeType'].contains(currentCakeType)).toList();
+    //   // if(|| searchModeis == true){
+    //   //
+    //   // }else{
+    //   //   List list = cakesByType.where((element) => element['CakeSubType'].contains(currentCakeType)).toList();
+    //   //   filterCakesSearchList = list + cakesByType.where((element) => element['CakeType'].contains(currentCakeType)).toList();
+    //   // }
+    // }else{
+    //   filterCakesSearchList = cakesByType.toList();
+    // }
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -3363,13 +3429,14 @@ class _CakeTypesState extends State<CakeTypes> {
                       return GestureDetector(
                         onTap: () {
                           setState((){
-                            selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
-                            selectedFilter = selectedFilter.toSet().toList();
-                            cakeCategoryCtrl.text = "Theme Cake";
+                            // selectedFilter = ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"];
+                            // selectedFilter = selectedFilter.toSet().toList();
+                            // cakeCategoryCtrl.text = "Theme Cake";
+
+                            searchByGivenFilter("Theme Cake", "", "",
+                                ["Theme Cakes","Theme cakes","Theme Cake","Theme cake"]);
                           });
-
                           // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
-
                         },
                         child: Stack(
                           alignment: Alignment.center,
@@ -3485,138 +3552,140 @@ class _CakeTypesState extends State<CakeTypes> {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Container(
-                                  width: 150,
-                                  child: GestureDetector(
-                                    onTap: () async{
-                                      var placeResult = await PlacesAutocomplete.show(
-                                        context: context,
-                                        mode: Mode.overlay,
-                                        language: "in",
-                                        hint: "Type location...",
-                                        strictbounds: false,
-                                        logo: Text(""),
-                                        // region: "in",
-                                        // types: [
-                                        //   "accounting"
-                                        //   'airport'
-                                        //   'amusement_park'
-                                        //   'aquarium'
-                                        //   'art_gallery'
-                                        //   'atm'
-                                        //   'bakery'
-                                        //   'bank'
-                                        //   'bar'
-                                        //   'beauty_salon'
-                                        //   'bicycle_store'
-                                        //   'book_store'
-                                        //   'bowling_alley'
-                                        //   'bus_station'
-                                        //   'cafe'
-                                        //   'campground'
-                                        //   'car_dealer'
-                                        //   'car_rental'
-                                        //   'car_repair'
-                                        //   'car_wash'
-                                        //   'casino'
-                                        //   'cemetery'
-                                        //   'church'
-                                        //   'city_hall'
-                                        //   'clothing_store'
-                                        //   'convenience_store'
-                                        //   'courthouse'
-                                        //   'dentist'
-                                        //   'department_store'
-                                        //   'doctor'
-                                        //   'drugstore'
-                                        //   'electrician'
-                                        //   'electronics_store'
-                                        //   'embassy'
-                                        //   'fire_station'
-                                        //   'florist'
-                                        //   'funeral_home'
-                                        //   'furniture_store'
-                                        //   'gas_station'
-                                        //   'gym'
-                                        //   'hair_care'
-                                        //   'hardware_store'
-                                        //   'hindu_temple'
-                                        //   'home_goods_store'
-                                        //   'hospital'
-                                        //   'insurance_agency'
-                                        //   'jewelry_store'
-                                        //   'laundry'
-                                        //   'lawyer'
-                                        //   'library'
-                                        //   'light_rail_station'
-                                        //   'liquor_store'
-                                        //   'local_government_office'
-                                        //   'locksmith'
-                                        //   'lodging'
-                                        //   'meal_delivery'
-                                        //   'meal_takeaway'
-                                        //   'mosque'
-                                        //   'movie_rental'
-                                        //   'movie_theater'
-                                        //   'moving_company'
-                                        //   'museum'
-                                        //   'night_club'
-                                        //   'painter'
-                                        //   'park'
-                                        //   'parking'
-                                        //   'pet_store'
-                                        //   'pharmacy'
-                                        //   'physiotherapist'
-                                        //   'plumber'
-                                        //   'police'
-                                        //   'post_office'
-                                        //   'primary_school'
-                                        //   'real_estate_agency'
-                                        //   'restaurant'
-                                        //   'roofing_contractor'
-                                        //   'rv_park'
-                                        //   'school'
-                                        //   'secondary_school'
-                                        //   'shoe_store'
-                                        //   'shopping_mall'
-                                        //   'spa'
-                                        //   'stadium'
-                                        //   'storage'
-                                        //   'store'
-                                        //   'subway_station'
-                                        //   'supermarket'
-                                        //   'synagogue'
-                                        //   'taxi_stand'
-                                        //   'tourist_attraction'
-                                        //   'train_station'
-                                        //   'transit_station'
-                                        //   'travel_agency'
-                                        //   'university'
-                                        //   'veterinary_care'
-                                        //   'zoo'
-                                        // ],
-                                        types: [],
-                                        apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
-                                        onError: (e){
+                                Expanded(
+                                  child: Container(
+                                    width: 150,
+                                    child: GestureDetector(
+                                      onTap: () async{
+                                        var placeResult = await PlacesAutocomplete.show(
+                                          context: context,
+                                          mode: Mode.overlay,
+                                          language: "in",
+                                          hint: "Type location...",
+                                          strictbounds: false,
+                                          logo: Text(""),
+                                          // region: "in",
+                                          // types: [
+                                          //   "accounting"
+                                          //   'airport'
+                                          //   'amusement_park'
+                                          //   'aquarium'
+                                          //   'art_gallery'
+                                          //   'atm'
+                                          //   'bakery'
+                                          //   'bank'
+                                          //   'bar'
+                                          //   'beauty_salon'
+                                          //   'bicycle_store'
+                                          //   'book_store'
+                                          //   'bowling_alley'
+                                          //   'bus_station'
+                                          //   'cafe'
+                                          //   'campground'
+                                          //   'car_dealer'
+                                          //   'car_rental'
+                                          //   'car_repair'
+                                          //   'car_wash'
+                                          //   'casino'
+                                          //   'cemetery'
+                                          //   'church'
+                                          //   'city_hall'
+                                          //   'clothing_store'
+                                          //   'convenience_store'
+                                          //   'courthouse'
+                                          //   'dentist'
+                                          //   'department_store'
+                                          //   'doctor'
+                                          //   'drugstore'
+                                          //   'electrician'
+                                          //   'electronics_store'
+                                          //   'embassy'
+                                          //   'fire_station'
+                                          //   'florist'
+                                          //   'funeral_home'
+                                          //   'furniture_store'
+                                          //   'gas_station'
+                                          //   'gym'
+                                          //   'hair_care'
+                                          //   'hardware_store'
+                                          //   'hindu_temple'
+                                          //   'home_goods_store'
+                                          //   'hospital'
+                                          //   'insurance_agency'
+                                          //   'jewelry_store'
+                                          //   'laundry'
+                                          //   'lawyer'
+                                          //   'library'
+                                          //   'light_rail_station'
+                                          //   'liquor_store'
+                                          //   'local_government_office'
+                                          //   'locksmith'
+                                          //   'lodging'
+                                          //   'meal_delivery'
+                                          //   'meal_takeaway'
+                                          //   'mosque'
+                                          //   'movie_rental'
+                                          //   'movie_theater'
+                                          //   'moving_company'
+                                          //   'museum'
+                                          //   'night_club'
+                                          //   'painter'
+                                          //   'park'
+                                          //   'parking'
+                                          //   'pet_store'
+                                          //   'pharmacy'
+                                          //   'physiotherapist'
+                                          //   'plumber'
+                                          //   'police'
+                                          //   'post_office'
+                                          //   'primary_school'
+                                          //   'real_estate_agency'
+                                          //   'restaurant'
+                                          //   'roofing_contractor'
+                                          //   'rv_park'
+                                          //   'school'
+                                          //   'secondary_school'
+                                          //   'shoe_store'
+                                          //   'shopping_mall'
+                                          //   'spa'
+                                          //   'stadium'
+                                          //   'storage'
+                                          //   'store'
+                                          //   'subway_station'
+                                          //   'supermarket'
+                                          //   'synagogue'
+                                          //   'taxi_stand'
+                                          //   'tourist_attraction'
+                                          //   'train_station'
+                                          //   'transit_station'
+                                          //   'travel_agency'
+                                          //   'university'
+                                          //   'veterinary_care'
+                                          //   'zoo'
+                                          // ],
+                                          types: [],
+                                          apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                          onError: (e){
 
-                                        },
-                                        components: [new wbservice.Component(wbservice.Component.country, "in")],
-                                      );
+                                          },
+                                          components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                        );
 
-                                      if(placeResult == null){
+                                        if(placeResult == null){
 
-                                      }else{
-                                        getCoordinates(placeResult!.description.toString());
-                                      }
-                                    },
-                                    child: Text(
-                                      '$userCurLocation',
-                                      maxLines: 1 ,
-                                      style: TextStyle(
-                                          fontFamily: poppins,
-                                          fontSize: 13.5,
-                                          color: darkBlue,
-                                          fontWeight: FontWeight.bold
+                                        }else{
+                                          getCoordinates(placeResult!.description.toString());
+                                        }
+                                      },
+                                      child: Text(
+                                        '$userCurLocation',
+                                        maxLines: 1 ,
+                                        style: TextStyle(
+                                            fontFamily: poppins,
+                                            fontSize: 13.5,
+                                            color: darkBlue,
+                                            fontWeight: FontWeight.bold
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -3748,14 +3817,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                     }
                                   },
                                   child: Icon(Icons.arrow_drop_down),
-                                )
+                                ),
+                                SizedBox(width: 10,),
                               ],
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     iamYourVendor == false
                         ? Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -3780,8 +3849,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 image: AssetImage('assets/images/smilyfood.png'),
                               ))
                             ],
-                          )
-                        :
+                          ) :
                         //Vendor name and whatsapp...
                         Container(
                             padding: EdgeInsets.only(left: 10, right: 10),
@@ -3860,8 +3928,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                           ),
                                           InkWell(
                                             onTap: () {
-                                              PhoneDialog().showPhoneDialog(context,mySelVendors[0]['PhoneNumber1'].toString(),
-                                                  mySelVendors[0]['PhoneNumber2'].toString(), true);
+                                              // PhoneDialog().showPhoneDialog(context,mySelVendors[0]['PhoneNumber1'].toString(),
+                                              //     mySelVendors[0]['PhoneNumber2'].toString(), true);
                                             },
                                             child: Container(
                                               alignment: Alignment.center,
@@ -4051,7 +4119,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                       style: TextStyle(
                                           color: darkBlue,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: poppins),
+                                          fontFamily: poppins
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -5370,8 +5439,29 @@ class _CakeTypesState extends State<CakeTypes> {
                             crossAxisSpacing: 7,
                             itemCount: otherEggProducts.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return index == 0
-                                  ? GestureDetector(
+
+                              var price , weight;
+                              if(otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"){
+                                price = otherEggProducts[index]['MinWeightPerKg']['PricePerKg'];
+                                weight = changeWeight(otherEggProducts[index]['MinWeightPerKg']['Weight'].toString());
+                              }else if(otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"){
+                                price = otherEggProducts[index]['MinWeightPerUnit'][0]['PricePerUnit'];
+                                weight = otherEggProducts[index]['MinWeightPerUnit'][0]['Weight'];
+                              }else{
+                                price = otherEggProducts[index]['MinWeightPerBox'][0]['PricePerBox'];
+                                weight = otherEggProducts[index]['MinWeightPerBox'][0]['Piece'];
+                              }
+
+                              var fixPrice = (double.parse(price.toString())*double.parse(weight.toString())).toStringAsFixed(1);
+
+                              //otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
+                              //'${otherEggProducts[index]['MinWeightPerKg']['Weight']}':
+                              //otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                              //"${otherEggProducts[index]['MinWeightPerUnit'][0]['Weight']}":
+                              //'${otherEggProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs'
+
+                              return index == 0 ?
+                              GestureDetector(
                                 onTap: () {
                                   sendOthers(otherEggProducts[index]["_id"].toString());
                                 },
@@ -5449,10 +5539,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 .spaceBetween,
                                             children: [
                                               Text(
-                                                otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                  '₹ ${otherEggProducts[index]['MinWeightPerKg']['PricePerKg']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                  "₹ ${otherEggProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
-                                                  '₹ ${otherEggProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                  '₹ $fixPrice',
                                                   style: TextStyle(
                                                       color:
                                                       lightPink,
@@ -5476,7 +5563,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                                         8)),
                                                 child: Text(
                                                     otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                    '${otherEggProducts[index]['MinWeightPerKg']['Weight']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
+                                                    '${otherEggProducts[index]['MinWeightPerKg']['Weight']}':
+                                                    otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
                                                     "${otherEggProducts[index]['MinWeightPerUnit'][0]['Weight']}":
                                                     '${otherEggProducts[index]['MinWeightPerBox'][0]['Piece']} Pcs',
                                                     style: TextStyle(
@@ -5554,10 +5642,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 .spaceBetween,
                                             children: [
                                               Text(
-                                                  otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
-                                                  '₹ ${otherEggProducts[index]['MinWeightPerKg']['PricePerKg']}':otherEggProducts[index]['Type'].toString().toLowerCase()=="unit"?
-                                                  "₹ ${otherEggProducts[index]['MinWeightPerUnit'][0]['PricePerUnit']}":
-                                                  '₹ ${otherEggProducts[index]['MinWeightPerBox'][0]['PricePerBox']}',
+                                                  '₹ $fixPrice',
                                                   style: TextStyle(
                                                       color:
                                                       lightPink,
@@ -5654,8 +5739,6 @@ double changeWeight(String weight) {
     converetedWeight = double.parse(givenWeight)/1000;
 
   }
-
-  print("Converted : $converetedWeight");
 
   return converetedWeight;
 }

@@ -194,7 +194,7 @@ class _HampersState extends State<Hampers> {
       backgroundColor: Colors.white,
       appBar:AppBar(
         backgroundColor: lightGrey,
-        elevation: 2.0,
+        elevation: 0.0,
         leading: Container(
           margin: EdgeInsets.all(12),
           child: InkWell(

@@ -1778,12 +1778,12 @@ class _OthersDetailsState extends State<OthersDetails> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                  print('whatsapp : ');
-                                                  PhoneDialog().showPhoneDialog(
-                                                      context,
-                                                      "$vendrorPhone1",
-                                                      "$vendrorPhonr2",
-                                                      true);
+                                                  // print('whatsapp : ');
+                                                  // PhoneDialog().showPhoneDialog(
+                                                  //     context,
+                                                  //     "$vendrorPhone1",
+                                                  //     "$vendrorPhonr2",
+                                                  //     true);
                                                 },
                                                 child: Container(
                                                   alignment: Alignment.center,

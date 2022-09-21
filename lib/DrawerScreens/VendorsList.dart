@@ -154,7 +154,7 @@ class _VendorsListState extends State<VendorsList> {
 
     try{
 
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -668,8 +668,8 @@ class _VendorsListState extends State<VendorsList> {
                       Container(
                         child: Row(
                           children: [
-                            Icon(Icons.location_on,color: Colors.red,),
-                            SizedBox(width: 5,),
+                            Icon(Icons.location_on,color: Colors.red,size: 18,),
+                            SizedBox(width: 3,),
                             Text('Delivery to',style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold,
                                 fontSize: 13,
                                 fontFamily: "Poppins"),)
@@ -680,7 +680,7 @@ class _VendorsListState extends State<VendorsList> {
                         padding: EdgeInsets.only(left: 8),
                         alignment: Alignment.centerLeft,
                         child: Text('$userCurLocation',maxLines:1,
-                          style:TextStyle(fontFamily: "Poppins",fontSize: 15,color: darkBlue,fontWeight: FontWeight.bold),),
+                          style:TextStyle(fontFamily: "Poppins",fontSize: 13.5,color: darkBlue,fontWeight: FontWeight.bold),),
                       ),
                     ],
                   ),

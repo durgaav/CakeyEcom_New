@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       for (var i = 0; i < searchCakeType.length; i++) {
         if (searchCakeType[i].toString().toLowerCase() !=
-            "customise cake" && searchCakeType[i].toString().toLowerCase() !=
+            "customize your cake" && searchCakeType[i].toString().toLowerCase() !=
             "others" ) {
           myList.add(searchCakeType[i]);
         }
@@ -1280,7 +1280,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try{
 
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/list'));
+          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1398,7 +1398,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     try {
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/cake/list"),
+          Uri.parse("https://cakey-database.vercel.app/api/cakes/activevendors/list"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
         if (response.body.length < 50) {
@@ -1540,7 +1540,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredByEggList.clear();
     try {
       var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -1592,7 +1592,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredByEggList.clear();
     try {
       var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -2224,150 +2224,150 @@ class _HomeScreenState extends State<HomeScreen> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          Container(
-                            width: 200,
-                            child: GestureDetector(
-                              onTap: () async{
-                                FocusScope.of(context).unfocus();
-                                // showLocationChangeDialog();
+                          Expanded(
+                            child: Container(
+                              width: 200,
+                              child: GestureDetector(
+                                onTap: () async{
+                                  FocusScope.of(context).unfocus();
+                                  // showLocationChangeDialog();
 
-                                var placeResult = await PlacesAutocomplete.show(
-                                    context: context,
-                                    mode: Mode.overlay,
-                                    language: "in",
-                                    hint: "Type location...",
-                                    strictbounds: false,
-                                    logo: Text(""),
-                                    // region: "in",
-                                    // types: [
-                                    //   "accounting"
-                                    //   'airport'
-                                    //   'amusement_park'
-                                    //   'aquarium'
-                                    //   'art_gallery'
-                                    //   'atm'
-                                    //   'bakery'
-                                    //   'bank'
-                                    //   'bar'
-                                    //   'beauty_salon'
-                                    //   'bicycle_store'
-                                    //   'book_store'
-                                    //   'bowling_alley'
-                                    //   'bus_station'
-                                    //   'cafe'
-                                    //   'campground'
-                                    //   'car_dealer'
-                                    //   'car_rental'
-                                    //   'car_repair'
-                                    //   'car_wash'
-                                    //   'casino'
-                                    //   'cemetery'
-                                    //   'church'
-                                    //   'city_hall'
-                                    //   'clothing_store'
-                                    //   'convenience_store'
-                                    //   'courthouse'
-                                    //   'dentist'
-                                    //   'department_store'
-                                    //   'doctor'
-                                    //   'drugstore'
-                                    //   'electrician'
-                                    //   'electronics_store'
-                                    //   'embassy'
-                                    //   'fire_station'
-                                    //   'florist'
-                                    //   'funeral_home'
-                                    //   'furniture_store'
-                                    //   'gas_station'
-                                    //   'gym'
-                                    //   'hair_care'
-                                    //   'hardware_store'
-                                    //   'hindu_temple'
-                                    //   'home_goods_store'
-                                    //   'hospital'
-                                    //   'insurance_agency'
-                                    //   'jewelry_store'
-                                    //   'laundry'
-                                    //   'lawyer'
-                                    //   'library'
-                                    //   'light_rail_station'
-                                    //   'liquor_store'
-                                    //   'local_government_office'
-                                    //   'locksmith'
-                                    //   'lodging'
-                                    //   'meal_delivery'
-                                    //   'meal_takeaway'
-                                    //   'mosque'
-                                    //   'movie_rental'
-                                    //   'movie_theater'
-                                    //   'moving_company'
-                                    //   'museum'
-                                    //   'night_club'
-                                    //   'painter'
-                                    //   'park'
-                                    //   'parking'
-                                    //   'pet_store'
-                                    //   'pharmacy'
-                                    //   'physiotherapist'
-                                    //   'plumber'
-                                    //   'police'
-                                    //   'post_office'
-                                    //   'primary_school'
-                                    //   'real_estate_agency'
-                                    //   'restaurant'
-                                    //   'roofing_contractor'
-                                    //   'rv_park'
-                                    //   'school'
-                                    //   'secondary_school'
-                                    //   'shoe_store'
-                                    //   'shopping_mall'
-                                    //   'spa'
-                                    //   'stadium'
-                                    //   'storage'
-                                    //   'store'
-                                    //   'subway_station'
-                                    //   'supermarket'
-                                    //   'synagogue'
-                                    //   'taxi_stand'
-                                    //   'tourist_attraction'
-                                    //   'train_station'
-                                    //   'transit_station'
-                                    //   'travel_agency'
-                                    //   'university'
-                                    //   'veterinary_care'
-                                    //   'zoo'
-                                    // ],
-                                    types: [],
-                                    apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
-                                    onError: (e){
+                                  var placeResult = await PlacesAutocomplete.show(
+                                      context: context,
+                                      mode: Mode.overlay,
+                                      language: "in",
+                                      hint: "Type location...",
+                                      strictbounds: false,
+                                      logo: Text(""),
+                                      // region: "in",
+                                      // types: [
+                                      //   "accounting"
+                                      //   'airport'
+                                      //   'amusement_park'
+                                      //   'aquarium'
+                                      //   'art_gallery'
+                                      //   'atm'
+                                      //   'bakery'
+                                      //   'bank'
+                                      //   'bar'
+                                      //   'beauty_salon'
+                                      //   'bicycle_store'
+                                      //   'book_store'
+                                      //   'bowling_alley'
+                                      //   'bus_station'
+                                      //   'cafe'
+                                      //   'campground'
+                                      //   'car_dealer'
+                                      //   'car_rental'
+                                      //   'car_repair'
+                                      //   'car_wash'
+                                      //   'casino'
+                                      //   'cemetery'
+                                      //   'church'
+                                      //   'city_hall'
+                                      //   'clothing_store'
+                                      //   'convenience_store'
+                                      //   'courthouse'
+                                      //   'dentist'
+                                      //   'department_store'
+                                      //   'doctor'
+                                      //   'drugstore'
+                                      //   'electrician'
+                                      //   'electronics_store'
+                                      //   'embassy'
+                                      //   'fire_station'
+                                      //   'florist'
+                                      //   'funeral_home'
+                                      //   'furniture_store'
+                                      //   'gas_station'
+                                      //   'gym'
+                                      //   'hair_care'
+                                      //   'hardware_store'
+                                      //   'hindu_temple'
+                                      //   'home_goods_store'
+                                      //   'hospital'
+                                      //   'insurance_agency'
+                                      //   'jewelry_store'
+                                      //   'laundry'
+                                      //   'lawyer'
+                                      //   'library'
+                                      //   'light_rail_station'
+                                      //   'liquor_store'
+                                      //   'local_government_office'
+                                      //   'locksmith'
+                                      //   'lodging'
+                                      //   'meal_delivery'
+                                      //   'meal_takeaway'
+                                      //   'mosque'
+                                      //   'movie_rental'
+                                      //   'movie_theater'
+                                      //   'moving_company'
+                                      //   'museum'
+                                      //   'night_club'
+                                      //   'painter'
+                                      //   'park'
+                                      //   'parking'
+                                      //   'pet_store'
+                                      //   'pharmacy'
+                                      //   'physiotherapist'
+                                      //   'plumber'
+                                      //   'police'
+                                      //   'post_office'
+                                      //   'primary_school'
+                                      //   'real_estate_agency'
+                                      //   'restaurant'
+                                      //   'roofing_contractor'
+                                      //   'rv_park'
+                                      //   'school'
+                                      //   'secondary_school'
+                                      //   'shoe_store'
+                                      //   'shopping_mall'
+                                      //   'spa'
+                                      //   'stadium'
+                                      //   'storage'
+                                      //   'store'
+                                      //   'subway_station'
+                                      //   'supermarket'
+                                      //   'synagogue'
+                                      //   'taxi_stand'
+                                      //   'tourist_attraction'
+                                      //   'train_station'
+                                      //   'transit_station'
+                                      //   'travel_agency'
+                                      //   'university'
+                                      //   'veterinary_care'
+                                      //   'zoo'
+                                      // ],
+                                      types: [],
+                                      apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                      onError: (e){
 
-                                    },
-                                    components: [new wbservice.Component(wbservice.Component.country, "in")],
-                                );
+                                      },
+                                      components: [new wbservice.Component(wbservice.Component.country, "in")],
+                                  );
 
-                                if(placeResult == null){
+                                  if(placeResult == null){
 
-                                }else{
-                                  getCoordinates(placeResult!.description.toString());
-                                }
+                                  }else{
+                                    getCoordinates(placeResult!.description.toString());
+                                  }
 
-                              },
-                              child: Text(
-                                '$userLocalityAdr',
-                                maxLines: 1,
-                                style: TextStyle(
-                                    fontFamily: poppins,
-                                    fontSize: 13.5,
-                                    color: darkBlue,
-                                    fontWeight: FontWeight.bold,
-                                    overflow: TextOverflow.ellipsis
+                                },
+                                child: Text(
+                                  '$userLocalityAdr',
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                      fontFamily: poppins,
+                                      fontSize: 13.5,
+                                      color: darkBlue,
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(
-                            width: 5,
-                          ),
+                          SizedBox(width: 5,),
                           GestureDetector(
                             onTap: () async{
                               FocusScope.of(context).unfocus();
@@ -2492,7 +2492,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             },
                             child: Icon(Icons.arrow_drop_down),
-                          )
+                          ),
+                          SizedBox(width: 10,)
                         ],
                       ),
                     ),
@@ -3068,6 +3069,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         Column(
                                                                       children: [
                                                                         Container(
+                                                                          margin: EdgeInsets.only(left: 5),
                                                                           height:
                                                                               80,
                                                                           width:
@@ -3119,6 +3121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         Column(
                                                                       children: [
                                                                         Container(
+                                                                          margin: EdgeInsets.only(left: 5),
                                                                           height:
                                                                               80,
                                                                           width: 125,
@@ -3264,7 +3267,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             ],
                                                           ),
                                                         ),
-
                                                         // Container(
                                                         //   child:
                                                         //       ListView.builder(
@@ -3812,6 +3814,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                  color: Colors.grey[300]!,
+                                                                                  width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: AssetImage("assets/images/chefdoll.jpg"))
                                                                             ),
@@ -3824,6 +3830,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                    color: Colors.grey[300]!,
+                                                                                    width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: NetworkImage('${recentOrders[index]['Image']}'))),
                                                                           ),
@@ -3989,6 +3999,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                    color: Colors.grey[300]!,
+                                                                                    width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: AssetImage("assets/images/chefdoll.jpg"))
                                                                             ),
@@ -4001,6 +4015,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                    color: Colors.grey[300]!,
+                                                                                    width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: NetworkImage('${recentOrders[index]['Image']}'))),
                                                                           ),
@@ -4166,6 +4184,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                    color: Colors.grey[300]!,
+                                                                                    width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: AssetImage("assets/images/chefdoll.jpg"))
                                                                             ),
@@ -4178,6 +4200,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
+                                                                                border: Border.all(
+                                                                                    color: Colors.grey[300]!,
+                                                                                    width: 1
+                                                                                ),
                                                                                 image: DecorationImage(fit: BoxFit.cover,
                                                                                     image: NetworkImage('${recentOrders[index]['Image']}'))),
                                                                           ),

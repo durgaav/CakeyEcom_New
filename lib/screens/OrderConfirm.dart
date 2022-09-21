@@ -408,7 +408,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+                                 // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

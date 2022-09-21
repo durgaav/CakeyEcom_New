@@ -435,7 +435,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                                 children: [
                                   Text(
                                     counts<10?
-                                    '0${counts}':
+                                    '0$counts':
                                     "${counts}",
                                     style: TextStyle(
                                       color: lightPink,
@@ -1293,6 +1293,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Column(
                               children: [
                                 Text(
+                                  counts<10?
+                                  '0$counts':
                                   '$counts',
                                   style: TextStyle(
                                     color: lightPink,
@@ -1350,6 +1352,78 @@ class _HamperDetailsState extends State<HamperDetails> {
                     )),
 
 
+                Container(
+                  child: Row(
+                    children: [
+                      Expanded(child:Container(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Booking Start',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedFlavList.isEmpty
+                            //     ?
+                            Text("$startDate",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600),
+                            )
+
+                          ],
+                        ),
+                      ),),
+                      Container(
+                        height: 45,
+                        width: 1,
+                        color: Colors.pink[100],
+                      )
+                      ,
+                      Expanded(child: Container(
+                        padding: EdgeInsets.only(left : 15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Booking End',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedShape.isEmpty
+                            //     ?
+                            Text("$endDate",
+                              style: TextStyle(
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins"
+                              ),
+                            )
+                          ],
+                        ),
+                      ),),
+                    ],
+                  ),
+                ),
+
+
                 //product contains
                 Padding(
                   padding: EdgeInsets.only(top: 5, left: 6),
@@ -1394,27 +1468,13 @@ class _HamperDetailsState extends State<HamperDetails> {
                         ),
                         children: productContains.map((e) {
                           return Container(
-                            padding: EdgeInsets.all(6),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  e,
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: darkBlue
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 2),
-                                    child: Divider(
-                                      color: Colors.black,
-                                    )),
-                              ],
-                            ),
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.all(10),
+                            child: Text((productContains.indexWhere((element) => element==e)+1).toString()+") $e",
+                            style: TextStyle(
+                              color: darkBlue,
+                              fontFamily: "Poppins",
+                            ),),
                           );
                         }).toList(),
                       ),
@@ -1426,78 +1486,6 @@ class _HamperDetailsState extends State<HamperDetails> {
                     child: Divider(
                       color: Colors.pink[100],
                     )),
-
-
-                Container(
-                  child: Row(
-                    children: [
-                      Expanded(child:Container(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Sale Started On',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedFlavList.isEmpty
-                            //     ?
-                            Text("$startDate",
-                              style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600),
-                            )
-
-                          ],
-                        ),
-                      ),),
-                      Container(
-                        height: 45,
-                        width: 1,
-                        color: Colors.pink[100],
-                      )
-                      ,
-                      Expanded(child: Container(
-                        padding: EdgeInsets.only(left : 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Sale End Date',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedShape.isEmpty
-                            //     ?
-                            Text("$endDate",
-                              style: TextStyle(
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Poppins"
-                              ),
-                            )
-                          ],
-                        ),
-                      ),),
-                    ],
-                  ),
-                ),
 
                 Padding(
                   padding: EdgeInsets.only(top: 10, left: 6),
@@ -1551,6 +1539,77 @@ class _HamperDetailsState extends State<HamperDetails> {
                     );
                   },
                 )),
+
+                Container(
+                  child: Row(
+                    children: [
+                      Expanded(child:Container(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Delivery Start',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedFlavList.isEmpty
+                            //     ?
+                            Text("$startDate",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600),
+                            )
+
+                          ],
+                        ),
+                      ),),
+                      Container(
+                        height: 45,
+                        width: 1,
+                        color: Colors.pink[100],
+                      )
+                      ,
+                      Expanded(child: Container(
+                        padding: EdgeInsets.only(left : 15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Delivery End',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            // fixedShape.isEmpty
+                            //     ?
+                            Text("$endDate",
+                              style: TextStyle(
+                                  color: darkBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins"
+                              ),
+                            )
+                          ],
+                        ),
+                      ),),
+                    ],
+                  ),
+                ),
 
                 Padding(
                   padding: EdgeInsets.only(top: 10, left: 6, bottom: 5),
@@ -1804,6 +1863,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Icon(Icons.keyboard_arrow_down, color: darkBlue)
                           ])),
                 ),
+
 
                 fixedDelliverMethod.toLowerCase() == "delivery"
                     ? Column(
@@ -2089,12 +2149,12 @@ class _HamperDetailsState extends State<HamperDetails> {
                                             ),
                                             InkWell(
                                               onTap: () {
-                                                print('whatsapp : ');
-                                                PhoneDialog().showPhoneDialog(
-                                                    context,
-                                                    "$hampVenPhn1",
-                                                    "$hampVenPhn2",
-                                                    true);
+                                                // print('whatsapp : ');
+                                                // PhoneDialog().showPhoneDialog(
+                                                //     context,
+                                                //     "$hampVenPhn1",
+                                                //     "$hampVenPhn2",
+                                                //     true);
                                               },
                                               child: Container(
                                                 alignment: Alignment.center,

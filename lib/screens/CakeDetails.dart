@@ -1930,7 +1930,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     print("begin...");
 
     var res = await http.get(
-        Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+        Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -4717,9 +4717,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 ),
                                                                                 InkWell(
                                                                                   onTap: () {
-                                                                                    print('whatsapp : ');
-                                                                                    PhoneDialog().showPhoneDialog(context, mySelVendors[0]['PhoneNumber1'],
-                                                                                        mySelVendors[0]['PhoneNumber2'], true);
+                                                                                    // print('whatsapp : ');
+                                                                                    // PhoneDialog().showPhoneDialog(context, mySelVendors[0]['PhoneNumber1'],
+                                                                                    //     mySelVendors[0]['PhoneNumber2'], true);
                                                                                   },
                                                                                   child: Container(
                                                                                     alignment: Alignment.center,
