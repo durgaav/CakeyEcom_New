@@ -1809,7 +1809,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeModID', cakeModId);
     prefs.setString('orderCakeName', cakeName);
     prefs.setString('orderCakeCommonName', commonCakeName);
-    prefs.setString('orderCakeType', cakeType);
+    prefs.setString('orderCakeType', cakeSubType);
     prefs.setString('orderCakeSubType', cakeSubType);
     prefs.setString('orderCakeImages', cakeImages[0].toString());
     prefs.setString('orderCakeEggOrEggless', cakeEggorEgless);

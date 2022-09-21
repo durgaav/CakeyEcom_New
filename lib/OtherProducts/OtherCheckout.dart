@@ -446,7 +446,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       'prefill': {
         'contact': '$userPhone',
         // 'email': '$userName',
-        'email': 'test@gmail.com',
+        'email': '',
       },
       "theme":{
         "color":'#E8416D'
@@ -1354,6 +1354,50 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const Text('Discounts',style: const TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black54,
+                            ),),
+                            Row(
+                                children:[
+                                  Container(
+                                      padding:EdgeInsets.only(right:10),
+                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                  ),
+                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ]
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('GST',style: const TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black54,
+                            ),),
+                            Row(
+                                children:[
+                                  Container(
+                                      padding:EdgeInsets.only(right:10),
+                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                  ),
+                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ]
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('SGST',style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),

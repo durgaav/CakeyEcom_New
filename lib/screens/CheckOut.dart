@@ -472,7 +472,7 @@ class _CheckOutState extends State<CheckOut> {
       'prefill': {
         'contact': '$userPhone',
         // 'email': '$userName',
-        'email': 'test@gmail.com',
+        'email': '',
       },
       "theme":{
         "color":'#E8416D'
@@ -561,7 +561,6 @@ class _CheckOutState extends State<CheckOut> {
       //delivery charge
       adminDeliveryCharge = prefs.getInt("todayDeliveryCharge")??0;
       adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm")??0;
-
     });
 
     setState((){
@@ -1272,7 +1271,7 @@ class _CheckOutState extends State<CheckOut> {
                         ),),
                         subtitle: Text(
                           '${vendorName}',style: TextStyle(
-                            fontSize: 14,fontFamily: "Poppins",
+                            fontSize: 13,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),
                         trailing: Container(
@@ -1325,8 +1324,8 @@ class _CheckOutState extends State<CheckOut> {
                             Text('Deliver Date',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('${deliverDate}',style: TextStyle(
-                                fontSize: 14,fontFamily: "Poppins",
+                            Text('${cakeType}',style: TextStyle(
+                                fontSize: 13,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),
                           ],

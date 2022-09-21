@@ -135,7 +135,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
         //Strings
         cakeName = prefs.getString("orderCakeName")!;
         cakePrice = prefs.getString("orderCakePrice")??'100';
-        // cakeType = prefs.getString("orderCakeType")!;
+        cakeType = prefs.getString("orderCakeType")!;
         weight = prefs.getString("orderCakeWeight")!;
         cakeImage = prefs.getString("orderCakeImages")!;
         userAddress = prefs.getString("orderCakeDeliverAddress")!;
@@ -381,7 +381,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                         ),),
                         subtitle: Text(
                         '${double.parse(weight.toLowerCase().replaceAll('kg', ""))>5.0?"Premium Vendor":vendorName}',style: TextStyle(
-                            fontSize: 14,fontFamily: "Poppins",
+                            fontSize: 13,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),
                         trailing: Container(
@@ -432,11 +432,11 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Deliver Date',style: TextStyle(
+                            Text('Cake Type',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('${deliverDate}',style: TextStyle(
-                                fontSize: 14,fontFamily: "Poppins",
+                            Text('${cakeType}',style: TextStyle(
+                                fontSize: 13,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),
                           ],
