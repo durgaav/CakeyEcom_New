@@ -676,7 +676,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
     setState((){
       for (var i = 0;i<cakesTypes.length;i++){
-        if(cakesTypes[i].toString().toLowerCase()!="all cakes" && cakesTypes[i].toString().toLowerCase()!="others"){
+        if(cakesTypes[i]['name'].toString().toLowerCase()!="all cakes" &&
+            cakesTypes[i]['name'].toString().toLowerCase()!="others"){
           myList.add(cakesTypes[i]);
         }
       }
@@ -865,23 +866,23 @@ class _CakeTypesState extends State<CakeTypes> {
                         spacing: 5,
                         children: myList.map((e) {
                           bool clicked = false;
-                          if (selectedFilter.contains(e)) {
+                          if (selectedFilter.contains(e['name'])) {
                             clicked = true;
                           }
                           return OutlinedButton(
                               onPressed: (){
                                 setState((){
-                                  if(selectedFilter.contains(e)){
+                                  if(selectedFilter.contains(e['name'])){
                                     selectedFilter.removeWhere(
-                                            (element) => element == e);
+                                            (element) => element == e['name']);
                                     clicked = false;
                                   }else{
-                                    selectedFilter.add(e);
+                                    selectedFilter.add(e['name']);
                                     clicked = true;
                                   }
                                 });
                               },
-                              child: Text(e,style: TextStyle(
+                              child: Text(e['name'],style: TextStyle(
                                 fontFamily: "Poppins",
                                 color: clicked?Colors.white:darkBlue,
                                 fontWeight: FontWeight.bold,
@@ -1495,17 +1496,35 @@ class _CakeTypesState extends State<CakeTypes> {
       mainList = jsonDecode(await response.stream.bytesToString());
       setState(() {
         print("CAKE TYPES : " + mainList.toString());
+
+        cakesTypes.add(
+            {"name":"All Cakes"}
+        );
+        cakesTypes.add(
+            {"name":"Others"}
+        );
+
         if (mainList.length > 1) {
           for (int i = 0; i < mainList.length; i++) {
 
             if (mainList[i]['Type'] != null) {
-              cakesTypes.add(mainList[i]['Type'].toString());
+              cakesTypes.add(
+                  {
+                    "name":mainList[i]['Type'].toString(),
+                    "image":mainList[i]['Type_Image'].toString(),
+                  }
+              );
             }
 
             if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
               for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
                 print(mainList[i]['SubType'][k]);
-                cakesTypes.add(mainList[i]['SubType'][k].toString());
+                cakesTypes.add(
+                    {
+                      "name":mainList[i]['SubType'][k]['Name'].toString(),
+                      "image":mainList[i]['SubType'][k]['SubType_Image'].toString(),
+                    }
+                );
               }
             }
 
@@ -1515,11 +1534,11 @@ class _CakeTypesState extends State<CakeTypes> {
         print('Sub types>>>> $subType');
 
         // cakesTypes.add("All Cakes");
-        List sub = ["All Cakes","Others"];
-        //cakesTypes.add("Others");
-        cakesTypes.sort();
-        cakesTypes = sub + cakesTypes.toSet().toList();
-        currentIndex = cakesTypes.indexWhere((element) => element.toString().toLowerCase()=="all cakes");
+        // List sub = ["All Cakes","Others"];
+        // //cakesTypes.add("Others");
+        // cakesTypes.sort();
+        cakesTypes = cakesTypes.toSet().toList();
+        currentIndex = cakesTypes.indexWhere((element) => element['name'].toString().toLowerCase()=="all cakes");
 
         // searchCakeType.insert(0, "Customize your cake");
         // // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
@@ -1812,6 +1831,8 @@ class _CakeTypesState extends State<CakeTypes> {
   //Send prefs to next screen....
   Future<void> sendDetailsToScreen(String id) async {
 
+    print(currentCakeType);
+
     int index = cakeSearchList.indexWhere((element) => element['_id'].toString()==id);
 
     //Local Vars
@@ -2097,6 +2118,9 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Send filtered prefs to next screen
   Future<void> sendFillDetailsToScreen(int index) async {
+
+    print(currentCakeType);
+
     //Local Vars
     List<String> cakeImgs = [];
     List<String> cakeWeights = [];
@@ -2731,7 +2755,7 @@ class _CakeTypesState extends State<CakeTypes> {
         selIndex.add(false);
       }
       isFiltered = false;
-      selIndex[cakesTypes.indexWhere((element) => element.toString().toLowerCase()=="all cakes")] = true;
+      selIndex[cakesTypes.indexWhere((element) => element['name'].toString().toLowerCase()=="all cakes")] = true;
       currentCakeType = "All cakes";
       cakeSearchList = eggOrEgglesList;
       searchCakesText = '';
@@ -2925,11 +2949,11 @@ class _CakeTypesState extends State<CakeTypes> {
             .contains("y")).toList();
 
         List subList = eggOrEgglesList.where((element)
-        => element['CakeSubType'].contains(cakesTypes[currentIndex])
+        => element['CakeSubType'].contains(cakesTypes[currentIndex]["name"])
         ).toList();
 
         cakesByType = eggOrEgglesList.where((element)
-        => element['CakeType'].contains(cakesTypes[currentIndex])
+        => element['CakeType'].contains(cakesTypes[currentIndex]["name"])
         ).toList();
 
         cakesByType = cakesByType + subList;
@@ -2943,11 +2967,11 @@ class _CakeTypesState extends State<CakeTypes> {
         if(eggOrEgglesList.isNotEmpty && cakesTypes.isNotEmpty){
 
             List subList = eggOrEgglesList.where((element)
-            => element['CakeSubType'].contains(cakesTypes[currentIndex])
+            => element['CakeSubType'].contains(cakesTypes[currentIndex]['name'])
             ).toList();
 
             cakesByType = eggOrEgglesList.where((element)
-            => element['CakeType'].contains(cakesTypes[currentIndex])
+            => element['CakeType'].contains(cakesTypes[currentIndex]['name'])
             ).toList();
 
             cakesByType = cakesByType + subList;
@@ -3564,105 +3588,6 @@ class _CakeTypesState extends State<CakeTypes> {
                                           hint: "Type location...",
                                           strictbounds: false,
                                           logo: Text(""),
-                                          // region: "in",
-                                          // types: [
-                                          //   "accounting"
-                                          //   'airport'
-                                          //   'amusement_park'
-                                          //   'aquarium'
-                                          //   'art_gallery'
-                                          //   'atm'
-                                          //   'bakery'
-                                          //   'bank'
-                                          //   'bar'
-                                          //   'beauty_salon'
-                                          //   'bicycle_store'
-                                          //   'book_store'
-                                          //   'bowling_alley'
-                                          //   'bus_station'
-                                          //   'cafe'
-                                          //   'campground'
-                                          //   'car_dealer'
-                                          //   'car_rental'
-                                          //   'car_repair'
-                                          //   'car_wash'
-                                          //   'casino'
-                                          //   'cemetery'
-                                          //   'church'
-                                          //   'city_hall'
-                                          //   'clothing_store'
-                                          //   'convenience_store'
-                                          //   'courthouse'
-                                          //   'dentist'
-                                          //   'department_store'
-                                          //   'doctor'
-                                          //   'drugstore'
-                                          //   'electrician'
-                                          //   'electronics_store'
-                                          //   'embassy'
-                                          //   'fire_station'
-                                          //   'florist'
-                                          //   'funeral_home'
-                                          //   'furniture_store'
-                                          //   'gas_station'
-                                          //   'gym'
-                                          //   'hair_care'
-                                          //   'hardware_store'
-                                          //   'hindu_temple'
-                                          //   'home_goods_store'
-                                          //   'hospital'
-                                          //   'insurance_agency'
-                                          //   'jewelry_store'
-                                          //   'laundry'
-                                          //   'lawyer'
-                                          //   'library'
-                                          //   'light_rail_station'
-                                          //   'liquor_store'
-                                          //   'local_government_office'
-                                          //   'locksmith'
-                                          //   'lodging'
-                                          //   'meal_delivery'
-                                          //   'meal_takeaway'
-                                          //   'mosque'
-                                          //   'movie_rental'
-                                          //   'movie_theater'
-                                          //   'moving_company'
-                                          //   'museum'
-                                          //   'night_club'
-                                          //   'painter'
-                                          //   'park'
-                                          //   'parking'
-                                          //   'pet_store'
-                                          //   'pharmacy'
-                                          //   'physiotherapist'
-                                          //   'plumber'
-                                          //   'police'
-                                          //   'post_office'
-                                          //   'primary_school'
-                                          //   'real_estate_agency'
-                                          //   'restaurant'
-                                          //   'roofing_contractor'
-                                          //   'rv_park'
-                                          //   'school'
-                                          //   'secondary_school'
-                                          //   'shoe_store'
-                                          //   'shopping_mall'
-                                          //   'spa'
-                                          //   'stadium'
-                                          //   'storage'
-                                          //   'store'
-                                          //   'subway_station'
-                                          //   'supermarket'
-                                          //   'synagogue'
-                                          //   'taxi_stand'
-                                          //   'tourist_attraction'
-                                          //   'train_station'
-                                          //   'transit_station'
-                                          //   'travel_agency'
-                                          //   'university'
-                                          //   'veterinary_care'
-                                          //   'zoo'
-                                          // ],
                                           types: [],
                                           apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
                                           onError: (e){
@@ -4212,7 +4137,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 i < selIndex.length;
                                                 i++) {
                                               if (i == index) {
-                                                if (cakesTypes[index].toString().toLowerCase().contains("all cakes")) {
+                                                if (cakesTypes[index]['name'].toString().toLowerCase().contains("all cakes")) {
                                                   isFiltered = false;
                                                   selIndex[i] = true;
                                                   currentCakeType = "All cakes";
@@ -4228,18 +4153,21 @@ class _CakeTypesState extends State<CakeTypes> {
                                                   //     print("test failed...");
                                                   //   }
                                                   // }
-                                                  currentCakeType = cakesTypes[index].toString();
+                                                  currentCakeType = cakesTypes[index]['name'].toString();
                                                   List subList = eggOrEgglesList.where((element)
-                                                  => element['CakeSubType'].contains(cakesTypes[index])
+                                                  => element['CakeSubType'].contains(currentCakeType)
                                                   ).toList();
 
                                                   cakesByType = eggOrEgglesList.where((element)
-                                                   => element['CakeType'].contains(cakesTypes[index])
+                                                   => element['CakeType'].contains(currentCakeType)
                                                   ).toList();
 
                                                   cakesByType = cakesByType + subList;
 
                                                   cakesByType = cakesByType.toSet().toList();
+
+                                                  print(currentCakeType);
+
                                                 }
                                               } else {
                                                 selIndex[i] = false;
@@ -4275,8 +4203,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 CrossAxisAlignment.center,
                                             children: [
                                               index==0?Container(
-                                                height: 30,
-                                                width: 30,
+                                                height: 35,
+                                                width: 35,
                                                 decoration: BoxDecoration(
                                                   image: DecorationImage(
                                                     image: AssetImage("assets/images/cakefour.jpg")
@@ -4284,36 +4212,29 @@ class _CakeTypesState extends State<CakeTypes> {
                                                 ),
                                               ):
                                               index==1?Container(
-                                                height: 30,
-                                                width: 30,
+                                                height: 35,
+                                                width: 35,
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
-                                                        image: AssetImage("assets/images/cakethree.png")
+                                                        image: AssetImage("assets/images/hamper.png")
                                                     )
                                                 ),
-                                              ):
-                                              index==2?Container(
-                                                height: 30,
-                                                width: 30,
+                                              ):Container(
+                                                height: 35,
+                                                width: 35,
                                                 decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                        image: AssetImage("assets/images/cakelist.png")
-                                                    )
+                                                    image: cakesTypes[index]['image']!=null?
+                                                    DecorationImage(
+                                                        image: NetworkImage(cakesTypes[index]['image']),
+                                                        fit: BoxFit.cover
+                                                    ):DecorationImage(
+                                                        image: AssetImage("assets/images/hamper.png")
+                                                    ),
+                                                  shape: BoxShape.circle
                                                 ),
-                                              ):
-                                              index==3?Container(
-                                                height: 30,
-                                                width: 30,
-                                                decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                        image: AssetImage("assets/images/cakefour.jpg")
-                                                    )
-                                                ),
-                                              ):
-                                              Icon(Icons.cake_outlined , color: lightPink,),
-
+                                              ),
                                               Text(
-                                                " ${cakesTypes[index][0].toString().toUpperCase() + cakesTypes[index].toString().substring(1).toLowerCase()}",
+                                                " ${cakesTypes[index]['name']}",
                                                 style: TextStyle(
                                                     color: darkBlue,
                                                     fontFamily: poppins

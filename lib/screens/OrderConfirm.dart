@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Dialogs.dart';
 import '../DrawerScreens/Notifications.dart';
+import 'package:http/http.dart' as http;
 
 class OrderConfirm extends StatefulWidget {
 
@@ -64,6 +65,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String vendorID = '';
   String vendorModId = '';
   String vendorAddress = '';
+  String authToken = "";
 
   String vendorPhone1 = "";
   String vendorPhone2 = "";
@@ -134,6 +136,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
         //Strings
         cakeName = prefs.getString("orderCakeName")!;
+        authToken = prefs.getString("authToken")!;
         cakePrice = prefs.getString("orderCakePrice")??'100';
         cakeType = prefs.getString("orderCakeType")!;
         weight = prefs.getString("orderCakeWeight")!;
@@ -175,7 +178,49 @@ class _OrderConfirmState extends State<OrderConfirm> {
       print(e);
     }
 
+    getTaxDetails();
 
+  }
+
+  Future<void> getTaxDetails() async{
+
+    showAlertDialog();
+
+    //prefs.setDouble('orderCakeGst', gst);
+    //prefs.setDouble('orderCakeSGst', sgst);
+    //prefs.setInt('orderCakeTaxperc', taxes??0);
+
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        Navigator.pop(context);
+        setState(() {
+
+        });
+        print(await response.stream.bytesToString());
+      }
+      else {
+        Navigator.pop(context);
+        setState(() {
+
+        });
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+      Navigator.pop(context);
+      setState(() {
+
+      });
+    }
 
   }
 
@@ -488,7 +533,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Item Total',style: TextStyle(
+                            const Text('Product Total',style: TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
@@ -545,7 +590,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('GST',style: const TextStyle(
+                            const Text('CGST',style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),

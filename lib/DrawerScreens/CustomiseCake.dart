@@ -97,8 +97,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //var weight
   int isFixedWeight = -1;
   String fixedWeight = '1.0';
-  String fixedDate = 'Not Yet Select';
-  String fixedSession = 'Not Yet Select';
+  String fixedDate = 'Select delivery date';
+  String fixedSession = 'Select delivery time';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
   String selectedDropWeight = "Kg";
   String fixedDelliverMethod = "Not Yet Select";
@@ -162,6 +162,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var picOrDeliver = ["Pickup","Delivery"];
   var picOrDel = -1;
 
+  bool shapeExpanded = false;
+  bool flavourExpanded = false;
+
   //vendors details
   String vendorID = '';
   String vendorName = '';
@@ -190,6 +193,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   int adminDeliveryChargeKm = 0;
   String userLatitude = "";
   String userLongtitude = "";
+
+  int _key = 0;
+
+  _collapse() {
+    int newKey = 0;
+    do {
+      _key = new Random().nextInt(10000);
+    } while(newKey == _key);
+  }
 
   //endregion
 
@@ -539,6 +551,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         },
                         child: Text('Add')
                     ),
+
+
                   ],
                 );
               }
@@ -996,7 +1010,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     Navigator.pop(context);
     setState((){
       shapeGrpValue = 0;
-      fixedShape = "Round";
+      fixedShape = "";
     });
   }
 
@@ -1447,6 +1461,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       context.read<ContextData>().setMyVendors([]);
       context.read<ContextData>().addMyVendor(false);
     });
+    _collapse();
     // session();
     super.initState();
   }
@@ -1973,91 +1988,108 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             child:Column(
                                 children:[
                                   ExpansionTile(
-                                    title: Text('Shape',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,color: Colors.grey
-                                    ),),
-                                    subtitle:Text(fixedShape.isEmpty?"Select shape":'$fixedShape',style: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13,
-                                        color: darkBlue
-                                    ),),
-                                    trailing: Container(
-                                      alignment: Alignment.center,
-                                      height: 25,
-                                      width: 25,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle ,
+                                      key: new Key(_key.toString()),
+                                      onExpansionChanged: (e){
+                                        setState((){
+                                          shapeExpanded = !shapeExpanded;
+                                        });
+                                      },
+                                      title: Text('Shape',style: TextStyle(
+                                          fontFamily: "Poppins",fontSize: 13,color: Colors.grey
+                                      ),),
+                                      subtitle:Text(fixedShape.isEmpty?"Select shape":'$fixedShape',style: TextStyle(
+                                          fontFamily: "Poppins",fontSize: 13,
+                                          color: darkBlue
+                                      ),),
+                                      trailing:
+                                      !shapeExpanded?Container(
+                                        alignment: Alignment.center,
+                                        height: 25,
+                                        width: 25,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle ,
+                                        ),
+                                        child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                      ):Container(
+                                        alignment: Alignment.center,
+                                        height: 25,
+                                        width: 25,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle ,
+                                        ),
+                                        child: Icon(Icons.keyboard_arrow_up_outlined , color: darkBlue,size: 25,),
                                       ),
-                                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                      children: [
+                                        shapesList.isNotEmpty?
+                                        Container(
+                                          color:Colors.white,
+                                          height: 300,
+                                          child:ListView.builder(
+                                              itemCount: shapesList.length,
+                                              shrinkWrap: true,
+                                              itemBuilder: (context, index) {
+
+                                                return InkWell(
+                                                  onTap: ()=>setState((){
+
+                                                    shapeGrpValue = index;
+                                                    fixedShape = shapesList[index]['Name'];
+
+                                                    if(shapesList[index]['Name'].toString().contains('Others')){
+                                                      showOthersShapeDialog(index);
+                                                    }
+
+                                                    _collapse();
+
+                                                  }),
+                                                  child: Container(
+                                                    padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
+                                                    child:
+                                                    shapesList[index]['Name']=="Others"?
+                                                    Row(
+                                                      children: [
+                                                        shapeGrpValue!=index?
+                                                        Icon(Icons.add_circle_outline_rounded, color: Colors.black,):
+                                                        Icon(Icons.check_circle, color: Colors.green,),
+                                                        SizedBox(width: 5,),
+                                                        Expanded(child: Text(
+                                                          "${shapesList[index]['Name']}",
+                                                          style: TextStyle(
+                                                              fontFamily: "Poppins", color: darkBlue,
+                                                              fontWeight: FontWeight.bold,fontSize: 13,
+                                                          ),
+                                                        ),)
+                                                      ],
+                                                    ):
+                                                    Row(
+                                                      children: [
+                                                        shapeGrpValue!=index?
+                                                        Icon(Icons.radio_button_unchecked, color: Colors.black,):
+                                                        Icon(Icons.check_circle, color: Colors.green,),
+                                                        SizedBox(width: 5,),
+                                                        Expanded(child: Text(
+                                                          "${shapesList[index]['Name']}",
+                                                          style: TextStyle(
+                                                              fontFamily: "Poppins", color: darkBlue,
+                                                              fontWeight: FontWeight.bold,fontSize: 13,
+                                                          ),
+                                                        ),)
+                                                      ],
+                                                    )
+                                                  ),
+                                                );
+                                              }),
+                                        ):
+                                        Center(
+                                           child:Padding(
+                                             padding: const EdgeInsets.all(8.0),
+                                             child: Text("No Data Found"),
+                                           )
+                                        ),
+                                      ],
                                     ),
-                                    children: [
-
-                                      shapesList.isNotEmpty?
-                                      Container(
-                                        color:Colors.white,
-                                        height: 300,
-                                        child:ListView.builder(
-                                            itemCount: shapesList.length,
-                                            shrinkWrap: true,
-                                            itemBuilder: (context, index) {
-
-                                              return InkWell(
-                                                onTap: ()=>setState((){
-
-                                                  shapeGrpValue = index;
-                                                  fixedShape = shapesList[index]['Name'];
-
-                                                  if(shapesList[index]['Name'].toString().contains('Others')){
-                                                    showOthersShapeDialog(index);
-                                                  }
-
-                                                }),
-                                                child: Container(
-                                                  padding: EdgeInsets.only(top: 7,bottom: 7,left: 10),
-                                                  child:
-                                                  shapesList[index]['Name']=="Others"?
-                                                  Row(
-                                                    children: [
-                                                      shapeGrpValue!=index?
-                                                      Icon(Icons.add_circle_outline_rounded, color: Colors.black,):
-                                                      Icon(Icons.check_circle, color: Colors.green,),
-                                                      SizedBox(width: 5,),
-                                                      Expanded(child: Text(
-                                                        "${shapesList[index]['Name']}",
-                                                        style: TextStyle(
-                                                            fontFamily: "Poppins", color: darkBlue,
-                                                            fontWeight: FontWeight.bold,fontSize: 13,
-                                                        ),
-                                                      ),)
-                                                    ],
-                                                  ):
-                                                  Row(
-                                                    children: [
-                                                      shapeGrpValue!=index?
-                                                      Icon(Icons.radio_button_unchecked, color: Colors.black,):
-                                                      Icon(Icons.check_circle, color: Colors.green,),
-                                                      SizedBox(width: 5,),
-                                                      Expanded(child: Text(
-                                                        "${shapesList[index]['Name']}",
-                                                        style: TextStyle(
-                                                            fontFamily: "Poppins", color: darkBlue,
-                                                            fontWeight: FontWeight.bold,fontSize: 13,
-                                                        ),
-                                                      ),)
-                                                    ],
-                                                  )
-                                                ),
-                                              );
-                                            }),
-                                      ):
-                                      Center(
-                                         child:Padding(
-                                           padding: const EdgeInsets.all(8.0),
-                                           child: Text("No Data Found"),
-                                         )
-                                      ),
-                                    ],
-                                  ),
                                   Container(
                                     margin: EdgeInsets.only(left: 8,right: 8),
                                     height: 0.5,
@@ -2067,12 +2099,17 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     title: Text('Flavours',style: TextStyle(
                                         fontFamily: "Poppins",fontSize: 13,color:Colors.grey
                                     ),),
+                                    onExpansionChanged: (e){
+                                      setState((){
+                                        flavourExpanded = !flavourExpanded;
+                                      });
+                                    },
                                     subtitle:Text(fixedFlavList.isEmpty&&flavTempList.isEmpty?'Select flavours':
                                     '${fixedFlavList.length+flavTempList.length} Selected Flavours',style: TextStyle(
                                         fontFamily: "Poppins",fontSize: 13,
                                         color: darkBlue
                                     ),),
-                                    trailing: Container(
+                                    trailing: !flavourExpanded?Container(
                                       alignment: Alignment.center,
                                       height: 25,
                                       width: 25,
@@ -2081,6 +2118,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         shape: BoxShape.circle ,
                                       ),
                                       child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                                    ):Container(
+                                      alignment: Alignment.center,
+                                      height: 25,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle ,
+                                      ),
+                                      child: Icon(Icons.keyboard_arrow_up_outlined , color: darkBlue,size: 25,),
                                     ),
                                     children: [
                                       flavourList.isNotEmpty?
@@ -2868,7 +2914,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               style: TextStyle(
                                                 color: lightPink,
                                                 fontFamily: "Poppins",
-                                                fontSize: 16,
+                                                fontSize: 18,
                                               )),
                                           content: Container(
                                             height:250,
@@ -2889,110 +2935,110 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Morning 9 AM- 10 AM';
+                                                            'Morning 9 AM - 10 AM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Morning 10 AM- 11 AM';
+                                                            'Morning 10 AM - 11 AM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Morning 11 PM- 12 PM';
+                                                            'Morning 11 PM - 12 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Afternoon 12 PM- 1 PM';
+                                                            'Afternoon 12 PM - 1 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Afternoon 1 PM- 9 PM';
+                                                            'Afternoon 1 PM - 9 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Afternoon 8 PM- 9 PM';
+                                                            'Afternoon 8 PM - 9 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Afternoon 3 PM- 4 PM';
+                                                            'Afternoon 3 PM - 4 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Afternoon 4 PM- 5 PM';
+                                                            'Afternoon 4 PM - 5 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Evening 5 PM- 6 PM';
+                                                            'Evening 5 PM - 6 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Evening 6 PM- 7 PM';
+                                                            'Evening 6 PM - 7 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Evening 7 PM- 8 PM';
+                                                            'Evening 7 PM - 8 PM';
                                                           });
                                                         }),
                                                     PopupMenuItem(
                                                         child: Text(
-                                                          'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                          'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                         onTap: () {
                                                           setState(() {
                                                             fixedSession =
-                                                            'Evening 8 PM- 9 PM';
+                                                            'Evening 8 PM - 9 PM';
                                                           });
                                                         }),
                                                   ],
@@ -3025,7 +3071,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 fontSize: 13
                                             ),
                                           ),
-                                          Icon(Icons.keyboard_arrow_down,
+                                          Icon(CupertinoIcons.clock,
                                               color: darkBlue)
                                         ]
                                     )
@@ -3784,7 +3830,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               ),
                               SizedBox(height: 15,),
 
-                              vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
+                              // vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
                               Center(
                                 child: Container(
                                   height: 50,
@@ -3827,8 +3873,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               SnackBar(content: Text('Invalid Address'))
                                           );
                                         }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                            fixedSession.toLowerCase()=="not yet select"||
-                                            fixedDelliverMethod.toLowerCase()=="not yet select"){
+                                            fixedSession.toLowerCase()=="select delivery time"||
+                                            fixedDate.toLowerCase()=="select delivery date"){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
                                           );
@@ -3848,8 +3894,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     ),),
                                   ),
                                 ),
-                              ):
-                              Container(),
+                              ),
+                              //Container(),
                               SizedBox(height: 30,),
                             ],
                           ),

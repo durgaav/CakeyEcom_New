@@ -196,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       for (var i = 0; i < searchCakeType.length; i++) {
-        if (searchCakeType[i].toString().toLowerCase() !=
-            "customize your cake" && searchCakeType[i].toString().toLowerCase() !=
+        if (searchCakeType[i]['name'].toString().toLowerCase() !=
+            "customize your cake" && searchCakeType[i]['name'].toString().toLowerCase() !=
             "others" ) {
-          myList.add(searchCakeType[i]);
+          myList.add(searchCakeType[i]['name']);
         }
       }
     });
@@ -241,14 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontWeight: FontWeight.bold,
                                   fontFamily: "Poppins"),
                               children: [
-                                TextSpan(
-                                  text: " If Any One * ",
-                                  style: TextStyle(
-                                      color: lightPink,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Poppins"),
-                                )
+
                               ])),
                           GestureDetector(
                             onTap: () {
@@ -1335,17 +1328,33 @@ class _HomeScreenState extends State<HomeScreen> {
         mainList = jsonDecode(await response.stream.bytesToString());
         setState(() {
           print("CAKE TYPES : " + mainList.toString());
+          searchCakeType.add(
+              {"name":"Customize your cake"}
+          );
+          searchCakeType.add(
+              {"name":"Others"}
+          );
           if (mainList.length > 1) {
             for (int i = 0; i < mainList.length; i++) {
 
               if (mainList[i]['Type'] != null) {
-                searchCakeType.add(mainList[i]['Type'].toString());
+                searchCakeType.add(
+                    {
+                      "name":mainList[i]['Type'].toString(),
+                      "image":mainList[i]['Type_Image'].toString(),
+                    }
+                );
               }
 
               if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
                 for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
                   print(mainList[i]['SubType'][k]);
-                  searchCakeType.add(mainList[i]['SubType'][k].toString());
+                  searchCakeType.add(
+                      {
+                        "name":mainList[i]['SubType'][k]['Name'].toString(),
+                        "image":mainList[i]['SubType'][k]['SubType_Image'].toString(),
+                      }
+                  );
                 }
               }
 
@@ -1353,19 +1362,17 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           print('Sub types>>>> $subType');
-          searchCakeType.add("Others");
-          searchCakeType.add("Customize your cake");
+          // searchCakeType.add("Others");
+          // searchCakeType.add("Customize your cake");
           // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();
           searchCakeType.toSet().toList();
-          searchCakeType = searchCakeType.reversed.toList();
+          //searchCakeType = searchCakeType.reversed.toList();
 
 
           setState((){
             isAllLoading = false;
           });
 
-
-          print('type cake ::::: $searchCakeType');
 
         });
       }
@@ -3049,11 +3056,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 .length,
                                                         itemBuilder:
                                                             (context, index) {
-                                                          return searchCakeType[
-                                                                      index]
-                                                                  .toLowerCase()
-                                                                  .contains(
-                                                                      'customize your cake')
+                                                          return searchCakeType[index]['name'].toLowerCase().contains('customize your cake')
                                                               ? Container(
                                                                   width: 130,
                                                                   child:
@@ -3104,11 +3107,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     onTap: () {
 
                                                                       setState((){
-                                                                        selectedCakeType = searchCakeType[index];
+                                                                        selectedCakeType = searchCakeType[index]['name'];
                                                                         if(selectedCakeType.toLowerCase().contains("others")){
-                                                                          searchByGivenFilter("", "", "", [searchCakeType[index]]);
+                                                                          searchByGivenFilter("", "", "", [searchCakeType[index]['name']]);
                                                                         }else{
-                                                                          searchByGivenFilter("", "", "", [searchCakeType[index]]);
+                                                                          searchByGivenFilter("", "", "", [searchCakeType[index]['name']]);
                                                                         }
                                                                       });
 
@@ -3129,17 +3132,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               borderRadius: BorderRadius.circular(20),
                                                                               border: Border.all(color: Colors.white, width: 2),
                                                                               color: Colors.pink[200],
-                                                                              image: DecorationImage(image: AssetImage('assets/images/themecake.png'), fit: BoxFit.contain)),
+                                                                              image: searchCakeType[index]['image']!=null?
+                                                                              DecorationImage(
+                                                                                  image: NetworkImage(searchCakeType[index]['image']),
+                                                                                  fit: BoxFit.cover
+                                                                              ):DecorationImage(
+                                                                                  image: AssetImage("assets/images/hamper.png"),
+                                                                                  fit: BoxFit.contain
+                                                                              )
+                                                                          ),
                                                                         ),
                                                                         SizedBox(
                                                                           height:
-                                                                              2,
+                                                                              2
                                                                         ),
                                                                         Text(
                                                                           searchCakeType[index] == null
                                                                               ? 'No name'
-                                                                              : "${searchCakeType[index][0].toString().toUpperCase() +
-                                                                              searchCakeType[index].toString().substring(1).toLowerCase()}",
+                                                                              : "${searchCakeType[index]['name']}",
                                                                           style: TextStyle(
                                                                               color: darkBlue,
                                                                               fontWeight: FontWeight.bold,
@@ -3267,6 +3277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             ],
                                                           ),
                                                         ),
+                                                        SizedBox(height: 10,),
                                                         // Container(
                                                         //   child:
                                                         //       ListView.builder(
@@ -4493,7 +4504,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    'Vendors list',
+                                                    'Vendors List',
                                                     style: TextStyle(
                                                         fontSize: 13.5,
                                                         color: darkBlue,

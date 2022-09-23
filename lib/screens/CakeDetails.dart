@@ -184,8 +184,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String minDelTierTime = "";
 
   //For orders
-  String deliverDate = 'Not yet select';
-  String deliverSession = 'Not yet select';
+  String deliverDate = 'Select delivery date';
+  String deliverSession = 'Select delivery time';
   //Doubt flav
   String fixedFlavour = '';
   var fixedFlavList = [];
@@ -1506,8 +1506,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
       cakeDescription = prefs.getString('cakeDescription')!;
       cakeType = prefs.getString('cakeType')!;
-      print("Current type ${cakeType.toLowerCase()}");
       cakeSubType = prefs.getString('cakeSubType')!;
+      print("Current type ${cakeSubType.toLowerCase()}");
       cakeRatings = prefs.getDouble('cakeRating')!.toString();
       isThemePossible = prefs.getString('cakeThemePoss')!.toString();
       isTierPossible = prefs.getString('cakeTierPoss')!.toString();
@@ -1809,7 +1809,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeModID', cakeModId);
     prefs.setString('orderCakeName', cakeName);
     prefs.setString('orderCakeCommonName', commonCakeName);
-    prefs.setString('orderCakeType', cakeSubType);
+    if(cakeSubType.toLowerCase()=="all cakes"){
+      prefs.setString('orderCakeType', cakeType.toString().replaceAll("[", "").replaceAll("]", ""));
+    }else{
+      prefs.setString('orderCakeType', cakeSubType);
+    }
     prefs.setString('orderCakeSubType', cakeSubType);
     prefs.setString('orderCakeImages', cakeImages[0].toString());
     prefs.setString('orderCakeEggOrEggless', cakeEggorEgless);
@@ -2726,13 +2730,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       angle: 120,
                                       child: Icon(
                                         Icons.egg_outlined,
-                                        color: Colors.amber,
+                                        color: cakeEggorEgless.toLowerCase()=="eggless"?
+                                        Colors.green:Color(0xff8D2729),
                                       ),
                                     ),
                                     Text(
                                         '$cakeEggorEgless',
                                         style: TextStyle(
-                                            color: Colors.amber,
+                                            color: cakeEggorEgless.toLowerCase()=="eggless"?
+                                            Colors.green:Color(0xff8D2729),
                                             fontFamily: poppins,
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold
@@ -4204,7 +4210,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                     style: TextStyle(
                                                       color: lightPink,
                                                       fontFamily: "Poppins",
-                                                      fontSize: 16,
+                                                      fontSize: 18,
                                                     )),
                                             content: Container(
                                               height: 250,
@@ -4226,38 +4232,38 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 9 AM- 10 AM';
+                                                                  'Morning 9 AM - 10 AM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 10 AM- 11 AM';
+                                                                  'Morning 10 AM - 11 AM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Morning 11 PM- 12 PM';
+                                                                  'Morning 11 PM - 12 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 12 PM- 1 PM';
+                                                                  'Afternoon 12 PM - 1 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
@@ -4266,25 +4272,25 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 1 PM- 9 PM';
+                                                                  'Afternoon 1 PM - 9 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 8 PM- 9 PM';
+                                                                  'Afternoon 8 PM - 9 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 3 PM- 4 PM';
+                                                                  'Afternoon 3 PM - 4 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
@@ -4293,43 +4299,43 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Afternoon 4 PM- 5 PM';
+                                                                  'Afternoon 4 PM - 5 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 5 PM- 6 PM';
+                                                                  'Evening 5 PM - 6 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 6 PM- 7 PM';
+                                                                  'Evening 6 PM - 7 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 7 PM- 8 PM';
+                                                                  'Evening 7 PM - 8 PM';
                                                             });
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
-                                                                  'Evening 8 PM- 9 PM';
+                                                                  'Evening 8 PM - 9 PM';
                                                             });
                                                           }),
                                                     ],
@@ -4361,7 +4367,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   color: Colors.grey,
                                                   fontSize: 13),
                                             ),
-                                            Icon(Icons.keyboard_arrow_down,
+                                            Icon(CupertinoIcons.clock,
                                                 color: darkBlue)
                                           ])),
                                 ),
@@ -5209,11 +5215,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 )
                                             );
                                           }
-                                          else if(deliverDate.toLowerCase()=="not yet select"){
+                                          else if(deliverDate.toLowerCase()=="select delivery date"){
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text("Please select deliver date"))
                                             );
-                                          }else if(deliverSession.toLowerCase()=="not yet select"){
+                                          }else if(deliverSession.toLowerCase()=="select delivery time"){
                                             ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(content: Text("Please select deliver session"))
                                             );
