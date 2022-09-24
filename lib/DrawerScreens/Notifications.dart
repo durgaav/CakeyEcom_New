@@ -110,7 +110,7 @@ class _NotificationsState extends State<Notifications> {
     prefs.setString('customCakeGst', myList[0]['Gst'].toString());
     prefs.setString('customCakeSgst', myList[0]['Sgst'].toString());
     prefs.setString('customCakeTotal', myList[0]['Total'].toString());
-    prefs.setInt('customCakeTaxes', int.parse(myList[0]['Tax']));
+    //prefs.setInt('customCakeTaxes', int.parse(myList[0]['Tax']));
     prefs.setString('customCakeDisc', myList[0]['Discount'].toString());
     prefs.setString('customCakeWeight', myList[0]['Weight'].toString());
     prefs.setString('customCakeId', myList[0]['_id'].toString());
@@ -523,7 +523,9 @@ class _NotificationsState extends State<Notifications> {
                                     Expanded(child:Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(myList[0]['Total']==null?'N/A':
-                                      'Rs.${myList[0]['Total'].toString().characters.take(6)}', style:TextStyle(
+                                      'Rs.${
+                                      double.parse(myList[0]['Total'].toString())+double.parse(myList[0]['Discount'].toString())
+                                      }', style:TextStyle(
                                           fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
                                       )),
                                     ))

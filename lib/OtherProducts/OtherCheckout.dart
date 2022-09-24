@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -369,7 +370,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var amount = ( ((
         double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
     var headers = {
       'Content-Type': 'application/json',
@@ -434,7 +435,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var amount = ( ((
         double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
     var options = {
       'key': 'rzp_live_rmfBgI2OrqZR4j',
@@ -524,6 +525,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     setState((){
       //user
       userID = prefs.getString("userID") ?? '';
+      authToken = prefs.getString("authToken") ?? '';
       userModId = prefs.getString("userModId") ?? '';
       userName = prefs.getString("userName") ?? '';
       userPhone = prefs.getString("phoneNumber") ?? '';
@@ -565,6 +567,79 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
 
     });
+
+    getTaxDetails();
+
+  }
+
+  Future<void> getTaxDetails() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    showAlertDialog();
+
+    double myTax = 0;
+    double myPrice = double.parse(cakePrice);
+
+    //prefs.setDouble('orderCakeGst', gst);
+    //prefs.setDouble('orderCakeSGst', sgst);
+    //prefs.setInt('orderCakeTaxperc', taxes??0);
+
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        List map = jsonDecode(await response.stream.bytesToString());
+
+        Navigator.pop(context);
+        setState(() {
+          taxes = int.parse(map[0]['Total_GST']);
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
+
+          // pref.setDouble('orderCakeGst', gstPrice);
+          // pref.setDouble('orderCakeSGst', sgstPrice);
+          // pref.setInt('orderCakeTaxperc', taxes??0);
+
+        });
+        print(map);
+      }
+      else {
+        Navigator.pop(context);
+        setState(() {
+          taxes = int.parse("0");
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
+
+          // pref.setDouble('orderCakeGst', gstPrice);
+          // pref.setDouble('orderCakeSGst', sgstPrice);
+          // pref.setInt('orderCakeTaxperc', taxes??0);
+        });
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+      Navigator.pop(context);
+      setState(() {
+        taxes = int.parse("0");
+        myTax = (myPrice * taxes)/100;
+        gstPrice = myTax/2;
+        sgstPrice = myTax/2;
+
+        // pref.setDouble('orderCakeGst', gstPrice);
+        // pref.setDouble('orderCakeSGst', sgstPrice);
+        // pref.setInt('orderCakeTaxperc', taxes??0);
+      });
+    }
 
   }
 
@@ -611,7 +686,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var amount = ( ((
         double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
 
     var headers = {
@@ -715,7 +790,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var amount = ( ((
         double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
     var headers = {
       'Content-Type': 'application/json'
@@ -815,7 +890,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var amount = ( ((
         double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
     var headers = {
       'Content-Type': 'application/json'
@@ -1360,7 +1435,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
@@ -1375,17 +1450,17 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('GST',style: const TextStyle(
+                            const Text('CGST',style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
-                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                      padding:EdgeInsets.only(right:5),
+                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1404,10 +1479,10 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
-                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                      padding:EdgeInsets.only(right:5),
+                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1434,7 +1509,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                             Text('₹ ${
                                 ( ((
                                     double.parse(cakePrice) + deliveryCharge
-                                ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2)
+                                ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2)
                             }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
                           ],
                         ),

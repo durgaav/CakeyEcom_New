@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,6 +84,7 @@ class _CheckOutState extends State<CheckOut> {
 
 
   List<String> toppings = [];
+  bool expanded = false;
 
   //HYVOOB9SJFHMFA8L
 
@@ -127,6 +129,9 @@ class _CheckOutState extends State<CheckOut> {
   String userLatitude = "";
   String userLongtitude = "";
   String deliveryChargeCustomer = "";
+
+  GlobalKey key = GlobalKey();
+  var controller = ScrollController();
 
 
   var couponCtrl = new TextEditingController();
@@ -366,22 +371,26 @@ class _CheckOutState extends State<CheckOut> {
 
     showAlertDialog();
 
-    var amount = 0;
+    var amount = 0.0;
 
     if(orderFromCustom!="yes"){
-      amount = ((counts * (
-          double.parse(cakePrice)*
-              double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-              (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-      ) + double.parse((tempTax).toString()) +
-          deliveryCharge)
-          - tempDiscountPrice).toInt();
+      amount = double.parse(
+          ((counts * (
+              double.parse(cakePrice)*
+                  double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+                  (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+          ) + double.parse((tempTax).toString()) +
+              deliveryCharge)
+              - tempDiscountPrice).toStringAsFixed(2)
+      );
     }else{
-      amount = ((counts *
-          ((double.parse(cakePrice)*
-              double.parse(weight.replaceAll("kg", "")))+
-              (extraCharges))+
-          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
+      amount = double.parse(
+          ((counts *
+              ((double.parse(cakePrice)*
+                  double.parse(weight.replaceAll("kg", "")))+
+                  (extraCharges))+
+              sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toStringAsFixed(2)
+      );
     }
 
     var headers = {
@@ -390,7 +399,7 @@ class _CheckOutState extends State<CheckOut> {
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
-      "amount": int.parse(amount.toString())*100,
+      "amount": double.parse(amount.toString())*100,
       "currency": "INR",
       "receipt": "Receipt",
       "notes": {
@@ -446,25 +455,29 @@ class _CheckOutState extends State<CheckOut> {
 
     print("Test ord id : $orderId");
 
-    var amount = 0;
+    var amount = 0.0;
 
     if(orderFromCustom!="no"){
-      amount = ((((double.parse(cakePrice)*
-          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-          tempDiscountPrice).toInt();
+      amount = double.parse(
+          ((((double.parse(cakePrice)*
+              double.parse(weight.toLowerCase().replaceAll("kg", "")))+
+              extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
+              tempDiscountPrice).toStringAsFixed(2)
+      );
     }else{
-      amount = ((counts *
-          ((double.parse(cakePrice)*
-              double.parse(weight.replaceAll("kg", "")))+
-              (extraCharges))+
-          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
+      amount = double.parse(
+          ((counts *
+              ((double.parse(cakePrice)*
+                  double.parse(weight.replaceAll("kg", "")))+
+                  (extraCharges))+
+              sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toStringAsFixed(2)
+      );
     }
 
 
     var options = {
       'key': 'rzp_live_rmfBgI2OrqZR4j',
-      'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
+      'amount': double.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
       'description': '$cakeName',
@@ -570,7 +583,7 @@ class _CheckOutState extends State<CheckOut> {
         cakeImage = "null";
         cakePrice = prefs.getString("customCakePrice")??'0';
         vendorName = prefs.getString('customCakeVendor')??'null';
-        cakeType = prefs.getString('customCakeType')??'null';
+        cakeType = "Customized Cake";
         userAddress = prefs.getString('customCakeUserAdd')??'null';
         vendorPhone1 = prefs.getString('customCakeVenPhn1')??'null';
         vendorPhone2 = prefs.getString('customCakeVenPhn2')??'null';
@@ -610,6 +623,9 @@ class _CheckOutState extends State<CheckOut> {
         }
 
         print("deelele : $deliveryChargeCustomer");
+
+        getTaxDetails();
+
 
       }else{
         cakeName = prefs.getString("orderCakeName")??"My Cake Name";
@@ -696,6 +712,81 @@ class _CheckOutState extends State<CheckOut> {
 
   }
 
+  Future<void> getTaxDetails() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    showAlertDialog();
+
+    double myTax = 0;
+    double myPrice = double.parse(
+        ((double.parse(cakePrice)*changeWeight(weight))
+        +(extraCharges)).toStringAsFixed(2));
+
+    print(myPrice);
+
+    //prefs.setDouble('orderCakeGst', gst);
+    //prefs.setDouble('orderCakeSGst', sgst);
+    //prefs.setInt('orderCakeTaxperc', taxes??0);
+
+    try{
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        List map = jsonDecode(await response.stream.bytesToString());
+
+        Navigator.pop(context);
+        setState(() {
+          taxes = int.parse(map[0]['Total_GST']);
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
+
+          pref.setDouble('orderCakeGst', gstPrice);
+          pref.setDouble('orderCakeSGst', sgstPrice);
+          pref.setInt('orderCakeTaxperc', taxes??0);
+
+        });
+        print(map);
+      }
+      else {
+        Navigator.pop(context);
+        setState(() {
+          taxes = int.parse("0");
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
+
+          pref.setDouble('orderCakeGst', gstPrice);
+          pref.setDouble('orderCakeSGst', sgstPrice);
+          pref.setInt('orderCakeTaxperc', taxes??0);
+        });
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+      Navigator.pop(context);
+      setState(() {
+        taxes = int.parse("0");
+        myTax = (myPrice * taxes)/100;
+        gstPrice = myTax/2;
+        sgstPrice = myTax/2;
+
+        pref.setDouble('orderCakeGst', gstPrice);
+        pref.setDouble('orderCakeSGst', sgstPrice);
+        pref.setInt('orderCakeTaxperc', taxes??0);
+      });
+    }
+
+  }
+
   Future<void> confirmCustomOrder() async{
 
     double mainPrice = (double.parse(cakePrice)*double.parse(weight.toLowerCase().replaceAll('kg', '')))
@@ -740,6 +831,8 @@ class _CheckOutState extends State<CheckOut> {
 
       sendNotificationToVendor(notificationTid);
 
+      Navigator.pop(context);
+      Navigator.pop(context);
       Navigator.pop(context);
       // print();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1157,6 +1250,7 @@ class _CheckOutState extends State<CheckOut> {
           ],
         ),
         body: Container(
+          key: key,
           width: double.infinity,
           margin: EdgeInsets.all(15),
           padding: EdgeInsets.all(10),
@@ -1164,6 +1258,7 @@ class _CheckOutState extends State<CheckOut> {
               borderRadius: BorderRadius.circular(25),
               border: Border.all(color: Colors.black26, width: 1)),
           child: SingleChildScrollView(
+            controller: controller,
             child: Column(
               children: [
                 Row(
@@ -1321,10 +1416,10 @@ class _CheckOutState extends State<CheckOut> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Deliver Date',style: TextStyle(
+                            Text('Cake Type',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('${cakeType}',style: TextStyle(
+                            Text('$cakeType',style: TextStyle(
                                 fontSize: 13,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),
@@ -1503,7 +1598,7 @@ class _CheckOutState extends State<CheckOut> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${tempDiscountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
@@ -1518,18 +1613,18 @@ class _CheckOutState extends State<CheckOut> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('GST',style: const TextStyle(
+                            const Text('CGST',style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   orderFromCustom!="yes"?
-                                  Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ ${(gstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
                                   Text('₹ ${(gstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
@@ -1549,12 +1644,12 @@ class _CheckOutState extends State<CheckOut> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   orderFromCustom!="yes"?
-                                  Text('₹ ${(tempTax/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
-                                  Text('₹ ${(gstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${(sgstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ ${(sgstPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1599,93 +1694,129 @@ class _CheckOutState extends State<CheckOut> {
                   ),
                 ),
 
-                ExpansionTile(
-                  maintainState: true,
-                  initiallyExpanded: isExpand,
-                  title: Text(
-                    'Payment type',
-                    style: TextStyle(
-                        color: Colors.grey[400],
-                        fontFamily: "Poppins",
-                        fontSize: 13),
-                  ),
-                  subtitle: Text(
-                    '$paymentType',
-                    style: TextStyle(
-                        color: darkBlue,
-                        fontFamily: "Poppins",
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  trailing: Container(
-                    alignment: Alignment.center,
-                    height: 25,
-                    width: 25,
-                    decoration: BoxDecoration(
-                      color: Colors.red[100],
-                      shape: BoxShape.circle ,
+                GestureDetector(
+                  child: ExpansionTile(
+                    onExpansionChanged: (e){
+                      setState((){
+                        print(controller.position.maxScrollExtent);
+                        expanded = e;
+                        if(e==true){
+                          //controller.jumpTo(controller.position.minScrollExtent);
+
+                          // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                          // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                          // double y = position.dx;
+                          //
+                          // print(y);
+
+                        controller.animateTo(
+                          306,
+                          duration: Duration(seconds: 1),
+                          curve: Curves.fastOutSlowIn,
+                        );
+
+                       }
+                      });
+                      print(e);
+                    },
+                    maintainState: true,
+                    initiallyExpanded: isExpand,
+                    title: Text(
+                      'Payment type',
+                      style: TextStyle(
+                          color: Colors.grey[400],
+                          fontFamily: "Poppins",
+                          fontSize: 13),
                     ),
-                    child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                  ),
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          paymentType = "Online Payment";
-                          paymentIndex = 0;
-                        });
-                      },
-                      leading: paymentIndex!=0?
-                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                      Icon(Icons.check_circle , color: Colors.green,),
-                      title: Text(
-                        'Online Payment',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontFamily: "Poppins",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                    subtitle: Text(
+                      '$paymentType',
+                      style: TextStyle(
+                          color: darkBlue,
+                          fontFamily: "Poppins",
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    trailing: !expanded?
+                    Container(
+                      alignment: Alignment.center,
+                      height: 25,
+                      width: 25,
+                      decoration: BoxDecoration(
+                        color: Colors.red[100],
+                        shape: BoxShape.circle ,
                       ),
-                    ),
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          paymentType = "Cash on delivery";
-                          paymentIndex = 1;
-                        });
-                      },
-                      leading: paymentIndex!=1?
-                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                      Icon(Icons.check_circle , color: Colors.green,),
-                      title: Text(
-                        'Cash On Delivery',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontFamily: "Poppins",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                      child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                    ):
+                    Container(
+                      alignment: Alignment.center,
+                      height: 25,
+                      width: 25,
+                      decoration: BoxDecoration(
+                        color: Colors.red[100],
+                        shape: BoxShape.circle ,
                       ),
+                      child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
                     ),
-                    // ListTile(
-                    //   onTap: () {
-                    //     setState(() {
-                    //       paymentType = "Credit Card";
-                    //       paymentIndex = 2;
-                    //     });
-                    //   },
-                    //   leading: paymentIndex!=2?
-                    //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                    //   Icon(Icons.check_circle , color: Colors.green,),
-                    //   title: Text(
-                    //     'Credit Card',
-                    //     style: TextStyle(
-                    //         color: darkBlue,
-                    //         fontFamily: "Poppins",
-                    //         fontSize: 14,
-                    //         fontWeight: FontWeight.bold),
-                    //   ),
-                    // ),
-                  ],
+                    children: [
+                      ListTile(
+                        onTap: () {
+                          setState(() {
+                            paymentType = "Online Payment";
+                            paymentIndex = 0;
+                          });
+                        },
+                        leading: paymentIndex!=0?
+                        Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                        Icon(Icons.check_circle , color: Colors.green,),
+                        title: Text(
+                          'Online Payment',
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontFamily: "Poppins",
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      ListTile(
+                        onTap: () {
+                          setState(() {
+                            paymentType = "Cash on delivery";
+                            paymentIndex = 1;
+                          });
+                        },
+                        leading: paymentIndex!=1?
+                        Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                        Icon(Icons.check_circle , color: Colors.green,),
+                        title: Text(
+                          'Cash On Delivery',
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontFamily: "Poppins",
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      // ListTile(
+                      //   onTap: () {
+                      //     setState(() {
+                      //       paymentType = "Credit Card";
+                      //       paymentIndex = 2;
+                      //     });
+                      //   },
+                      //   leading: paymentIndex!=2?
+                      //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                      //   Icon(Icons.check_circle , color: Colors.green,),
+                      //   title: Text(
+                      //     'Credit Card',
+                      //     style: TextStyle(
+                      //         color: darkBlue,
+                      //         fontFamily: "Poppins",
+                      //         fontSize: 14,
+                      //         fontWeight: FontWeight.bold),
+                      //   ),
+                      // ),
+                    ],
+                  ),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 3,bottom: 3),

@@ -67,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isAllLoading = true;
   bool vendorsLoading = true;
   bool connected = false;
+  String cakeType = "";
 
   //for search
   bool isFiltered = false;
@@ -849,8 +850,15 @@ class _HomeScreenState extends State<HomeScreen> {
     prefs.setString("cakeToppersPoss", cakeSearchList[index]['ToppersPossible']??"null");
     prefs.setString("cakeBasicCustom", cakeSearchList[index]['BasicCustomisationPossible']??"null");
     prefs.setString("cakeFullCustom", cakeSearchList[index]['FullCustomisationPossible']??"null");
-    prefs.setString("cakeType", cakeSearchList[index]['CakeType'].toString()??"null");
-    prefs.setString("cakeSubType", "currentCakeType"??"null");
+
+    if(cakeType.toLowerCase()=="others" || cakeType.toLowerCase()=="customize your cake"){
+      prefs.setString("cakeSubType","Normal Cakes"??"null");
+      prefs.setString("cakeType", "Normal Cakes"??"null");
+    }else{
+      prefs.setString("cakeSubType",cakeType??"null");
+      prefs.setString("cakeType", cakeType??"null");
+    }
+
     prefs.setString("cakeDescription", cakeSearchList[index]['Description']??"null");
     prefs.setString("cakeCategory", cakeSearchList[index]['CakeCategory']??"null");
     prefs.setString("cakeTopperPoss", cakeSearchList[index]['ToppersPossible']??"null");
@@ -1035,58 +1043,80 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //send nearest vendor details.
   Future<void> sendNearVendorDataToScreen(int index , [String amount="0.0", String km = "0.0"]) async {
+    // var pref = await SharedPreferences.getInstance();
+    //
+    // print(amount);
+    // print(km);
+    //
+    // pref.remove('singleVendorID');
+    // pref.remove('firstVenDelCharge');
+    // pref.remove('firstVenIndex');
+    // pref.remove('singleVendorFromCd');
+    // pref.remove('singleVendorRate');
+    // pref.remove('singleVendorName');
+    // pref.remove('singleVendorDesc');
+    // pref.remove('singleVendorPhone1');
+    // pref.remove('singleVendorPhone2');
+    // pref.remove('singleVendorDpImage');
+    // pref.remove('singleVendorAddress');
+    // pref.remove('singleVendorSpeciality');
+    //
+    // //store 1st two vendor deliver charge
+    // if(index == 0 && double.parse(km)<2.0 || index == 1 && double.parse(km)<2.0){
+    //   amount = "0.0";
+    //   pref.setString('firstVenDelCharge', amount ?? 'null');
+    //   pref.setString('firstVenIndex', index.toString() ?? 'null');
+    // }else{
+    //   pref.setString('firstVenDelCharge', amount ?? 'null');
+    //   pref.setString('firstVenIndex', "2" ?? 'null');
+    // }
+    //
+    // //common keyword single****
+    // pref.setString('singleVendorID', nearestVendors[index]['_id'] ?? 'null');
+    // pref.setBool('singleVendorFromCd', false);
+    // pref.setString('singleVendorRate',
+    //     nearestVendors[index]['Ratings'].toString() ?? '0.0');
+    // pref.setString('singleVendorName',
+    //     nearestVendors[index]['PreferredNameOnTheApp'] ?? 'null');
+    // pref.setString(
+    //     'singleVendorDesc', nearestVendors[index]['Description'] ?? 'null');
+    // pref.setString(
+    //     'singleVendorPhone1', nearestVendors[index]['PhoneNumber1'] ?? 'null');
+    // pref.setString(
+    //     'singleVendorPhone2', nearestVendors[index]['PhoneNumber2'] ?? 'null');
+    // pref.setString(
+    //     'singleVendorDpImage', nearestVendors[index]['ProfileImage'] ?? 'null');
+    // pref.setString(
+    //     'singleVendorAddress', nearestVendors[index]['Address'] ?? 'null');
+    // pref.setString('singleVendorSpecial',
+    //     nearestVendors[index]['YourSpecialityCakes'].toString());
+    //
+    // print(nearestVendors[index]['YourSpecialityCakes']);
+    //
+    // Navigator.push(
+    //     context, MaterialPageRoute(builder: (context) => SingleVendor()));
+
     var pref = await SharedPreferences.getInstance();
 
-    print(amount);
-    print(km);
+    pref.setString('myVendorId', nearestVendors[index]['_id']);
+    // pref.setString('myVendorName', nearestVendors[index]['VendorName']);
+    // pref.setString('myVendorPhone', nearestVendors[index]['VendorPhoneNumber1']);
+    // pref.setString('myVendorDesc', nearestVendors[index]['']);
+    // pref.setString('myVendorProfile', nearestVendors[index]['_id']);
+    // pref.setString('myVendorDeliverChrg', nearestVendors[index]['_id']);
+    // pref.setString('myVendorAddress', nearestVendors[index]['_id']);
+    // pref.setString('myVendorEggs', nearestVendors[index]['_id']);
 
-    pref.remove('singleVendorID');
-    pref.remove('firstVenDelCharge');
-    pref.remove('firstVenIndex');
-    pref.remove('singleVendorFromCd');
-    pref.remove('singleVendorRate');
-    pref.remove('singleVendorName');
-    pref.remove('singleVendorDesc');
-    pref.remove('singleVendorPhone1');
-    pref.remove('singleVendorPhone2');
-    pref.remove('singleVendorDpImage');
-    pref.remove('singleVendorAddress');
-    pref.remove('singleVendorSpeciality');
+    pref.setBool('iamYourVendor', true);
+    pref.setBool('vendorCakeMode',true);
 
-    //store 1st two vendor deliver charge
-    if(index == 0 && double.parse(km)<2.0 || index == 1 && double.parse(km)<2.0){
-      amount = "0.0";
-      pref.setString('firstVenDelCharge', amount ?? 'null');
-      pref.setString('firstVenIndex', index.toString() ?? 'null');
-    }else{
-      pref.setString('firstVenDelCharge', amount ?? 'null');
-      pref.setString('firstVenIndex', "2" ?? 'null');
-    }
+    context.read<ContextData>().addMyVendor(true);
+    context.read<ContextData>().setMyVendors([
+      nearestVendors[index]
+    ]);
 
-    //common keyword single****
-    pref.setString('singleVendorID', nearestVendors[index]['_id'] ?? 'null');
-    pref.setBool('singleVendorFromCd', false);
-    pref.setString('singleVendorRate',
-        nearestVendors[index]['Ratings'].toString() ?? '0.0');
-    pref.setString('singleVendorName',
-        nearestVendors[index]['PreferredNameOnTheApp'] ?? 'null');
-    pref.setString(
-        'singleVendorDesc', nearestVendors[index]['Description'] ?? 'null');
-    pref.setString(
-        'singleVendorPhone1', nearestVendors[index]['PhoneNumber1'] ?? 'null');
-    pref.setString(
-        'singleVendorPhone2', nearestVendors[index]['PhoneNumber2'] ?? 'null');
-    pref.setString(
-        'singleVendorDpImage', nearestVendors[index]['ProfileImage'] ?? 'null');
-    pref.setString(
-        'singleVendorAddress', nearestVendors[index]['Address'] ?? 'null');
-    pref.setString('singleVendorSpecial',
-        nearestVendors[index]['YourSpecialityCakes'].toString());
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>CakeTypes()));
 
-    print(nearestVendors[index]['YourSpecialityCakes']);
-
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => SingleVendor()));
   }
 
   //getting prefes
@@ -2888,6 +2918,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       pref.setString("hamperPrice", hampers[i]['Price']??'null');
                                                       pref.setString("hamperStartDate", hampers[i]['StartDate']??'null');
                                                       pref.setString("hamperEndDate", hampers[i]['EndDate']??'null');
+                                                      pref.setString("hamperDeliStartDate", hampers[i]['DeliveryStartDate']??'null');
+                                                      pref.setString("hamperDeliEndDate", hampers[i]['DeliveryEndDate']??'null');
                                                       pref.setString("hamper_ID", hampers[i]['_id']??'null');
                                                       pref.setString("hamperEggreggless", hampers[i]['EggOrEggless']??'null');
                                                       pref.setString("hamperModID", hampers[i]['Id']??'null');
@@ -3063,6 +3095,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                       InkWell(
                                                                     onTap:
                                                                         () async {
+                                                                          setState((){
+                                                                            cakeType = "customize your cake";
+                                                                          });
                                                                       Navigator.push(
                                                                           context,
                                                                           MaterialPageRoute(
@@ -3107,6 +3142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     onTap: () {
 
                                                                       setState((){
+                                                                        cakeType = searchCakeType[index]['name'];
                                                                         selectedCakeType = searchCakeType[index]['name'];
                                                                         if(selectedCakeType.toLowerCase().contains("others")){
                                                                           searchByGivenFilter("", "", "", [searchCakeType[index]['name']]);
@@ -3277,7 +3313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             ],
                                                           ),
                                                         ),
-                                                        SizedBox(height: 10,),
+                                                        SizedBox(height: 15,),
                                                         // Container(
                                                         //   child:
                                                         //       ListView.builder(

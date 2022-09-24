@@ -4268,7 +4268,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
@@ -4295,7 +4295,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                           }),
                                                       PopupMenuItem(
                                                           child: Text(
-                                                              'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                                              'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
                                                           onTap: () {
                                                             setState(() {
                                                               deliverSession =
@@ -4464,37 +4464,37 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   InkWell(
                                                           onTap: () async{
 
-                                                            var pref = await SharedPreferences.getInstance();
-
-                                                            pref.remove('singleVendorID');
-                                                            pref.remove('singleVendorFromCd');
-                                                            pref.remove('singleVendorRate');
-                                                            pref.remove('singleVendorName');
-                                                            pref.remove('singleVendorDesc');
-                                                            pref.remove('singleVendorPhone1');
-                                                            pref.remove('singleVendorPhone2');
-                                                            pref.remove('singleVendorDpImage');
-                                                            pref.remove('singleVendorAddress');
-                                                            pref.remove('singleVendorSpeciality');
-
-                                                            //common keyword single****
-                                                            pref.setString('singleVendorID', mySelVendors[0]['_id']??'null');
-                                                            pref.setBool('singleVendorFromCd', true);
-                                                            pref.setString('singleVendorRate', mySelVendors[0]['Ratings'].toString()??'0.0');
-                                                            pref.setString('singleVendorName', mySelVendors[0]['VendorName']??'null');
-                                                            pref.setString('singleVendorDesc', mySelVendors[0]['Description']??'null');
-                                                            pref.setString('singleVendorPhone1', mySelVendors[0]['PhoneNumber1']??'null');
-                                                            pref.setString('singleVendorPhone2', mySelVendors[0]['PhoneNumber2']??'null');
-                                                            pref.setString('singleVendorDpImage', mySelVendors[0]['ProfileImage']??'null');
-                                                            pref.setString('singleVendorAddress', mySelVendors[0]['Address']??'null');
-                                                            pref.setString('singleVendorSpecial', mySelVendors[0]['YourSpecialityCakes'].toString()??'null');
-
-
-                                                            Navigator.push(context,
-                                                             MaterialPageRoute(
-                                                                 builder: (context)=>SingleVendor()
-                                                             )
-                                                            );
+                                                            // var pref = await SharedPreferences.getInstance();
+                                                            //
+                                                            // pref.remove('singleVendorID');
+                                                            // pref.remove('singleVendorFromCd');
+                                                            // pref.remove('singleVendorRate');
+                                                            // pref.remove('singleVendorName');
+                                                            // pref.remove('singleVendorDesc');
+                                                            // pref.remove('singleVendorPhone1');
+                                                            // pref.remove('singleVendorPhone2');
+                                                            // pref.remove('singleVendorDpImage');
+                                                            // pref.remove('singleVendorAddress');
+                                                            // pref.remove('singleVendorSpeciality');
+                                                            //
+                                                            // //common keyword single****
+                                                            // pref.setString('singleVendorID', mySelVendors[0]['_id']??'null');
+                                                            // pref.setBool('singleVendorFromCd', true);
+                                                            // pref.setString('singleVendorRate', mySelVendors[0]['Ratings'].toString()??'0.0');
+                                                            // pref.setString('singleVendorName', mySelVendors[0]['VendorName']??'null');
+                                                            // pref.setString('singleVendorDesc', mySelVendors[0]['Description']??'null');
+                                                            // pref.setString('singleVendorPhone1', mySelVendors[0]['PhoneNumber1']??'null');
+                                                            // pref.setString('singleVendorPhone2', mySelVendors[0]['PhoneNumber2']??'null');
+                                                            // pref.setString('singleVendorDpImage', mySelVendors[0]['ProfileImage']??'null');
+                                                            // pref.setString('singleVendorAddress', mySelVendors[0]['Address']??'null');
+                                                            // pref.setString('singleVendorSpecial', mySelVendors[0]['YourSpecialityCakes'].toString()??'null');
+                                                            //
+                                                            //
+                                                            // Navigator.push(context,
+                                                            //  MaterialPageRoute(
+                                                            //      builder: (context)=>SingleVendor()
+                                                            //  )
+                                                            // );
                                                           },
                                                           child: Container(
                                                             width:

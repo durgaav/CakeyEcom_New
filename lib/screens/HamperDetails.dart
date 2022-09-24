@@ -33,8 +33,8 @@ class _HamperDetailsState extends State<HamperDetails> {
   var picOrDel = [true, false];
 
   String fixedDelliverMethod = "Pickup";
-  String deliverDate = "Not Yet Select";
-  String deliverSession = "Not Yet Select";
+  String deliverDate = "Select delivery date";
+  String deliverSession = "Select delivery time";
 
   String paymentMethod = "online payment";
   var _razorpay = Razorpay();
@@ -63,6 +63,8 @@ class _HamperDetailsState extends State<HamperDetails> {
   List<String> hamImages = [];
   String eggOregless = "";
 
+  var expanded = true;
+
   String vendrorName = "";
   String vendrorEgg = "";
   String vendrorSpecial = "";
@@ -76,6 +78,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   String vendor_Id = "";
   String vendorAddress = "";
   String noId = "";
+  String cakeRatings = "";
 
   //user
   String userId = "";
@@ -85,6 +88,8 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   String startDate = "";
   String endDate = "";
+  String deliStartDate = "";
+  String deliEndDate = "";
 
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
@@ -155,6 +160,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
       deliveryAddress = pref.getString("userAddress") ?? 'null';
+      cakeRatings = pref.getString("userAddress") ?? 'null';
       //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
       hamper_id = pref.getString("hamper_ID") ?? '';
@@ -170,6 +176,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       hamWeight = pref.getString("hamperWeight") ?? '';
       startDate = pref.getString("hamperStartDate") ?? '';
       endDate = pref.getString("hamperEndDate") ?? '';
+      deliStartDate = pref.getString("hamperDeliStartDate") ?? '';
+      deliEndDate = pref.getString("hamperDeliEndDate") ?? '';
       eggOregless = pref.getString("hamperEggreggless") ?? '';
 
       productContains = pref.getStringList('hamperProducts') ?? ['No Products'];
@@ -1077,7 +1085,7 @@ class _HamperDetailsState extends State<HamperDetails> {
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
-                expandedHeight: 300.0,
+                expandedHeight: 270.0,
                 title: innerBoxIsScrolled == true
                     ? Text(
                         "$hamperName",
@@ -1150,7 +1158,7 @@ class _HamperDetailsState extends State<HamperDetails> {
               children: [
                 //name
                 Container(
-                  margin: EdgeInsets.only(left: 20, right: 20, top: 10),
+                  margin: EdgeInsets.only(left: 10, right: 20, top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -1196,6 +1204,15 @@ class _HamperDetailsState extends State<HamperDetails> {
                       //     )
                       //   ],
                       // ),
+                      Expanded(child: Text(
+                        '$hamperName',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 18,
+                            color: darkBlue,
+                            fontWeight: FontWeight.w600),
+                      ),),
                       GestureDetector(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1204,13 +1221,19 @@ class _HamperDetailsState extends State<HamperDetails> {
                               angle: 120,
                               child: Icon(
                                 Icons.egg_outlined,
-                                color: Colors.amber,
+                                color: eggOregless.toLowerCase()=="eggless"?
+                                Colors.green:
+                                eggOregless.toLowerCase()=="egg"?
+                                Color(0xff8D2729):Colors.white,
                               ),
                             ),
                             Text(
                               '$eggOregless',
                               style: TextStyle(
-                                  color: Colors.amber,
+                                  color: eggOregless.toLowerCase()=="eggless"?
+                                  Colors.green:
+                                  eggOregless.toLowerCase()=="egg"?
+                                  Color(0xff8D2729):Colors.white,
                                   fontFamily: poppins,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold
@@ -1223,18 +1246,18 @@ class _HamperDetailsState extends State<HamperDetails> {
                   ),
                 ),
                 SizedBox(height: 10,),
-                Container(
-                  padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Text(
-                    '$hamperName',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 18,
-                        color: darkBlue,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
+                // Container(
+                //   padding: EdgeInsets.only(left: 10, right: 10),
+                //   child: Text(
+                //     '$hamperName',
+                //     overflow: TextOverflow.ellipsis,
+                //     style: TextStyle(
+                //         fontFamily: "Poppins",
+                //         fontSize: 18,
+                //         color: darkBlue,
+                //         fontWeight: FontWeight.w600),
+                //   ),
+                // ),
 
                 //price counts
                 Container(
@@ -1446,25 +1469,54 @@ class _HamperDetailsState extends State<HamperDetails> {
                           color: Colors.red[50],
                           borderRadius: BorderRadius.circular(14)),
                       child: ExpansionTile(
+                        onExpansionChanged: (e){
+                          setState((){
+                            expanded = e;
+                            if(e==true){
+                              //controller.jumpTo(controller.position.minScrollExtent);
+
+                              // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                              // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                              // double y = position.dx;
+                              //
+                              // print(y);
+
+                              // controller.animateTo(
+                              //   306,
+                              //   duration: Duration(seconds: 1),
+                              //   curve: Curves.fastOutSlowIn,
+                              // );
+
+                            }
+                          });
+                          print(e);
+                        },
                         initiallyExpanded: true,
                         title: Text(
                           'Products',
                           style:
                           TextStyle(color: darkBlue, fontFamily: "Poppins"),
                         ),
-                        trailing: Container(
+                        trailing: !expanded?
+                        Container(
                           alignment: Alignment.center,
                           height: 25,
                           width: 25,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            shape: BoxShape.circle,
+                            shape: BoxShape.circle ,
                           ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: darkBlue,
-                            size: 25,
+                          child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                        ):
+                        Container(
+                          alignment: Alignment.center,
+                          height: 25,
+                          width: 25,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle ,
                           ),
+                          child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
                         ),
                         children: productContains.map((e) {
                           return Container(
@@ -1561,7 +1613,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             ),
                             // fixedFlavList.isEmpty
                             //     ?
-                            Text("$startDate",
+                            Text("$deliStartDate",
                               style: TextStyle(
                                   fontFamily: "Poppins",
                                   color: darkBlue,
@@ -1596,7 +1648,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             ),
                             // fixedShape.isEmpty
                             //     ?
-                            Text("$endDate",
+                            Text("$deliEndDate",
                               style: TextStyle(
                                   color: darkBlue,
                                   fontSize: 13,
@@ -1621,18 +1673,26 @@ class _HamperDetailsState extends State<HamperDetails> {
                 ),
                 GestureDetector(
                   onTap: () async {
+
+                    print(deliStartDate);
+                    print(deliEndDate);
+
                     DateTime? SelDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime(
                           DateTime.now().year,
                           DateTime.now().month,
-                          DateTime.now().day + 1,
+                          int.parse(deliStartDate.split("-").first),
                         ),
-                        lastDate: DateTime(2100),
+                        lastDate: DateTime(
+                          DateTime.now().year,
+                          DateTime.now().month,
+                          int.parse(deliEndDate.split("-").first),
+                        ),
                         firstDate: DateTime(
                           DateTime.now().year,
                           DateTime.now().month,
-                          DateTime.now().day + 1,
+                          int.parse(deliStartDate.split("-").first),
                         ),
                         helpText: "Select Deliver Date",
                         builder: (c,child){
@@ -1730,110 +1790,110 @@ class _HamperDetailsState extends State<HamperDetails> {
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Morning 9 AM- 10 AM';
+                                              'Morning 9 AM - 10 AM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Morning 10 AM- 11 AM';
+                                              'Morning 10 AM - 11 AM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Morning 11 PM- 12 PM';
+                                              'Morning 11 PM - 12 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Afternoon 12 PM- 1 PM';
+                                              'Afternoon 12 PM - 1 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Afternoon 1 PM- 9 PM';
+                                              'Afternoon 1 PM - 9 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Afternoon 8 PM- 9 PM';
+                                              'Afternoon 8 PM - 9 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Afternoon 3 PM- 4 PM';
+                                              'Afternoon 3 PM - 4 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Afternoon 4 PM- 5 PM';
+                                              'Afternoon 4 PM - 5 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Evening 5 PM- 6 PM';
+                                              'Evening 5 PM - 6 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Evening 6 PM- 7 PM';
+                                              'Evening 6 PM - 7 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Evening 7 PM- 8 PM';
+                                              'Evening 7 PM - 8 PM';
                                             });
                                           }),
                                       PopupMenuItem(
                                           child: Text(
-                                            'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
                                           onTap: () {
                                             setState(() {
                                               deliverSession =
-                                              'Evening 8 PM- 9 PM';
+                                              'Evening 8 PM - 9 PM';
                                             });
                                           }),
                                     ],
@@ -1860,7 +1920,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 13),
                             ),
-                            Icon(Icons.keyboard_arrow_down, color: darkBlue)
+                            Icon(CupertinoIcons.clock, color: darkBlue)
                           ])),
                 ),
 
@@ -2214,8 +2274,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                         //
                         // print("Final $amount");
 
-                        if(deliverDate.toLowerCase()=="not yet select" ||
-                            deliverSession.toLowerCase()=="not yet select")
+                        if(deliverDate.toLowerCase()=="select delivery date" ||
+                            deliverSession.toLowerCase()=="select delivery time")
                         {
                           ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

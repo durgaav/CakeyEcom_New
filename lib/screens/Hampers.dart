@@ -74,6 +74,8 @@ class _HampersState extends State<Hampers> {
     pref.setString("hamperName", hampers[index]['HampersName']??'null');
     pref.setString("hamperPrice", hampers[index]['Price']??'null');
     pref.setString("hamperStartDate", hampers[index]['StartDate']??'null');
+    pref.setString("hamperDeliStartDate", hampers[index]['DeliveryStartDate']??'null');
+    pref.setString("hamperDeliEndDate", hampers[index]['DeliveryEndDate']??'null');
     pref.setString("hamperEndDate", hampers[index]['EndDate']??'null');
     pref.setString("hamperEggreggless", hampers[index]['EggOrEggless']??'null');
     pref.setString("hamper_ID", hampers[index]['_id']??'null');

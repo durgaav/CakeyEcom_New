@@ -184,7 +184,14 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
   Future<void> getTaxDetails() async{
 
+    var pref = await SharedPreferences.getInstance();
+
     showAlertDialog();
+
+    double myTax = 0;
+    double myPrice = double.parse((counts * (double.parse(cakePrice.toString()) +
+        double.parse(extraCharges.toString()))*
+        double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2));
 
     //prefs.setDouble('orderCakeGst', gst);
     //prefs.setDouble('orderCakeSGst', sgst);
@@ -202,23 +209,47 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
       if (response.statusCode == 200) {
 
+        List map = jsonDecode(await response.stream.bytesToString());
+
         Navigator.pop(context);
         setState(() {
+          taxes = int.parse(map[0]['Total_GST']);
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
+
+          pref.setDouble('orderCakeGst', gstPrice);
+          pref.setDouble('orderCakeSGst', sgstPrice);
+          pref.setInt('orderCakeTaxperc', taxes??0);
 
         });
-        print(await response.stream.bytesToString());
+        print(map);
       }
       else {
         Navigator.pop(context);
         setState(() {
+          taxes = int.parse("0");
+          myTax = (myPrice * taxes)/100;
+          gstPrice = myTax/2;
+          sgstPrice = myTax/2;
 
+          pref.setDouble('orderCakeGst', gstPrice);
+          pref.setDouble('orderCakeSGst', sgstPrice);
+          pref.setInt('orderCakeTaxperc', taxes??0);
         });
         print(response.reasonPhrase);
       }
     }catch(e){
       Navigator.pop(context);
       setState(() {
+        taxes = int.parse("0");
+        myTax = (myPrice * taxes)/100;
+        gstPrice = myTax/2;
+        sgstPrice = myTax/2;
 
+        pref.setDouble('orderCakeGst', gstPrice);
+        pref.setDouble('orderCakeSGst', sgstPrice);
+        pref.setInt('orderCakeTaxperc', taxes??0);
       });
     }
 
@@ -363,7 +394,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                   fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
                               ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
-                            SizedBox(height: 5,),
+                            SizedBox(height: 8,),
                             Text('(Shape - ${shape.replaceAll("Name", "").replaceAll("Price", "")
                                 .replaceAll("{", "").replaceAll("}", "").replaceAll('"', '').replaceAll(":", "")
                                 .replaceAll(",", "").replaceAll("0", "").replaceAll('"', "")})',style: TextStyle(
@@ -575,7 +606,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                 //${discount} % $discountPrice
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('0 %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ 0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
@@ -597,7 +628,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
@@ -619,7 +650,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                             Row(
                                 children:[
                                   Container(
-                                      padding:EdgeInsets.only(right:10),
+                                      padding:EdgeInsets.only(right:5),
                                       child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
@@ -673,6 +704,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                         borderRadius: BorderRadius.circular(25)
                     ),
                     onPressed: () async{
+                      var pref = await SharedPreferences.getInstance();
+                      pref.setString("orderFromCustom", "no");
                       // calculatedCountsAndPrice();
                       Navigator.push(context, MaterialPageRoute(builder:(contex)=>CheckOut(artic.toList() , flav.toList())));
                     },

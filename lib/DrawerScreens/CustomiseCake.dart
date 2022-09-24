@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' as fil;
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -96,7 +97,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
   //var weight
   int isFixedWeight = -1;
-  String fixedWeight = '1.0';
+  String fixedWeight = '0.0';
   String fixedDate = 'Select delivery date';
   String fixedSession = 'Select delivery time';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
@@ -162,7 +163,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var picOrDeliver = ["Pickup","Delivery"];
   var picOrDel = -1;
 
-  bool shapeExpanded = false;
+  bool shapeExpanded = true;
   bool flavourExpanded = false;
 
   //vendors details
@@ -197,6 +198,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   int _key = 0;
 
   _collapse() {
+    setState(() {
+      shapeExpanded = !shapeExpanded;
+    });
     int newKey = 0;
     do {
       _key = new Random().nextInt(10000);
@@ -897,7 +901,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           }
 
           weight = weight.toSet().toList();
-          weight.sort();
+          weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
 
         });
       }else{
@@ -937,7 +941,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
                     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
                 ).toList();
-
 
                 print("vendor length : ... ${nearestVendors.length}");
                 print("vendor length : ... ${filteredEggList.length}");
@@ -1240,6 +1243,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             //         SnackBar(content: new Text("Whatsapp not found.")));
             //   }
             // }
+
+            Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context)=>HomeScreen())
+            );
 
           }else{
             checkNetwork();
@@ -1991,7 +1998,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       key: new Key(_key.toString()),
                                       onExpansionChanged: (e){
                                         setState((){
-                                          shapeExpanded = !shapeExpanded;
+                                          shapeExpanded = e;
                                         });
                                       },
                                       title: Text('Shape',style: TextStyle(
@@ -3843,6 +3850,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         borderRadius: BorderRadius.circular(25)
                                     ),
                                     onPressed: (){
+
+                                      setState((){
+
+                                      });
+
+
                                       if(newRegUser==true){
                                         showDpUpdtaeDialog();
                                       }
@@ -3853,6 +3866,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
                                                   content: Text("Please enter correct weight or select weight!")
+                                              )
+                                          );
+                                        }else if(fixedWeight=="0.0"){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please   select weight!")
                                               )
                                           );
                                         }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
@@ -3877,6 +3896,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             fixedDate.toLowerCase()=="select delivery date"){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
+                                          );
+                                        }else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) < 5.0
+                                            && nearVendorClicked==false){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Please Select a vendor'))
                                           );
                                         }else{
                                           setState((){

@@ -899,7 +899,7 @@ class _VendorsListState extends State<VendorsList> {
                                               ['VendorName']}'))
                                           );
                                         }else{
-                                          sendDataToScreen(index , deliverCharge , betweenKm);
+                                          loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
                                         }
                                         print(locationBySearch[index]['PreferredNameOnTheApp']);
                                       },
@@ -1007,7 +1007,7 @@ class _VendorsListState extends State<VendorsList> {
                                                                       ['VendorName']}'))
                                                                   );
                                                                 }else{
-                                                                  sendDataToScreen(index , deliverCharge , betweenKm);
+                                                                  loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
                                                                 }
                                                               },
                                                               child: Container(
