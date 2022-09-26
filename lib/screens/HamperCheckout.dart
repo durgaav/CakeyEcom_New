@@ -87,7 +87,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
 
   List<String> toppings = [];
   List<String> productContains = [];
-
+  bool expanded = true;
   //HYVOOB9SJFHMFA8L
 
   //vendor
@@ -473,7 +473,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
     request.body = json.encode({
       "amount": int.parse(amount.toString())*100,
-      "currency": "INR"
+      "currency": "INR",
     });
     request.headers.addAll(headers);
 
@@ -740,6 +740,9 @@ class _HamperCheckoutState extends State<HamperCheckout> {
       "Price": "$cakePrice",
       "ItemCount": "$counts",
       "DeliveryCharge": "$delCharge",
+      "Gst":gstPrice,
+      "Sgst":sgstPrice,
+      "Tax":taxes,
       "Total": "$amount",
       "Weight": "$weight",
       "Title": "$hamTitle",
@@ -905,7 +908,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                   children: [
                     cakeImage!="null"?
                     Container(
-                      height: 90,
+                      height: 75,
                       width: 75,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
@@ -916,7 +919,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                       ),
                     ):
                     Container(
-                      height: 90,
+                      height: 75,
                       width: 75,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
@@ -943,9 +946,11 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                                 ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('(Egg Or Eggless - $eggOreggless)',style: TextStyle(
+                            Text('$eggOreggless',
+                                style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                            ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                                ),
+                                overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
                             Wrap(
                               children: [
@@ -958,6 +963,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                                     ),),
                               ],
                             ),
+                            SizedBox(height: 5,),
                             Text.rich(
                                 TextSpan(
                                     text:'₹ ${(double.parse(cakePrice)*counts).toStringAsFixed(2)}',
@@ -1289,6 +1295,28 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                 ),
 
                 ExpansionTile(
+                  onExpansionChanged: (e){
+                    setState((){
+                      expanded = e;
+                      if(e==true){
+                        //controller.jumpTo(controller.position.minScrollExtent);
+
+                        // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                        // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                        // double y = position.dx;
+                        //
+                        // print(y);
+
+                        // controller.animateTo(
+                        //   306,
+                        //   duration: Duration(seconds: 1),
+                        //   curve: Curves.fastOutSlowIn,
+                        // );
+
+                      }
+                    });
+                    print(e);
+                  },
                   maintainState: true,
                   initiallyExpanded: true,
                   title: Text(
@@ -1306,15 +1334,26 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                         fontSize: 14,
                         fontWeight: FontWeight.bold),
                   ),
-                  trailing: Container(
+                  trailing: !expanded?
+                  Container(
                     alignment: Alignment.center,
                     height: 25,
                     width: 25,
                     decoration: BoxDecoration(
-                      color: Colors.red[100],
+                      color: Colors.red[50],
                       shape: BoxShape.circle ,
                     ),
                     child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                  ):
+                  Container(
+                    alignment: Alignment.center,
+                    height: 25,
+                    width: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      shape: BoxShape.circle ,
+                    ),
+                    child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
                   ),
                   children: [
                     ListTile(
