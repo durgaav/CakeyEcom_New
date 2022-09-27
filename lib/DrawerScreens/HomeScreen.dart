@@ -2038,7 +2038,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
                           FocusScope.of(context).unfocus();
                           _scaffoldKey.currentState!.openDrawer();
                         },

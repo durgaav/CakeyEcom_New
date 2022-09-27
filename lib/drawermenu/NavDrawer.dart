@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ContextData.dart';
 import '../DrawerScreens/Notifications.dart';
@@ -76,6 +77,20 @@ class _NavDrawerState extends State<NavDrawer> {
           );
         }
     );
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    Future.delayed(Duration.zero,() async{
+      var prefs = await SharedPreferences.getInstance();
+      prefs.setBool('iamYourVendor', false);
+      prefs.setBool('vendorCakeMode',false);
+      context.read<ContextData>().setMyVendors([]);
+      context.read<ContextData>().addMyVendor(false);
+    });
+    super.initState();
   }
 
   @override

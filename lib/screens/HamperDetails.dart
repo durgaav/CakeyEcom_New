@@ -1158,7 +1158,7 @@ class _HamperDetailsState extends State<HamperDetails> {
               children: [
                 //name
                 Container(
-                  margin: EdgeInsets.only(left: 10, right: 20, top: 10),
+                  margin: EdgeInsets.only(left: 10, right: 10, top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -1668,7 +1668,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                   child: Text(
                     'Delivery Details',
                     style: TextStyle(
-                        fontFamily: poppins, color: darkBlue, fontSize: 15),
+                        fontFamily: "Poppins", color: darkBlue, fontSize: 15),
                   ),
                 ),
                 GestureDetector(
@@ -1752,7 +1752,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Text(
                               '$deliverDate',
                               style:
-                                  TextStyle(color: Colors.grey, fontSize: 13),
+                                  TextStyle(color: Colors.grey, fontSize: 13 ,fontFamily: "Poppins"),
                             ),
                             Icon(Icons.edit_calendar_outlined, color: darkBlue)
                           ])),
@@ -1918,7 +1918,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Text(
                               '$deliverSession',
                               style:
-                                  TextStyle(color: Colors.grey, fontSize: 13),
+                                  TextStyle(color: Colors.grey, fontSize: 13,fontFamily: "Poppins"),
                             ),
                             Icon(CupertinoIcons.clock, color: darkBlue)
                           ])),

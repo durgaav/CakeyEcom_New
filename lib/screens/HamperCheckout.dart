@@ -263,7 +263,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
   void showConfirmOrder(){
     var amount = ( ((
         (double.parse(cakePrice)*counts) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
     showDialog(
       context: context,
       builder: (context)=>
@@ -671,7 +671,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
     // _capturePayment(response.paymentId.toString());
     var amount = ( ((
         (double.parse(cakePrice)*counts) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice).toStringAsFixed(2);
+    ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
     proceedOrder(amount);
     // showPaymentDoneAlert("done");
   }
@@ -737,6 +737,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
       "DeliveryDate": "$deliverDate",
       "DeliverySession": "$deliverSession",
       "DeliveryInformation": "$deliverType",
+      "Discount": "$tempDiscountPrice",
       "Price": "$cakePrice",
       "ItemCount": "$counts",
       "DeliveryCharge": "$delCharge",

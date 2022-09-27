@@ -124,13 +124,14 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   double tempPrice = 0;
   double tempTax = 0;
 
+  var expanded = true;
+
   //delivery
   int adminDeliveryCharge = 0;
   int adminDeliveryChargeKm = 0;
   String userLatitude = "";
   String userLongtitude = "";
   String deliveryChargeCustomer = "";
-
 
   var couponCtrl = new TextEditingController();
 
@@ -732,6 +733,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "Discount": tempDiscountPrice,
       "DeliveryCharge": deliveryCharge,
       "Total": amount,
+      "Gst":gstPrice,
+      "Sgst":sgstPrice,
+      "Tax":taxes,
       "PaymentType": paymentType,
       "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
     });
@@ -757,7 +761,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         );
 
         sendNotificationToVendor(notificationTid);
-        showOrderCompleteSheet();
+       //showOrderCompleteSheet();
+        Navigator.pop(context);
 
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
@@ -833,6 +838,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "DeliveryInformation": deliverType,
       "Discount": tempDiscountPrice,
       "DeliveryCharge": deliveryCharge,
+      "Gst":gstPrice,
+      "Sgst":sgstPrice,
+      "Tax":taxes,
       "Total": amount,
       "PaymentType": paymentType,
       "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
@@ -933,6 +941,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "DeliveryInformation": deliverType,
       "Discount": tempDiscountPrice,
       "DeliveryCharge": deliveryCharge,
+      "Gst":gstPrice,
+      "Sgst":sgstPrice,
+      "Tax":taxes,
       "Total": amount,
       "PaymentType": paymentType,
       "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
@@ -1520,7 +1531,29 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
                 ExpansionTile(
                   maintainState: true,
-                  initiallyExpanded: isExpand,
+                  onExpansionChanged: (e){
+                    setState((){
+                      expanded = e;
+                      if(e==true){
+                        //controller.jumpTo(controller.position.minScrollExtent);
+
+                        // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                        // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                        // double y = position.dx;
+                        //
+                        // print(y);
+
+                        // controller.animateTo(
+                        //   306,
+                        //   duration: Duration(seconds: 1),
+                        //   curve: Curves.fastOutSlowIn,
+                        // );
+
+                      }
+                    });
+                    print(e);
+                  },
+                  initiallyExpanded: true,
                   title: Text(
                     'Payment type',
                     style: TextStyle(
@@ -1536,15 +1569,26 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                         fontSize: 14,
                         fontWeight: FontWeight.bold),
                   ),
-                  trailing: Container(
+                  trailing: !expanded?
+                  Container(
                     alignment: Alignment.center,
                     height: 25,
                     width: 25,
                     decoration: BoxDecoration(
-                      color: Colors.red[100],
+                      color: Colors.red[50],
                       shape: BoxShape.circle ,
                     ),
                     child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                  ):
+                  Container(
+                    alignment: Alignment.center,
+                    height: 25,
+                    width: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      shape: BoxShape.circle ,
+                    ),
+                    child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
                   ),
                   children: [
                     ListTile(

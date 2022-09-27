@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/Notifications.dart';
 import 'WelcomeScreen.dart';
 
@@ -980,6 +981,47 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index){
+
+              var myMap = Map();
+              var otherPrice = "";
+
+              if(recentOrders[index]['ProductMinWeightPerKg']!=null){
+                // print(recentOrders[index]['ProductMinWeightPerKg']);
+                // print(recentOrders[index]['ProductMinWeightPerUnit']);
+                // print(recentOrders[index]['ProductMinWeightPerBox']);
+
+
+                if(recentOrders[index]['ProductMinWeightPerKg'].isNotEmpty){
+                  myMap = recentOrders[index]['ProductMinWeightPerKg'];
+
+                  otherPrice = (
+                      double.parse(myMap['PricePerKg'])*changeWeight(myMap['Weight'])
+                  ).toStringAsFixed(2);
+
+                }else if(recentOrders[index]['ProductMinWeightPerUnit'].isNotEmpty){
+                  myMap = recentOrders[index]['ProductMinWeightPerUnit'];
+
+                  otherPrice = (
+                      double.parse(myMap['PricePerUnit'])*changeWeight(myMap['Weight'])*
+                          double.parse(myMap['ProductCount'])
+                  ).toStringAsFixed(2);
+
+                }else if(recentOrders[index]['ProductMinWeightPerBox'].isNotEmpty){
+                  myMap = recentOrders[index]['ProductMinWeightPerBox'];
+
+                  otherPrice = (
+                      double.parse(myMap['PricePerBox'])*changeWeight(myMap['Piece'])*
+                          double.parse(myMap['ProductCount'])
+                  ).toStringAsFixed(2);
+
+                }
+
+              }
+
+              print(otherPrice);
+
+
+
               String gramAndKilo = "";
 
               if(recentOrders[index]['ExtraCharges']!=null){
@@ -1278,7 +1320,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
-                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
+                                        //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -1475,7 +1517,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Text('Gst',style: const TextStyle(
+                                  const Text('CGST',style: const TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
@@ -1489,7 +1531,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Text('Sgst',style: const TextStyle(
+                                  const Text('SGST',style: const TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
@@ -1749,7 +1791,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           fontSize: 12.5,fontFamily: "Poppins",
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,maxLines: 4,):
-                                      Text("My Customise Cake",style: const TextStyle(
+                                      Text("Hamper Name",style: const TextStyle(
                                           fontSize: 12,fontFamily: "Poppins",
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,),
@@ -1813,8 +1855,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           //  )
                                           // ).toStringAsFixed(2)
                                           // }"
-                                              "${(double.parse(recentOrders[index]['Total'])-
-                                              double.parse(recentOrders[index]['DeliveryCharge'])).toStringAsFixed(2)}",
+                                              "${(double.parse(recentOrders[index]['Price'])*
+                                              double.parse(recentOrders[index]['ItemCount'].toString())).toStringAsFixed(2)}",
                                             style: TextStyle(color: lightPink,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
                                           Container(
@@ -1896,7 +1938,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
-                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
+                                        //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -2032,10 +2074,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   //             double.parse(recentOrders[index]['ExtraCharges'].toString())
                                   //     )
                                   // ).toStringAsFixed(2)}"
-                                      "${(double.parse(recentOrders[index]['Total'])-
-                                      double.parse(recentOrders[index]['DeliveryCharge'])).toStringAsFixed(2)}"
+                                      "${(double.parse(recentOrders[index]['Price'])*
+                                      double.parse(recentOrders[index]['ItemCount'].toString())).toStringAsFixed(2)}"
                                     ,style: const TextStyle(fontWeight: FontWeight.bold),)
-
                                 ],
                               ),
                             ),
@@ -2050,7 +2091,54 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
                                     ),),
-                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',
+                                    style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
+                                  recentOrders[index]['Discount']!=null?
+                                  Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style:
+                                  const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ 0.00',style:
+                                  const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('CGST',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹ ${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('SGST',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹ ${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -2071,7 +2159,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                  Text('₹ ${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -2359,6 +2447,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           // ).toStringAsFixed(2)
                                           // }"
                                               "${(double.parse(recentOrders[index]['Total'])-
+                                              double.parse(recentOrders[index]['Gst'])-
+                                              double.parse(recentOrders[index]['Sgst'])-
                                               double.parse(recentOrders[index]['DeliveryCharge'])).toStringAsFixed(2)}",
                                             style: TextStyle(color: lightPink,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
@@ -2441,7 +2531,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
-                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
+                                        //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -2469,7 +2559,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   const Text('Type',style: TextStyle(
                                       fontSize: 11,fontFamily: "Poppins"
                                   ),),
-                                  Text('Hamper',style: TextStyle(
+                                  Text('Other Product',style: TextStyle(
                                       fontSize: 14,fontFamily: "Poppins",
                                       fontWeight: FontWeight.bold,color: Colors.black
                                   ),),
@@ -2577,6 +2667,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   //     )
                                   // ).toStringAsFixed(2)}"
                                       "${(double.parse(recentOrders[index]['Total'])-
+                                      double.parse(recentOrders[index]['Gst'])-
+                                      double.parse(recentOrders[index]['Sgst'])-
                                       double.parse(recentOrders[index]['DeliveryCharge'])).toStringAsFixed(2)}"
                                     ,style: const TextStyle(fontWeight: FontWeight.bold),)
 
@@ -2594,7 +2686,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
                                     ),),
-                                  Text('₹${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -2609,7 +2701,54 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
                                     ),),
-                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('Discounts',
+                                    style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
+                                  recentOrders[index]['Discount']!=null?
+                                  Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style:
+                                  const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹ 0.00',style:
+                                  const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('CGST',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹ ${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text('SGST',style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                  Text('₹ ${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -2630,7 +2769,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                  Text('₹ ${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -3010,7 +3149,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
-                                        PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
+                                        //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -3221,7 +3360,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Text('Sgst',style: const TextStyle(
+                                  const Text('SGST',style: const TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),

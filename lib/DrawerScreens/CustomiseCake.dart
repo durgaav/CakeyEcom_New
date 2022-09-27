@@ -2894,8 +2894,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           Text(
                                             '$fixedDate',
                                             style: TextStyle(
-
                                                 color: Colors.grey,
+                                                fontFamily: "Poppins",
                                                 fontSize: 13),
                                           ),
 
@@ -3073,8 +3073,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           Text(
                                             '$fixedSession',
                                             style: TextStyle(
-                                                
                                                 color: Colors.grey,
+                                                fontFamily: "Poppins",
                                                 fontSize: 13
                                             ),
                                           ),
@@ -3898,7 +3898,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
                                           );
                                         }else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) < 5.0
-                                            && nearVendorClicked==false){
+                                            && nearVendorClicked==false ){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select a vendor'))
                                           );

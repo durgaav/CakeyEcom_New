@@ -19,6 +19,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
+import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/CustomiseCake.dart';
 import '../DrawerScreens/Notifications.dart';
 import 'AddressScreen.dart';
@@ -1559,7 +1560,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       }
 
       weight = weight.toSet().toList();
-      weight.sort();
+      weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
 
       if(cakeImages.isEmpty){
         cakeImages.add(prefs.getString('cakeMainImage').toString());
@@ -2148,7 +2149,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         }
 
         weight = weight.toSet().toList();
-        weight.sort();
+        weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
 
         weight = weight.toSet().toList();
         weight.sort();
@@ -4188,7 +4189,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             Text(
                                               '$deliverDate',
                                               style: TextStyle(
-
+                                                  fontFamily: "Poppins",
                                                   color: Colors.grey,
                                                   fontSize: 13),
                                             ),
@@ -4363,7 +4364,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             Text(
                                               '$deliverSession',
                                               style: TextStyle(
-
+                                                  fontFamily: "Poppins",
                                                   color: Colors.grey,
                                                   fontSize: 13),
                                             ),

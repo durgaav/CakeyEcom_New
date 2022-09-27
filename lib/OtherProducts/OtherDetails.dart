@@ -99,8 +99,8 @@ class _OthersDetailsState extends State<OthersDetails> {
   var picOrDeliver = ['Pickup', 'Delivery'];
   var picOrDel = [true, false];
   var fixedDelliverMethod = "Pickup";
-  String deliverDate = "Not Yet Select";
-  String deliverSession = "Not Yet Select";
+  String deliverDate = "Select delivery date";
+  String deliverSession = "Select delivery time";
 
   int pageViewCurIndex = 0;
   int selectedFlavIndex = 0;
@@ -592,13 +592,15 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 angle: 120,
                                 child: Icon(
                                   Icons.egg_outlined,
-                                  color: Colors.amber,
+                                  color: otherEggOr.toLowerCase()=="eggless"?
+                                  Colors.green:Color(0xff8D2729),
                                 ),
                               ),
                               Text(
                                 '$otherEggOr',
                                 style: TextStyle(
-                                    color: Colors.amber,
+                                    color: otherEggOr.toLowerCase()=="eggless"?
+                                    Colors.green:Color(0xff8D2729),
                                     fontFamily: poppins,
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold
@@ -1306,9 +1308,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                               Text(
                                 '$deliverDate',
                                 style: TextStyle(
-
                                     color: Colors.grey,
-                                    fontSize: 13),
+                                    fontSize: 13,
+                                    fontFamily: "Poppins"
+                                ),
                               ),
                               Icon(Icons.edit_calendar_outlined,
                                   color: darkBlue)
@@ -1481,11 +1484,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                               Text(
                                 '$deliverSession',
                                 style: TextStyle(
-
+                                    fontFamily: "Poppins",
                                     color: Colors.grey,
                                     fontSize: 13),
                               ),
-                              Icon(Icons.keyboard_arrow_down,
+                              Icon(CupertinoIcons.clock,
                                   color: darkBlue)
                             ])),
                   ),
@@ -1834,11 +1837,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Minimum weight is ${weight[0]['Weight']}!"))
                               );
-                            }else if(deliverDate.toLowerCase()=="not yet select"){
+                            }else if(deliverDate.toLowerCase()=="select delivery date"){
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Please select deliver date"))
                               );
-                            }else if(deliverSession.toLowerCase()=="not yet select"){
+                            }else if(deliverSession.toLowerCase()=="select delivery time"){
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Please select deliver session"))
                               );
@@ -1850,15 +1853,15 @@ class _OthersDetailsState extends State<OthersDetails> {
                               gotoCheckout();
                             }
                           }else if(otherType=="Unit"){
-                            if(deliverDate.toLowerCase()=="not yet select"){
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver date"))
-                              );
-                            }else if(deliverSession.toLowerCase()=="not yet select"){
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver session"))
-                              );
-                            }else if(fixedDelliverMethod.isEmpty){
+                          if(deliverDate.toLowerCase()=="select delivery date"){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Please select deliver date"))
+                            );
+                          }else if(deliverSession.toLowerCase()=="select delivery time"){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Please select deliver session"))
+                            );
+                          }else if(fixedDelliverMethod.isEmpty){
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Please select pickup or delivery"))
                               );
@@ -1866,11 +1869,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                               gotoCheckout();
                             }
                           }else{
-                            if(deliverDate.toLowerCase()=="not yet select"){
+                            if(deliverDate.toLowerCase()=="select delivery date"){
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Please select deliver date"))
                               );
-                            }else if(deliverSession.toLowerCase()=="not yet select"){
+                            }else if(deliverSession.toLowerCase()=="select delivery time"){
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text("Please select deliver session"))
                               );
