@@ -1965,7 +1965,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         nearestVendors = temp.where((element) =>
         calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
             element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
-        ).toList();;
+        ).toList();
+
+
         nearestVendors = nearestVendors.toSet().toList();
 
       });
@@ -1978,6 +1980,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   //getAllcakes List
   Future<void> getCakesList() async {
+
+    var prefs = await SharedPreferences.getInstance();
+    myCakesList.clear();
+    List<String> activeVendorsIds = prefs.getStringList('activeVendorsIds')??[];
+
     showAlertDialog();
     var res = await http.get(
         Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
@@ -1988,9 +1995,16 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         myCakesList = jsonDecode(res.body);
         List cakeList = jsonDecode(res.body);
 
-        cakeList = myCakesList.where((element) => calculateDistance(double.parse(userLatitude),
-            double.parse(userLongtitude),
-            element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
+        // cakeList = myCakesList.where((element) => calculateDistance(double.parse(userLatitude),
+        //     double.parse(userLongtitude),
+        //     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
+
+        if(activeVendorsIds.isNotEmpty){
+          for(int i = 0;i<activeVendorsIds.length;i++){
+            cakeList = cakeList+myCakesList.where((element) => element['VendorID'].toString().toLowerCase()==
+                activeVendorsIds[i].toLowerCase()).toList();
+          }
+        }
 
         cakesList = cakeList
             .where((element) =>
@@ -4084,32 +4098,56 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
                                     String deliTime = "1";
 
-                                    try{
-                                      if(thrkgdeltime!=null && thrkgdeltime!="null"  && thrkgdeltime.toLowerCase()!="n/a" &&
-                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=5.0){
-                                        deliTime = dayMinConverter(thrkgdeltime);
-                                      }else if(fvkgdeltime!=null && fvkgdeltime!="null" && fvkgdeltime.toLowerCase()!="n/a" &&
-                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))>5.0){
-                                        deliTime = dayMinConverter(fvkgdeltime);
-                                      }else if(onekgdeltime!=null && onekgdeltime!="null" && onekgdeltime.toLowerCase()!="n/a" &&
-                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=2.0){
-                                        deliTime = dayMinConverter(onekgdeltime);
-                                      }else if(twokgdeltime!=null && twokgdeltime!="null"  && twokgdeltime.toLowerCase()!="n/a" &&
-                                          double.parse(fixedWeight.toString().toLowerCase().replaceAll('kg', ''))<=4.0){
-                                        deliTime = dayMinConverter(twokgdeltime);
-                                      }else{
-                                        if(cakeMindeltime.toLowerCase()!="n/a"){
-                                          deliTime = dayMinConverter(cakeMindeltime);
-                                        }else{
-                                          deliTime = dayMinConverter("1 day");
-                                        }
+                                    print("****");
+                                    print(thrkgdeltime);
+                                    print(fvkgdeltime);
+                                    print(onekgdeltime);
+                                    print(twokgdeltime);
+                                    print(cakeMindeltime);
+                                    print("****");
 
-                                      }
-                                    }catch(e){
-                                      deliTime = dayMinConverter("1 day");
+                                    print(changeWeight(fixedWeight));
+
+
+                                    if(onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=0.5 &&
+                                        onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=0.2){
+                                      deliTime = dayMinConverter(onekgdeltime);
                                     }
 
+                                    else if(twokgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=2.0 &&
+                                        twokgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<4.0){
+                                      deliTime = dayMinConverter(twokgdeltime);
+                                    }
+
+                                    else if(thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>4.0 &&
+                                        thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<5.0){
+                                      deliTime = dayMinConverter(thrkgdeltime);
+                                    }
+
+                                    else if(fvkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=5){
+                                      deliTime = dayMinConverter(fvkgdeltime);
+                                    }
+
+                                    else{
+                                      deliTime = dayMinConverter(cakeMindeltime);
+                                    }
+
+                                    // if(thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=5.0){
+                                    //   deliTime = dayMinConverter(thrkgdeltime);
+                                    // }else if(fvkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>5.0){
+                                    //   deliTime = dayMinConverter(fvkgdeltime);
+                                    // }else if(onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=0.5 &&
+                                    //     onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=0.2){
+                                    //   deliTime = dayMinConverter(onekgdeltime);
+                                    // }else if(twokgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=4.0){
+                                    //   deliTime = dayMinConverter(twokgdeltime);
+                                    // }else {
+                                    //   deliTime = dayMinConverter(cakeMindeltime);
+                                    // }
+
                                     print("Deliver time estimate : .... $deliTime");
+
+
 
                                     DateTime? SelDate = await showDatePicker(
                                       context: context,

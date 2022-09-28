@@ -7,6 +7,7 @@ import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
@@ -25,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../Dialogs.dart';
 import '../OtherProducts/OtherDetails.dart';
+import '../ProfileDialog.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../screens/HamperDetails.dart';
 import '../screens/Profile.dart';
@@ -150,6 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late PermissionStatus _permissionGranted;
   LocationData? _userLocation;
   Location myLocation = Location();
+
+  List<String> activeVendorsIds = [];
 
   List hampers = [];
 
@@ -555,98 +559,6 @@ class _HomeScreenState extends State<HomeScreen> {
              )
             );
         });
-  }
-
-  void showLocationChangeDialog(){
-    showDialog(
-        context: context,
-        builder: (context){
-          return StatefulBuilder(
-            builder: (context,setState){
-              return AlertDialog(
-                scrollable: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)
-                ),
-                contentPadding: EdgeInsets.all(10),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("New Location",style: TextStyle(
-                      color: darkBlue,fontFamily: "Poppins",
-                      fontSize: 16,fontWeight: FontWeight.bold
-                    ),),
-                    SizedBox(height: 8,),
-                    TextField(
-                      controller: deliverToCtrl,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration:InputDecoration(
-                        hintText: "Type location...",
-                        hintStyle: TextStyle(
-                            color: Colors.grey[400],fontFamily: "Poppins",
-                            fontSize: 13,fontWeight: FontWeight.bold
-                        ),
-                        suffixIcon: InkWell(
-                            onTap: ()=>deliverToCtrl.text="",
-                            child: Icon(Icons.clear))
-                      ),
-                    ),
-                    SizedBox(height: 8,),
-                  ],
-                ),
-                actions: [
-                  FlatButton(
-                      onPressed: ()=>Navigator.pop(context),
-                      child: Text("Cancel",style: TextStyle(
-                        color: Colors.purple,fontFamily: "Poppins"
-                      ),)
-                  ),
-                  FlatButton(
-                      onPressed: () async{
-                        Navigator.pop(context);
-                        controllLocationResult();
-                      },
-                      child: Text("Search",style: TextStyle(
-                          color: Colors.purple,fontFamily: "Poppins"
-                      ),)
-                  ),
-                ],
-              );
-            },
-          );
-        }
-    );
-  }
-
-  Future<void> controllLocationResult() async{
-    var pref = await SharedPreferences
-        .getInstance();
-    FocusScope.of(context).unfocus();
-    if (deliverToCtrl.text.isNotEmpty) {
-      List<geocode.Location> location =
-      await geocode
-          .locationFromAddress(
-          deliverToCtrl.text);
-      print(location);
-      setState(() {
-        userLat = location[0].latitude;
-        userLong = location[0].longitude;
-        pref.setString(
-            'userLatitute', "${userLat}");
-        pref.setString('userLongtitude',
-            "${userLong}");
-        pref.setString(
-            "userCurrentLocation",
-            deliverToCtrl.text);
-        userLocalityAdr =
-            deliverToCtrl.text;
-        getVendorForDeliveryto(authToken);
-        getHampers();
-        getCakeList();
-        getCakeType();
-      });
-    }
   }
 
   //endregion
@@ -1099,6 +1011,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var pref = await SharedPreferences.getInstance();
 
     pref.setString('myVendorId', nearestVendors[index]['_id']);
+    pref.setStringList('activeVendorsIds',[nearestVendors[index]['_id'].toString()]);
     // pref.setString('myVendorName', nearestVendors[index]['VendorName']);
     // pref.setString('myVendorPhone', nearestVendors[index]['VendorPhoneNumber1']);
     // pref.setString('myVendorDesc', nearestVendors[index]['']);
@@ -1129,7 +1042,7 @@ class _HomeScreenState extends State<HomeScreen> {
       newRegUser = prefs.getBool("newRegUser") ?? false;
 
       fetchProfileByPhn();
-      getotherProdList();
+      //getotherProdList();
       _getUserLocation();
       getAdminDeliveryCharge();
     });
@@ -1142,7 +1055,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (newRegUser == true) {
       setState(() {
         Timer(Duration(seconds: 5), () {
-          showDpUpdtaeDialog();
+          //showDpUpdtaeDialog();
+          ProfileAlert().showProfileAlert(context);
         });
       });
     } else {}
@@ -1219,7 +1133,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     getFbToken();
-    getHampers();
   }
 
   Future<void> getFbToken() async {
@@ -1300,6 +1213,8 @@ class _HomeScreenState extends State<HomeScreen> {
       'Authorization': '$authToken'
     };
 
+    otherProdList.clear();
+
     try{
 
       var request = http.Request('GET',
@@ -1315,14 +1230,25 @@ class _HomeScreenState extends State<HomeScreen> {
         print("map .... $map");
 
         setState((){
-          otherProdList = map.where((element) =>
-          calculateDistance(
-              userLat,
-              userLong,
-              element['GoogleLocation']['Latitude'],
-              element['GoogleLocation']['Longitude']) <=
-              10)
-              .toList();
+          // otherProdList = map
+          //     .where((element) =>
+          // calculateDistance(
+          //     userLat,
+          //     userLong,
+          //     element['GoogleLocation']['Latitude'],
+          //     element['GoogleLocation']['Longitude']) <=
+          //     10)
+          //     .toList();
+
+          if(activeVendorsIds.isNotEmpty){
+            for(int i = 0;i<activeVendorsIds.length;i++){
+              otherProdList = otherProdList+map.where((element) => element['VendorID'].toString().toLowerCase()==
+                  activeVendorsIds[i].toLowerCase()).toList();
+            }
+          }
+
+          otherProdList = otherProdList.toSet().toList();
+
         });
 
         print(otherProdList.length);
@@ -1335,11 +1261,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
 
+    getHampers();
 
   }
 
   //fetch cake types
   Future<void> getCakeType() async {
+
+
 
     try{
       var mainList = [];
@@ -1447,18 +1376,17 @@ class _HomeScreenState extends State<HomeScreen> {
             isNetworkError = false;
             List myList = jsonDecode(response.body);
 
-            cakesList = myList
-                .where((element) =>
-                    calculateDistance(
-                        userLat,
-                        userLong,
-                        element['GoogleLocation']['Latitude'],
-                        element['GoogleLocation']['Longitude']) <=
-                    10)
-                .toList();
+            if(activeVendorsIds.isNotEmpty){
+              for(int i = 0;i<activeVendorsIds.length;i++){
+                cakesList = cakesList+myList.where((element) => element['VendorID'].toString().toLowerCase()==
+                activeVendorsIds[i].toLowerCase()).toList();
+              }
+            }
+
+            cakesList.toSet().toList();
+            cakesList.sort((a,b)=>a['CakeName'].toString().compareTo(b['CakeName'].toString()));
 
             isAllLoading = false;
-
           });
         }
       } else {
@@ -1476,6 +1404,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     getCakeType();
+    getotherProdList();
   }
 
   //getting recent orders list by UserId
@@ -1660,6 +1589,11 @@ class _HomeScreenState extends State<HomeScreen> {
               b['GoogleLocation']['Latitude'],
               b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
 
+          if(filteredByEggList.isNotEmpty){
+            for(int i = 0 ; i<filteredByEggList.length;i++){
+              activeVendorsIds.add(filteredByEggList[i]['_id'].toString());
+            }
+          }
 
           print(filteredByEggList);
 
@@ -1671,12 +1605,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
     print("getting vendors....done...");
+
+
+    getCakeList();
   }
 
   //get Ads Banners
   Future<void> getHampers() async {
     hampers.clear();
-
     try{
       var headers = {
         'Authorization': '$authToken'
@@ -1696,15 +1632,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // hampers = map;
 
-          hampers = map.where((element) =>
-          calculateDistance(
-              userLat,
-              userLong,
-              element['GoogleLocation']['Latitude'],
-              element['GoogleLocation']['Longitude']) <=
-              10)
-              .toList();
+          // hampers = map.where((element) =>
+          // calculateDistance(
+          //     userLat,
+          //     userLong,
+          //     element['GoogleLocation']['Latitude'],
+          //     element['GoogleLocation']['Longitude']) <=
+          //     10)
+          //     .toList();
 
+          if(activeVendorsIds.isNotEmpty){
+            for(int i = 0;i<activeVendorsIds.length;i++){
+              hampers = hampers+map.where((element) => element['VendorID'].toString().toLowerCase()==
+                  activeVendorsIds[i].toLowerCase()).toList();
+            }
+          }
+          hampers = hampers.toSet().toList();
 
           print("hamper length....${hampers.length}");
 
@@ -1720,7 +1663,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print(e);
     }
 
-    getCakeList();
   }
 
   //network check
@@ -1819,10 +1761,10 @@ class _HomeScreenState extends State<HomeScreen> {
           userLocalityAdr =
               predictedAddress;
           getVendorForDeliveryto(authToken);
-          getHampers();
+          //getHampers();
           getCakeList();
           getCakeType();
-          getotherProdList();
+          //getotherProdList();
         });
       }
       else{
@@ -2009,14 +1951,16 @@ class _HomeScreenState extends State<HomeScreen> {
           activeSearchClear();
           return Future.value(false);
         }else{
-          DateTime now = DateTime.now();
-          if (currentBackPressTime == null ||
-              now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-            currentBackPressTime = now;
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('Tap again to exit.')));
-            return Future.value(false);
-          }
+          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          // DateTime now = DateTime.now();
+          // if (currentBackPressTime == null ||
+          //     now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+          //   currentBackPressTime = now;
+          //   ScaffoldMessenger.of(context)
+          //       .showSnackBar(SnackBar(content: Text('Tap again to exit.')));
+          //
+          //   return Future.value(false);
+          // }
         }
 
         return Future.value(true);
@@ -3028,6 +2972,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     InkWell(
                                                       onTap: () async {
                                                         var prefs = await SharedPreferences.getInstance();
+                                                        prefs.setStringList('activeVendorsIds',activeVendorsIds);
                                                         prefs.setBool('iamYourVendor', false);
                                                         prefs.setBool('vendorCakeMode',false);
                                                         context.read<ContextData>().setMyVendors([]);

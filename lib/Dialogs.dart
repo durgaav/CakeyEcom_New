@@ -1,8 +1,42 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PhoneDialog{
+
+  Color lightGrey = Color(0xffF5F5F5);
+  Color darkBlue = Color(0xffF213959);
+  Color lightPink = Color(0xffFE8416D);
+
+  void showModalDialog(BuildContext context){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return AlertDialog(
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(height: 13,),
+                  Text('Please Wait...',style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
 
   void showPhoneDialog(BuildContext context , String phn1 , String phn2 , [bool isWhatsapp = false,String msg="hello"]){
     showDialog(

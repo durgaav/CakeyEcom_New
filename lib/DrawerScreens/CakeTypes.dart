@@ -166,6 +166,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
   List seleVendorDetailsList = [];
 
+  List<String> activeVendorsIds = [];
+
   //endregion
 
   //region Dialogs
@@ -1404,6 +1406,8 @@ class _CakeTypesState extends State<CakeTypes> {
 
       iamYourVendor = pref.getBool('iamYourVendor')?? false;
 
+      activeVendorsIds = pref.getStringList('activeVendorsIds')??[];
+
       // if (iamYourVendor == true) {
       //   mySelVendors = [
       //     {"VendorName": vendorName , "VendorPhn1":vendorPhone1,"VendorPhn2":vendorPhone2}
@@ -1421,7 +1425,7 @@ class _CakeTypesState extends State<CakeTypes> {
     var headers = {
       'Authorization': '$authToken'
     };
-
+    otherProducts.clear();
     try{
 
 
@@ -1455,14 +1459,24 @@ class _CakeTypesState extends State<CakeTypes> {
                 mySelVendors[0]['VendorName'].toString().toLowerCase()).toList();
 
           }else{
-            otherProducts = map.where((element) =>
-            calculateDistance(
-                double.parse(userLatitude),
-                double.parse(userLongtitude),
-                element['GoogleLocation']['Latitude'],
-                element['GoogleLocation']['Longitude']) <=
-                10)
-                .toList();
+            // otherProducts = map.where((element) =>
+            // calculateDistance(
+            //     double.parse(userLatitude),
+            //     double.parse(userLongtitude),
+            //     element['GoogleLocation']['Latitude'],
+            //     element['GoogleLocation']['Longitude']) <=
+            //     10)
+            //     .toList();
+
+            if(activeVendorsIds.isNotEmpty){
+              for(int i = 0;i<activeVendorsIds.length;i++){
+                otherProducts = otherProducts+map.where((element) => element['VendorID'].toString().toLowerCase()==
+                    activeVendorsIds[i].toLowerCase()).toList();
+              }
+            }
+
+            otherProducts = otherProducts.toSet().toList();
+
           }
 
         });
@@ -1554,17 +1568,14 @@ class _CakeTypesState extends State<CakeTypes> {
       });
     }
 
-    getOtherProducts();
+    //getOtherProducts();
   }
 
   //Fetching cake list API...
   Future<void> getCakeList() async {
-    
-    List regular = [];
-    List premium = [];
-    
-    showAlertDialog();
 
+    showAlertDialog();
+    cakesList.clear();
     print("Ven iddd : $myVendorId");
 
     String commonCake = 'https://cakey-database.vercel.app/api/cakes/activevendors/list';
@@ -1586,13 +1597,11 @@ class _CakeTypesState extends State<CakeTypes> {
           fetchFlavours();
           fetchShapes();
           Navigator.pop(context);
-        } else {
+        }
+        else {
           setState(() {
             isNetworkError = false;
             List cakList = jsonDecode(response.body);
-            
-            regular = cakList.where((element) => element['CakeCategory'].toString().toLowerCase()=="regular").toList();
-            premium = cakList.where((element) => element['CakeCategory'].toString().toLowerCase()=="premium").toList();
 
             // cakesList = cakesList.reversed.toList();
 
@@ -1602,17 +1611,15 @@ class _CakeTypesState extends State<CakeTypes> {
               // cakesTypes.add(cakList[i]['CakeType'].toString());
             }
 
-            cakesList = cakList.where((element) => calculateDistance(double.parse(userLatitude),
-                double.parse(userLongtitude),
-                element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
-
-
+            if(activeVendorsIds.isNotEmpty){
+              for(int i=0;i<activeVendorsIds.length;i++){
+                cakesList = cakesList + cakList.where((element) =>element['VendorID'].toString().toLowerCase()==
+                    activeVendorsIds[i].toLowerCase()).toList();
+              }
+            }
 
             cakesList = cakesList.reversed.toList();
-
-            // cakesTypes.insert(0, "All Cakes");
-            // cakesTypes = cakesTypes.toSet().toList();
-
+            cakesList = cakesList.toSet().toList();
             print(cakesTypes);
 
             Navigator.pop(context);
@@ -1649,6 +1656,9 @@ class _CakeTypesState extends State<CakeTypes> {
       checkNetwork();
       Navigator.pop(context);
     }
+
+    getOtherProducts();
+
   }
 
   Future<void> getVendor(String venID) async{
@@ -2770,68 +2780,6 @@ class _CakeTypesState extends State<CakeTypes> {
   }
 
 
-  void showLocationChangeDialog(){
-    showDialog(
-        context: context,
-        builder: (context){
-          return StatefulBuilder(
-            builder: (context,setState){
-              return AlertDialog(
-                scrollable: true,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)
-                ),
-                contentPadding: EdgeInsets.all(10),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("New Location",style: TextStyle(
-                        color: darkBlue,fontFamily: "Poppins",
-                        fontSize: 16,fontWeight: FontWeight.bold
-                    ),),
-                    SizedBox(height: 8,),
-                    TextField(
-                      controller: deliverToCtrl,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration:InputDecoration(
-                          hintText: "Type location...",
-                          hintStyle: TextStyle(
-                              color: Colors.grey[400],fontFamily: "Poppins",
-                              fontSize: 13,fontWeight: FontWeight.bold
-                          ),
-                          suffixIcon: InkWell(
-                              onTap: ()=>deliverToCtrl.text="",
-                              child: Icon(Icons.clear))
-                      ),
-                    ),
-                    SizedBox(height: 8,),
-                  ],
-                ),
-                actions: [
-                  FlatButton(
-                      onPressed: ()=>Navigator.pop(context),
-                      child: Text("Cancel",style: TextStyle(
-                          color: Colors.purple,fontFamily: "Poppins"
-                      ),)
-                  ),
-                  FlatButton(
-                      onPressed: () async{
-                        Navigator.pop(context);
-                        controllLocationResult();
-                      },
-                      child: Text("Search",style: TextStyle(
-                          color: Colors.purple,fontFamily: "Poppins"
-                      ),)
-                  ),
-                ],
-              );
-            },
-          );
-        }
-    );
-  }
-
   Future<void> getCoordinates(String predictedAddress) async{
 
     var pref = await SharedPreferences.getInstance();
@@ -2851,7 +2799,7 @@ class _CakeTypesState extends State<CakeTypes> {
           pref.setString("userCurrentLocation", predictedAddress);
           // getVendorForDeliveryto(authToken);
           getCakeList();
-          getOtherProducts();
+          // getOtherProducts();
         });
       }
       else{
@@ -2866,27 +2814,6 @@ class _CakeTypesState extends State<CakeTypes> {
       );
     }
 
-  }
-
-  Future<void> controllLocationResult() async{
-    var pref = await SharedPreferences.getInstance();
-    FocusScope.of(context).unfocus();
-    if(deliverToCtrl.text.isNotEmpty){
-      List<Location> location =
-      await locationFromAddress(deliverToCtrl.text);
-      print(location);
-      setState((){
-        userCurLocation = deliverToCtrl.text;
-        userLatitude = location[0].latitude.toString();
-        userLongtitude = location[0].longitude.toString();
-        pref.setString('userLatitute', "${userLatitude}");
-        pref.setString('userLongtitude', "${userLongtitude}");
-        pref.setString("userCurrentLocation", deliverToCtrl.text);
-        // getVendorForDeliveryto(authToken);
-        getCakeList();
-        getOtherProducts();
-      });
-    }
   }
 
   //endregion
