@@ -24,6 +24,7 @@ import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
+import '../drawermenu/app_bar.dart';
 import '../screens/AddressScreen.dart';
 import '../screens/CakeDetails.dart';
 import '../screens/Profile.dart';
@@ -60,6 +61,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var flavourList = [];
 
   var flavGrpValue = 0;
+
+  int notiCount = 0;
 
   //cake articles
   var cakeArticles = ["Default" , 'Cake Article','Cake Article','Cake Art'];
@@ -1489,6 +1492,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Widget build(BuildContext context) {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    notiCount = context.watch<ContextData>().getNotiCount();
+
     if(context.watch<ContextData>().getAddress().isNotEmpty){
       deliverAddress = context.watch<ContextData>().getAddress();
     }else{
@@ -1521,7 +1526,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     return WillPopScope(
       onWillPop: () async{
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         context.read<ContextData>().setMyVendors([]);
         context.read<ContextData>().addMyVendor(false);
         return Future.value(true);
@@ -1599,117 +1604,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           )),
                     ],
                   ),
-
-                  Row(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    final tween = Tween(begin: begin, end: end);
-                                    final curvedAnimation = CurvedAnimation(
-                                      parent: animation,
-                                      curve: curve,
-                                    );
-                                    return SlideTransition(
-                                      position: tween.animate(curvedAnimation),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: Icon(
-                                Icons.notifications_none,
-                                color: darkBlue,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 15,
-                            top: 6,
-                            child: CircleAvatar(
-                              radius: 3.7,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 2.7,
-                                backgroundColor: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 10,),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
-                        ),
-                        child: InkWell(
-                          onTap: (){
-
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
-
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
-
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: profileUrl!="null"?Container(
-                              height:27,width:27,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:Colors.red,
-                                  image: DecorationImage(
-                                      image: NetworkImage("${profileUrl}"),
-                                      fit: BoxFit.fill
-                                  )
-                              )
-                          ):CircleAvatar(
-                            radius: 14.7,
-                            backgroundColor: Colors.white,
-                            child: CircleAvatar(
-                                radius: 13,
-                                backgroundImage:AssetImage("assets/images/user.png")
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-
-
+                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
                 ],
               ),
             ),
@@ -3239,37 +3134,37 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       InkWell(
                                         onTap:() async{
 
-                                          var pref = await SharedPreferences.getInstance();
-
-                                          pref.remove('singleVendorID');
-                                          pref.remove('singleVendorFromCd');
-                                          pref.remove('singleVendorRate');
-                                          pref.remove('singleVendorName');
-                                          pref.remove('singleVendorDesc');
-                                          pref.remove('singleVendorPhone1');
-                                          pref.remove('singleVendorPhone2');
-                                          pref.remove('singleVendorDpImage');
-                                          pref.remove('singleVendorAddress');
-                                          pref.remove('singleVendorSpeciality');
-
-                                          //common keyword single****
-                                          pref.setString('singleVendorID', mySelectdVendors[0]['_id']??'null');
-                                          pref.setBool('singleVendorFromCd', true);
-                                          pref.setString('singleVendorRate', mySelectdVendors[0]['Ratings'].toString()??'0.0');
-                                          pref.setString('singleVendorName', mySelectdVendors[0]['VendorName']??'null');
-                                          pref.setString('singleVendorDesc', mySelectdVendors[0]['Description']??'null');
-                                          pref.setString('singleVendorPhone1', mySelectdVendors[0]['PhoneNumber1']??'null');
-                                          pref.setString('singleVendorPhone2', mySelectdVendors[0]['PhoneNumber2']??'null');
-                                          pref.setString('singleVendorDpImage', mySelectdVendors[0]['ProfileImage']??'null');
-                                          pref.setString('singleVendorAddress', mySelectdVendors[0]['Address']??'null');
-                                          pref.setString('singleVendorSpecial', mySelectdVendors[0]['YourSpecialityCakes'].toString()??'null');
-
-
-                                          Navigator.push(context,
-                                              MaterialPageRoute(
-                                                  builder: (context)=>SingleVendor()
-                                              )
-                                          );
+                                          // var pref = await SharedPreferences.getInstance();
+                                          //
+                                          // pref.remove('singleVendorID');
+                                          // pref.remove('singleVendorFromCd');
+                                          // pref.remove('singleVendorRate');
+                                          // pref.remove('singleVendorName');
+                                          // pref.remove('singleVendorDesc');
+                                          // pref.remove('singleVendorPhone1');
+                                          // pref.remove('singleVendorPhone2');
+                                          // pref.remove('singleVendorDpImage');
+                                          // pref.remove('singleVendorAddress');
+                                          // pref.remove('singleVendorSpeciality');
+                                          //
+                                          // //common keyword single****
+                                          // pref.setString('singleVendorID', mySelectdVendors[0]['_id']??'null');
+                                          // pref.setBool('singleVendorFromCd', true);
+                                          // pref.setString('singleVendorRate', mySelectdVendors[0]['Ratings'].toString()??'0.0');
+                                          // pref.setString('singleVendorName', mySelectdVendors[0]['VendorName']??'null');
+                                          // pref.setString('singleVendorDesc', mySelectdVendors[0]['Description']??'null');
+                                          // pref.setString('singleVendorPhone1', mySelectdVendors[0]['PhoneNumber1']??'null');
+                                          // pref.setString('singleVendorPhone2', mySelectdVendors[0]['PhoneNumber2']??'null');
+                                          // pref.setString('singleVendorDpImage', mySelectdVendors[0]['ProfileImage']??'null');
+                                          // pref.setString('singleVendorAddress', mySelectdVendors[0]['Address']??'null');
+                                          // pref.setString('singleVendorSpecial', mySelectdVendors[0]['YourSpecialityCakes'].toString()??'null');
+                                          //
+                                          //
+                                          // Navigator.push(context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (context)=>SingleVendor()
+                                          //     )
+                                          // );
                                         },
                                         child: Container(
                                           width: MediaQuery.of(context).size.width,
@@ -3449,42 +3344,42 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               InkWell(
                                                                 onTap: (){
 
-                                                                  if(newRegUser==true){
-                                                                    showDpUpdtaeDialog();
-                                                                  }
-                                                                  else {
-                                                                    if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                                                                        weightCtrl.text.startsWith("0")&&
-                                                                            weightCtrl.text.endsWith("0")){
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                          SnackBar(
-                                                                              content: Text("Please enter correct weight or select weight!")
-                                                                          )
-                                                                      );
-                                                                    }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                          SnackBar(content: Text('Please select a image file for theme...'))
-                                                                      );
-                                                                    }
-                                                                    else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                          SnackBar(content: Text('Invalid Address'))
-                                                                      );
-                                                                    }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                                                        fixedSession.toLowerCase()=="not yet select"||
-                                                                        fixedDelliverMethod.toLowerCase()=="not yet select"){
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                          SnackBar(content: Text('Please Select Deliver Date And Type'))
-                                                                      );
-                                                                    }else{
-                                                                      setState((){
-                                                                        if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                                                          vendorID = "";
-                                                                        }
-                                                                      });
-                                                                      showCakeNameEdit();
-                                                                    }
-                                                                  }
+                                                                  // if(newRegUser==true){
+                                                                  //   showDpUpdtaeDialog();
+                                                                  // }
+                                                                  // else {
+                                                                  //   if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                                                  //       weightCtrl.text.startsWith("0")&&
+                                                                  //           weightCtrl.text.endsWith("0")){
+                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
+                                                                  //         SnackBar(
+                                                                  //             content: Text("Please enter correct weight or select weight!")
+                                                                  //         )
+                                                                  //     );
+                                                                  //   }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
+                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
+                                                                  //         SnackBar(content: Text('Please select a image file for theme...'))
+                                                                  //     );
+                                                                  //   }
+                                                                  //   else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
+                                                                  //         SnackBar(content: Text('Invalid Address'))
+                                                                  //     );
+                                                                  //   }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                                                  //       fixedSession.toLowerCase()=="not yet select"||
+                                                                  //       fixedDelliverMethod.toLowerCase()=="not yet select"){
+                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
+                                                                  //         SnackBar(content: Text('Please Select Deliver Date And Type'))
+                                                                  //     );
+                                                                  //   }else{
+                                                                  //     setState((){
+                                                                  //       if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                                                  //         vendorID = "";
+                                                                  //       }
+                                                                  //     });
+                                                                  //     showCakeNameEdit();
+                                                                  //   }
+                                                                  // }
 
                                                                 },
                                                                 child: Container(
@@ -3871,7 +3766,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         }else if(fixedWeight=="0.0"){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                  content: Text("Please   select weight!")
+                                                  content: Text("Please select weight!")
                                               )
                                           );
                                         }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){

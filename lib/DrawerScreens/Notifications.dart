@@ -9,8 +9,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import '../ContextData.dart';
 import '../Dialogs.dart';
 import '../screens/OrderConfirm.dart';
 
@@ -746,6 +748,7 @@ class _NotificationsState extends State<Notifications> {
           print("length : ${mainList.length}");
           isLoading = false;
         });
+        context.read<ContextData>().setNotiCount(mainList.length);
       }else{
         checkNetwork();
         setState((){
@@ -754,6 +757,7 @@ class _NotificationsState extends State<Notifications> {
               SnackBar(content: Text('Error Occurred!'))
           );
         });
+        context.read<ContextData>().setNotiCount(0);
       }
     } catch (e) {
       print(e);
@@ -761,6 +765,7 @@ class _NotificationsState extends State<Notifications> {
         isLoading = false;
         checkNetwork();
       });
+      context.read<ContextData>().setNotiCount(0);
     }
   }
 
@@ -844,7 +849,7 @@ class _NotificationsState extends State<Notifications> {
     }
     else {
       Navigator.pop(context);
-    print(response.reasonPhrase);
+      print(response.reasonPhrase);
     }
   }
 

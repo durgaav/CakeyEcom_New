@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ContextData.dart';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
+import '../drawermenu/app_bar.dart';
 import '../screens/Profile.dart';
 import 'package:http/http.dart' as http;
 import 'CakeTypes.dart';
@@ -52,6 +53,8 @@ class _VendorsListState extends State<VendorsList> {
   //booleans
   bool isSearching = false;
   int currentIndex = 0;
+
+  int notiCount = 0;
 
   //Lists
   List locations = ["Tirupur","Avinashi","Avinashi",'Coimbatore','Neelambur','Thekkalur','Chennai'];
@@ -314,6 +317,7 @@ class _VendorsListState extends State<VendorsList> {
     }
 
     pref.setString('myVendorId', locationBySearch[index]['_id']);
+    pref.setStringList('activeVendorsIds',[locationBySearch[index]['_id'].toString()]);
     pref.setBool('iamYourVendor', true);
     pref.setString('myVendorName', locationBySearch[index]['VendorName']);
     pref.setString('myVendorPhone1', locationBySearch[index]['PhoneNumber1']??'null');
@@ -435,6 +439,7 @@ class _VendorsListState extends State<VendorsList> {
     // }
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    notiCount = context.watch<ContextData>().getNotiCount();
     selectedVendor = context.watch<ContextData>().getAddedMyVendor();
     selvendorList = context.watch<ContextData>().getMyVendorsList();
     double width = MediaQuery.of(context).size.width;
@@ -444,7 +449,8 @@ class _VendorsListState extends State<VendorsList> {
       onWillPop: () async{
         
         !iamFromCustom?
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen())):
+        Navigator.pop(context):
+       // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen())):
         Navigator.pop(context);
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         return Future.value(true);
@@ -541,115 +547,7 @@ class _VendorsListState extends State<VendorsList> {
 
                     iamFromCustom?
                     Container():
-                    Row(
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      const begin = Offset(1.0, 0.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.ease;
-
-                                      final tween = Tween(begin: begin, end: end);
-                                      final curvedAnimation = CurvedAnimation(
-                                        parent: animation,
-                                        curve: curve,
-                                      );
-                                      return SlideTransition(
-                                        position: tween.animate(curvedAnimation),
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(6)),
-                                child: Icon(
-                                  Icons.notifications_none,
-                                  color: darkBlue,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                            const Positioned(
-                              left: 15,
-                              top: 6,
-                              child: CircleAvatar(
-                                radius: 3.7,
-                                backgroundColor: Colors.white,
-                                child: CircleAvatar(
-                                  radius: 2.7,
-                                  backgroundColor: Colors.red,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 10,),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(blurRadius: 3, color: Colors.black, spreadRadius: 0)],
-                          ),
-                          child: InkWell(
-                            onTap: (){
-
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    final tween = Tween(begin: begin, end: end);
-                                    final curvedAnimation = CurvedAnimation(
-                                      parent: animation,
-                                      curve: curve,
-                                    );
-
-                                    return SlideTransition(
-                                      position: tween.animate(curvedAnimation),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            child: profileUrl!="null"?Container(
-                                height:27,width:27,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color:Colors.red,
-                                    image: DecorationImage(
-                                        image: NetworkImage("${profileUrl}"),
-                                        fit: BoxFit.fill
-                                    )
-                                )
-                            ):CircleAvatar(
-                              radius: 14.7,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                  radius: 13,
-                                  backgroundImage:AssetImage("assets/images/user.png")
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
+                    CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
                   ],
                 ),
               ),

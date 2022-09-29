@@ -20,6 +20,7 @@ import 'package:http/http.dart' as http;
 import 'dart:math';
 import '../Dialogs.dart';
 import '../drawermenu/NavDrawer.dart';
+import '../drawermenu/app_bar.dart';
 import '../screens/Profile.dart';
 import 'CustomiseCake.dart';
 import 'HomeScreen.dart';
@@ -88,6 +89,9 @@ class _CakeTypesState extends State<CakeTypes> {
   bool shapeOnlyFilter = false;
   bool searchModeis = false;
   bool navFromHome = false;
+
+  //noti
+  int notiCount = 0;
 
   //TextFields controls for search....
   var cakeCategoryCtrl = new TextEditingController();
@@ -208,6 +212,10 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //filter bottom.....
   void showFilterBottom() {
+
+    var flavExpand = false;
+    var shapeExpand = false;
+
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -356,6 +364,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                 color: Colors.black26,
                               ),
                               ExpansionTile(
+                                onExpansionChanged: (e){
+                                  setState((){
+                                    flavExpand = e;
+                                  });
+                                },
                                 title: Text(
                                   'Flavours',
                                   style: TextStyle(
@@ -372,7 +385,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                     fontFamily: "Poppins",
                                   ),
                                 ),
-                                trailing: Container(
+                                trailing: !flavExpand?
+                                Container(
                                   alignment: Alignment.center,
                                   height: 25,
                                   width: 25,
@@ -382,6 +396,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ),
                                   child: Icon(
                                     Icons.keyboard_arrow_down_rounded,
+                                    color: darkBlue,
+                                    size: 25,
+                                  ),
+                                ):Container(
+                                  alignment: Alignment.center,
+                                  height: 25,
+                                  width: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.keyboard_arrow_up_rounded,
                                     color: darkBlue,
                                     size: 25,
                                   ),
@@ -474,6 +501,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                 color: Colors.black26,
                               ),
                               ExpansionTile(
+                                onExpansionChanged: (e){
+                                  setState((){
+                                    shapeExpand = e;
+                                  });
+                                },
                                 title: Text(
                                   'Shapes',
                                   style: TextStyle(
@@ -490,7 +522,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                     fontFamily: "Poppins",
                                   ),
                                 ),
-                                trailing: Container(
+                                trailing: !shapeExpand?
+                                Container(
                                   alignment: Alignment.center,
                                   height: 25,
                                   width: 25,
@@ -500,6 +533,19 @@ class _CakeTypesState extends State<CakeTypes> {
                                   ),
                                   child: Icon(
                                     Icons.keyboard_arrow_down_rounded,
+                                    color: darkBlue,
+                                    size: 25,
+                                  ),
+                                ):Container(
+                                  alignment: Alignment.center,
+                                  height: 25,
+                                  width: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.keyboard_arrow_up_rounded,
                                     color: darkBlue,
                                     size: 25,
                                   ),
@@ -2849,6 +2895,7 @@ class _CakeTypesState extends State<CakeTypes> {
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    notiCount = context.watch<ContextData>().getNotiCount();
 
     if(iamYourVendor == true){
       mySelVendors = context.watch<ContextData>().getMyVendorsList();
@@ -3155,7 +3202,8 @@ class _CakeTypesState extends State<CakeTypes> {
               Navigator.pop(context);
               return false;
             }else{
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+              Navigator.pop(context);
+              //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
             }
           }
 
@@ -3238,134 +3286,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation,
-                                              secondaryAnimation) =>
-                                          Notifications(),
-                                      transitionsBuilder: (context, animation,
-                                          secondaryAnimation, child) {
-                                        const begin = Offset(1.0, 0.0);
-                                        const end = Offset.zero;
-                                        const curve = Curves.ease;
-
-                                        final tween =
-                                            Tween(begin: begin, end: end);
-                                        final curvedAnimation = CurvedAnimation(
-                                          parent: animation,
-                                          curve: curve,
-                                        );
-                                        return SlideTransition(
-                                          position:
-                                              tween.animate(curvedAnimation),
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(6)),
-                                  child: Icon(
-                                    Icons.notifications_none,
-                                    color: darkBlue,
-                                    size: 22,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 15,
-                                top: 6,
-                                child: CircleAvatar(
-                                  radius: 3.7,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                    radius: 2.7,
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 3,
-                                    color: Colors.black,
-                                    spreadRadius: 0)
-                              ],
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        Profile(
-                                      defindex: 0,
-                                    ),
-
-
-                                    transitionsBuilder: (context, animation,
-                                        secondaryAnimation, child) {
-                                      const begin = Offset(1.0, 0.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.ease;
-
-                                      final tween = Tween(begin: begin, end: end);
-                                      final curvedAnimation = CurvedAnimation(
-                                        parent: animation,
-                                        curve: curve,
-                                      );
-
-                                      return SlideTransition(
-                                        position: tween.animate(curvedAnimation),
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
-                              child: profileUrl != "null"
-                                  ? Container(
-                                  height:27,width:27,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:Colors.red,
-                                      image: DecorationImage(
-                                          image: NetworkImage("${profileUrl}"),
-                                          fit: BoxFit.fill
-                                      )
-                                  )
-                                   )
-                                  : CircleAvatar(
-                                      radius: 14.7,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                          radius: 13,
-                                          backgroundImage: AssetImage(
-                                              "assets/images/user.png")),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
                     ],
                   ),
                 ),

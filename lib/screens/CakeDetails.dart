@@ -22,6 +22,7 @@ import '../ContextData.dart';
 import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/CustomiseCake.dart';
 import '../DrawerScreens/Notifications.dart';
+import '../drawermenu/app_bar.dart';
 import 'AddressScreen.dart';
 import 'Profile.dart';
 import 'package:http/http.dart' as http;
@@ -90,6 +91,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
   List<bool> multiThemeList = [];
+
+  int notiCount = 0;
 
   bool showThemeSheet = true;
 
@@ -1987,7 +1990,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     showAlertDialog();
     var res = await http.get(
-        Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
+        Uri.parse('https://cakey-database.vercel.app/api/cakes/activevendors/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -2344,6 +2347,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   @override
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    notiCount = context.watch<ContextData>().getNotiCount();
 
     selVendor = context.watch<ContextData>().getAddedMyVendor();
     if(selVendor == true){
@@ -2487,132 +2491,134 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     pinned: true,
                     floating: true,
                     actions: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              print("Scrolled $innerBoxIsScrolled");
-
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation,
-                                          secondaryAnimation) =>
-                                      Notifications(),
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    final tween = Tween(begin: begin, end: end);
-                                    final curvedAnimation = CurvedAnimation(
-                                      parent: animation,
-                                      curve: curve,
-                                    );
-                                    return SlideTransition(
-                                      position: tween.animate(curvedAnimation),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: 35,
-                              width: 35,
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Icon(
-                                Icons.notifications_none,
-                                color: darkBlue,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 20,
-                            top: 18,
-                            child: CircleAvatar(
-                              radius: 4.5,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 3.5,
-                                backgroundColor: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                                blurRadius: 3,
-                                color: Colors.black,
-                                spreadRadius: 0)
-                          ],
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        Profile(
-                                  defindex: 0,
-                                ),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
-
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
-
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: profileUrl != "null"
-                              ? Container(
-                              height:30,width:30,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:Colors.red,
-                                  image: DecorationImage(
-                                      image: NetworkImage("${profileUrl}"),
-                                      fit: BoxFit.fill
-                                  )
-                              )
-                          )
-                              : CircleAvatar(
-                                  radius: 17.5,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage:
-                                          AssetImage("assets/images/user.png")),
-                                ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
+                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl),
+                      SizedBox(width: 6,),
+                      // Stack(
+                      //   alignment: Alignment.center,
+                      //   children: [
+                      //     InkWell(
+                      //       onTap: () {
+                      //         print("Scrolled $innerBoxIsScrolled");
+                      //
+                      //         Navigator.of(context).push(
+                      //           PageRouteBuilder(
+                      //             pageBuilder: (context, animation,
+                      //                     secondaryAnimation) =>
+                      //                 Notifications(),
+                      //             transitionsBuilder: (context, animation,
+                      //                 secondaryAnimation, child) {
+                      //               const begin = Offset(1.0, 0.0);
+                      //               const end = Offset.zero;
+                      //               const curve = Curves.ease;
+                      //
+                      //               final tween = Tween(begin: begin, end: end);
+                      //               final curvedAnimation = CurvedAnimation(
+                      //                 parent: animation,
+                      //                 curve: curve,
+                      //               );
+                      //               return SlideTransition(
+                      //                 position: tween.animate(curvedAnimation),
+                      //                 child: child,
+                      //               );
+                      //             },
+                      //           ),
+                      //         );
+                      //       },
+                      //       child: Container(
+                      //         alignment: Alignment.center,
+                      //         height: 35,
+                      //         width: 35,
+                      //         decoration: BoxDecoration(
+                      //             color: Colors.grey[300],
+                      //             borderRadius: BorderRadius.circular(8)),
+                      //         child: Icon(
+                      //           Icons.notifications_none,
+                      //           color: darkBlue,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Positioned(
+                      //       left: 20,
+                      //       top: 18,
+                      //       child: CircleAvatar(
+                      //         radius: 4.5,
+                      //         backgroundColor: Colors.white,
+                      //         child: CircleAvatar(
+                      //           radius: 3.5,
+                      //           backgroundColor: Colors.red,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // SizedBox(
+                      //   width: 10,
+                      // ),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.white,
+                      //     shape: BoxShape.circle,
+                      //     boxShadow: [
+                      //       BoxShadow(
+                      //           blurRadius: 3,
+                      //           color: Colors.black,
+                      //           spreadRadius: 0)
+                      //     ],
+                      //   ),
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       Navigator.of(context).push(
+                      //         PageRouteBuilder(
+                      //           pageBuilder:
+                      //               (context, animation, secondaryAnimation) =>
+                      //                   Profile(
+                      //             defindex: 0,
+                      //           ),
+                      //           transitionsBuilder: (context, animation,
+                      //               secondaryAnimation, child) {
+                      //             const begin = Offset(1.0, 0.0);
+                      //             const end = Offset.zero;
+                      //             const curve = Curves.ease;
+                      //
+                      //             final tween = Tween(begin: begin, end: end);
+                      //             final curvedAnimation = CurvedAnimation(
+                      //               parent: animation,
+                      //               curve: curve,
+                      //             );
+                      //
+                      //             return SlideTransition(
+                      //               position: tween.animate(curvedAnimation),
+                      //               child: child,
+                      //             );
+                      //           },
+                      //         ),
+                      //       );
+                      //     },
+                      //     child: profileUrl != "null"
+                      //         ? Container(
+                      //         height:30,width:30,
+                      //         decoration: BoxDecoration(
+                      //             shape: BoxShape.circle,
+                      //             color:Colors.red,
+                      //             image: DecorationImage(
+                      //                 image: NetworkImage("${profileUrl}"),
+                      //                 fit: BoxFit.fill
+                      //             )
+                      //         )
+                      //     )
+                      //         : CircleAvatar(
+                      //             radius: 17.5,
+                      //             backgroundColor: Colors.white,
+                      //             child: CircleAvatar(
+                      //                 radius: 16,
+                      //                 backgroundImage:
+                      //                     AssetImage("assets/images/user.png")),
+                      //           ),
+                      //   ),
+                      // ),
+                      // SizedBox(
+                      //   width: 10,
+                      // ),
                     ],
                     backgroundColor: lightGrey,
                     flexibleSpace: FlexibleSpaceBar(
@@ -2643,7 +2649,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               image: DecorationImage(
                                                   image: NetworkImage(
                                                       "${cakeImages[index]}"),
-                                                  fit: BoxFit.cover)),
+                                                  fit: BoxFit.cover,
+                                              )),
                                         );
                                       }),
                                   Align(
@@ -4099,6 +4106,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     String deliTime = "1";
 
                                     print("****");
+                                    print(basicCakeWeight);
                                     print(thrkgdeltime);
                                     print(fvkgdeltime);
                                     print(onekgdeltime);
@@ -4109,8 +4117,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     print(changeWeight(fixedWeight));
 
 
-                                    if(onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=0.5 &&
-                                        onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=0.2){
+                                    if(changeWeight(basicCakeWeight) == changeWeight(fixedWeight)){
+                                      deliTime = dayMinConverter(cakeMindeltime);
+                                    }
+
+                                    else if(onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=0.5 &&
+                                        onekgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=2.0){
                                       deliTime = dayMinConverter(onekgdeltime);
                                     }
 
@@ -4119,18 +4131,15 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       deliTime = dayMinConverter(twokgdeltime);
                                     }
 
-                                    else if(thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>4.0 &&
+                                    else if(thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=4.0 &&
                                         thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<5.0){
                                       deliTime = dayMinConverter(thrkgdeltime);
                                     }
 
-                                    else if(fvkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=5){
+                                    else if(fvkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)>=5.0){
                                       deliTime = dayMinConverter(fvkgdeltime);
                                     }
 
-                                    else{
-                                      deliTime = dayMinConverter(cakeMindeltime);
-                                    }
 
                                     // if(thrkgdeltime.toLowerCase()!="n/a" && changeWeight(fixedWeight)<=5.0){
                                     //   deliTime = dayMinConverter(thrkgdeltime);

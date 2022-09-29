@@ -11,6 +11,15 @@ class ContextData extends ChangeNotifier {
   bool isUpdated = false;
   String address = "";
 
+  int notiCount = 0;
+
+  void setNotiCount(int noti){
+    notiCount = noti;
+    notifyListeners();
+  }
+
+  int getNotiCount() => notiCount;
+
   void setProfileUrl(String url){
     profileUrl = url;
     notifyListeners();

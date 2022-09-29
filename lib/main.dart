@@ -86,6 +86,9 @@ class _MyAppState extends State<MyApp> {
       print("message recieved");
       print(event.notification.body);
       showOverlayNotification((context) {
+        setState(() {
+          context.read<ContextData>().setNotiCount(1);
+        });
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 4),
           child: SafeArea(
@@ -122,8 +125,8 @@ class _MyAppState extends State<MyApp> {
       print('Message clicked!');
     });
 
-    super.initState();
 
+    super.initState();
   }
 
   @override

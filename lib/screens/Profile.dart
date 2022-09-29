@@ -76,6 +76,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   int hours = 0;
   int minutes = 0;
   int seconds = 0;
+  int notiCount = 0;
 
   //Edit text Controllers...
   var userNameCtrl = new TextEditingController();
@@ -981,6 +982,33 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index){
+
+              String diff = recentOrders[index]['Created_On'].toString().split(" ").first;
+
+              print(recentOrders[index]['Created_On']);
+
+              print(differenceOF(DateTime(
+                int.parse(diff.split("-").last.toString()),
+                int.parse(diff.split("-")[1].toString()),
+                int.parse(diff.split("-").first.toString()), 
+                  14,04
+              ).toString()));
+
+              print(DateTime(
+                int.parse(diff.split("-").last.toString()),
+                int.parse(diff.split("-")[1].toString()),
+                int.parse(diff.split("-").first.toString()),
+                14,05,3
+              ));
+
+              print(
+                DateTime.now().difference(DateTime(
+                    int.parse(diff.split("-").last.toString()),
+                    int.parse(diff.split("-")[1].toString()),
+                    int.parse(diff.split("-").first.toString()),
+                    14,04
+                ))
+              );
 
               var myMap = Map();
               var otherPrice = "";
@@ -3521,6 +3549,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }else{
       setState((){selectedAdres = userAddress;});
     }
+
+    notiCount = context.watch<ContextData>().getNotiCount();
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: PreferredSize(
@@ -3729,6 +3760,42 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       print(response.reasonPhrase);
     }
 
+  }
+}
+
+
+differenceOF(String dateTime, {bool numberDate = true}) {
+  DateTime date = DateTime.parse(dateTime);
+  final dateNow = DateTime.now();
+  final difference = dateNow.difference(date);
+  if ((difference.inDays / 365).floor() >= 2) {
+    return '${(difference.inDays / 365).floor()} Years Ago';
+  } else if ((difference.inDays / 365).floor() >= 1) {
+    return (numberDate) ? '1 Years Ago' : 'Last Year';
+  } else if ((difference.inDays / 30).floor() >= 2) {
+    return '${(difference.inDays / 30).floor()} Months Ago';
+  } else if ((difference.inDays / 30).floor() >= 1) {
+    return (numberDate) ? '1 Month Ago' : 'Last Month';
+  } else if ((difference.inDays / 7).floor() >= 2) {
+    return '${(difference.inDays / 7).floor()} Weeks Ago';
+  } else if ((difference.inDays / 7).floor() >= 1) {
+    return (numberDate) ? '1 Week Ago' : 'Last Week';
+  } else if (difference.inDays >= 2) {
+    return '${difference.inDays} Days Ago';
+  } else if (difference.inDays >= 1) {
+    return (numberDate) ? '1 Day Ago' : 'Yesterday';
+  } else if (difference.inHours >= 2) {
+    return '${difference.inHours} Hours Ago';
+  } else if (difference.inHours >= 1) {
+    return (numberDate) ? '1 Hour Ago' : 'Last Hour';
+  } else if (difference.inMinutes >= 2) {
+    return '${difference.inMinutes} Minutes Ago';
+  } else if (difference.inMinutes >= 1) {
+    return (numberDate) ? '1 Minute Ago' : 'Last Minute';
+  } else if (difference.inSeconds >= 3) {
+    return '${difference.inSeconds} Seconds Ago';
+  } else {
+    return 'Now';
   }
 }
 

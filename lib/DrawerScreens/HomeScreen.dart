@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
+import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/screens/Hampers.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
@@ -94,6 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String userLocalityAdr = 'Searching...';
   bool showAddressEdit = false;
   var deliverToCtrl = new TextEditingController();
+
+  //noti count
+  int notiCount = 0;
 
   //users details
   String userID = "";
@@ -871,12 +875,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       if (category.isNotEmpty) {
+        List a1 = otherProdList
+            .where((element) => element['ProductName']
+            .toString()
+            .toLowerCase()
+            .contains(category.toLowerCase()))
+            .toList();
+
         a = cakesList
             .where((element) => element['CakeName']
                 .toString()
                 .toLowerCase()
                 .contains(category.toLowerCase()))
             .toList();
+
+        a = a1+a;
       }
 
       if (subCategory.isNotEmpty) {
@@ -893,12 +906,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (vendorName.isNotEmpty) {
         setState(() {
+          List a1 = otherProdList
+              .where((element) => element['VendorName']
+              .toString()
+              .toLowerCase()
+              .contains(vendorName.toLowerCase()))
+              .toList();
+
           c = cakesList
               .where((element) => element['VendorName']
                   .toString()
                   .toLowerCase()
                   .contains(vendorName.toLowerCase()))
               .toList();
+
+          c = a1+c;
         });
       }
 
@@ -1007,7 +1029,6 @@ class _HomeScreenState extends State<HomeScreen> {
     //
     // Navigator.push(
     //     context, MaterialPageRoute(builder: (context) => SingleVendor()));
-
     var pref = await SharedPreferences.getInstance();
 
     pref.setString('myVendorId', nearestVendors[index]['_id']);
@@ -1262,7 +1283,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     getHampers();
-
   }
 
   //fetch cake types
@@ -1647,6 +1667,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   activeVendorsIds[i].toLowerCase()).toList();
             }
           }
+
           hampers = hampers.toSet().toList();
 
           print("hamper length....${hampers.length}");
@@ -1662,6 +1683,36 @@ class _HomeScreenState extends State<HomeScreen> {
     }catch(e){
       print(e);
     }
+
+    //fetch noti
+    fetchNotifications();
+  }
+
+  Future<void> fetchNotifications() async {
+    var list = [];
+    try {
+      var res = await http.get(Uri.parse(
+          "https://cakey-database.vercel.app/api/users/notification/$userID"),
+          headers: {"Authorization":"$authToken"});
+      print(res.statusCode);
+      if (res.statusCode == 200) {
+        list = jsonDecode(res.body);
+        setState(() {
+          notiCount = list.length;
+        });
+      }else{
+        setState(() {
+          notiCount = 0;
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState((){
+        notiCount = 0;
+      });
+    }
+
+    context.read<ContextData>().setNotiCount(notiCount);
 
   }
 
@@ -1898,6 +1949,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double height = MediaQuery.of(context).size.height;
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
+    notiCount = context.watch<ContextData>().getNotiCount();
 
     //searching..
     if (searchText.isNotEmpty) {
@@ -1951,16 +2003,45 @@ class _HomeScreenState extends State<HomeScreen> {
           activeSearchClear();
           return Future.value(false);
         }else{
-          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          // DateTime now = DateTime.now();
-          // if (currentBackPressTime == null ||
-          //     now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-          //   currentBackPressTime = now;
-          //   ScaffoldMessenger.of(context)
-          //       .showSnackBar(SnackBar(content: Text('Tap again to exit.')));
-          //
-          //   return Future.value(false);
-          // }
+
+          showDialog(
+              context: context,
+              builder: (context)=>
+                  AlertDialog(
+                    title: Text("Exit Alert" , style: TextStyle(
+                        color: darkBlue , fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold
+                    ),),
+                    content:Text(
+                        "Are you sure? do you want to exit?", style: TextStyle(
+                      color: Colors.black , fontFamily: "Poppins",
+                    )
+                    ),
+                    actions: [
+
+                      FlatButton(
+                        onPressed: (){
+                          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                          Future.value(true);
+                        },
+                        child: Text('Exit', style: TextStyle(
+                          color: Colors.purple , fontFamily: "Poppins",
+                        )),
+                      ),
+
+                      FlatButton(
+                        onPressed: (){
+                          Navigator.pop(context);
+                          Future.value(false);
+                        },
+                        child: Text('Cancel', style: TextStyle(
+                          color: Colors.purple , fontFamily: "Poppins",
+                        )),
+                      ),
+                    ],
+                  )
+          );
+
         }
 
         return Future.value(true);
@@ -1983,6 +2064,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       InkWell(
                         onTap: () async{
+                          var prefs = await SharedPreferences.getInstance();
+                          prefs.setStringList('activeVendorsIds',activeVendorsIds);
                           FocusScope.of(context).unfocus();
                           _scaffoldKey.currentState!.openDrawer();
                         },
@@ -2038,130 +2121,136 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 16)),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation,
-                                          secondaryAnimation) =>
-                                      Notifications(),
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    final tween = Tween(begin: begin, end: end);
-                                    final curvedAnimation = CurvedAnimation(
-                                      parent: animation,
-                                      curve: curve,
-                                    );
-                                    return SlideTransition(
-                                      position: tween.animate(curvedAnimation),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: Icon(
-                                Icons.notifications_none,
-                                color: darkBlue,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 15,
-                            top: 6,
-                            child: CircleAvatar(
-                              radius: 3.7,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 2.7,
-                                backgroundColor: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                                blurRadius: 3,
-                                color: Colors.black,
-                                spreadRadius: 0)
-                          ],
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        Profile(
-                                  defindex: 0,
-                                ),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
-
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
-
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: profileUrl != "null"
-                              ? Container(
-                                 height:27,width:27,
-                                 decoration: BoxDecoration(
-                                   shape: BoxShape.circle,
-                                   color:Colors.red,
-                                   image: DecorationImage(
-                                     image: NetworkImage("${profileUrl}"),
-                                     fit: BoxFit.fill
-                                   )
-                                 )
-                              )
-                              : CircleAvatar(
-                                  radius: 14.7,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                      radius: 13,
-                                      backgroundImage:
-                                          AssetImage("assets/images/user.png")),
-                                ),
-                        ),
-                      ),
-                    ],
-                  )
+                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
+                  // Row(
+                  //   children: [
+                  //     Stack(
+                  //       alignment: Alignment.center,
+                  //       children: [
+                  //         InkWell(
+                  //           onTap: () {
+                  //             Navigator.of(context).push(
+                  //               PageRouteBuilder(
+                  //                 pageBuilder: (context, animation,
+                  //                         secondaryAnimation) =>
+                  //                     Notifications(),
+                  //                 transitionsBuilder: (context, animation,
+                  //                     secondaryAnimation, child) {
+                  //                   const begin = Offset(1.0, 0.0);
+                  //                   const end = Offset.zero;
+                  //                   const curve = Curves.ease;
+                  //
+                  //                   final tween = Tween(begin: begin, end: end);
+                  //                   final curvedAnimation = CurvedAnimation(
+                  //                     parent: animation,
+                  //                     curve: curve,
+                  //                   );
+                  //                   return SlideTransition(
+                  //                     position: tween.animate(curvedAnimation),
+                  //                     child: child,
+                  //                   );
+                  //                 },
+                  //               ),
+                  //             );
+                  //           },
+                  //           child: Container(
+                  //             padding: EdgeInsets.all(3),
+                  //             decoration: BoxDecoration(
+                  //                 color: Colors.grey[300],
+                  //                 borderRadius: BorderRadius.circular(6)),
+                  //             child: Icon(
+                  //               Icons.notifications_none,
+                  //               color: darkBlue,
+                  //               size: 22,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         notiCount>0?
+                  //         Positioned(
+                  //           left: 15,
+                  //           top: 6,
+                  //           child: CircleAvatar(
+                  //             radius: 3.7,
+                  //             backgroundColor: Colors.white,
+                  //             child: CircleAvatar(
+                  //               radius: 2.7,
+                  //               backgroundColor: Colors.red,
+                  //             ),
+                  //           ),
+                  //         ):Positioned(
+                  //           left: 15,
+                  //           top: 6,
+                  //           child: Container(height: 0,width: 0,),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(
+                  //       width: 10,
+                  //     ),
+                  //     Container(
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         shape: BoxShape.circle,
+                  //         boxShadow: [
+                  //           BoxShadow(
+                  //               blurRadius: 3,
+                  //               color: Colors.black,
+                  //               spreadRadius: 0)
+                  //         ],
+                  //       ),
+                  //       child: InkWell(
+                  //         onTap: () {
+                  //           Navigator.of(context).push(
+                  //             PageRouteBuilder(
+                  //               pageBuilder:
+                  //                   (context, animation, secondaryAnimation) =>
+                  //                       Profile(
+                  //                 defindex: 0,
+                  //               ),
+                  //               transitionsBuilder: (context, animation,
+                  //                   secondaryAnimation, child) {
+                  //                 const begin = Offset(1.0, 0.0);
+                  //                 const end = Offset.zero;
+                  //                 const curve = Curves.ease;
+                  //
+                  //                 final tween = Tween(begin: begin, end: end);
+                  //                 final curvedAnimation = CurvedAnimation(
+                  //                   parent: animation,
+                  //                   curve: curve,
+                  //                 );
+                  //
+                  //                 return SlideTransition(
+                  //                   position: tween.animate(curvedAnimation),
+                  //                   child: child,
+                  //                 );
+                  //               },
+                  //             ),
+                  //           );
+                  //         },
+                  //         child: profileUrl != "null"
+                  //             ? Container(
+                  //                height:27,width:27,
+                  //                decoration: BoxDecoration(
+                  //                  shape: BoxShape.circle,
+                  //                  color:Colors.red,
+                  //                  image: DecorationImage(
+                  //                    image: NetworkImage("${profileUrl}"),
+                  //                    fit: BoxFit.fill
+                  //                  )
+                  //                )
+                  //             )
+                  //             : CircleAvatar(
+                  //                 radius: 14.7,
+                  //                 backgroundColor: Colors.white,
+                  //                 child: CircleAvatar(
+                  //                     radius: 13,
+                  //                     backgroundImage:
+                  //                         AssetImage("assets/images/user.png")),
+                  //               ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
             ),
@@ -2907,8 +2996,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               image: DecorationImage(
                                                                   image: AssetImage(
                                                                       'assets/images/cakebaner.jpg'),
-                                                                  fit: BoxFit
-                                                                      .cover))
+                                                                  fit: BoxFit.cover))
                                                           : BoxDecoration(
                                                               border: Border.all(
                                                                   color: Colors.grey[200]!,
@@ -2938,7 +3026,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         Container(
                                           height: recentOrders.isNotEmpty
-                                              ? 430
+                                              ? 415
                                               : 200,
                                           decoration: const BoxDecoration(
                                             image: DecorationImage(
@@ -2993,7 +3081,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 fontSize: 13,
                                                                 fontWeight:
                                                                     FontWeight
-                                                                        .bold),
+                                                                        .bold
+                                                            ),
                                                           ),
                                                           Icon(
                                                             Icons
@@ -3723,12 +3812,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Container(
                                                             height: 180,
                                                             child: ListView.builder(
-                                                                itemCount: recentOrders
-                                                                    .length <
-                                                                    3
-                                                                    ? recentOrders
-                                                                    .length
-                                                                    : 3,
+                                                                itemCount: recentOrders.length < 3 ? recentOrders.length : 3,
                                                                 scrollDirection:
                                                                 Axis.horizontal,
                                                                 itemBuilder:
@@ -3802,7 +3886,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -3818,7 +3902,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -3826,11 +3910,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     color: Colors.grey[300]!,
                                                                                     width: 1
                                                                                 ),
-                                                                                image: DecorationImage(fit: BoxFit.cover,
-                                                                                    image: NetworkImage('${recentOrders[index]['Image']}'))),
+                                                                                image: DecorationImage(
+                                                                                    fit: BoxFit.cover,
+                                                                                    image: NetworkImage('${recentOrders[index]['Image']}'))
+                                                                            ),
                                                                           ),
                                                                           Positioned(
-                                                                            top: 85,
+                                                                            top:60,
                                                                             child:
                                                                             Card(
                                                                               shape:
@@ -3987,7 +4073,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4003,7 +4089,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4015,7 +4101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     image: NetworkImage('${recentOrders[index]['Image']}'))),
                                                                           ),
                                                                           Positioned(
-                                                                            top: 85,
+                                                                            top:60,
                                                                             child:
                                                                             Card(
                                                                               shape:
@@ -4172,7 +4258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4188,7 +4274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4200,7 +4286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     image: NetworkImage('${recentOrders[index]['HamperImage']}'))),
                                                                           ),
                                                                           Positioned(
-                                                                            top: 85,
+                                                                            top:60,
                                                                             child:
                                                                             Card(
                                                                               shape:
@@ -4356,7 +4442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4368,7 +4454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            135,
+                                                                            115,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4376,7 +4462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                     image: NetworkImage('${recentOrders[index]['HamperImage']}'))),
                                                                           ),
                                                                           Positioned(
-                                                                            top: 85,
+                                                                            top:60,
                                                                             child:
                                                                             Card(
                                                                               shape:

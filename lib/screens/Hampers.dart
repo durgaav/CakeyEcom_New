@@ -26,6 +26,8 @@ class _HampersState extends State<Hampers> {
   String userLong = "";
   String authToken = "";
   List hampers = [];
+
+  List<String> activeVendorsIds = [];
   
   Future<void> getInitialData() async{
     var pref = await SharedPreferences.getInstance();
@@ -33,6 +35,7 @@ class _HampersState extends State<Hampers> {
       authToken = pref.getString('authToken')!;
       userLat = pref.getString('userLatitute')??'Not Found';
       userLong = pref.getString('userLongtitude')??'Not Found';
+      activeVendorsIds = pref.getStringList('activeVendorsIds')??[];
     });
     getHampers();
   }
@@ -160,15 +163,26 @@ class _HampersState extends State<Hampers> {
       List map = jsonDecode(await response.stream.bytesToString());
 
       setState((){
-        hampers = map;
-        hampers = map.where((element) =>
-        calculateDistance(
-            double.parse(userLat),
-            double.parse(userLong),
-            element['GoogleLocation']['Latitude'],
-            element['GoogleLocation']['Longitude']) <=
-            10)
-            .toList();
+        // hampers = map;
+        // hampers = map.where((element) =>
+        // calculateDistance(
+        //     double.parse(userLat),
+        //     double.parse(userLong),
+        //     element['GoogleLocation']['Latitude'],
+        //     element['GoogleLocation']['Longitude']) <=
+        //     10)
+        //     .toList();
+
+
+        if(activeVendorsIds.isNotEmpty){
+          for(int i = 0;i<activeVendorsIds.length;i++){
+            hampers = hampers+map.where((element) => element['VendorID'].toString().toLowerCase()==
+                activeVendorsIds[i].toLowerCase()).toList();
+          }
+        }
+
+        hampers = hampers.toSet().toList();
+
       });
 
       Navigator.pop(context);
