@@ -1558,6 +1558,16 @@ class _HomeScreenState extends State<HomeScreen> {
               b['GoogleLocation']['Latitude'],
               b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
 
+          if(filteredByEggList.isNotEmpty){
+            for(int i = 0 ; i<filteredByEggList.length;i++){
+              activeVendorsIds.add(filteredByEggList[i]['_id'].toString());
+            }
+          }
+
+          print("-----");
+          print(activeVendorsIds);
+          print(filteredByEggList.length);
+
           Navigator.pop(context);
           // getNearbyLoc();
         });
@@ -1615,7 +1625,9 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           }
 
-          print(filteredByEggList);
+          print("-----");
+          print(activeVendorsIds);
+          print(filteredByEggList.length);
 
         });
       } else {
@@ -3987,12 +3999,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                         recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
                                                                                             ? Text(
                                                                                           "${recentOrders[index]['Status'].toString()}",
-                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                             : Text(
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
-                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                       ],
                                                                                     )
@@ -4172,12 +4184,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                         recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
                                                                                             ? Text(
                                                                                           "${recentOrders[index]['Status'].toString()}",
-                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                             : Text(
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
-                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                       ],
                                                                                     )
@@ -4357,12 +4369,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                         recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
                                                                                             ? Text(
                                                                                           "${recentOrders[index]['Status'].toString()}",
-                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                             : Text(
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
-                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                       ],
                                                                                     )
@@ -4533,12 +4545,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                         recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
                                                                                             ? Text(
                                                                                           "${recentOrders[index]['Status'].toString()}",
-                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                             : Text(
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
-                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 11),
+                                                                                          Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
                                                                                         )
                                                                                       ],
                                                                                     )

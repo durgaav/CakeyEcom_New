@@ -996,8 +996,38 @@ class _NotificationsState extends State<Notifications> {
                             itemCount: mainList.length,
                             shrinkWrap: true,
                             // physics: NeverScrollableScrollPhysics(),
-
                             itemBuilder: (context, index) {
+
+                              var mainStatus = mainList[index]['Status'].toString().toLowerCase();
+                              var status = "";
+                              var name = mainList[index]['UserName'].toString().toLowerCase();
+                              var cakename = mainList[index]['CakeName'].toString().toLowerCase();
+
+                              if(mainStatus.toLowerCase()=="new"){
+                                status = "Hi $name your $cakename order is placed successfully thank you.";
+                              }else if(mainStatus.toLowerCase()=="accepted"){
+                                status = "Hi $name your $cakename order is accepted.";
+                              }else if(mainStatus.toLowerCase()=="preparing"){
+                                status = "Hi $name your $cakename order is now being prepared";
+                              }else if(mainStatus.toLowerCase()=="ready"){
+                                status = "Hi $name your $cakename order is now ready.";
+                              }else if(mainStatus.toLowerCase()=="out for delivery"){
+                                status = "Hi $name your $cakename order is now out for delivery.";
+                              }else if(mainStatus.toLowerCase()=="delivered"){
+                                status = "Hi $name your $cakename order is delivered successfully thank you.";
+                              }else if(mainStatus.toLowerCase()=="assigned"){
+                                status = "Hi $name your $cakename order is now assigned.";
+                              }else if(mainStatus.toLowerCase()=="sent"){
+                                status = "Hi $name your $cakename invoice details is here kindly check and continue your payment.";
+                              }else if(mainStatus.toLowerCase()=="cancelled"){
+                                status = "Hi $name your $cakename order is cancelled";
+                              }else if(mainStatus.toLowerCase()=="rejected"){
+                                status = "Hi $name your $cakename order is now being prepared";
+                              }
+
+                              print(mainStatus);
+                              //
+
                               selectedTiles.add(false);
                               return GestureDetector(
                                 onLongPress: (){
@@ -1057,11 +1087,8 @@ class _NotificationsState extends State<Notifications> {
                                                 children: [
                                                   Container(
                                                     // width: 270,
-                                                      child:
-                                                      ((mainList[index]['Status'].toString().toLowerCase()=='delivered')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} delivered on "
-                                                            "${mainList[index]['Status_Updated_On']} Thank you for purchase.Keep shop.",
+                                                      child:Text(
+                                                        "$status",
                                                         maxLines: 3,
                                                         overflow: TextOverflow.ellipsis,
                                                         style: TextStyle(
@@ -1069,74 +1096,7 @@ class _NotificationsState extends State<Notifications> {
                                                             fontFamily: "Poppins",
                                                             fontSize: 13,
                                                         ),
-                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='preparing')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
-                                                            "is being prepared and it will be delivered soon , thank you.",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13,
-                                                        ),
-                                                      ):
-                                                      (mainList[index]['Status'].toString().toLowerCase()=='new')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']} "
-                                                            "order is placed.We will notify status soon as possible",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13
-                                                        ),
-                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='sent')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']}, kindly check the invoice details for your ${mainList[index]["CakeName"]} "
-                                                            ", Then continue your payment processes.Thank You.",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13
-                                                        ),
-                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='ordered')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']} your ${mainList[index]['CakeName']} is ordered.We will notify status soon as possible",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13
-                                                        ),
-                                                      ):(mainList[index]['Status'].toString().toLowerCase()=='assigned')?
-                                                      Text(
-                                                        "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
-                                                            "is assigned to Vendor ${mainList[index]['VendorName']}",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13
-                                                        ),
-                                                      ):Text(
-                                                        "Hi ${mainList[index]['UserName']} Your ${mainList[index]['CakeName']==null?"Customise cake":mainList[index]['CakeName']}"
-                                                            " is order cancelled.",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color:Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13
-                                                        ),
-                                                      )
-                                                      )
-                                                  ),
+                                                      )),
                                                   SizedBox(
                                                     height: 7,
                                                   ),

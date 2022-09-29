@@ -13,8 +13,6 @@ class NotificationService {
   }
   NotificationService._internal();
 
-
-
   //instance of FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();

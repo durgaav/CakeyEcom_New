@@ -85,10 +85,8 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message recieved");
       print(event.notification.body);
+      // context.read<ContextData>().setNotiCount(1);
       showOverlayNotification((context) {
-        setState(() {
-          context.read<ContextData>().setNotiCount(1);
-        });
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 4),
           child: SafeArea(

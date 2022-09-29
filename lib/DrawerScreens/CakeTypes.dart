@@ -2843,7 +2843,7 @@ class _CakeTypesState extends State<CakeTypes> {
           pref.setString('userLatitute', "${userLatitude}");
           pref.setString('userLongtitude', "${userLongtitude}");
           pref.setString("userCurrentLocation", predictedAddress);
-          // getVendorForDeliveryto(authToken);
+          //getVendorForDeliveryto(authToken);
           getCakeList();
           // getOtherProducts();
         });
