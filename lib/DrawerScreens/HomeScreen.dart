@@ -435,7 +435,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   cakeCategoryCtrl.text,
                                   cakeSubCategoryCtrl.text,
                                   cakeVendorCtrl.text,
-                                  selectedFilter);
+                                  selectedFilter
+                              );
                             },
                             child: Text(
                               "SEARCH",
@@ -872,6 +873,7 @@ class _HomeScreenState extends State<HomeScreen> {
     List a = [], b = [], c = [], d = [];
 
     cakeTypeList = [];
+    cakeSearchList = [];
 
     setState(() {
       if (category.isNotEmpty) {
@@ -887,9 +889,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 .toString()
                 .toLowerCase()
                 .contains(category.toLowerCase()))
-            .toList();
+            .toList() + a1;
 
-        a = a1+a;
       }
 
       if (subCategory.isNotEmpty) {
@@ -918,16 +919,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   .toString()
                   .toLowerCase()
                   .contains(vendorName.toLowerCase()))
-              .toList();
-
-          c = a1+c;
+              .toList() + a1;
         });
       }
 
-      if(filterCType.contains("Others")||filterCType.contains("others")){
+      if(filterCType.contains("Others")){
         isFiltered = true;
         activeSearch = true;
-        d = otherProdList.toList();
+        d = otherProdList.toSet().toList();
       }
 
       if (filterCType.isNotEmpty) {
@@ -950,6 +949,7 @@ class _HomeScreenState extends State<HomeScreen> {
       cakeSearchList = cakeSearchList.toSet().toList();
 
       print(cakeSearchList.length);
+      print(otherProdList.length);
 
       mainSearchCtrl.text = '$category $subCategory '
           '$vendorName ${filterCType.toString().replaceAll("[", "").replaceAll("]", "")}';
@@ -1272,6 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         });
 
+        print("otherProdList.length");
         print(otherProdList.length);
 
       }
@@ -1359,7 +1360,9 @@ class _HomeScreenState extends State<HomeScreen> {
         print(response.reasonPhrase);
         setState((){
           searchCakeType.clear();
-          searchCakeType.add("Customize your cake");
+          searchCakeType.add(
+              {"name":"Customize your cake"}
+          );
           searchCakeType.toSet().toList();
           searchCakeType = searchCakeType.reversed.toList();
         });
@@ -1517,6 +1520,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getVendorForDeliveryto(String token) async {
+    activeVendorsIds.clear();
     showAlertDialog();
     print("location....");
     print(_userLocation!.latitude);
@@ -1586,6 +1590,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getVendorsList(String token) async {
     print("getting vendors....");
     filteredByEggList.clear();
+    activeVendorsIds.clear();
     try {
       var res = await http.get(
           Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
@@ -1944,6 +1949,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //endregion
+
+  @override
+  void dispose() {
+    Future.delayed(Duration.zero, () async {
+      var pr = await SharedPreferences.getInstance();
+      pr.remove('activeVendorsIds');
+      // pr.remove('vendorCakeMode');
+      // pr.remove('naveToHome');
+    });
+    super.dispose();
+  }
+
 
   //onStart
   @override
@@ -2671,6 +2688,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: height * 0.73,
                       child: RefreshIndicator(
                         onRefresh: () async {
+                          var pr = await SharedPreferences.getInstance();
+                          pr.remove('activeVendorsIds');
+                          setState(() {
+                            activeVendorsIds = [];
+                          });
                           setState(() {
                             loadPrefs();
                           });
@@ -2921,7 +2943,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       Colors.white,
                                                       BlendMode.darken)),
                                             ),
-                                            height: 115,
+                                            height: 105,
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
@@ -3038,7 +3060,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         Container(
                                           height: recentOrders.isNotEmpty
-                                              ? 415
+                                              ? 430
                                               : 200,
                                           decoration: const BoxDecoration(
                                             image: DecorationImage(
@@ -3110,7 +3132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Container(
                                                 padding: EdgeInsets.all(5),
                                                 alignment: Alignment.centerLeft,
-                                                height: 140,
+                                                height: 155,
                                                 child: searchCakeType.isEmpty
                                                     ? Center(
                                                         child: Text(
@@ -3155,7 +3177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         Container(
                                                                           margin: EdgeInsets.only(left: 5),
                                                                           height:
-                                                                              80,
+                                                                          90,
                                                                           width:
                                                                               125,
                                                                           decoration: BoxDecoration(
@@ -3208,7 +3230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         Container(
                                                                           margin: EdgeInsets.only(left: 5),
                                                                           height:
-                                                                              80,
+                                                                          90,
                                                                           width: 125,
                                                                           decoration: BoxDecoration(
                                                                               borderRadius: BorderRadius.circular(20),
@@ -3996,12 +4018,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                           style: TextStyle(color: lightPink, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 12),
                                                                                           maxLines: 1,
                                                                                         ),
-                                                                                        recentOrders[index]['Status'].toString().toLowerCase() == 'delivered'
-                                                                                            ? Text(
-                                                                                          "${recentOrders[index]['Status'].toString()}",
-                                                                                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),
-                                                                                        )
-                                                                                            : Text(
+                                                                                        Text(
+                                                                                          recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                                                                          "Accepted":
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
                                                                                           Colors.red:Colors.blueAccent, fontWeight: FontWeight.bold, fontFamily: poppins, fontSize: 10),

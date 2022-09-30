@@ -83,9 +83,9 @@ class _MyAppState extends State<MyApp> {
       print("token : $value");
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      //context.read<ContextData>().setNotiCount(1);
       print("message recieved");
       print(event.notification.body);
-      // context.read<ContextData>().setNotiCount(1);
       showOverlayNotification((context) {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 4),

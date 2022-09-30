@@ -1619,7 +1619,6 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Fetching cake list API...
   Future<void> getCakeList() async {
-
     showAlertDialog();
     cakesList.clear();
     print("Ven iddd : $myVendorId");
@@ -2826,12 +2825,76 @@ class _CakeTypesState extends State<CakeTypes> {
   }
 
 
+  Future<void> getVendorForDeliveryto(String token) async {
+    activeVendorsIds.clear();
+    showAlertDialog();
+    activeVendorsIds.clear();
+    try {
+      var res = await http.get(
+          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+          headers: {"Authorization": "$token"});
+
+      if (res.statusCode == 200) {
+        setState(() {
+          List vendorsList = jsonDecode(res.body);
+
+          List filteredByEggList = vendorsList
+              .where((element) =>
+          calculateDistance(
+              double.parse(userLatitude),
+              double.parse(userLongtitude),
+              element['GoogleLocation']['Latitude'],
+              element['GoogleLocation']['Longitude']) <=
+              10)
+              .toList();
+
+          // filteredByEggList = vendorsList.where((element)=>element['Address']['City'].toString().toLowerCase().
+          // contains(userMainLocation.toLowerCase())).toList();
+
+          filteredByEggList = filteredByEggList.toSet().toList();
+
+          filteredByEggList.sort((a,b)=>calculateDistance(
+              double.parse(userLatitude),
+              double.parse(userLongtitude),
+              a['GoogleLocation']['Latitude'],
+              a['GoogleLocation']['Longitude']).toStringAsFixed(1).compareTo(calculateDistance(
+              double.parse(userLatitude),
+              double.parse(userLongtitude),
+              b['GoogleLocation']['Latitude'],
+              b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
+
+          if(filteredByEggList.isNotEmpty){
+            for(int i = 0 ; i<filteredByEggList.length;i++){
+              activeVendorsIds.add(filteredByEggList[i]['_id'].toString());
+            }
+          }
+
+          print("-----");
+          print(activeVendorsIds);
+          print(filteredByEggList.length);
+
+          Navigator.pop(context);
+          // getNearbyLoc();
+        });
+      } else {
+        print("Error code : ${res.statusCode}");
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print(e);
+      Navigator.pop(context);
+    }
+    print("getting vendors....done...");
+
+    getCakeList();
+
+  }
+
   Future<void> getCoordinates(String predictedAddress) async{
 
     var pref = await SharedPreferences.getInstance();
 
     try{
-
       if (predictedAddress.isNotEmpty) {
         List<Location> location =
         await locationFromAddress(predictedAddress);
@@ -2843,8 +2906,7 @@ class _CakeTypesState extends State<CakeTypes> {
           pref.setString('userLatitute', "${userLatitude}");
           pref.setString('userLongtitude', "${userLongtitude}");
           pref.setString("userCurrentLocation", predictedAddress);
-          //getVendorForDeliveryto(authToken);
-          getCakeList();
+          getVendorForDeliveryto(authToken);
           // getOtherProducts();
         });
       }

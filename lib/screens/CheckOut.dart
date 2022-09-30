@@ -1720,7 +1720,7 @@ class _CheckOutState extends State<CheckOut> {
                       print(e);
                     },
                     maintainState: true,
-                    initiallyExpanded: isExpand,
+                    initiallyExpanded: true,
                     title: Text(
                       'Payment type',
                       style: TextStyle(

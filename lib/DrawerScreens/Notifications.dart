@@ -1022,7 +1022,7 @@ class _NotificationsState extends State<Notifications> {
                               }else if(mainStatus.toLowerCase()=="cancelled"){
                                 status = "Hi $name your $cakename order is cancelled";
                               }else if(mainStatus.toLowerCase()=="rejected"){
-                                status = "Hi $name your $cakename order is now being prepared";
+                                status = "Hi $name your $cakename order is accepted.";
                               }
 
                               print(mainStatus);
