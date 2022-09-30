@@ -1284,7 +1284,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ):
                                             Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
+                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
                                               "Accepted":
                                               "${recentOrders[index]['Status']}",style: TextStyle(
                                                 color:recentOrders[index]['Status'].toString().toLowerCase()
@@ -1908,7 +1909,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ):
                                             Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
+                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
                                               "Accepted":
                                               "${recentOrders[index]['Status']}",style: TextStyle(
                                                 color:recentOrders[index]['Status'].toString().toLowerCase()
@@ -2504,7 +2506,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ):
                                             Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
+                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
                                               "Accepted":
                                               "${recentOrders[index]['Status']}",style: TextStyle(
                                                 color:recentOrders[index]['Status'].toString().toLowerCase()
@@ -3125,7 +3128,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ):
                                             Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
+                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
                                               "Accepted":
                                               "${recentOrders[index]['Status']}",style: TextStyle(
                                                 color:recentOrders[index]['Status'].toString().toLowerCase()

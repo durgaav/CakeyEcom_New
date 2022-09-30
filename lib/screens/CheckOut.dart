@@ -624,7 +624,7 @@ class _CheckOutState extends State<CheckOut> {
 
         print("deelele : $deliveryChargeCustomer");
 
-        getTaxDetails();
+       // getTaxDetails();
 
 
       }else{

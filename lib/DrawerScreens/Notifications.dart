@@ -1015,13 +1015,11 @@ class _NotificationsState extends State<Notifications> {
                                 status = "Hi $name your $cakename order is now out for delivery.";
                               }else if(mainStatus.toLowerCase()=="delivered"){
                                 status = "Hi $name your $cakename order is delivered successfully thank you.";
-                              }else if(mainStatus.toLowerCase()=="assigned"){
-                                status = "Hi $name your $cakename order is now assigned.";
                               }else if(mainStatus.toLowerCase()=="sent"){
                                 status = "Hi $name your $cakename invoice details is here kindly check and continue your payment.";
                               }else if(mainStatus.toLowerCase()=="cancelled"){
                                 status = "Hi $name your $cakename order is cancelled";
-                              }else if(mainStatus.toLowerCase()=="rejected"){
+                              }else if(mainStatus.toLowerCase()=="rejected"||mainStatus.toLowerCase()=="assigned"){
                                 status = "Hi $name your $cakename order is accepted.";
                               }
 

@@ -4019,7 +4019,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                           maxLines: 1,
                                                                                         ),
                                                                                         Text(
-                                                                                          recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'?
+                                                                                          recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
+                                                                                              recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
                                                                                           "Accepted":
                                                                                           "${recentOrders[index]['Status']}",
                                                                                           style: TextStyle(color: recentOrders[index]['Status'].toString().toLowerCase() == 'cancelled'?
