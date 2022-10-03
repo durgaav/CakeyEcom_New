@@ -1870,6 +1870,12 @@ class _HomeScreenState extends State<HomeScreen> {
       flavs.add(otherProdList[index]['Flavour'][i].toString());
     }
 
+    if(otherProdList[index]['AdditionalProductImages']!=null||otherProdList[index]['AdditionalProductImages'].isNotEmpty){
+      for(int j = 0;j<otherProdList[index]['AdditionalProductImages'].length;j++){
+        images.add(otherProdList[index]['AdditionalProductImages'][j].toString());
+      }
+    }
+
     //add images
     for(int i = 0 ;i<otherProdList[index]['ProductImage'].length;i++){
       images.add(otherProdList[index]['ProductImage'][i].toString());
@@ -2975,7 +2981,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       List<String> extraImages = [];
                                                       if(hampers[i]['AdditionalHamperImage']!=null && hampers[i]['AdditionalHamperImage'].isNotEmpty){
                                                         for(int j = 0;j<hampers[i]['AdditionalHamperImage'].length;j++){
-                                                          extraImages.add(hampers[i]['AdditionalHamperImage'].toString());
+                                                          extraImages.add(hampers[i]['AdditionalHamperImage'][j].toString());
                                                         }
                                                       }
 

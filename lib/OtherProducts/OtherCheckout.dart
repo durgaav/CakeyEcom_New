@@ -761,9 +761,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         );
 
         sendNotificationToVendor(notificationTid);
-       //showOrderCompleteSheet();
         Navigator.pop(context);
-
+        showOrderCompleteSheet();
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -866,6 +865,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
             )
         );
         sendNotificationToVendor(notificationTid);
+        Navigator.pop(context);
         showOrderCompleteSheet();
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
@@ -962,8 +962,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       if(map['statusCode'].toString()==200){
 
-        showOrderCompleteSheet();
         sendNotificationToVendor(notificationTid);
+        Navigator.pop(context);
+        showOrderCompleteSheet();
 
       }else{
         ScaffoldMessenger.of(context).showSnackBar(

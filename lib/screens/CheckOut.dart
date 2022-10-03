@@ -1064,7 +1064,7 @@ class _CheckOutState extends State<CheckOut> {
 
         print(body);
 
-        var response = await http.post(Uri.parse("https://cakey-database.vercel.app/api/order/new"),
+        var response = await http.post(Uri.parse("http://sugitechnologies.com:88/cakey/api/order/new"),
             headers: {"Content-Type": "application/json"},
             body: body
         );

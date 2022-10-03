@@ -1619,11 +1619,14 @@ class _CakeTypesState extends State<CakeTypes> {
 
   //Fetching cake list API...
   Future<void> getCakeList() async {
+
+    //http://sugitechnologies.com:88/cakey/api/
+
     showAlertDialog();
     cakesList.clear();
     print("Ven iddd : $myVendorId");
 
-    String commonCake = 'https://cakey-database.vercel.app/api/cakes/activevendors/list';
+    String commonCake = 'http://sugitechnologies.com:88/cakey/api/cakes/activevendors/list';
     String vendorCake =
         'https://cakey-database.vercel.app/api/cake/listbyIdandstatus/$myVendorId';
 
@@ -1803,6 +1806,12 @@ class _CakeTypesState extends State<CakeTypes> {
     //add flav
     for(int i = 0 ;i<otherProducts[index]['Flavour'].length;i++){
       flavs.add(otherProducts[index]['Flavour'][i].toString());
+    }
+
+    if(otherProducts[index]['AdditionalProductImages']!=null||otherProducts[index]['AdditionalProductImages'].isNotEmpty){
+      for(int j = 0;j<otherProducts[index]['AdditionalProductImages'].length;j++){
+        images.add(otherProducts[index]['AdditionalProductImages'][j].toString());
+      }
     }
 
     //add images

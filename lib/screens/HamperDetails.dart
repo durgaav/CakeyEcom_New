@@ -58,6 +58,8 @@ class _HamperDetailsState extends State<HamperDetails> {
   String userLongtitude = "0.0";
   String deliveryAddress = "";
 
+  int pageViewCurIndex = 0;
+
   List<String> productContains = [];
   List vendorList = [];
   List<String> hamImages = [];
@@ -185,6 +187,7 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     getVendor(hampVenId);
 
+    print(hamImages.length);
 
 
   }
@@ -1057,6 +1060,48 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   }
 
+  //Buliding the dots by image length
+  List<Widget> _buildPageIndicator() {
+    List<Widget> list = [];
+    for (int i = 0; i < hamImages.length; i++) {
+      list.add(i == pageViewCurIndex ? _indicator(true) : _indicator(false));
+    }
+    return list;
+  }
+
+  //Indecator pageview
+  Widget _indicator(bool isActive) {
+    return AnimatedContainer(
+      duration: Duration(seconds: 1),
+      curve: Curves.linear,
+      height: 10,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 4.0),
+        height: isActive ? 10 : 8.0,
+        width: isActive ? 12 : 8.0,
+        decoration: BoxDecoration(
+          boxShadow: [
+            isActive
+                ? BoxShadow(
+              color: Color(0XFF2FB7B2).withOpacity(0.72),
+              blurRadius: 4.0,
+              spreadRadius: 1.0,
+              offset: Offset(
+                0.0,
+                0.0,
+              ),
+            )
+                : BoxShadow(
+              color: Colors.transparent,
+            )
+          ],
+          shape: BoxShape.circle,
+          color: isActive ? lightPink : Color(0XFFEAEAEA),
+        ),
+      ),
+    );
+  }
+
 
   @override
   void initState() {
@@ -1118,21 +1163,45 @@ class _HamperDetailsState extends State<HamperDetails> {
                 backgroundColor: lightGrey,
                 flexibleSpace: FlexibleSpaceBar(
                   background: hamImages.isNotEmpty
-                      ? PageView.builder(
-                        itemCount: hamImages.length,
-                        itemBuilder: (c,i){
-                        var imageUrl = hamImages[i].toString().replaceAll("[", "")
-                            .replaceAll("]", "");
-                        return Container(
-                          margin: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                  image: NetworkImage("${imageUrl}"),
-                                  fit: BoxFit.cover)),
-                        );
-                      })
+                      ? Stack(
+                        children: [
+                          PageView.builder(
+                            onPageChanged: (int i) {
+                                setState(() {
+                                  pageViewCurIndex = i;
+                                });
+                             },
+                            itemCount: hamImages.length,
+                            itemBuilder: (c,i){
+                            var imageUrl = hamImages[i].toString().replaceAll("[", "")
+                                .replaceAll("]", "");
+                            return Container(
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: DecorationImage(
+                                      image: NetworkImage("${imageUrl}"),
+                                      fit: BoxFit.cover)),
+                            );
+                          }),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: _buildPageIndicator(),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
                       : Container(
                           alignment: Alignment.center,
                           margin: EdgeInsets.all(5),
@@ -1680,18 +1749,18 @@ class _HamperDetailsState extends State<HamperDetails> {
                     DateTime? SelDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month,
+                          int.parse(deliStartDate.split("-").last),
+                          int.parse(deliStartDate.split("-")[1]),
                           int.parse(deliStartDate.split("-").first),
                         ),
                         lastDate: DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month,
+                          int.parse(deliEndDate.split("-").last),
+                          int.parse(deliEndDate.split("-")[1]),
                           int.parse(deliEndDate.split("-").first),
                         ),
                         firstDate: DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month,
+                          int.parse(deliStartDate.split("-").last),
+                          int.parse(deliStartDate.split("-")[1]),
                           int.parse(deliStartDate.split("-").first),
                         ),
                         helpText: "Select Deliver Date",

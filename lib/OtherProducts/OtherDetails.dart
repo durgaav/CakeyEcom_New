@@ -1353,110 +1353,110 @@ class _OthersDetailsState extends State<OthersDetails> {
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 9 AM- 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 9 AM- 10 AM';
+                                                'Morning 9 AM - 10 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 10 AM- 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 10 AM- 11 AM';
+                                                'Morning 10 AM - 11 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 11 AM- 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 11 PM- 12 PM';
+                                                'Morning 11 PM - 12 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 12 PM- 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 12 PM- 1 PM';
+                                                'Afternoon 12 PM - 1 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 1 PM- 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 1 PM- 9 PM';
+                                                'Afternoon 1 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 2 PM- 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 8 PM- 9 PM';
+                                                'Afternoon 8 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 3 PM- 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 3 PM- 4 PM';
+                                                'Afternoon 3 PM - 4 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 4 PM- 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 4 PM- 5 PM';
+                                                'Afternoon 4 PM - 5 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 5 PM- 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 5 PM- 6 PM';
+                                                'Evening 5 PM - 6 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 6 PM- 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 6 PM- 7 PM';
+                                                'Evening 6 PM - 7 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 7 PM- 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 7 PM- 8 PM';
+                                                'Evening 7 PM - 8 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 8 PM- 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 8 PM- 9 PM';
+                                                'Evening 8 PM - 9 PM';
                                               });
                                             }),
                                       ],

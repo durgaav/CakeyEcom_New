@@ -67,7 +67,7 @@ class _HampersState extends State<Hampers> {
     List<String> extraImages = [];
     if(hampers[index]['AdditionalHamperImage']!=null && hampers[index]['AdditionalHamperImage'].isNotEmpty){
       for(int j = 0;j<hampers[index]['AdditionalHamperImage'].length;j++){
-        extraImages.add(hampers[index]['AdditionalHamperImage'].toString());
+        extraImages.add(hampers[index]['AdditionalHamperImage'][j].toString());
       }
     }
 
