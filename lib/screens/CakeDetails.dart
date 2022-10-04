@@ -4486,9 +4486,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               nearestVendors.isNotEmpty
                                   ? Column(
                                       children: [
-                                                double.parse(fixedWeight.toLowerCase()
-                                                        .replaceAll("kg", "")) <
-                                                    5.0
+                                            changeWeight(fixedWeight)< 5.0
                                             ? Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
