@@ -165,6 +165,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //region Alerts
 
+  double changeWeight(String weight) {
+
+    print(weight);
+
+    String givenWeight = weight;
+    double converetedWeight = 0.0;
+
+    if(givenWeight.toLowerCase().endsWith("kg")){
+
+      givenWeight = givenWeight.toLowerCase().replaceAll("kg", "");
+      converetedWeight = double.parse(givenWeight);
+
+    }else{
+
+      givenWeight = givenWeight.toLowerCase().replaceAll("g", "");
+      converetedWeight = double.parse(givenWeight)/1000;
+
+    }
+
+    print("Converted : $converetedWeight");
+
+    return converetedWeight;
+  }
+
   //Default loader dialog
   void showAlertDialog() {
     showDialog(
@@ -3388,467 +3412,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ),
                                                         ),
                                                         SizedBox(height: 15,),
-                                                        // Container(
-                                                        //   child:
-                                                        //       ListView.builder(
-                                                        //           shrinkWrap:
-                                                        //               true,
-                                                        //           itemCount: recentOrders.length<3?recentOrders.length:3,
-                                                        //           physics:
-                                                        //               NeverScrollableScrollPhysics(),
-                                                        //           itemBuilder:
-                                                        //               (c, i) {
-                                                        //             var color =
-                                                        //                 Colors
-                                                        //                     .blue;
-                                                        //
-                                                        //             if (recentOrders[i]['Status']
-                                                        //                     .toString()
-                                                        //                     .toLowerCase() ==
-                                                        //                 "new") {
-                                                        //               color = Colors
-                                                        //                   .blue;
-                                                        //             } else if (recentOrders[i]['Status']
-                                                        //                     .toString()
-                                                        //                     .toLowerCase() ==
-                                                        //                 "preparing") {
-                                                        //               color = Colors
-                                                        //                   .blue;
-                                                        //             } else if (recentOrders[i]['Status']
-                                                        //                     .toString()
-                                                        //                     .toLowerCase() ==
-                                                        //                 "cancelled") {
-                                                        //               color =
-                                                        //                   Colors
-                                                        //                       .red;
-                                                        //             } else if (recentOrders[i]['Status']
-                                                        //                     .toString()
-                                                        //                     .toLowerCase() ==
-                                                        //                 "out for delivery") {
-                                                        //               color = Colors
-                                                        //                   .green;
-                                                        //             } else if (recentOrders[i]['Status']
-                                                        //                     .toString()
-                                                        //                     .toLowerCase() ==
-                                                        //                 "delivered") {
-                                                        //               color = Colors
-                                                        //                   .green;
-                                                        //             }
-                                                        //
-                                                        //             return recentOrders[i]['CakeName']!=null?
-                                                        //             GestureDetector(
-                                                        //               onTap:
-                                                        //                   () async {
-                                                        //                 Navigator.of(context)
-                                                        //                     .push(
-                                                        //                   PageRouteBuilder(
-                                                        //                     pageBuilder: (context, animation, secondaryAnimation) =>
-                                                        //                         Profile(
-                                                        //                       defindex: 1,
-                                                        //                     ),
-                                                        //                     transitionsBuilder: (context,
-                                                        //                         animation,
-                                                        //                         secondaryAnimation,
-                                                        //                         child) {
-                                                        //                       const begin = Offset(1.0, 0.0);
-                                                        //                       const end = Offset.zero;
-                                                        //                       const curve = Curves.ease;
-                                                        //
-                                                        //                       final tween = Tween(begin: begin, end: end);
-                                                        //                       final curvedAnimation = CurvedAnimation(
-                                                        //                         parent: animation,
-                                                        //                         curve: curve,
-                                                        //                       );
-                                                        //
-                                                        //                       return SlideTransition(
-                                                        //                         position: tween.animate(curvedAnimation),
-                                                        //                         child: child,
-                                                        //                       );
-                                                        //                     },
-                                                        //                   ),
-                                                        //                 );
-                                                        //               },
-                                                        //               child:
-                                                        //                   Card(
-                                                        //                 elevation:
-                                                        //                     0.5,
-                                                        //                 shape: RoundedRectangleBorder(
-                                                        //                     borderRadius:
-                                                        //                         BorderRadius.circular(20)),
-                                                        //                 child:
-                                                        //                     Container(
-                                                        //                   padding:
-                                                        //                       EdgeInsets.all(5),
-                                                        //                   decoration: BoxDecoration(
-                                                        //                       color: Colors.white,
-                                                        //                       borderRadius: BorderRadius.circular(20)),
-                                                        //                   child:
-                                                        //                       Row(
-                                                        //                     children: [
-                                                        //                       recentOrders[i]['Image'] != null
-                                                        //                           ? CircleAvatar(
-                                                        //                               backgroundImage: NetworkImage(recentOrders[i]['Image']),
-                                                        //                               radius: 25,
-                                                        //                             )
-                                                        //                           : CircleAvatar(
-                                                        //                               backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
-                                                        //                               radius: 25,
-                                                        //                             ),
-                                                        //                       SizedBox(
-                                                        //                         width: 5,
-                                                        //                       ),
-                                                        //                       Expanded(
-                                                        //                         child: Column(
-                                                        //                           crossAxisAlignment: CrossAxisAlignment.start,
-                                                        //                           children: [
-                                                        //                             Text(
-                                                        //                               recentOrders[i]['CakeName'] != null ? recentOrders[i]['CakeName'] : "Customised Cake",
-                                                        //                               style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
-                                                        //                             ),
-                                                        //                             Row(
-                                                        //                               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        //                               children: [
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['VendorName']!=null?
-                                                        //                                   recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
-                                                        //                                   style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
-                                                        //                                 ),
-                                                        //                                 SizedBox(
-                                                        //                                   width: 3,
-                                                        //                                 ),
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['Status'],
-                                                        //                                   style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
-                                                        //                                 ),
-                                                        //                               ],
-                                                        //                             )
-                                                        //                           ],
-                                                        //                         ),
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 6,
-                                                        //                       ),
-                                                        //                       Text(
-                                                        //                         "Rs." + recentOrders[i]['Total'] + " ",
-                                                        //                         style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
-                                                        //                       ),
-                                                        //                     ],
-                                                        //                   ),
-                                                        //                 ),
-                                                        //               ),
-                                                        //             ):
-                                                        //             recentOrders[i]['HampersName']!=null?
-                                                        //             GestureDetector(
-                                                        //               onTap:
-                                                        //                   () async {
-                                                        //                 Navigator.of(context)
-                                                        //                     .push(
-                                                        //                   PageRouteBuilder(
-                                                        //                     pageBuilder: (context, animation, secondaryAnimation) =>
-                                                        //                         Profile(
-                                                        //                           defindex: 1,
-                                                        //                         ),
-                                                        //                     transitionsBuilder: (context,
-                                                        //                         animation,
-                                                        //                         secondaryAnimation,
-                                                        //                         child) {
-                                                        //                       const begin = Offset(1.0, 0.0);
-                                                        //                       const end = Offset.zero;
-                                                        //                       const curve = Curves.ease;
-                                                        //
-                                                        //                       final tween = Tween(begin: begin, end: end);
-                                                        //                       final curvedAnimation = CurvedAnimation(
-                                                        //                         parent: animation,
-                                                        //                         curve: curve,
-                                                        //                       );
-                                                        //
-                                                        //                       return SlideTransition(
-                                                        //                         position: tween.animate(curvedAnimation),
-                                                        //                         child: child,
-                                                        //                       );
-                                                        //                     },
-                                                        //                   ),
-                                                        //                 );
-                                                        //               },
-                                                        //               child:
-                                                        //               Card(
-                                                        //                 elevation:
-                                                        //                 0.5,
-                                                        //                 shape: RoundedRectangleBorder(
-                                                        //                     borderRadius:
-                                                        //                     BorderRadius.circular(20)),
-                                                        //                 child:
-                                                        //                 Container(
-                                                        //                   padding:
-                                                        //                   EdgeInsets.all(5),
-                                                        //                   decoration: BoxDecoration(
-                                                        //                       color: Colors.white,
-                                                        //                       borderRadius: BorderRadius.circular(20)),
-                                                        //                   child:
-                                                        //                   Row(
-                                                        //                     children: [
-                                                        //                       recentOrders[i]['HamperImage'] != null
-                                                        //                           ? CircleAvatar(
-                                                        //                         backgroundImage: NetworkImage(recentOrders[i]['HamperImage']),
-                                                        //                         radius: 25,
-                                                        //                       )
-                                                        //                           : CircleAvatar(
-                                                        //                         backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
-                                                        //                         radius: 25,
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 5,
-                                                        //                       ),
-                                                        //                       Expanded(
-                                                        //                         child: Column(
-                                                        //                           crossAxisAlignment: CrossAxisAlignment.start,
-                                                        //                           children: [
-                                                        //                             Text(
-                                                        //                               recentOrders[i]['HampersName'] != null ? recentOrders[i]['HampersName']: "Customised Cake",
-                                                        //                               style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
-                                                        //                               maxLines: 2,
-                                                        //                             ),
-                                                        //                             Row(
-                                                        //                               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        //                               children: [
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['VendorName']!=null?
-                                                        //                                   recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
-                                                        //                                   style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
-                                                        //                                 ),
-                                                        //                                 SizedBox(
-                                                        //                                   width: 3,
-                                                        //                                 ),
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['Status'],
-                                                        //                                   style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
-                                                        //                                 ),
-                                                        //                               ],
-                                                        //                             )
-                                                        //                           ],
-                                                        //                         ),
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 6,
-                                                        //                       ),
-                                                        //                       Text(
-                                                        //                         "Rs." + recentOrders[i]['Total'] + " ",
-                                                        //                         style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
-                                                        //                       ),
-                                                        //                     ],
-                                                        //                   ),
-                                                        //                 ),
-                                                        //               ),
-                                                        //             ):
-                                                        //             recentOrders[i]['ProductName']!=null?
-                                                        //             GestureDetector(
-                                                        //               onTap:
-                                                        //                   () async {
-                                                        //                 Navigator.of(context)
-                                                        //                     .push(
-                                                        //                   PageRouteBuilder(
-                                                        //                     pageBuilder: (context, animation, secondaryAnimation) =>
-                                                        //                         Profile(
-                                                        //                           defindex: 1,
-                                                        //                         ),
-                                                        //                     transitionsBuilder: (context,
-                                                        //                         animation,
-                                                        //                         secondaryAnimation,
-                                                        //                         child) {
-                                                        //                       const begin = Offset(1.0, 0.0);
-                                                        //                       const end = Offset.zero;
-                                                        //                       const curve = Curves.ease;
-                                                        //
-                                                        //                       final tween = Tween(begin: begin, end: end);
-                                                        //                       final curvedAnimation = CurvedAnimation(
-                                                        //                         parent: animation,
-                                                        //                         curve: curve,
-                                                        //                       );
-                                                        //
-                                                        //                       return SlideTransition(
-                                                        //                         position: tween.animate(curvedAnimation),
-                                                        //                         child: child,
-                                                        //                       );
-                                                        //                     },
-                                                        //                   ),
-                                                        //                 );
-                                                        //               },
-                                                        //               child:
-                                                        //               Card(
-                                                        //                 elevation:
-                                                        //                 0.5,
-                                                        //                 shape: RoundedRectangleBorder(
-                                                        //                     borderRadius:
-                                                        //                     BorderRadius.circular(20)),
-                                                        //                 child:
-                                                        //                 Container(
-                                                        //                   padding:
-                                                        //                   EdgeInsets.all(5),
-                                                        //                   decoration: BoxDecoration(
-                                                        //                       color: Colors.white,
-                                                        //                       borderRadius: BorderRadius.circular(20)),
-                                                        //                   child:
-                                                        //                   Row(
-                                                        //                     children: [
-                                                        //                       recentOrders[i]['Image'] != null
-                                                        //                           ? CircleAvatar(
-                                                        //                         backgroundImage: NetworkImage(recentOrders[i]['Image']),
-                                                        //                         radius: 25,
-                                                        //                       )
-                                                        //                           : CircleAvatar(
-                                                        //                         backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
-                                                        //                         radius: 25,
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 5,
-                                                        //                       ),
-                                                        //                       Expanded(
-                                                        //                         child: Column(
-                                                        //                           crossAxisAlignment: CrossAxisAlignment.start,
-                                                        //                           children: [
-                                                        //                             Text(
-                                                        //                               recentOrders[i]['ProductName'] != null ?
-                                                        //                               recentOrders[i]['ProductName']: "Customised Cake",
-                                                        //                               style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
-                                                        //                               maxLines: 2,
-                                                        //                             ),
-                                                        //                             Row(
-                                                        //                               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        //                               children: [
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['VendorName']!=null?
-                                                        //                                   recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
-                                                        //                                   style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
-                                                        //                                 ),
-                                                        //                                 SizedBox(
-                                                        //                                   width: 3,
-                                                        //                                 ),
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['Status'],
-                                                        //                                   style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
-                                                        //                                 ),
-                                                        //                               ],
-                                                        //                             )
-                                                        //                           ],
-                                                        //                         ),
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 6,
-                                                        //                       ),
-                                                        //                       Text(
-                                                        //                         "Rs." + recentOrders[i]['Total'] + " ",
-                                                        //                         style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
-                                                        //                       ),
-                                                        //                     ],
-                                                        //                   ),
-                                                        //                 ),
-                                                        //               ),
-                                                        //             ):
-                                                        //             GestureDetector(
-                                                        //               onTap:
-                                                        //                   () async {
-                                                        //                 Navigator.of(context)
-                                                        //                     .push(
-                                                        //                   PageRouteBuilder(
-                                                        //                     pageBuilder: (context, animation, secondaryAnimation) =>
-                                                        //                         Profile(
-                                                        //                           defindex: 1,
-                                                        //                         ),
-                                                        //                     transitionsBuilder: (context,
-                                                        //                         animation,
-                                                        //                         secondaryAnimation,
-                                                        //                         child) {
-                                                        //                       const begin = Offset(1.0, 0.0);
-                                                        //                       const end = Offset.zero;
-                                                        //                       const curve = Curves.ease;
-                                                        //
-                                                        //                       final tween = Tween(begin: begin, end: end);
-                                                        //                       final curvedAnimation = CurvedAnimation(
-                                                        //                         parent: animation,
-                                                        //                         curve: curve,
-                                                        //                       );
-                                                        //
-                                                        //                       return SlideTransition(
-                                                        //                         position: tween.animate(curvedAnimation),
-                                                        //                         child: child,
-                                                        //                       );
-                                                        //                     },
-                                                        //                   ),
-                                                        //                 );
-                                                        //               },
-                                                        //               child:
-                                                        //               Card(
-                                                        //                 elevation:
-                                                        //                 0.5,
-                                                        //                 shape: RoundedRectangleBorder(
-                                                        //                     borderRadius:
-                                                        //                     BorderRadius.circular(20)),
-                                                        //                 child:
-                                                        //                 Container(
-                                                        //                   padding:
-                                                        //                   EdgeInsets.all(5),
-                                                        //                   decoration: BoxDecoration(
-                                                        //                       color: Colors.white,
-                                                        //                       borderRadius: BorderRadius.circular(20)),
-                                                        //                   child:
-                                                        //                   Row(
-                                                        //                     children: [
-                                                        //                       recentOrders[i]['Image'] != null
-                                                        //                           ? CircleAvatar(
-                                                        //                         backgroundImage: NetworkImage(recentOrders[i]['Image']),
-                                                        //                         radius: 25,
-                                                        //                       )
-                                                        //                           : CircleAvatar(
-                                                        //                         backgroundImage: AssetImage("assets/images/chefdoll.jpg"),
-                                                        //                         radius: 25,
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 5,
-                                                        //                       ),
-                                                        //                       Expanded(
-                                                        //                         child: Column(
-                                                        //                           crossAxisAlignment: CrossAxisAlignment.start,
-                                                        //                           children: [
-                                                        //                             Text(
-                                                        //                               recentOrders[i]['ProductName'] != null ?
-                                                        //                               recentOrders[i]['ProductName']: "Customised Cake",
-                                                        //                               style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 13, fontWeight: FontWeight.bold),
-                                                        //                               maxLines: 2,
-                                                        //                             ),
-                                                        //                             Row(
-                                                        //                               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        //                               children: [
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['VendorName']!=null?
-                                                        //                                   recentOrders[i]['VendorName'] + " |":"Premium Vendor |",
-                                                        //                                   style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 13),
-                                                        //                                 ),
-                                                        //                                 SizedBox(
-                                                        //                                   width: 3,
-                                                        //                                 ),
-                                                        //                                 Text(
-                                                        //                                   recentOrders[i]['Status'],
-                                                        //                                   style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 12),
-                                                        //                                 ),
-                                                        //                               ],
-                                                        //                             )
-                                                        //                           ],
-                                                        //                         ),
-                                                        //                       ),
-                                                        //                       SizedBox(
-                                                        //                         width: 6,
-                                                        //                       ),
-                                                        //                       Text(
-                                                        //                         "Rs." + recentOrders[i]['Total'] + " ",
-                                                        //                         style: TextStyle(color: lightPink, fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.bold),
-                                                        //                       ),
-                                                        //                     ],
-                                                        //                   ),
-                                                        //                 ),
-                                                        //               ),
-                                                        //             );
-                                                        //           }),
-                                                        // )
                                                         Container(
                                                             height: 180,
                                                             child: ListView.builder(
@@ -3856,55 +3419,285 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 scrollDirection:
                                                                 Axis.horizontal,
                                                                 itemBuilder:
-                                                                    (context,
-                                                                    index) {
+                                                                    (context, index) {
+
+                                                                      String diff = recentOrders[index]['Created_On'].toString().split(" ").first;
+
+                                                                      print(recentOrders[index]['Created_On']);
+
+                                                                      print(differenceOF(DateTime(
+                                                                          int.parse(diff.split("-").last.toString()),
+                                                                          int.parse(diff.split("-")[1].toString()),
+                                                                          int.parse(diff.split("-").first.toString()),
+                                                                          14,04
+                                                                      ).toString()));
+
+                                                                      print(DateTime(
+                                                                          int.parse(diff.split("-").last.toString()),
+                                                                          int.parse(diff.split("-")[1].toString()),
+                                                                          int.parse(diff.split("-").first.toString()),
+                                                                          14,05,3
+                                                                      ));
+
+                                                                      print(
+                                                                          DateTime.now().difference(DateTime(
+                                                                              int.parse(diff.split("-").last.toString()),
+                                                                              int.parse(diff.split("-")[1].toString()),
+                                                                              int.parse(diff.split("-").first.toString()),
+                                                                              14,04
+                                                                          ))
+                                                                      );
+
+                                                                      var myMap = Map();
+                                                                      var otherPrice = "";
+
+                                                                      if(recentOrders[index]['ProductMinWeightPerKg']!=null){
+                                                                        // print(recentOrders[index]['ProductMinWeightPerKg']);
+                                                                        // print(recentOrders[index]['ProductMinWeightPerUnit']);
+                                                                        // print(recentOrders[index]['ProductMinWeightPerBox']);
+
+
+                                                                        if(recentOrders[index]['ProductMinWeightPerKg'].isNotEmpty){
+                                                                          myMap = recentOrders[index]['ProductMinWeightPerKg'];
+
+                                                                          otherPrice = (
+                                                                              double.parse(myMap['PricePerKg'])*changeWeight(myMap['Weight'])
+                                                                          ).toStringAsFixed(2);
+
+                                                                        }else if(recentOrders[index]['ProductMinWeightPerUnit'].isNotEmpty){
+                                                                          myMap = recentOrders[index]['ProductMinWeightPerUnit'];
+
+                                                                          otherPrice = (
+                                                                              double.parse(myMap['PricePerUnit'])*changeWeight(myMap['Weight'])*
+                                                                                  double.parse(myMap['ProductCount'])
+                                                                          ).toStringAsFixed(2);
+
+                                                                        }else if(recentOrders[index]['ProductMinWeightPerBox'].isNotEmpty){
+                                                                          myMap = recentOrders[index]['ProductMinWeightPerBox'];
+
+                                                                          otherPrice = (
+                                                                              double.parse(myMap['PricePerBox'])*changeWeight(myMap['Piece'])*
+                                                                                  double.parse(myMap['ProductCount'])
+                                                                          ).toStringAsFixed(2);
+
+                                                                        }
+
+                                                                      }
+
+                                                                      print(otherPrice);
+
+
+
+                                                                      String gramAndKilo = "";
+
+                                                                      if(recentOrders[index]['ExtraCharges']!=null){
+                                                                        if(recentOrders[index]['Weight'].toString().toLowerCase().endsWith("kg")){
+                                                                          print("yes..");
+                                                                          gramAndKilo = (
+                                                                              double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                  (double.parse(recentOrders[index]['Price'].toString())*
+                                                                                      double.parse(recentOrders[index]['Weight'].toString().
+                                                                                      toLowerCase().replaceAll("kg", "")))+
+                                                                                      double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                              )
+                                                                          ).toStringAsFixed(2);
+                                                                        }else{
+                                                                          print("no...");
+                                                                          gramAndKilo = (
+                                                                              (double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                  (double.parse(recentOrders[index]['Price'].toString()))+
+                                                                                      double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                              )/2)
+                                                                          ).toStringAsFixed(2);
+                                                                        }
+                                                                      }
                                                                   return recentOrders[index]['CakeName']!=null?
                                                                     GestureDetector(
                                                                     onTap: () {
-                                                                      Navigator.of(
-                                                                          context)
-                                                                          .push(
-                                                                        PageRouteBuilder(
-                                                                          pageBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation) =>
-                                                                              Profile(
-                                                                                defindex:
-                                                                                1,
+                                                                      showModalBottomSheet(
+                                                                          context: context,
+                                                                          isScrollControlled: true,
+                                                                          shape: RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.only(
+                                                                                topLeft: Radius.circular(20),
+                                                                                topRight: Radius.circular(20),
+                                                                              )
+                                                                          ),
+                                                                          builder: (context){
+                                                                            return Container(
+                                                                              padding: EdgeInsets.all(10),
+                                                                              child: Column(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                    children: [
+                                                                                      Text("Order Info" , style:TextStyle(
+                                                                                          color:Colors.purple,
+                                                                                          fontFamily: "Poppins",
+                                                                                          fontSize: 17,
+                                                                                          fontWeight: FontWeight.bold
+                                                                                      )),
+                                                                                      InkWell(
+                                                                                        onTap:()=>Navigator.pop(context),
+                                                                                        child: Icon(Icons.cancel,color:Colors.red,size:30),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  SizedBox(height: 10,),
+                                                                                  Row(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    children: [
+                                                                                      const SizedBox(width: 8,),
+                                                                                      const Icon(
+                                                                                        Icons.location_on,
+                                                                                        color: Colors.red,
+                                                                                      ),
+                                                                                      const SizedBox(width: 8,),
+                                                                                      Container(
+                                                                                          width: 260,
+                                                                                          child:Text(
+                                                                                            recentOrders[index]['DeliveryAddress']!=null?
+                                                                                            "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                                                                            "Pick Up",
+                                                                                            style: TextStyle(
+                                                                                                fontFamily: "Poppins",
+                                                                                                color: Colors.black54,
+                                                                                                fontSize: 13
+                                                                                            ),
+                                                                                          )
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  const SizedBox(height: 15,),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Product Total',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        recentOrders[index]['ExtraCharges']!=null?
+                                                                                        Text("₹ "
+                                                                                        //     "${(
+                                                                                        //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                        //         (double.parse(recentOrders[index]['Price'].toString())*
+                                                                                        //             double.parse(recentOrders[index]['Weight'].toString().
+                                                                                        //             toLowerCase().replaceAll("kg", "")))+
+                                                                                        //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                                        //     )
+                                                                                        // ).toStringAsFixed(2)}"
+                                                                                            "$gramAndKilo"
+                                                                                          ,style: const TextStyle(fontWeight: FontWeight.bold),):
+                                                                                        Text(""),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Delivery charge',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Discounts',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('CGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('SGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Bill Total',style: TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black,
+                                                                                            fontWeight: FontWeight.bold
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
                                                                               ),
-                                                                          transitionsBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation,
-                                                                              child) {
-                                                                            const begin = Offset(
-                                                                                1.0,
-                                                                                0.0);
-                                                                            const end =
-                                                                                Offset.zero;
-                                                                            const curve =
-                                                                                Curves.ease;
-
-                                                                            final tween = Tween(
-                                                                                begin:
-                                                                                begin,
-                                                                                end:
-                                                                                end);
-                                                                            final curvedAnimation =
-                                                                            CurvedAnimation(
-                                                                              parent:
-                                                                              animation,
-                                                                              curve:
-                                                                              curve,
                                                                             );
-
-                                                                            return SlideTransition(
-                                                                              position:
-                                                                              tween.animate(curvedAnimation),
-                                                                              child:
-                                                                              child,
-                                                                            );
-                                                                          },
-                                                                        ),
+                                                                          }
                                                                       );
                                                                     },
                                                                     child:
@@ -4046,50 +3839,199 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                       :recentOrders[index]['ProductName']!=null?
                                                                   GestureDetector(
                                                                     onTap: () {
-                                                                      Navigator.of(
-                                                                          context)
-                                                                          .push(
-                                                                        PageRouteBuilder(
-                                                                          pageBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation) =>
-                                                                              Profile(
-                                                                                defindex:
-                                                                                1,
+                                                                      showModalBottomSheet(
+                                                                          context: context,
+                                                                          isScrollControlled: true,
+                                                                          shape: RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.only(
+                                                                                topLeft: Radius.circular(20),
+                                                                                topRight: Radius.circular(20),
+                                                                              )
+                                                                          ),
+                                                                          builder: (context){
+                                                                            return Container(
+                                                                              padding: EdgeInsets.all(10),
+                                                                              child: Column(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                    children: [
+                                                                                      Text("Order Info" , style:TextStyle(
+                                                                                          color:Colors.purple,
+                                                                                          fontFamily: "Poppins",
+                                                                                          fontSize: 17,
+                                                                                          fontWeight: FontWeight.bold
+                                                                                      )),
+                                                                                      InkWell(
+                                                                                        onTap:()=>Navigator.pop(context),
+                                                                                        child: Icon(Icons.cancel,color:Colors.red,size:30),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  SizedBox(height: 10,),
+                                                                                  Row(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    children: [
+                                                                                      const SizedBox(width: 8,),
+                                                                                      const Icon(
+                                                                                        Icons.location_on,
+                                                                                        color: Colors.red,
+                                                                                      ),
+                                                                                      const SizedBox(width: 8,),
+                                                                                      Container(
+                                                                                          width: 260,
+                                                                                          child:Text(
+                                                                                            recentOrders[index]['DeliveryAddress']!=null?
+                                                                                            "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                                                                            "Pick Up",
+                                                                                            style: TextStyle(
+                                                                                                fontFamily: "Poppins",
+                                                                                                color: Colors.black54,
+                                                                                                fontSize: 13
+                                                                                            ),
+                                                                                          )
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  const SizedBox(height: 15,),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Product Total',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text("₹ "
+                                                                                        //     "${(
+                                                                                        //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                        //         (double.parse(recentOrders[index]['Price'].toString())*
+                                                                                        //             double.parse(recentOrders[index]['Weight'].toString().
+                                                                                        //             toLowerCase().replaceAll("kg", "")))+
+                                                                                        //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                                        //     )
+                                                                                        // ).toStringAsFixed(2)}"
+                                                                                            "${(double.parse(recentOrders[index]['Total'])-
+                                                                                            double.parse(recentOrders[index]['Gst'])-
+                                                                                            double.parse(recentOrders[index]['Sgst'])-
+                                                                                            double.parse(recentOrders[index]['DeliveryCharge'])).toStringAsFixed(2)}"
+                                                                                          ,style: const TextStyle(fontWeight: FontWeight.bold),)
+
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Delivery charge',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Discounts',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        recentOrders[index]['Discount']!=null?
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style:
+                                                                                        const TextStyle(fontWeight: FontWeight.bold),):
+                                                                                        Text('₹ 0.00',style:
+                                                                                        const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('CGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('SGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Bill Total',style: TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black,
+                                                                                            fontWeight: FontWeight.bold
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
                                                                               ),
-                                                                          transitionsBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation,
-                                                                              child) {
-                                                                            const begin = Offset(
-                                                                                1.0,
-                                                                                0.0);
-                                                                            const end =
-                                                                                Offset.zero;
-                                                                            const curve =
-                                                                                Curves.ease;
-
-                                                                            final tween = Tween(
-                                                                                begin:
-                                                                                begin,
-                                                                                end:
-                                                                                end);
-                                                                            final curvedAnimation =
-                                                                            CurvedAnimation(
-                                                                              parent:
-                                                                              animation,
-                                                                              curve:
-                                                                              curve,
                                                                             );
-
-                                                                            return SlideTransition(
-                                                                              position:
-                                                                              tween.animate(curvedAnimation),
-                                                                              child:
-                                                                              child,
-                                                                            );
-                                                                          },
-                                                                        ),
+                                                                          }
                                                                       );
                                                                     },
                                                                     child:
@@ -4231,50 +4173,193 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   recentOrders[index]['HampersName']!=null?
                                                                   GestureDetector(
                                                                     onTap: () {
-                                                                      Navigator.of(
-                                                                          context)
-                                                                          .push(
-                                                                        PageRouteBuilder(
-                                                                          pageBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation) =>
-                                                                              Profile(
-                                                                                defindex:
-                                                                                1,
+                                                                      showModalBottomSheet(
+                                                                          context: context,
+                                                                          isScrollControlled: true,
+                                                                          shape: RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.only(
+                                                                                topLeft: Radius.circular(20),
+                                                                                topRight: Radius.circular(20),
+                                                                              )
+                                                                          ),
+                                                                          builder: (context){
+                                                                            return Container(
+                                                                              padding: EdgeInsets.all(10),
+                                                                              child: Column(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        Text("Order Info" , style:TextStyle(
+                                                                                          color:Colors.purple,
+                                                                                          fontFamily: "Poppins",
+                                                                                          fontSize: 17,
+                                                                                          fontWeight: FontWeight.bold
+                                                                                        )),
+                                                                                        InkWell(
+                                                                                          onTap:()=>Navigator.pop(context),
+                                                                                          child: Icon(Icons.cancel,color:Colors.red,size:30),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  SizedBox(height: 10,),
+                                                                                  Row(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    children: [
+                                                                                      const SizedBox(width: 8,),
+                                                                                      const Icon(
+                                                                                        Icons.location_on,
+                                                                                        color: Colors.red,
+                                                                                      ),
+                                                                                      const SizedBox(width: 8,),
+                                                                                      Container(
+                                                                                          width: 260,
+                                                                                          child:Text(
+                                                                                            recentOrders[index]['DeliveryAddress']!=null?
+                                                                                            "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                                                                            "Pick Up",
+                                                                                            style: TextStyle(
+                                                                                                fontFamily: "Poppins",
+                                                                                                color: Colors.black54,
+                                                                                                fontSize: 13
+                                                                                            ),
+                                                                                          )
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  const SizedBox(height: 15,),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Product Total',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text("₹ "
+                                                                                        //     "${(
+                                                                                        //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                        //         (double.parse(recentOrders[index]['Price'].toString())*
+                                                                                        //             double.parse(recentOrders[index]['Weight'].toString().
+                                                                                        //             toLowerCase().replaceAll("kg", "")))+
+                                                                                        //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                                        //     )
+                                                                                        // ).toStringAsFixed(2)}"
+                                                                                            "${(double.parse(recentOrders[index]['Price'])*
+                                                                                            double.parse(recentOrders[index]['ItemCount'].toString())).toStringAsFixed(2)}"
+                                                                                          ,style: const TextStyle(fontWeight: FontWeight.bold),)
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Delivery charge',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Discounts',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        recentOrders[index]['Discount']!=null?
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style:
+                                                                                        const TextStyle(fontWeight: FontWeight.bold),):
+                                                                                        Text('₹ 0.00',style:
+                                                                                        const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('CGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('SGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Bill Total',style: TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black,
+                                                                                            fontWeight: FontWeight.bold
+                                                                                        ),),
+                                                                                        Text('₹ ${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
                                                                               ),
-                                                                          transitionsBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation,
-                                                                              child) {
-                                                                            const begin = Offset(
-                                                                                1.0,
-                                                                                0.0);
-                                                                            const end =
-                                                                                Offset.zero;
-                                                                            const curve =
-                                                                                Curves.ease;
-
-                                                                            final tween = Tween(
-                                                                                begin:
-                                                                                begin,
-                                                                                end:
-                                                                                end);
-                                                                            final curvedAnimation =
-                                                                            CurvedAnimation(
-                                                                              parent:
-                                                                              animation,
-                                                                              curve:
-                                                                              curve,
                                                                             );
-
-                                                                            return SlideTransition(
-                                                                              position:
-                                                                              tween.animate(curvedAnimation),
-                                                                              child:
-                                                                              child,
-                                                                            );
-                                                                          },
-                                                                        ),
+                                                                          }
                                                                       );
                                                                     },
                                                                     child:
@@ -4415,50 +4500,188 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   ):
                                                                   GestureDetector(
                                                                     onTap: () {
-                                                                      Navigator.of(
-                                                                          context)
-                                                                          .push(
-                                                                        PageRouteBuilder(
-                                                                          pageBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation) =>
-                                                                              Profile(
-                                                                                defindex:
-                                                                                1,
-                                                                              ),
-                                                                          transitionsBuilder: (context,
-                                                                              animation,
-                                                                              secondaryAnimation,
-                                                                              child) {
-                                                                            const begin = Offset(
-                                                                                1.0,
-                                                                                0.0);
-                                                                            const end =
-                                                                                Offset.zero;
-                                                                            const curve =
-                                                                                Curves.ease;
-
-                                                                            final tween = Tween(
-                                                                                begin:
-                                                                                begin,
-                                                                                end:
-                                                                                end);
-                                                                            final curvedAnimation =
-                                                                            CurvedAnimation(
-                                                                              parent:
-                                                                              animation,
-                                                                              curve:
-                                                                              curve,
+                                                                      showModalBottomSheet(
+                                                                          context: context,
+                                                                          isScrollControlled: true,
+                                                                          shape: RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.only(
+                                                                                topLeft: Radius.circular(20),
+                                                                                topRight: Radius.circular(20),
+                                                                              )
+                                                                          ),
+                                                                          builder: (context){
+                                                                            return Container(
+                                                                              child:Column(
+                                                                                children:[
+                                                                                  Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                    children: [
+                                                                                      Text("Order Info" , style:TextStyle(
+                                                                                          color:Colors.purple,
+                                                                                          fontFamily: "Poppins",
+                                                                                          fontSize: 17,
+                                                                                          fontWeight: FontWeight.bold
+                                                                                      )),
+                                                                                      InkWell(
+                                                                                        onTap:()=>Navigator.pop(context),
+                                                                                        child: Icon(Icons.cancel,color:Colors.red,size:30),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  SizedBox(height: 10,),
+                                                                                  Row(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    children: [
+                                                                                      const SizedBox(width: 8,),
+                                                                                      const Icon(
+                                                                                        Icons.location_on,
+                                                                                        color: Colors.red,
+                                                                                      ),
+                                                                                      const SizedBox(width: 8,),
+                                                                                      Container(
+                                                                                          width: 260,
+                                                                                          child:Text(
+                                                                                            recentOrders[index]['DeliveryAddress']!=null?
+                                                                                            "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
+                                                                                            "Pick Up",
+                                                                                            style: TextStyle(
+                                                                                                fontFamily: "Poppins",
+                                                                                                color: Colors.black54,
+                                                                                                fontSize: 13
+                                                                                            ),
+                                                                                          )
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  const SizedBox(height: 15,),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Product Total',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        recentOrders[index]['ExtraCharges']!=null?
+                                                                                        Text("₹ "
+                                                                                        //     "${(
+                                                                                        //     double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                                                                                        //         (double.parse(recentOrders[index]['Price'].toString())*
+                                                                                        //             double.parse(recentOrders[index]['Weight'].toString().
+                                                                                        //             toLowerCase().replaceAll("kg", "")))+
+                                                                                        //             double.parse(recentOrders[index]['ExtraCharges'].toString())
+                                                                                        //     )
+                                                                                        // ).toStringAsFixed(2)}"
+                                                                                            "$gramAndKilo"
+                                                                                          ,style: const TextStyle(fontWeight: FontWeight.bold),):
+                                                                                        Text(""),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Delivery charge',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Discounts',
+                                                                                          style: const TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black54,
+                                                                                          ),),
+                                                                                        Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Gst',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('SGST',style: const TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    margin: const EdgeInsets.only(left: 10,right: 10),
+                                                                                    color: Colors.black26,
+                                                                                    height: 1,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        const Text('Bill Total',style: TextStyle(
+                                                                                            fontFamily: "Poppins",
+                                                                                            color: Colors.black,
+                                                                                            fontWeight: FontWeight.bold
+                                                                                        ),),
+                                                                                        Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    padding: const EdgeInsets.all(10),
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                                                                          fontFamily: "Poppins",
+                                                                                          color: Colors.black54,
+                                                                                        ),),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ]
+                                                                              )
                                                                             );
-
-                                                                            return SlideTransition(
-                                                                              position:
-                                                                              tween.animate(curvedAnimation),
-                                                                              child:
-                                                                              child,
-                                                                            );
-                                                                          },
-                                                                        ),
+                                                                          }
                                                                       );
                                                                     },
                                                                     child:

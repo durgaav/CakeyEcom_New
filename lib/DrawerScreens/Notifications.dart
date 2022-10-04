@@ -526,7 +526,8 @@ class _NotificationsState extends State<Notifications> {
                                       alignment: Alignment.centerRight,
                                       child: Text(myList[0]['Total']==null?'N/A':
                                       'Rs.${
-                                      double.parse(myList[0]['Total'].toString())+double.parse(myList[0]['Discount'].toString())
+                                      (double.parse(myList[0]['Total'].toString())-double.parse(myList[0]['Gst'].toString())-
+                                          double.parse(myList[0]['Sgst'].toString())+double.parse(myList[0]['Discount'].toString())).toStringAsFixed(2)
                                       }', style:TextStyle(
                                           fontFamily: "Poppins",color:darkBlue,fontWeight: FontWeight.normal
                                       )),
@@ -1036,8 +1037,6 @@ class _NotificationsState extends State<Notifications> {
                                 onTap: (){
                                   if(mainList[index]['CustomizedCake']=="y"){
                                     showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
-                                  }else{
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 1)));
                                   }
                                 },
                                 child: Container(

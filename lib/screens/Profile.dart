@@ -1073,7 +1073,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   ).toStringAsFixed(2);
                 }
               }
-
               isExpands.add(false);
               return recentOrders[index]['CakeName']!=null?
               Container(
@@ -1606,6 +1605,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
+
                             recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                             TextButton(onPressed: (){
                               String rate = '1' ;
@@ -1991,7 +1991,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                             ),
-
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.only(left: 15),
@@ -2009,9 +2008,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
-
                             SizedBox(height: 10,),
-
                             recentOrders[index]['Status']!="Cancelled"
                                 &&days <1 &&minutes<=10&&
                                 recentOrders[index]['Status']=="New"?
@@ -2051,7 +2048,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               ),
                             ):
                             Container(),
-
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
                               color: Colors.black26,
@@ -2178,7 +2174,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
-
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
                               color: Colors.black26,
@@ -2214,6 +2209,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
+
                             recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                             TextButton(onPressed: (){
                               String rate = '1' ;
@@ -2721,21 +2717,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Text('Discount',
-                                    style: const TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.black54,
-                                    ),),
-                                  Text('₹ ${double.parse(recentOrders[index]['Discount'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
                                   const Text('Delivery charge',
                                     style: const TextStyle(
                                       fontFamily: "Poppins",
@@ -2828,6 +2809,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
+
                             recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                             TextButton(onPressed: (){
                               String rate = '1' ;
@@ -3327,7 +3309,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               color: Colors.black26,
                               height: 1,
                             ),
-
                             Container(
                               padding: const EdgeInsets.all(10),
                               child: Row(
@@ -3447,6 +3428,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
+
                             recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                             TextButton(onPressed: (){
                               String rate = '1' ;
