@@ -960,12 +960,10 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       print(map);
 
-      if(map['statusCode'].toString()==200){
-
+      if(map['statusCode']==200){
         sendNotificationToVendor(notificationTid);
         Navigator.pop(context);
         showOrderCompleteSheet();
-
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

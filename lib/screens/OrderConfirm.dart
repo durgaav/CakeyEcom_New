@@ -129,7 +129,6 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
     var prefs = await SharedPreferences.getInstance();
 
-
     try{
       //UI Views variables...
       setState(() {
@@ -138,7 +137,11 @@ class _OrderConfirmState extends State<OrderConfirm> {
         cakeName = prefs.getString("orderCakeName")!;
         authToken = prefs.getString("authToken")!;
         cakePrice = prefs.getString("orderCakePrice")??'100';
-        cakeType = prefs.getString("orderCakeType")!;
+        cakeType = prefs.getString("orderCakeType")??'Cakes';
+        if(cakeType.isEmpty){
+          cakeType = "Cakes";
+        }
+        //cakeType = "Cakes";
         weight = prefs.getString("orderCakeWeight")!;
         cakeImage = prefs.getString("orderCakeImages")!;
         userAddress = prefs.getString("orderCakeDeliverAddress")!;

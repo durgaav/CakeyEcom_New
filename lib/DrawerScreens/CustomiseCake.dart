@@ -1190,7 +1190,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             ));
           }
 
-          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0){
+          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<=5.0){
             request.fields.addAll({
               'VendorID': '$vendorID',
               'VendorName': '$vendorName',
@@ -1202,7 +1202,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               "GoogleLocation":jsonEncode({"Latitude":venLat , "Longitude":venLong})
             });
           }
-
 
           if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0||nearestVendors.isEmpty){
             request.fields.addAll({
@@ -3120,7 +3119,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               nearestVendors.isNotEmpty?
                               Column(
                                 children: [
-                                  changeWeight(fixedWeight)<5.0?
+                                  changeWeight(fixedWeight)<=5.0?
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -3791,7 +3790,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
                                           );
-                                        }else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) < 5.0
+                                        }else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
                                             && nearVendorClicked==false ){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select a vendor'))
@@ -3807,7 +3806,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       }
                                     },
                                     color: lightPink,
-                                    child: Text(double.parse(changeKilo(fixedWeight).toLowerCase().replaceAll("kg", ""))>5.0?"ORDER NOW":"ORDER NOW",style: TextStyle(
+                                    child: Text("ORDER NOW",style: TextStyle(
                                         color: Colors.white,fontWeight: FontWeight.bold
                                     ),),
                                   ),

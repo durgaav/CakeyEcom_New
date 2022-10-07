@@ -1871,7 +1871,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeThemeImage', file.path.isNotEmpty?file.path.toString():'null');//ops
 
 
-    if(nearestVendors.length > 0 && double.parse(fixedWeight)<5.0){
+    if(nearestVendors.length > 0 && double.parse(fixedWeight)<=5.0){
       prefs.setString('orderCakeNearestIsEmpty', "no"??'null');
       prefs.setString('orderCakeVendorName', vendorName??'null');//ops
     }else{
@@ -4101,6 +4101,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 GestureDetector(
                                   onTap: () async {
 
+                                    FocusScope.of(context).unfocus();
+
                                     print(dayMinConverter(cakeMindeltime));
 
                                     String deliTime = "1";
@@ -4486,7 +4488,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               nearestVendors.isNotEmpty
                                   ? Column(
                                       children: [
-                                            changeWeight(fixedWeight)< 5.0
+                                            changeWeight(fixedWeight) <= 5.0
                                             ? Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,

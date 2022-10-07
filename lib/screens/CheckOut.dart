@@ -627,10 +627,14 @@ class _CheckOutState extends State<CheckOut> {
        // getTaxDetails();
 
 
-      }else{
+      }
+      else{
         cakeName = prefs.getString("orderCakeName")??"My Cake Name";
         cakePrice = prefs.getString("orderCakePrice")!;
-        cakeType = prefs.getString("orderCakeType")!;
+        cakeType = prefs.getString("orderCakeType")??'Cakes';
+        if(cakeType.isEmpty){
+          cakeType = "Cakes";
+        }
         weight = prefs.getString("orderCakeWeight")!;
         cakeImage = prefs.getString("orderCakeImages")!;
         userAddress = prefs.getString("orderCakeDeliverAddress")!;
@@ -721,7 +725,8 @@ class _CheckOutState extends State<CheckOut> {
     double myTax = 0;
     double myPrice = double.parse(
         ((double.parse(cakePrice)*changeWeight(weight))
-        +(extraCharges)).toStringAsFixed(2));
+        +(extraCharges)).toStringAsFixed(2)
+    );
 
     print(myPrice);
 

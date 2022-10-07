@@ -1626,7 +1626,7 @@ class _CakeTypesState extends State<CakeTypes> {
     cakesList.clear();
     print("Ven iddd : $myVendorId");
 
-    String commonCake = 'http://sugitechnologies.com:88/cakey/api/cakes/activevendors/list';
+    String commonCake = 'https://cakey-database.vercel.app/api/cakes/activevendors/list';
     String vendorCake =
         'https://cakey-database.vercel.app/api/cake/listbyIdandstatus/$myVendorId';
 

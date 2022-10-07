@@ -1638,6 +1638,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
           filteredByEggList = filteredByEggList.toSet().toList();
 
+          if(filteredByEggList.isNotEmpty){
+            for(int i = 0 ; i<filteredByEggList.length;i++){
+              activeVendorsIds.add(filteredByEggList[i]['_id'].toString());
+            }
+          }
+
           filteredByEggList.sort((a,b)=>calculateDistance(
               userLat,
               userLong,
@@ -1648,11 +1654,6 @@ class _HomeScreenState extends State<HomeScreen> {
               b['GoogleLocation']['Latitude'],
               b['GoogleLocation']['Longitude']).toStringAsFixed(1)));
 
-          if(filteredByEggList.isNotEmpty){
-            for(int i = 0 ; i<filteredByEggList.length;i++){
-              activeVendorsIds.add(filteredByEggList[i]['_id'].toString());
-            }
-          }
 
           print("-----");
           print(activeVendorsIds);
@@ -2936,6 +2937,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               InkWell(
                                                 onTap: () async {
+                                                  var prefs = await SharedPreferences.getInstance();
+                                                  prefs.setStringList('activeVendorsIds',activeVendorsIds);
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(builder: (context) =>Hampers()));
@@ -3336,7 +3339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         FontWeight
                                                                             .bold),
                                                               ),
-                                                              recentOrders.length>3?
+                                                              recentOrders.length>2?
                                                               InkWell(
                                                                 onTap:
                                                                     () async {
