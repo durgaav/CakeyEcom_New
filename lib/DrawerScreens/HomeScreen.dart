@@ -913,8 +913,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 .toString()
                 .toLowerCase()
                 .contains(category.toLowerCase()))
-            .toList() + a1;
-
+            .toList();
+        a = a + a1;
       }
 
       if (subCategory.isNotEmpty) {
@@ -943,7 +943,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   .toString()
                   .toLowerCase()
                   .contains(vendorName.toLowerCase()))
-              .toList() + a1;
+              .toList();
+          c = c + a1;
         });
       }
 
