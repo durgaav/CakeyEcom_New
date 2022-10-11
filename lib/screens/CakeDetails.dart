@@ -1769,14 +1769,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
       //--> Assign
         extra = (double.parse(flavExtraCharge.toString())+
-            double.parse(extraShapeCharge.toString())+
-            double.parse(topperPrice.toString()));
+            double.parse(extraShapeCharge.toString()));
             // *double.parse(fixedWeight.toLowerCase().replaceAll('kg', ""));
 
         print("extra $extra");
 
-        price = (counts * (double.parse(cakePrice.toString())+extra))*
-            double.parse(fixedWeight.toLowerCase().replaceAll("kg", "").toString());
+        price = ((counts * (double.parse(cakePrice.toString())+extra))*
+            double.parse(fixedWeight.toLowerCase().replaceAll("kg", "").toString()))+double.parse(topperPrice.toString());
 
         //if tier selected
       if(tierPrice!=0){
@@ -1854,7 +1853,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setDouble('orderCakeBillTotal', finalPrice);
     prefs.setDouble('orderCakeDelCharge', delCharge);
     prefs.setDouble('orderCakePaymentExtra', double.parse(extra.toString()));
-    prefs.setInt('orderCakeTopperPrice', topperPrice??0);
+    prefs.setDouble('orderCakeTopperPrice', double.parse(topperPrice.toStringAsFixed(2))??0.0);
     prefs.setInt('orderCakeTaxperc', taxes??0);
     prefs.setDouble('orderCakeDiscountedPrice',discountedPrice ??0);
 
@@ -2820,13 +2819,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       Text(
                                         ""
                                             "${
-                                         ( ((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+                                            ((((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                               double.parse(cakePrice)) + (
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                                   double.parse(flavExtraCharge.toString())) +(
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
-                                                  double.parse(extraShapeCharge.toString())) +
-                                              double.parse(topperPrice.toString())) * counts).toStringAsFixed(2)
+                                                  double.parse(extraShapeCharge.toString())))*counts)
+                                             +double.parse(topperPrice.toString())).toStringAsFixed(2)
                                         }"
                                             ,
                                         style: TextStyle(

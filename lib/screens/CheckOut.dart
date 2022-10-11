@@ -55,6 +55,7 @@ class _CheckOutState extends State<CheckOut> {
   String cakeImage = '';
   String cakeDesc = '';
   String cakePrice = '1';
+  double topperPrice = 0.0;
   String cakeType = '';
   String cakeSubType = '';
   String eggOreggless = '';
@@ -77,7 +78,6 @@ class _CheckOutState extends State<CheckOut> {
   String topperName = '';
   String topperImg= '';
   String authToken= '';
-  int topperPrice = 0;
   String vendorLat = "";
   String vendorLong = "";
   double finalTotal = 0;
@@ -379,9 +379,9 @@ class _CheckOutState extends State<CheckOut> {
               double.parse(cakePrice)*
                   double.parse(weight.toLowerCase().replaceAll('kg', ""))+
                   (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-          ) + double.parse((tempTax).toString()) +
+          ) + double.parse((tempTax).toString())+
               deliveryCharge)
-              - tempDiscountPrice).toStringAsFixed(2)
+              - tempDiscountPrice+topperPrice).toStringAsFixed(2)
       );
     }else{
       amount = double.parse(
@@ -461,8 +461,9 @@ class _CheckOutState extends State<CheckOut> {
       amount = double.parse(
           ((((double.parse(cakePrice)*
               double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-              extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-              tempDiscountPrice).toStringAsFixed(2)
+              extraCharges)+(double.parse(gstPrice.toString())+
+              double.parse(sgstPrice.toString())))-
+              tempDiscountPrice+topperPrice).toStringAsFixed(2)
       );
     }else{
       amount = double.parse(
@@ -517,7 +518,7 @@ class _CheckOutState extends State<CheckOut> {
       amount = ((((double.parse(cakePrice)*
           double.parse(weight.toLowerCase().replaceAll("kg", "")))+
           extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-          tempDiscountPrice).toInt();
+          tempDiscountPrice+topperPrice).toInt();
     }else{
       amount = ((counts *
           ((double.parse(cakePrice)*
@@ -631,6 +632,7 @@ class _CheckOutState extends State<CheckOut> {
       else{
         cakeName = prefs.getString("orderCakeName")??"My Cake Name";
         cakePrice = prefs.getString("orderCakePrice")!;
+        topperPrice = prefs.getDouble('orderCakeTopperPrice')??0.0;
         cakeType = prefs.getString("orderCakeType")??'Cakes';
         if(cakeType.isEmpty){
           cakeType = "Cakes";
@@ -692,14 +694,14 @@ class _CheckOutState extends State<CheckOut> {
         topperId = prefs.getString("orderCakeTopperid")??'null';
         topperName = prefs.getString("orderCakeTopperName")!;
         topperImg= prefs.getString("orderCakeTopperImg")!;
-        topperPrice = prefs.getInt("orderCakeTopperPrice")!;
+        //topperPrice = prefs.getInt("orderCakeTopperPrice")!;
 
         print('Tier $cakeTier');
 
         tempDiscountPrice = 0.0;
         tempDiscount = 0;
-        tempPrice = (counts*(double.parse(cakePrice.toString())+extraCharges))*
-            double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
+        tempPrice = ((counts*(double.parse(cakePrice.toString())+extraCharges))*
+            double.parse(weight.toLowerCase().replaceAll("kg", "").toString())+topperPrice);
         print(tempPrice);
         tempTax = tempPrice * (double.parse(taxes.toString())/100);
         print(tempTax);
@@ -725,7 +727,7 @@ class _CheckOutState extends State<CheckOut> {
     double myTax = 0;
     double myPrice = double.parse(
         ((double.parse(cakePrice)*changeWeight(weight))
-        +(extraCharges)).toStringAsFixed(2)
+        +(extraCharges)+topperPrice).toStringAsFixed(2)
     );
 
     print(myPrice);
@@ -929,10 +931,10 @@ class _CheckOutState extends State<CheckOut> {
     List tempFlavList = [];
 
     double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
-        double.parse(weight.toLowerCase().replaceAll("kg", "").toString());
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())+topperPrice;
 
     tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
-        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice;
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice+topperPrice;
     print(tempPrice);
     tempTax = tempPrice * (double.parse(taxes.toString())/100);
 
@@ -943,7 +945,7 @@ class _CheckOutState extends State<CheckOut> {
             (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
     ) + double.parse((tempTax).toString()) +
         deliveryCharge)
-        - tempDiscountPrice).toString();
+        - tempDiscountPrice+topperPrice).toString();
 
     print(billTot);
 
@@ -961,8 +963,20 @@ class _CheckOutState extends State<CheckOut> {
     print(tempShapeList);
     print(tempFlavList);
 
-    try {
+    Map topperField = {};
 
+    if(topperPrice==0.0){
+      topperField = {};
+    }else{
+      topperField = {
+        "TopperId":topperId,
+        "TopperName":topperName,
+        "TopperImage":topperImg,
+        "TopperPrice":'$topperPrice',
+      };
+    }
+
+    try {
         var data = {
           "CakeID": cakeID,
           "Cake_ID": cakeModId,
@@ -1009,10 +1023,10 @@ class _CheckOutState extends State<CheckOut> {
           "GoogleLocation":{"Latitude":vendorLat , "Longitude":vendorLong},
           "MessageOnTheCake":cakeMessage,
           "SpecialRequest":cakeSplReq,
-          topperPrice!=0?"TopperId":topperId:null,
-          topperPrice!=0?"TopperName":topperName:null,
-          topperPrice!=0?"TopperImage":topperImg:null,
-          topperPrice!=0?"TopperPrice":'$topperPrice':null,
+          "TopperId":topperId,
+          "TopperName":topperName,
+          "TopperImage":topperImg,
+          "TopperPrice":'$topperPrice',
         };
 
         var premiumData = {
@@ -1052,10 +1066,10 @@ class _CheckOutState extends State<CheckOut> {
           "PremiumVendor":premiumVendor=="no"?"n":'y',
           "MessageOnTheCake":cakeMessage,
           "SpecialRequest":cakeSplReq,
-          topperPrice!=0?"TopperId":topperId:null,
-          topperPrice!=0?"TopperName":topperName:null,
-          topperPrice!=0?"TopperImage":topperImg:null,
-          topperPrice!=0?"TopperPrice":'$topperPrice':null,
+          "TopperId":topperId,
+          "TopperName":topperName,
+          "TopperImage":topperImg,
+          "TopperPrice":'$topperPrice',
         };
 
         var body = jsonEncode('object');
@@ -1332,7 +1346,7 @@ class _CheckOutState extends State<CheckOut> {
                                 TextSpan(
                                     text: orderFromCustom!="yes"?
                                     '₹ ${(counts * (double.parse(cakePrice.toString()) +
-                                        double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+                                        double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice)
                                         .toStringAsFixed(2)}':
                                      "${
                                       ((double.parse(cakePrice)*
@@ -1568,7 +1582,7 @@ class _CheckOutState extends State<CheckOut> {
                               child: orderFromCustom!="yes"?
                               Text('₹ ${(counts * (double.parse(cakePrice.toString()) +
                                   double.parse(extraCharges.toString()))*
-                                  double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}'
+                                  double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2)}'
                                 ,style: const TextStyle(fontWeight: FontWeight.bold),):
                               Text('₹ ${((double.parse(cakePrice)*
                                   double.parse(weight.toLowerCase().replaceAll("kg", "")))+
@@ -1685,7 +1699,7 @@ class _CheckOutState extends State<CheckOut> {
                                         double.parse(weight.toLowerCase().replaceAll('kg', ""))+
                                         (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
                                 ) + double.parse((tempTax).toString()) +
-                                    deliveryCharge)
+                                    deliveryCharge+topperPrice)
                                 - tempDiscountPrice).toStringAsFixed(2)
                             }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),):
                             Text('₹ ${((counts *
@@ -1800,7 +1814,8 @@ class _CheckOutState extends State<CheckOut> {
                               color: darkBlue,
                               fontFamily: "Poppins",
                               fontSize: 14,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold
+                          ),
                         ),
                       ),
                       // ListTile(

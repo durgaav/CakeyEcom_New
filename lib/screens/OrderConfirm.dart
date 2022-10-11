@@ -43,6 +43,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String cakeImage = '';
   String cakeDesc = '';
   String cakePrice = '';
+  double topperPrice = 0.0;
   String cakeType = '';
   String eggOreggless = '';
   String deliverDate = '';
@@ -136,7 +137,10 @@ class _OrderConfirmState extends State<OrderConfirm> {
         //Strings
         cakeName = prefs.getString("orderCakeName")!;
         authToken = prefs.getString("authToken")!;
-        cakePrice = prefs.getString("orderCakePrice")??'100';
+        cakePrice = prefs.getString("orderCakePrice")??'0';
+        topperPrice = prefs.getDouble('orderCakeTopperPrice')??0.0;
+        // var addedToper = double.parse(cakePrice)+topperPrice;
+        // cakePrice = addedToper.toString();
         cakeType = prefs.getString("orderCakeType")??'Cakes';
         if(cakeType.isEmpty){
           cakeType = "Cakes";
@@ -192,9 +196,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
     showAlertDialog();
 
     double myTax = 0;
-    double myPrice = double.parse((counts * (double.parse(cakePrice.toString()) +
+    double myPrice = double.parse((counts * (double.parse(cakePrice.toString())+
         double.parse(extraCharges.toString()))*
-        double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2));
+        double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2));
 
     //prefs.setDouble('orderCakeGst', gst);
     //prefs.setDouble('orderCakeSGst', sgst);
@@ -255,7 +259,6 @@ class _OrderConfirmState extends State<OrderConfirm> {
         pref.setInt('orderCakeTaxperc', taxes??0);
       });
     }
-
   }
 
   //endregion
@@ -425,7 +428,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               TextSpan(
                                 text: '₹ ${(counts * (double.parse(cakePrice.toString()) +
                                     double.parse(extraCharges.toString()))*
-                                    double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',
+                                    double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                   fontFamily: "Poppins"),
@@ -576,7 +579,8 @@ class _OrderConfirmState extends State<OrderConfirm> {
                               padding: EdgeInsets.all(15),
                               message: "Item total depends on itemcount/selected shape,flavour,article,weight",
                               child: Text('₹ ${(counts * (double.parse(cakePrice.toString()) +
-                                  double.parse(extraCharges.toString()))*double.parse(weight.toLowerCase().replaceAll('kg', ""))).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  double.parse(extraCharges.toString()))*
+                                  double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                             ),
                           ],
                         ),
@@ -684,7 +688,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                           double.parse(weight.toLowerCase().replaceAll('kg', ""))+
                                           (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
                                   ) + double.parse(gstPrice.toString()) + double.parse(sgstPrice.toString()) +
-                                      deliveryCharge)
+                                      deliveryCharge+topperPrice)
                                   ).toStringAsFixed(2)
                                }',
                               style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
