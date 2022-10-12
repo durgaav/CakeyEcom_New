@@ -2031,6 +2031,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       activeSearch = true;
       isFiltered = true;
+
     } else if (activeSearch == true && cakeSearchList.isNotEmpty) {
       activeSearch = true;
       isFiltered = true;
