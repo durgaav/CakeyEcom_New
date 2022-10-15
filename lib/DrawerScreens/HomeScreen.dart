@@ -3723,8 +3723,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           Container(
                                                                             width: width /
                                                                                 2.2,
-                                                                            height:
-                                                                            115,
+                                                                            height:100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -3740,7 +3739,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4058,7 +4057,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4074,7 +4073,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4386,7 +4385,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4402,7 +4401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4708,7 +4707,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),
@@ -4720,7 +4719,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             width: width /
                                                                                 2.2,
                                                                             height:
-                                                                            115,
+                                                                            100,
                                                                             decoration: BoxDecoration(
                                                                                 borderRadius:
                                                                                 BorderRadius.circular(15),

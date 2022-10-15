@@ -2358,7 +2358,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                       },
                       color: lightPink,
                       child: Text(
-                        "CHECKOUT",
+                        "ORDER NOW",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
