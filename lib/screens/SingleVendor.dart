@@ -164,7 +164,7 @@ class _SingleVendorState extends State<SingleVendor> {
 
     try{
 
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/vendors/list"),
+      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/vendors/list"),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -218,7 +218,7 @@ class _SingleVendorState extends State<SingleVendor> {
     showAlertDialog();
 
     try{
-      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/order/listbyvendorid/$vendorID'));
+      var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/order/listbyvendorid/$vendorID'));
 
       if(res.statusCode==200){
 

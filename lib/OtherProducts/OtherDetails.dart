@@ -270,8 +270,7 @@ class _OthersDetailsState extends State<OthersDetails> {
             selectedWeight = weight[0]['Piece'].toString();
             counter = int.parse(weight[0]['MinCount'].toString());
           }
-
-
+            
     });
 
     getVendor(vendorId);
@@ -322,7 +321,7 @@ class _OthersDetailsState extends State<OthersDetails> {
     try{
       var headers = {'Authorization': '$authToken'};
       var request = http.Request(
-          'GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+          'GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
       request.headers.addAll(headers);
 

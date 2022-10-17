@@ -416,7 +416,7 @@ class _NotificationsState extends State<Notifications> {
         'Authorization': '$authToken'
       };
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/customize/cake/listbyuserid/$userId'));
+          Uri.parse('http://sugitechnologies.com/cakey/api/customize/cake/listbyuserid/$userId'));
 
       request.headers.addAll(headers);
 
@@ -739,7 +739,7 @@ class _NotificationsState extends State<Notifications> {
     });
     try {
       var res = await http.get(Uri.parse(
-          "https://cakey-database.vercel.app/api/users/notification/$userId"),
+          "http://sugitechnologies.com/cakey/api/users/notification/$userId"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -795,7 +795,7 @@ class _NotificationsState extends State<Notifications> {
       var headers = {
         'Content-Type': 'application/json'
       };
-      var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/order/updatestatus/$id'));
+      var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/order/updatestatus/$id'));
       request.body = json.encode({
         "Status": "Cancelled",
         "Status_Updated_By": "$byId"
@@ -838,7 +838,7 @@ class _NotificationsState extends State<Notifications> {
   Future<void> deleteAllNotifications() async{
     showAlertDialog();
     var request = http.Request('DELETE',
-        Uri.parse('https://cakey-database.vercel.app/api/users/deletenotification/$userId'));
+        Uri.parse('http://sugitechnologies.com/cakey/api/users/deletenotification/$userId'));
 
 
     http.StreamedResponse response = await request.send();

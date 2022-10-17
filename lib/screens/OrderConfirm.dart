@@ -208,7 +208,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
 
       request.headers.addAll(headers);
 

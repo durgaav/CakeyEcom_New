@@ -229,7 +229,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     //posting the value.....
     try{
       http.Response response = await http.post(
-        Uri.parse("https://cakey-database.vercel.app/api/userslogin/validate"),
+        Uri.parse("http://sugitechnologies.com/cakey/api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
           "PhoneNumber": int.parse(phonenumber)
@@ -332,7 +332,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     try{
 
       http.Response response = await http.post(
-        Uri.parse("https://cakey-database.vercel.app/api/userslogin/validate"),
+        Uri.parse("http://sugitechnologies.com/cakey/api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
           "PhoneNumber": int.parse(phonenumber)

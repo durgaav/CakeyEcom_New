@@ -153,7 +153,7 @@ class _HampersState extends State<Hampers> {
     var headers = {
       'Authorization': '$authToken'
     };
-    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/hamper/approvedlist'));
+    var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/hamper/approvedlist'));
 
     request.headers.addAll(headers);
 

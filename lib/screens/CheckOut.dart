@@ -740,7 +740,7 @@ class _CheckOutState extends State<CheckOut> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
 
       request.headers.addAll(headers);
 
@@ -816,7 +816,7 @@ class _CheckOutState extends State<CheckOut> {
     };
 
     var request = http.Request('POST',
-        Uri.parse('https://cakey-database.vercel.app/api/customize/cake/order/new/$cakeID'));
+        Uri.parse('http://sugitechnologies.com/cakey/api/customize/cake/order/new/$cakeID'));
     request.body = json.encode({
       "PaymentType": "$paymentType",
       "PaymentStatus":paymentType.toLowerCase()=="online payment"?"Paid":'Cash On Delivery',
@@ -866,7 +866,7 @@ class _CheckOutState extends State<CheckOut> {
     var headers = {
       'Authorization': '$authToken'
     };
-    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+    var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
     request.headers.addAll(headers);
 
@@ -1085,7 +1085,7 @@ class _CheckOutState extends State<CheckOut> {
 
         //http://sugitechnologies.com:88
 
-        var response = await http.post(Uri.parse("https://cakey-database.vercel.app/api/order/new"),
+        var response = await http.post(Uri.parse("http://sugitechnologies.com/cakey/api/order/new"),
             headers: {"Content-Type": "application/json"},
             body: body
         );

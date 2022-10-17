@@ -1476,7 +1476,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/activevendors/list'));
+          Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1546,7 +1546,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     var headers = {'Authorization': '$authToken'};
     var request = http.Request('GET',
-        Uri.parse('https://cakey-database.vercel.app/api/caketype/list'));
+        Uri.parse('http://sugitechnologies.com/cakey/api/caketype/list'));
 
     request.headers.addAll(headers);
 
@@ -1626,9 +1626,9 @@ class _CakeTypesState extends State<CakeTypes> {
     cakesList.clear();
     print("Ven iddd : $myVendorId");
 
-    String commonCake = 'https://cakey-database.vercel.app/api/cakes/activevendors/list';
+    String commonCake = 'http://sugitechnologies.com/cakey/api/cakes/activevendors/list';
     String vendorCake =
-        'https://cakey-database.vercel.app/api/cake/listbyIdandstatus/$myVendorId';
+        'http://sugitechnologies.com/cakey/api/cake/listbyIdandstatus/$myVendorId';
 
     try {
       http.Response response = await http.get(
@@ -1717,7 +1717,7 @@ class _CakeTypesState extends State<CakeTypes> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1758,7 +1758,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //Fetching Flavours...API
   Future<void> fetchFlavours() async {
     var res = await http.get(
-        Uri.parse('https://cakey-database.vercel.app/api/flavour/list'),
+        Uri.parse('http://sugitechnologies.com/cakey/api/flavour/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -1777,7 +1777,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //get shapes from api
   Future<void> fetchShapes() async {
     var res = await http.get(
-        Uri.parse('https://cakey-database.vercel.app/api/shape/list'),
+        Uri.parse('http://sugitechnologies.com/cakey/api/shape/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -2840,7 +2840,7 @@ class _CakeTypesState extends State<CakeTypes> {
     activeVendorsIds.clear();
     try {
       var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {

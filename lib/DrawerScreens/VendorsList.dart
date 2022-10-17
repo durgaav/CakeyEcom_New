@@ -157,7 +157,7 @@ class _VendorsListState extends State<VendorsList> {
 
     try{
 
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -269,7 +269,7 @@ class _VendorsListState extends State<VendorsList> {
     try{
       print("enter");
       var res = await http.get(
-          Uri.parse('https://cakey-database.vercel.app/api/cake/list'),
+          Uri.parse('http://sugitechnologies.com/cakey/api/cake/list'),
           headers: {"Authorization": "$authToken"});
 
       if (res.statusCode == 200) {

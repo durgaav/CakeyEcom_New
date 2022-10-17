@@ -792,7 +792,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Future<void> getFlavsList() async{
 
     try{
-      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/flavour/list'),
+      var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/flavour/list'),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -824,7 +824,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the shapes fom collection
   Future<void> getShapesList() async{
 
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/shape/list'),
+    var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/shape/list'),
         headers: {"Authorization":"$authToken"}
     );
 
@@ -859,7 +859,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the article fom collection
   Future<void> getArticleList() async{
 
-    var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/article/list'),
+    var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/article/list'),
         headers: {"Authorization":"$authToken"}
     );
 
@@ -887,7 +887,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     try{
 
       print('weight...');
-      var res = await http.get(Uri.parse('https://cakey-database.vercel.app/api/weight/list'),
+      var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/weight/list'),
           headers: {"Authorization":"$authToken"}
       );
       if(res.statusCode==200){
@@ -924,7 +924,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     print("vendor....");
     showAlertDialog();
     try{
-      var res = await http.get(Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
       if(res.statusCode==200){
@@ -1137,7 +1137,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       try{
 
           var request = http.MultipartRequest('POST',
-              Uri.parse('https://cakey-database.vercel.app/api/customize/cake/new'));
+              Uri.parse('http://sugitechnologies.com/cakey/api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
@@ -1284,7 +1284,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/${obj.toLowerCase()}/new'));
+    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/${obj.toLowerCase()}/new'));
     request.body = json.encode({
       obj: value
     });

@@ -1403,7 +1403,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     print("entered...top");
 
     var res = await http.get(
-        Uri.parse("https://cakey-database.vercel.app/api/toppers/listbyvendorandstock/$id"),
+        Uri.parse("http://sugitechnologies.com/cakey/api/toppers/listbyvendorandstock/$id"),
         headers: {"Authorization": "$authToken"});
 
     print(authToken);
@@ -1937,7 +1937,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     print("begin...");
 
     var res = await http.get(
-        Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+        Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -1989,7 +1989,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     showAlertDialog();
     var res = await http.get(
-        Uri.parse('https://cakey-database.vercel.app/api/cakes/activevendors/list'),
+        Uri.parse('http://sugitechnologies.com/cakey/api/cakes/activevendors/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {

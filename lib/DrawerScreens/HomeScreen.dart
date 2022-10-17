@@ -1118,7 +1118,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var prefs = await SharedPreferences.getInstance();
     try {
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+          Uri.parse("http://sugitechnologies.com/cakey/api/users/list/"
               "${int.parse(phoneNumber)}"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
@@ -1197,7 +1197,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var request = http.MultipartRequest(
         'PUT',
         Uri.parse(
-            'https://cakey-database.vercel.app/api/users/update/$userID'));
+            'http://sugitechnologies.com/cakey/api/users/update/$userID'));
     request.headers['Content-Type'] = 'multipart/form-data';
     request.fields.addAll({'Notification_Id': '$token'});
 
@@ -1264,7 +1264,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try{
 
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/otherproduct/activevendors/list'));
+          Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1322,7 +1322,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/caketype/list'));
+          Uri.parse('http://sugitechnologies.com/cakey/api/caketype/list'));
 
       request.headers.addAll(headers);
 
@@ -1412,7 +1412,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     try {
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/cakes/activevendors/list"),
+          Uri.parse("http://sugitechnologies.com/cakey/api/cakes/activevendors/list"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
         if (response.body.length < 50) {
@@ -1467,7 +1467,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       http.Response response = await http.get(
           Uri.parse(
-              "https://cakey-database.vercel.app/api/ordersandhamperorders/listbyuser/$userID"),
+              "http://sugitechnologies.com/cakey/api/ordersandhamperorders/listbyuser/$userID"),
           headers: {"Authorization": "$authToken"}
       );
       if (response.statusCode == 200) {
@@ -1555,7 +1555,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredByEggList.clear();
     try {
       var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -1618,7 +1618,7 @@ class _HomeScreenState extends State<HomeScreen> {
     activeVendorsIds.clear();
     try {
       var res = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/activevendors/list"),
+          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -1680,7 +1680,7 @@ class _HomeScreenState extends State<HomeScreen> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/hamper/approvedlist'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/hamper/approvedlist'));
 
       request.headers.addAll(headers);
 
@@ -1735,7 +1735,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var list = [];
     try {
       var res = await http.get(Uri.parse(
-          "https://cakey-database.vercel.app/api/users/notification/$userID"),
+          "http://sugitechnologies.com/cakey/api/users/notification/$userID"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -1780,7 +1780,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('https://cakey-database.vercel.app/api/deliverycharge/list'));
+          Uri.parse('http://sugitechnologies.com/cakey/api/deliverycharge/list'));
 
       request.headers.addAll(headers);
 

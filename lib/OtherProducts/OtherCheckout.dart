@@ -590,7 +590,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
 
       request.headers.addAll(headers);
 
@@ -694,7 +694,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST',
-        Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
+        Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
     request.body = json.encode({
       "Other_ProductID": cakeID,
       "Other_Product_ID": cakeModId,
@@ -799,7 +799,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
+    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
     request.body = json.encode({
       "Other_ProductID": cakeID,
       "Other_Product_ID": cakeModId,
@@ -903,7 +903,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/new'));
+    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
     request.body = json.encode({
       "Other_ProductID": cakeID,
       "Other_Product_ID": cakeModId,
