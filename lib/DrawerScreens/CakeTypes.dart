@@ -183,6 +183,9 @@ class _CakeTypesState extends State<CakeTypes> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -651,8 +654,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
@@ -692,6 +694,7 @@ class _CakeTypesState extends State<CakeTypes> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 5,),
                           TextButton(
                             onPressed: () {
                               //clearing all filters
@@ -1168,124 +1171,10 @@ class _CakeTypesState extends State<CakeTypes> {
                                 );
                               }),
                           SizedBox(height: 6),
-
-                          // ExpansionTile(
-                          //   title: Text(
-                          //     'OTHERS',
-                          //     style: TextStyle(
-                          //         color: darkBlue,
-                          //         fontFamily: "Poppins",
-                          //         fontSize: 15,
-                          //         fontWeight: FontWeight.bold),
-                          //   ),
-                          //   trailing: Container(
-                          //     alignment: Alignment.center,
-                          //     height: 25,
-                          //     width: 25,
-                          //     decoration: BoxDecoration(
-                          //       color: Colors.grey[300],
-                          //       shape: BoxShape.circle,
-                          //     ),
-                          //     child: Icon(
-                          //       Icons.keyboard_arrow_down_rounded,
-                          //       color: darkBlue,
-                          //       size: 25,
-                          //     ),
-                          //   ),
-                          //   children: [
-                          //     ListView.builder(
-                          //         physics: NeverScrollableScrollPhysics(),
-                          //         shrinkWrap: true,
-                          //         itemCount: shapesOthersForFilter.length,
-                          //         itemBuilder: (context, index) {
-                          //           return InkWell(
-                          //             splashColor: Colors.red[200],
-                          //             onTap: () {
-                          //               setState(() {
-                          //                 if (otherShapeCheck[index] == false) {
-                          //                   otherShapeCheck[index] = true;
-                          //
-                          //                   if (filterShapes.contains(
-                          //                       shapesOthersForFilter[index])) {
-                          //                   } else {
-                          //                     filterShapes.add(
-                          //                         shapesOthersForFilter[index]);
-                          //                   }
-                          //                 } else {
-                          //                   filterShapes.remove(
-                          //                       shapesOthersForFilter[index]);
-                          //                   otherShapeCheck[index] = false;
-                          //                 }
-                          //               });
-                          //             },
-                          //             child: Column(
-                          //               crossAxisAlignment:
-                          //                   CrossAxisAlignment.start,
-                          //               children: [
-                          //                 SizedBox(
-                          //                   height: 5,
-                          //                 ),
-                          //                 Wrap(
-                          //                   crossAxisAlignment:
-                          //                       WrapCrossAlignment.center,
-                          //                   runSpacing: 5,
-                          //                   children: [
-                          //                     Checkbox(
-                          //                       shape: CircleBorder(),
-                          //                       activeColor: Colors.white,
-                          //                       fillColor: MaterialStateProperty
-                          //                           .resolveWith((states) =>
-                          //                               Colors.green),
-                          //                       value: otherShapeCheck[index],
-                          //                       onChanged: (bool? check) {
-                          //                         setState(() {
-                          //                           if (otherShapeCheck[
-                          //                                   index] ==
-                          //                               false) {
-                          //                             otherShapeCheck[index] =
-                          //                                 true;
-                          //
-                          //                             if (filterShapes.contains(
-                          //                                 shapesOthersForFilter[
-                          //                                     index])) {
-                          //                             } else {
-                          //                               filterShapes.add(
-                          //                                   shapesOthersForFilter[
-                          //                                       index]);
-                          //                             }
-                          //                           } else {
-                          //                             filterShapes.remove(
-                          //                                 shapesOthersForFilter[
-                          //                                     index]);
-                          //                             otherShapeCheck[index] =
-                          //                                 false;
-                          //                           }
-                          //                         });
-                          //                       },
-                          //                     ),
-                          //                     Text(
-                          //                       shapesOthersForFilter[index]
-                          //                           .toString(),
-                          //                       style: TextStyle(
-                          //                           color: darkBlue,
-                          //                           fontFamily: "Poppins",
-                          //                           fontSize: 15),
-                          //                     ),
-                          //                   ],
-                          //                 ),
-                          //               ],
-                          //             ),
-                          //           );
-                          //         }),
-                          //   ],
-                          // )
-
                         ],
                       )),
                     ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
@@ -1311,6 +1200,7 @@ class _CakeTypesState extends State<CakeTypes> {
                             ),
                           ),
                         ),
+                        SizedBox(height:5),
                         TextButton(
                           onPressed: () {
                             //clearing all filters
@@ -3392,7 +3282,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(18),
-                                    color: Colors.red[50]),
+                                    color: Color(0xffffe9df)),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -3402,27 +3292,32 @@ class _CakeTypesState extends State<CakeTypes> {
                                         text: 'DO YOU WANT A ',
                                         style: TextStyle(
                                             color: Colors.black,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14),
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 16),
                                       ),
                                       TextSpan(
                                         text: 'THEME CAKE ? ',
                                         style: TextStyle(
                                             color: lightPink,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 14),
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 16),
                                       )
                                     ])),
                                     Expanded(
                                       child: Align(
                                         alignment: Alignment.centerRight,
                                         child: Container(
-                                          color: Colors.transparent,
-                                          height: 70,
-                                          width: 70,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xffefc0c7),
+                                            borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(100)
+                                            )
+                                          ),
+                                          height: 75,
+                                          width: 75,
                                           child: Image(
                                             image: AssetImage(
-                                                'assets/images/themecake.png'),
+                                                'assets/images/cake-image-bottom.png'),
                                           ),
                                         ),
                                       ),
@@ -4109,11 +4004,11 @@ class _CakeTypesState extends State<CakeTypes> {
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: lightPink,
-                                                width: 0.5,
+                                                color: Color(0xffffa2bb),
+                                                width: 1,
                                               ),
                                               color: selIndex[index]
-                                                  ? Colors.red[100]
+                                                  ? Color(0xffffe9df)
                                                   : Colors.white),
                                           child: Row(
                                             mainAxisAlignment:

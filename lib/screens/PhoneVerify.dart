@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cakey/CountryCode.dart';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/screens/CodeVerify.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,6 +24,8 @@ class _PhoneVerifyState extends State<PhoneVerify> {
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
 
+  var countryCodes = CountryCodes().list;
+  var selectedCode = "91";
 
   //network check
   void checkNetwork() async{
@@ -32,7 +35,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
         print('connected');
         print("Perform Actions Here");
         Navigator.push(context, MaterialPageRoute(builder: (context)=>CodeVerify(
-          phonenumber: "+91"+phoneControl.text.toString(),
+          phonenumber: "+$selectedCode"+phoneControl.text.toString(),
         )));
       }
     } on SocketException catch (_) {
@@ -64,8 +67,8 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                       )
                     ),
                   ),
-                  Text("You'll receive a 6 digit code to \nverify next",textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontWeight: FontWeight.bold),
+                  Text("You'll receive a 6 digit code \nfor verification",textAlign: TextAlign.center,
+                  style: TextStyle(fontFamily: "Poppins",color: Color(0xffbac4c8),fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 35,),
                   Container(
@@ -73,47 +76,97 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                     margin: EdgeInsets.only(left: 15),
                     padding: EdgeInsets.all(5),
                     width: double.infinity,
-                    child: Text('Phone Number',style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontWeight: FontWeight.bold),),
+                    child: Text('Country',style: TextStyle(fontFamily: "Poppins",color:Color(0xffbac4c8),fontWeight: FontWeight.bold),),
                   ),
+                  SizedBox(height: 7,),
+                  Container(
+                    decoration: BoxDecoration(
+                      // border: Border.all(
+                      //   color: Colors.grey[400]!,
+                      //   width: 1
+                      // ),
+                      // borderRadius: BorderRadius.circular(15)
+                    ),
+                    margin: EdgeInsets.only(left: 15,right: 15),
+                    padding: EdgeInsets.all(0),
+                    child:  DropdownButton(
+                      menuMaxHeight: 300,
+                      items: countryCodes.map<DropdownMenuItem<String>>((e){
+                        return DropdownMenuItem(
+                          child: Text("+"+e['code'].toString()+"  "+e['country'].toString(),style: TextStyle(
+                            color: Colors.black,fontFamily: "Poppins"
+                          ),),
+                          value: e['code'],
+                        );
+                      }).toList(),
+                      isExpanded: true,
+                      onChanged: (e){
+                        setState(() {
+                          selectedCode = e.toString();
+                        });
+                      },
+                      value: selectedCode,
+                    ),
+                  ),
+                  SizedBox(height: 7,),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(left: 15),
+                    padding: EdgeInsets.all(5),
+                    width: double.infinity,
+                    child: Text('Phone Number',style: TextStyle(fontFamily: "Poppins",color:Color(0xffbac4c8),fontWeight: FontWeight.bold),),
+                  ),
+                  SizedBox(height: 7,),
                   Container(
                     margin: EdgeInsets.only(left: 15,right: 15),
                     child: TextField(
-                      onChanged: (String? textLen){
-                        setState(() {
-                          length = textLen!;
-                          if(textLen==10){
-                            FocusScope.of(context).unfocus();
-                          }
-                        });
-                      },
-                      controller: phoneControl,
-                      maxLines: 1,
-                      maxLength: 10,
-                      keyboardType: TextInputType.phone,
-                      style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                          suffixIcon: Visibility(
-                            visible: length.length>0?true:false,
-                            child: IconButton(
-                              onPressed: (){
-                                FocusScope.of(context).unfocus();
-                                setState(() {
-                                  phoneControl.text = "";
-                                  length = "";
-                                });
-                              },
-                              icon: Icon(Icons.close_rounded),
-                              iconSize: 18,
+                            onChanged: (String? textLen){
+                              setState(() {
+                                length = textLen!;
+                                if(textLen==10){
+                                  FocusScope.of(context).unfocus();
+                                }
+                              });
+                            },
+                            controller: phoneControl,
+                            maxLines: 1,
+                            maxLength: 10,
+                            keyboardType: TextInputType.phone,
+                            style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold),
+                            decoration: InputDecoration(
+                                suffixIcon: Visibility(
+                                  visible: length.length>0?true:false,
+                                  child: IconButton(
+                                    onPressed: (){
+                                      FocusScope.of(context).unfocus();
+                                      setState(() {
+                                        phoneControl.text = "";
+                                        length = "";
+                                      });
+                                    },
+                                    icon: Icon(Icons.close_rounded),
+                                    iconSize: 18,
+                                  ),
+                                ),
+                                hintText: 'Phone Number',
+                                counterText: "",
+                                hintStyle: TextStyle(fontFamily: "Poppins",color: Color(0xffbac4c8)),
+                                prefixIcon:Container(
+                                  margin: EdgeInsets.all(6),
+                                  height: 25,
+                                  width: 25,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: lightGrey,
+                                    shape: BoxShape.circle
+                                  ),
+                                  child: Icon(Icons.phone , color: darkBlue,size: 20,),
+                                ),
+
                             ),
                           ),
-                          hintText: 'Phone Number',
-                          hintStyle: TextStyle(fontFamily: "Poppins"),
-                          prefixIcon:Icon(Icons.phone , color: darkBlue,),
-
-                      ),
-                    ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 40,),
                   Container(
                     height: 55,
                     width: 200,

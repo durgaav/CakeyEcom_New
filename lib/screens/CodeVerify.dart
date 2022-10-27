@@ -197,6 +197,9 @@ class _CodeVerifyState extends State<CodeVerify> {
         context: context,
         builder: (context){
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -432,7 +435,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                 children: [
                   SizedBox(height: 40,),
                   Text('OTP',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "Poppins"),),
-                  Text("Code is sent to $phonenumber",textAlign: TextAlign.center,style: TextStyle(fontFamily: "Poppins"),),
+                  Text("Sent to $phonenumber",textAlign: TextAlign.center,style: TextStyle(fontFamily: "Poppins"),),
                   SizedBox(height: 100,),
                   Container(
                     margin: EdgeInsets.only(left: 20, right: 20),
@@ -457,7 +460,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                     ),
                   ),
                   SizedBox(height: 50,),
-                  Text("Don't receive code?",textAlign: TextAlign.center,
+                  Text("Didn't receive OTP?",textAlign: TextAlign.center,
                   style: TextStyle(fontFamily: "Poppins"),
                   ),
                   TextButton(

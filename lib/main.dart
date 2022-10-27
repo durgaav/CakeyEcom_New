@@ -1,6 +1,10 @@
 // @dart=2.9
+import 'dart:async';
+
 import 'package:cakey/ContextData.dart';
+import 'package:cakey/Dialogs.dart';
 import 'package:cakey/TestScreen.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -49,9 +53,10 @@ class _MyAppState extends State<MyApp> {
    bool _serviceEnabled;
    PermissionStatus _permissionGranted;
    LocationData _userLocation ;
-  Location myLocation = Location();
-
-  FirebaseMessaging messaging = null;
+   Location myLocation = Location();
+   FirebaseMessaging messaging = null;
+   StreamSubscription<ConnectivityResult> sub;
+   var disconected = false;
 
   Future<void> addPrem() async{
     // Check if location service is enable
@@ -74,13 +79,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    sub.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     addPrem();
+    sub = Connectivity().onConnectivityChanged.listen((event) {
+      print("Con status.... ${event}");
+      handleNetwork(event);
+      //ConnectivityResult.none
+    });
     // TODO: implement initState
-
     messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value){
-      print("token : $value");
+
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       //context.read<ContextData>().setNotiCount(1);
@@ -118,17 +134,25 @@ class _MyAppState extends State<MyApp> {
         );
       }, duration: Duration(milliseconds: 6000));
     });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print('Message clicked!');
-    });
-
-
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {});
     super.initState();
+  }
+
+  handleNetwork(event){
+    setState(() {
+      if(event == ConnectivityResult.none){
+        disconected = true;
+      }else{
+        disconected = false;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    print(disconected);
+
     return ChangeNotifierProvider<ContextData>(
       create: (context)=>ContextData(),
       child: OverlaySupport(
@@ -156,7 +180,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 
 MaterialColor buildMaterialColor(Color color) {
   List strengths = <double>[.05];

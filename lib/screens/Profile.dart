@@ -123,11 +123,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         context: context,
         builder: (context){
           return AlertDialog(
-            title: Text('Cakey'
-              ,style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
+            title: Text('Logout'
+              ,style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
             ),
             content: Text('Are you sure? you will be logged out!',
-              style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+              style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
               FlatButton(
@@ -135,7 +138,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   Navigator.pop(context);
                 },
                 child: Text('Cancel',
-                  style: TextStyle(color: Colors.green,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
               FlatButton(
@@ -151,7 +154,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   );
                 },
                 child: Text('Logout',
-                  style: TextStyle(color: Colors.deepPurple,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
             ],
@@ -167,6 +170,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         context: context,
         builder: (context){
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -205,7 +211,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       //without profile img....
         var request = http.MultipartRequest('PUT',
             Uri.parse(
-                'https://cakey-database.vercel.app/api/users/update/$userID'));
+                'http://sugitechnologies.com/cakey/api/users/update/$userID'));
         request.headers['Content-Type'] = 'multipart/form-data';
 
         request.fields.addAll({
@@ -245,7 +251,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Profile updated!'),backgroundColor: Colors.green,)
+              SnackBar(content: Text('Profile updated!'),backgroundColor: Color(0xff058d05),)
           );
 
         }
@@ -272,7 +278,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/order/cancel/$id'));
+    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/order/cancel/$id'));
     request.body = json.encode({
       "Status": "Cancelled",
       "Status_Updated_By": "$byId"
@@ -325,7 +331,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/hamperorder/canceled/$id'));
+    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/hamperorder/canceled/$id'));
     request.body = json.encode({
       "Cancelled_By": "User"
     });
@@ -378,7 +384,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('https://cakey-database.vercel.app/api/otherproduct/order/acceptorcancel/$id'));
+    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/acceptorcancel/$id'));
     request.body = json.encode({
       "Status": "Cancelled",
       "Cancelled_By": "User",
@@ -465,7 +471,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     try{
       http.Response response = await http.get(
-          Uri.parse("https://cakey-database.vercel.app/api/ordersandhamperorders/listbyuser/$_id"),
+          Uri.parse("http://sugitechnologies.com/cakey/api/ordersandhamperorders/listbyuser/$_id"),
           headers: {"Authorization":"$authToken"}
       );
       if(response.statusCode==200){
@@ -509,7 +515,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Authorization': '$authToken'
     };
-    var request = http.Request('GET', Uri.parse('https://cakey-database.vercel.app/api/vendors/list'));
+    var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
     request.headers.addAll(headers);
 
@@ -532,7 +538,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
-      http.Response response = await http.get(Uri.parse("https://cakey-database.vercel.app/api/users/list/"
+      http.Response response = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/users/list/"
           "${int.parse(phoneNumber)}"),
           headers: {"Authorization":"$authToken"}
       );
@@ -600,7 +606,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       'Content-Type': 'application/json'
     };
     var request = http.Request('PUT',
-        Uri.parse('https://cakey-database.vercel.app/api/cake/ratings/$cakeId'));
+        Uri.parse('http://sugitechnologies.com/cakey/api/cake/ratings/$cakeId'));
     request.body = json.encode({
       "Ratings": rate
     });
@@ -731,7 +737,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
                           radius: 20,
-                          backgroundColor:Color(0xff03c04a),
+                          backgroundColor:Color(0xff25bd87),
                           child: Icon(Icons.camera_alt,color:Colors.white,),
                         ),
                       ),
@@ -848,7 +854,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontSize: 13),
                   ),
                 ),
-                Icon(Icons.check_circle,color: Colors.green,size: 25,),
+                Icon(Icons.check_circle,color: Color(0xff058d05),size: 25,),
               ]
           ),
         ),
@@ -1272,9 +1278,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Color(0xff058d05),
                                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                    const Icon(Icons.check_circle,color: Color(0xff058d05),size: 12,)
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
@@ -1361,7 +1367,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             shape: BoxShape.circle,
                                             color: Colors.white
                                         ),
-                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
                                       ),
                                     ),
                                   ],
@@ -1671,7 +1677,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   child:  Text('Rate',style: TextStyle(
                                                       fontFamily: "Poppins",
                                                       fontSize: 13.5,
-                                                      color:Colors.green
+                                                      color:Color(0xff058d05)
                                                   ),)
                                               ),
                                             ],
@@ -1898,9 +1904,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Color(0xff058d05),
                                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                    const Icon(Icons.check_circle,color: Color(0xff058d05),size: 12,)
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
@@ -1984,7 +1990,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             shape: BoxShape.circle,
                                             color: Colors.white
                                         ),
-                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
                                       ),
                                     ),
                                   ],
@@ -2275,7 +2281,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   child:  Text('Rate',style: TextStyle(
                                                       fontFamily: "Poppins",
                                                       fontSize: 13.5,
-                                                      color:Colors.green
+                                                      color:Color(0xff058d05)
                                                   ),)
                                               ),
                                             ],
@@ -2491,9 +2497,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Color(0xff058d05),
                                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                    const Icon(Icons.check_circle,color: Color(0xff058d05),size: 12,)
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
@@ -2577,7 +2583,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             shape: BoxShape.circle,
                                             color: Colors.white
                                         ),
-                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
                                       ),
                                     ),
                                   ],
@@ -2875,7 +2881,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   child:  Text('Rate',style: TextStyle(
                                                       fontFamily: "Poppins",
                                                       fontSize: 13.5,
-                                                      color:Colors.green
+                                                      color:Color(0xff058d05)
                                                   ),)
                                               ),
                                             ],
@@ -3099,9 +3105,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Colors.green,
+                                                    Text("${recentOrders[index]['Status']} ",style: TextStyle(color: Color(0xff058d05),
                                                         fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11),),
-                                                    const Icon(Icons.check_circle,color: Colors.green,size: 12,)
+                                                    const Icon(Icons.check_circle,color: Color(0xff058d05),size: 12,)
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
@@ -3185,7 +3191,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             shape: BoxShape.circle,
                                             color: Colors.white
                                         ),
-                                        child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                        child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
                                       ),
                                     ),
                                   ],
@@ -3494,7 +3500,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   child:  Text('Rate',style: TextStyle(
                                                       fontFamily: "Poppins",
                                                       fontSize: 13.5,
-                                                      color:Colors.green
+                                                      color:Color(0xff058d05)
                                                   ),)
                                               ),
                                             ],

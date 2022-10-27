@@ -196,6 +196,9 @@ class _HomeScreenState extends State<HomeScreen> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -539,29 +542,32 @@ class _HomeScreenState extends State<HomeScreen> {
                            child: Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                               Text("Complete Your Profile & Easy To Take\nYour Order",style: TextStyle(
+                               Text("Complete Your Profile",style: TextStyle(
                                    color: darkBlue,fontFamily: "Poppins",fontWeight: FontWeight.bold,
                                    fontSize: 14.5,decoration: TextDecoration.none
                                ),),
                                SizedBox(height: 5,),
-                               Container(
-                                 height: 30,
-                                 width: 100,
-                                 decoration:BoxDecoration(
-                                   borderRadius: BorderRadius.circular(20)
-                                 ),
-                                 child: RaisedButton(
-                                   shape: RoundedRectangleBorder(
-                                       borderRadius: BorderRadius.circular(20)
+                               Align(
+                                 alignment: Alignment.centerRight,
+                                 child: Container(
+                                   height: 30,
+                                   width: 100,
+                                   decoration:BoxDecoration(
+                                     borderRadius: BorderRadius.circular(20)
                                    ),
-                                     onPressed:(){
-                                       Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
-                                     },
-                                   child: Text("PROFILE",style: TextStyle(
-                                       color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
-                                       fontSize: 12,decoration: TextDecoration.none
-                                   ),),
-                                   color: lightPink,
+                                   child: RaisedButton(
+                                     shape: RoundedRectangleBorder(
+                                         borderRadius: BorderRadius.circular(20)
+                                     ),
+                                       onPressed:(){
+                                         Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
+                                       },
+                                     child: Text("PROFILE",style: TextStyle(
+                                         color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
+                                         fontSize: 12,decoration: TextDecoration.none
+                                     ),),
+                                     color: lightPink,
+                                   ),
                                  ),
                                )
                              ],
@@ -2065,11 +2071,13 @@ class _HomeScreenState extends State<HomeScreen> {
           activeSearchClear();
           return Future.value(false);
         }else{
-
           showDialog(
               context: context,
               builder: (context)=>
                   AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)
+                    ),
                     title: Text("Exit Alert" , style: TextStyle(
                         color: darkBlue , fontFamily: "Poppins",
                         fontWeight: FontWeight.bold
@@ -2080,23 +2088,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                     ),
                     actions: [
-
-                      FlatButton(
-                        onPressed: (){
-                          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                          Future.value(true);
-                        },
-                        child: Text('Exit', style: TextStyle(
-                          color: Colors.purple , fontFamily: "Poppins",
-                        )),
-                      ),
-
                       FlatButton(
                         onPressed: (){
                           Navigator.pop(context);
                           Future.value(false);
                         },
                         child: Text('Cancel', style: TextStyle(
+                          color: Colors.purple , fontFamily: "Poppins",
+                        )),
+                      ),
+                      FlatButton(
+                        onPressed: (){
+                          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                          Future.value(true);
+                        },
+                        child: Text('Exit', style: TextStyle(
                           color: Colors.purple , fontFamily: "Poppins",
                         )),
                       ),

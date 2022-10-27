@@ -63,6 +63,9 @@ class _NotificationsState extends State<Notifications> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -915,10 +918,10 @@ class _NotificationsState extends State<Notifications> {
                     Expanded(
                         child: Align(
                             alignment: Alignment.centerRight,
-                            child: IconButton(
+                            child: mainList.isNotEmpty?IconButton(
                               onPressed: ()=>showOrderDeleteAllDialog(),
                               icon: Icon(Icons.delete_outline_outlined , color: Colors.red,),
-                            ))
+                            ):null)
                     )
                   ],
                 ),

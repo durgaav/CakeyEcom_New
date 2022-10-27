@@ -42,11 +42,14 @@ class _NavDrawerState extends State<NavDrawer> {
         context: context,
         builder: (context){
           return AlertDialog(
-            title: Text('Cakey'
-              ,style: TextStyle(color: lightPink,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
+            title: Text('Logout'
+              ,style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
             ),
             content: Text('Are you sure? you will be logged out!',
-              style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+              style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
               FlatButton(
@@ -54,7 +57,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   Navigator.pop(context);
                 },
                 child: Text('Cancel',
-                  style: TextStyle(color: Colors.green,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
               FlatButton(
@@ -70,7 +73,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   );
                 },
                 child: Text('Logout',
-                  style: TextStyle(color: Colors.deepPurple,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
             ],
