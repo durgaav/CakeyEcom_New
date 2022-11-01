@@ -96,6 +96,8 @@ class _OthersDetailsState extends State<OthersDetails> {
 
   String selectedFlav = "";
 
+  var counterCtrl = TextEditingController();
+
   var picOrDeliver = ['Pickup', 'Delivery'];
   var picOrDel = [true, false];
   var fixedDelliverMethod = "Pickup";
@@ -265,10 +267,21 @@ class _OthersDetailsState extends State<OthersDetails> {
             myPrice = double.parse(weight[0]['PricePerUnit'].toString());
             selectedWeight = changeWeight(weight[0]['Weight'].toString()).toString();
             counter = int.parse(weight[0]['MinCount'].toString());
+            if(counter<10){
+              counterCtrl.text = "0"+counter.toString();
+            }else{
+              counterCtrl.text = counter.toString();
+            }
           }else{
             myPrice = double.parse(weight[0]['PricePerBox'].toString());
             selectedWeight = weight[0]['Piece'].toString();
             counter = int.parse(weight[0]['MinCount'].toString());
+            if(counter<10){
+              counterCtrl.text = "0"+counter.toString();
+            }else{
+              counterCtrl.text = counter.toString();
+            }
+
           }
             
     });
@@ -284,6 +297,9 @@ class _OthersDetailsState extends State<OthersDetails> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -711,6 +727,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     if (counter > 1) {
                                       setState(() {
                                         counter = counter - 1;
+                                        counterCtrl.text = (counter).toString();
                                       });
                                     }
                                   }
@@ -733,6 +750,28 @@ class _OthersDetailsState extends State<OthersDetails> {
                               SizedBox(width: 8),
                               Column(
                                 children: [
+                                  // Container(
+                                  //   width: 30,
+                                  //   child: TextField(
+                                  //     keyboardType: TextInputType.number,
+                                  //     controller: counterCtrl,
+                                  //     style: TextStyle(
+                                  //       color: lightPink,
+                                  //       fontWeight: FontWeight.bold,
+                                  //       fontFamily: "Poppins",
+                                  //       fontSize: 20,
+                                  //     ),
+                                  //     onChanged: (e){
+                                  //       setState(() {
+                                  //         counter = int.parse(e);
+                                  //       });
+                                  //     },
+                                  //     decoration: InputDecoration(
+                                  //       isDense: true,
+                                  //       border: InputBorder.none
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   Text(
                                     counter<10?
                                     '0${counter}':
@@ -761,6 +800,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 onTap: () {
                                   setState(() {
                                     counter++;
+                                    counterCtrl.text = (counter++).toString();
                                   });
                                 },
                                 child: Container(

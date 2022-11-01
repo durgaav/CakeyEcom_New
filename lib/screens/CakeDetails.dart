@@ -260,150 +260,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   //region Alerts
 
-  //Theme sheet
-  void showThemeBottomSheet() async {
-
-    print("Tiers : $cakeTiers");
-
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-        ),
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-              builder: (c, void Function(void Function()) setState) {
-            return Container(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 8,
-                  ),
-                  //Title text...
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'THEMES',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                            width: 35,
-                            height: 35,
-                            decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.circular(10)),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.close_outlined,
-                              color: lightPink,
-                            )),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    height: 0.5,
-                    color: Color(0xff333333),
-                  ),
-                  Expanded(
-                    child: Container(
-                      height: 220,
-                      child: Scrollbar(
-                        child: ListView.builder(
-                            itemCount: themeCakes.length,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    myThemeIndex = index;
-                                    themegrpValue = index;
-                                  });
-                                },
-                                child: Container(
-                                    padding: EdgeInsets.all(8),
-                                    child: Row(children: [
-                                      myThemeIndex != index
-                                          ? Icon(
-                                              Icons
-                                                  .radio_button_unchecked_outlined,
-                                              color: Colors.black,
-                                              size: 28,
-                                            )
-                                          : Icon(
-                                              Icons.check_circle_rounded,
-                                              color: Colors.green,
-                                              size: 28,
-                                            ),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                          child: Text.rich(TextSpan(
-                                              text:
-                                                  "${themeCakes[index]['Name']} - ",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.grey[500],
-                                                  fontFamily: "Poppins",
-                                                  fontWeight: FontWeight.bold),
-                                              children: [
-                                            TextSpan(
-                                              text:
-                                                  'Additional Rs.${themeCakes[index]['Price']}',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                                fontFamily: "Poppins",
-                                                // fontWeight: FontWeight.bold
-                                              ),
-                                            )
-                                          ])))
-                                    ])),
-                              );
-                            }),
-                      ),
-                    ),
-                  ),
-                  //button for add
-                  Container(
-                    height: 45,
-                    width: 120,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      color: lightPink,
-                      onPressed: () {
-                        saveFixedTheme(themegrpValue);
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        "ADD",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          });
-        });
-  }
-
   //Default loader dialog
   void showAlertDialog() {
     showDialog(
@@ -411,6 +267,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
@@ -439,146 +298,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   }
 
   //theme select bottom sheet......
-
-  //cake toppings bottom sheet...
-  void showCakeToppingsSheet() {
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-        ),
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(builder:
-              (BuildContext context, void Function(void Function()) setState) {
-            return Container(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 8,
-                  ),
-                  //Title text...
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'CAKE TOPPINGS',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                            width: 35,
-                            height: 35,
-                            decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.circular(10)),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.close_outlined,
-                              color: lightPink,
-                            )),
-                      ),
-                    ],
-                  ),
-
-                  Container(
-                    height: 290,
-                    child: Scrollbar(
-                      child: ListView.builder(
-                          itemCount: topings.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            toppingsVal.add(false);
-                            return ListTile(
-                              onTap: () {
-                                setState(() {
-                                  if (toppingsVal[index] == false) {
-                                    toppingsVal[index] = true;
-
-                                    if (fixedToppings
-                                        .contains(topings[index])) {
-                                      print('exists...');
-                                    } else {
-                                      fixedToppings.add(topings[index]);
-                                    }
-                                  } else {
-                                    fixedToppings.remove(topings[index]);
-                                    toppingsVal[index] = false;
-                                  }
-                                });
-                              },
-                              leading: Transform.scale(
-                                scale: 1.3,
-                                child: Checkbox(
-                                  checkColor: Colors.white,
-                                  fillColor: MaterialStateProperty.resolveWith(
-                                      (states) => Colors.green),
-                                  value: toppingsVal[index],
-                                  onChanged: (bool? value) {
-                                    print(value);
-                                    setState(() {
-                                      if (toppingsVal[index] == false) {
-                                        toppingsVal[index] = true;
-                                        if (fixedToppings
-                                            .contains(topings[index])) {
-                                          print('exists...');
-                                        } else {
-                                          fixedToppings.add(topings[index]);
-                                        }
-                                      } else {
-                                        fixedToppings.remove(topings[index]);
-                                        toppingsVal[index] = false;
-                                      }
-                                    });
-                                  },
-                                  shape: CircleBorder(),
-                                ),
-                              ),
-                              title: Text(
-                                "${topings[index]}",
-                                style: TextStyle(
-                                    fontFamily: "Poppins", color: darkBlue),
-                              ),
-                            );
-                          }),
-                    ),
-                  ),
-
-                  Container(
-                    margin: EdgeInsets.all(15),
-                    height: 45,
-                    width: 120,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      color: lightPink,
-                      onPressed: () {
-                        saveFixedToppings();
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        "ADD",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          });
-        });
-  }
 
   //Cake flavours sheet...
   void showCakeFlavSheet() {
@@ -718,26 +437,28 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     ),
                   ),
 
-                  Container(
-                    margin: EdgeInsets.all(15),
-                    height: 45,
-                    width: 120,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      color: lightPink,
-                      onPressed: () {
-                        setState(() {
-                          saveFixedFlav(temp);
-                        });
-                      },
-                      child: Text(
-                        "ADD",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
+                  Center(
+                    child: Container(
+                      margin: EdgeInsets.all(15),
+                      height: 45,
+                      width: 120,
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        color: lightPink,
+                        onPressed: () {
+                          setState(() {
+                            saveFixedFlav(temp);
+                          });
+                        },
+                        child: Text(
+                          "ADD",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins"),
+                        ),
                       ),
                     ),
                   ),
@@ -893,28 +614,30 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     ),
                   ),
 
-                  Container(
-                    margin: EdgeInsets.all(15),
-                    height: 45,
-                    width: 120,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      color: lightPink,
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          // saveFixedShape(shapeGrpValue);
-                          setShapeFixed(myShapeIndex);
-                        });
-                      },
-                      child: Text(
-                        "ADD",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins"),
+                  Center(
+                    child: Container(
+                      margin: EdgeInsets.all(15),
+                      height: 45,
+                      width: 120,
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        color: lightPink,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            // saveFixedShape(shapeGrpValue);
+                            setShapeFixed(myShapeIndex);
+                          });
+                        },
+                        child: Text(
+                          "ADD",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins"),
+                        ),
                       ),
                     ),
                   ),
@@ -982,7 +705,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       height: 280,
                       child: toppersList.isNotEmpty?
                       Scrollbar(
-
                         child: ListView.builder(
                             itemCount: toppersList.length,
                             itemBuilder: (c, i)=>
@@ -1053,26 +775,28 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       )
                     ),
 
-                    Container(
-                      margin: EdgeInsets.all(15),
-                      height: 45,
-                      width: 120,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        color: lightPink,
-                        onPressed: () {
-                          setState(() {
-                            saveFixedToppers(id, name, image, price);
-                          });
-                        },
-                        child: Text(
-                          "ADD",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins"),
+                    Center(
+                      child: Container(
+                        margin: EdgeInsets.all(15),
+                        height: 45,
+                        width: 120,
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: lightPink,
+                          onPressed: () {
+                            setState(() {
+                              saveFixedToppers(id, name, image, price);
+                            });
+                          },
+                          child: Text(
+                            "ADD",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Poppins"),
+                          ),
                         ),
                       ),
                     ),
@@ -1573,10 +1297,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
       weight = weight.toSet().toList();
       cakeImages = cakeImages.toSet().toList();
-
-      if(cakeEggorEgless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=='y'){
-        showEgglessSheet();
-      }
 
       if(cakeEggorEgless.toLowerCase()=="eggless"){
         isFromEggless = true;
@@ -2742,8 +2462,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ],
                               ),
                               GestureDetector(
-                                onTap:()=>isFromEggless?
-                                null:showEgglessSheet(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -3041,185 +2759,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                           padding: EdgeInsets.all(12),
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
-                              color: Colors.red[50],
+                              color: Color(0xffffe9df),
                               borderRadius: BorderRadius.circular(10)),
                           child: Column(
                             children: [
-                              // Row(
-                              //   mainAxisAlignment:
-                              //       MainAxisAlignment.spaceBetween,
-                              //   children: [
-                              //     Text(
-                              //       'Theme',
-                              //       style: TextStyle(fontFamily: "Poppins"),
-                              //     ),
-                              //     fixedtheme.isNotEmpty
-                              //         ? GestureDetector(
-                              //             onTap: () {
-                              //               setState(() {
-                              //                 fixedtheme = "";
-                              //               });
-                              //             },
-                              //             child: Container(
-                              //               width: 100,
-                              //               alignment: Alignment.center,
-                              //               margin: EdgeInsets.only(right: 100),
-                              //               padding: EdgeInsets.symmetric(
-                              //                   horizontal: 10, vertical: 3),
-                              //               decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(20),
-                              //                 color: lightPink,
-                              //               ),
-                              //               child: Wrap(
-                              //                 children: [
-                              //                   Text(
-                              //                     '${fixedtheme}',
-                              //                     maxLines: 1,
-                              //                     overflow:
-                              //                         TextOverflow.ellipsis,
-                              //                     style: TextStyle(
-                              //                         fontFamily: "Poppins",
-                              //                         fontSize: 9,
-                              //                         color: Colors.white),
-                              //                   ),
-                              //                 ],
-                              //               ),
-                              //             ),
-                              //           )
-                              //         : Container(),
-                              //     fixedtheme.isEmpty
-                              //         ? GestureDetector(
-                              //             onTap: () {
-                              //               // showThemeBottomSheet();
-                              //               setState((){
-                              //
-                              //                 if(isThemePossible.toLowerCase()=='y'){
-                              //                   themeSectionVisible = !themeSectionVisible;
-                              //                 }else{
-                              //                   ScaffoldMessenger.of(context).showSnackBar(
-                              //                     SnackBar(
-                              //                         content: Text("No Custom Themes :("),
-                              //                         duration: Duration(seconds: 2),
-                              //                     )
-                              //                   );
-                              //                 }
-                              //
-                              //               });
-                              //             },
-                              //             child: Container(
-                              //               width: 30,
-                              //               height: 30,
-                              //               alignment: Alignment.center,
-                              //               decoration: BoxDecoration(
-                              //                   shape: BoxShape.circle,
-                              //                   boxShadow: [
-                              //                     BoxShadow(
-                              //                         blurRadius: 3,
-                              //                         color: Colors.black26,
-                              //                         spreadRadius: 1
-                              //                     )
-                              //                   ],
-                              //                   color: Colors.white),
-                              //               child: Icon(
-                              //                 Icons.add,
-                              //                 color: darkBlue,
-                              //               ),
-                              //             ),
-                              //           )
-                              //         : CircleAvatar(
-                              //             radius: 15,
-                              //             backgroundColor: Colors.green,
-                              //             child: Icon(
-                              //               Icons.check,
-                              //               color: Colors.white,
-                              //               size: 16,
-                              //             )),
-                              //   ],
-                              // ),
-                              // SizedBox(height: 6),
-                              // Visibility(
-                              //   visible: themeSectionVisible,
-                              //   child: Container(
-                              //       height:175,
-                              //       decoration: BoxDecoration(
-                              //         color: Colors.white,
-                              //         borderRadius: BorderRadius.circular(18)
-                              //       ),
-                              //       child: Column(
-                              //         children: [
-                              //           //theme name editor
-                              //           Padding(
-                              //             padding: EdgeInsets.all(10),
-                              //             child: TextField(
-                              //               maxLines: 1,
-                              //               style: TextStyle(
-                              //                   fontFamily: "Poppins",
-                              //                   fontSize: 13
-                              //               ),
-                              //               controller: themeTextCtrl,
-                              //               onChanged: (text){
-                              //
-                              //               },
-                              //               keyboardType: TextInputType.text,
-                              //               decoration: InputDecoration(
-                              //                 hintText: "Enter Theme Name",
-                              //                 hintStyle: TextStyle(
-                              //                   fontFamily: "Poppins",
-                              //                   fontSize: 13
-                              //                 ),
-                              //                 contentPadding: EdgeInsets.all(5.0),
-                              //                 isDense: true,
-                              //               ),
-                              //             ),
-                              //           ),
-                              //
-                              //           //Imageview
-                              //           Container(
-                              //             padding: EdgeInsets.all(8),
-                              //             child: Row(
-                              //               mainAxisSize: MainAxisSize.min,
-                              //               children: [
-                              //                 Container(
-                              //                   decoration: BoxDecoration(
-                              //                     borderRadius: BorderRadius.circular(10),
-                              //                     border: Border.all(color: Colors.grey , width: 1.0),
-                              //                     image: file.path.isNotEmpty?DecorationImage(
-                              //                       image: FileImage(file),
-                              //                       fit: BoxFit.cover,
-                              //                     ):null
-                              //                   ),
-                              //                   height: 100,
-                              //                   width: 100,
-                              //                   child: file.path.isEmpty?
-                              //                   Icon(Icons.image_outlined,color:lightPink):
-                              //                   null
-                              //                 ),
-                              //                 SizedBox(width: 10,),
-                              //                 RaisedButton(
-                              //                     onPressed: (){
-                              //                       file.path.isEmpty?
-                              //                       imagePicker():
-                              //                       setState((){
-                              //                         file = new File("");
-                              //                       });
-                              //                     },
-                              //                     child: Text(file.path.isEmpty?'Choose Image':'Remove Image',style:
-                              //                       TextStyle(fontFamily: "Poppins", color: Colors.white),),
-                              //                     shape: RoundedRectangleBorder(
-                              //                       borderRadius: BorderRadius.circular(10)
-                              //                     ),
-                              //                     color: lightPink,
-                              //                 )
-                              //               ],
-                              //             ),
-                              //           ),
-                              //
-                              //         ],
-                              //       ),
-                              //   ),
-                              // ),
-                              // SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

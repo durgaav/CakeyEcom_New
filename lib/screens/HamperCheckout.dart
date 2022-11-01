@@ -145,6 +145,9 @@ class _HamperCheckoutState extends State<HamperCheckout> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
             content: Container(
               height: 75,
               child: Column(
