@@ -49,29 +49,6 @@ class ProfileAlert{
                                     fontSize: 14.5,decoration: TextDecoration.none
                                 ),),
                                 SizedBox(height: 20,),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Container(
-                                    height: 30,
-                                    width: 100,
-                                    decoration:BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20)
-                                    ),
-                                    child: RaisedButton(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20)
-                                      ),
-                                      onPressed:(){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
-                                      },
-                                      child: Text("PROFILE",style: TextStyle(
-                                          color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
-                                          fontSize: 12,decoration: TextDecoration.none
-                                      ),),
-                                      color: lightPink,
-                                    ),
-                                  ),
-                                )
                               ],
                             ),
                           ),
@@ -90,7 +67,30 @@ class ProfileAlert{
                                 )),
                           ),
                         ]
-                    )
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        height: 30,
+                        width: 100,
+                        decoration:BoxDecoration(
+                            borderRadius: BorderRadius.circular(20)
+                        ),
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
+                          ),
+                          onPressed:(){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
+                          },
+                          child: Text("PROFILE",style: TextStyle(
+                              color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
+                              fontSize: 12,decoration: TextDecoration.none
+                          ),),
+                          color: lightPink,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               )

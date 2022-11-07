@@ -22,6 +22,7 @@ import '../ContextData.dart';
 import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/CustomiseCake.dart';
 import '../DrawerScreens/Notifications.dart';
+import '../ProfileDialog.dart';
 import '../drawermenu/app_bar.dart';
 import 'AddressScreen.dart';
 import 'Profile.dart';
@@ -2973,26 +2974,32 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         },
                                         child: Container(
                                           alignment: Alignment.center,
-                                          margin: EdgeInsets.only(right: 120),
+                                          margin: EdgeInsets.only(right: 0,left: 7),
                                           padding: EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 3
-                                          ),
+                                              horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
                                             borderRadius:
-                                            BorderRadius.circular(17),
+                                            BorderRadius.circular(20),
                                             color: lightPink,
                                           ),
-                                          child: Text(
-                                            "${topperName.split(' ').first}",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                fontSize: 9,
-                                                color: Colors.white
-                                            ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "${topperName.split(" ").first}",
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 9,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              SizedBox(width: 4,),
+                                              Icon(Icons.cancel,size: 14,color:Colors.white),
+                                            ],
                                           ),
-                                        ),
+                                        )
                                       )
                                           : Container(),
                                     ]
@@ -4782,7 +4789,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         FocusScope.of(context).unfocus();
 
                                         if (newRegUser == true) {
-                                          showDpUpdtaeDialog();
+                                          ProfileAlert().showProfileAlert(context);
                                           print(dayMinConverter("2days"));
                                           print(dayMinConverter("26hours"));
                                           print(basicCakeWeight);

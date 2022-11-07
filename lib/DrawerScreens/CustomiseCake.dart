@@ -23,6 +23,7 @@ import '../ContextData.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import '../Dialogs.dart';
+import '../ProfileDialog.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../drawermenu/app_bar.dart';
 import '../screens/AddressScreen.dart';
@@ -1796,7 +1797,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               SizedBox(width: 10,),
                                               Text('${e}',style: TextStyle(
                                                   fontFamily: "Poppins",
-                                                  color: darkBlue
+                                                  color: darkBlue,
+                                                  fontSize: 13
                                               ),),
                                               SizedBox(width: 10,),
                                             ],
@@ -1852,7 +1854,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                               SizedBox(width: 10,),
                                               Text('${e}',style: TextStyle(
                                                   fontFamily: "Poppins",
-                                                  color: darkBlue
+                                                  color: darkBlue,
+                                                  fontSize: 13
                                               ),),
                                               SizedBox(width: 10,),
                                             ],
@@ -3875,9 +3878,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                       });
 
-
                                       if(newRegUser==true){
-                                        showDpUpdtaeDialog();
+                                        ProfileAlert().showProfileAlert(context);
                                       }
                                       else {
                                         if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||

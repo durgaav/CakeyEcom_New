@@ -18,8 +18,7 @@ import '../screens/CakeDetails.dart';
 import '../screens/Profile.dart';
 
 class OthersDetails extends StatefulWidget {
-
-  List weight ;
+  List weight;
   OthersDetails({required this.weight});
 
   @override
@@ -27,7 +26,7 @@ class OthersDetails extends StatefulWidget {
 }
 
 class _OthersDetailsState extends State<OthersDetails> {
-  List weight ;
+  List weight;
   _OthersDetailsState({required this.weight});
 
   //colors.....
@@ -127,167 +126,176 @@ class _OthersDetailsState extends State<OthersDetails> {
   }
 
   @override
-  void initState(){
+  void initState() {
     //TODO:
-    Future.delayed(Duration.zero , () async{
+    Future.delayed(Duration.zero, () async {
       getDetails();
     });
     super.initState();
   }
 
   //goto checkout
-  Future<void> gotoCheckout() async{
-    var prefs =  await SharedPreferences.getInstance();
+  Future<void> gotoCheckout() async {
+    var prefs = await SharedPreferences.getInstance();
 
-    prefs.setString("otherOrdName",otherName);
-    prefs.setString("otherOrdCommonName",otherComName);
-    prefs.setString("otherOrdShape",otherShape);
-    prefs.setString("otherOrdMainId",otherMainID);
-    prefs.setString("otherOrdModID",otherModId);
-    prefs.setString("otherOrdDescrip",otherDescrip);
-    prefs.setString("otherOrdImage",cakeImages[0].toString());
-    prefs.setString("otherOrdEgg",otherEggOr);
+    prefs.setString("otherOrdName", otherName);
+    prefs.setString("otherOrdCommonName", otherComName);
+    prefs.setString("otherOrdShape", otherShape);
+    prefs.setString("otherOrdMainId", otherMainID);
+    prefs.setString("otherOrdModID", otherModId);
+    prefs.setString("otherOrdDescrip", otherDescrip);
+    prefs.setString("otherOrdImage", cakeImages[0].toString());
+    prefs.setString("otherOrdEgg", otherEggOr);
 
     print(selectedWeight);
 
     //weight //price
-    if(otherType == "Kg"){
-      prefs.setString("otherOrdWeight",selectedWeight);
-      prefs.setString("otherOrdPrice",((myPrice * changeWeight(selectedWeight))*counter).toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg",myPrice.toString());
-    }else if(otherType == "Unit"){
-      prefs.setString("otherOrdWeight",selectedWeight);
-      prefs.setString("otherOrdPrice",(myPrice * counter).toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg",myPrice.toString());
-    }else{
-      prefs.setString("otherOrdWeight",selectedWeight);
-      prefs.setString("otherOrdPrice",(myPrice * counter).toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg",myPrice.toString());
+    if (otherType == "Kg") {
+      prefs.setString("otherOrdWeight", selectedWeight);
+      prefs.setString(
+          "otherOrdPrice",
+          ((myPrice * changeWeight(selectedWeight)) * counter)
+              .toStringAsFixed(2));
+      prefs.setString("otherOrdPricePerKg", myPrice.toString());
+    } else if (otherType == "Unit") {
+      prefs.setString("otherOrdWeight", selectedWeight);
+      prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+      prefs.setString("otherOrdPricePerKg", myPrice.toString());
+    } else {
+      prefs.setString("otherOrdWeight", selectedWeight);
+      prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+      prefs.setString("otherOrdPricePerKg", myPrice.toString());
     }
 
-    prefs.setString("otherOrdVenName",vendrorName);
-    prefs.setString("otherOrdVenMainID",vendor_Id);
-    prefs.setString("otherOrdVenModId",vendorId);
-    prefs.setString("otherOrdVenAddress",vendorAddress);
-    prefs.setString("otherOrdVenPhn1",vendrorPhone1);
-    prefs.setString("otherOrdVenPhn2",vendrorPhonr2);
-    prefs.setString("otherOrdVenLat",vendrorLat);
-    prefs.setString("otherOrdVenLong",vendrorLong);
-    prefs.setString("otherOrdVenNotiID",notiId);
+    prefs.setString("otherOrdVenName", vendrorName);
+    prefs.setString("otherOrdVenMainID", vendor_Id);
+    prefs.setString("otherOrdVenModId", vendorId);
+    prefs.setString("otherOrdVenAddress", vendorAddress);
+    prefs.setString("otherOrdVenPhn1", vendrorPhone1);
+    prefs.setString("otherOrdVenPhn2", vendrorPhonr2);
+    prefs.setString("otherOrdVenLat", vendrorLat);
+    prefs.setString("otherOrdVenLong", vendrorLong);
+    prefs.setString("otherOrdVenNotiID", notiId);
 
     prefs.setInt("otherOrdCounter", counter);
 
-    if(fixedDelliverMethod=="Pickup"){
-      prefs.setString("otherOrdDeliveryCharge","0");
-    }else{
-      prefs.setString("otherOrdDeliveryCharge",
+    if (fixedDelliverMethod == "Pickup") {
+      prefs.setString("otherOrdDeliveryCharge", "0");
+    } else {
+      prefs.setString(
+          "otherOrdDeliveryCharge",
           ((adminDeliveryCharge / adminDeliveryChargeKm) *
-              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
-      );
+                  (calculateDistance(
+                      double.parse(userLatitude),
+                      double.parse(userLongtitude),
+                      double.parse(vendrorLat.toString()),
+                      double.parse(vendrorLong))))
+              .toStringAsFixed(1));
     }
 
     print("Chargeeeee...");
     print(adminDeliveryCharge);
     print(adminDeliveryChargeKm);
-    print((calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-        double.parse(vendrorLat.toString()), double.parse(vendrorLong))));
-    print( ((adminDeliveryCharge / adminDeliveryChargeKm) *
-        (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-            double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toString());
+    print((calculateDistance(
+        double.parse(userLatitude),
+        double.parse(userLongtitude),
+        double.parse(vendrorLat.toString()),
+        double.parse(vendrorLong))));
+    print(((adminDeliveryCharge / adminDeliveryChargeKm) *
+            (calculateDistance(
+                double.parse(userLatitude),
+                double.parse(userLongtitude),
+                double.parse(vendrorLat.toString()),
+                double.parse(vendrorLong))))
+        .toString());
 
-
-    prefs.setString("otherOrdDeliDate",deliverDate);
-    prefs.setString("otherOrdDiscount",otherDiscount);
-    prefs.setString("otherOrdPickOrDel",fixedDelliverMethod);
-    prefs.setString("otherOrdDeliveryAdrs",deliveryAddress);
-    prefs.setString("otherOrdDeliSession",deliverSession);
-    prefs.setString("otherOrdKgType",otherType);
-    prefs.setString("otherOrdSubTypee",otherSubType);
+    prefs.setString("otherOrdDeliDate", deliverDate);
+    prefs.setString("otherOrdDiscount", otherDiscount);
+    prefs.setString("otherOrdPickOrDel", fixedDelliverMethod);
+    prefs.setString("otherOrdDeliveryAdrs", deliveryAddress);
+    prefs.setString("otherOrdDeliSession", deliverSession);
+    prefs.setString("otherOrdKgType", otherType);
+    prefs.setString("otherOrdSubTypee", otherSubType);
 
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context)=>OtherCheckout([], [selectedFlav]))
-    );
-
+        MaterialPageRoute(
+            builder: (context) => OtherCheckout([], [selectedFlav])));
   }
 
-  Future<void> getDetails() async{
+  Future<void> getDetails() async {
+    var prefs = await SharedPreferences.getInstance();
 
-    var prefs =  await SharedPreferences.getInstance();
+    setState(() {
+      authToken = prefs.getString("authToken") ?? '';
+      userLatitude = prefs.getString("userLatitute") ?? '';
+      userLongtitude = prefs.getString("userLongtitude") ?? '';
+      adminDeliveryCharge = prefs.getInt("todayDeliveryCharge") ?? 0;
+      adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm") ?? 0;
+      userId = prefs.getString("userID") ?? '';
+      user_ID = prefs.getString("userModId") ?? '';
+      otherMainID = prefs.getString("otherMainId") ?? '';
+      otherModId = prefs.getString("otherModID") ?? '';
+      userName = prefs.getString("userName") ?? '';
+      userPhone = prefs.getString("phoneNumber") ?? '';
+      deliveryAddress = prefs.getString("userAddress") ?? 'null';
+      otherSubType = prefs.getString("otherSubType") ?? "";
+      otherComName = prefs.getString("otherComName") ?? "";
+      otherName = prefs.getString("otherName") ?? "";
+      otherType = prefs.getString("otherType") ?? "";
+      otherEggOr = prefs.getString("otherEggOr") ?? "";
+      otherMinDel = prefs.getString("otherMinDel") ?? "";
+      otherBestUse = prefs.getString("otherBestUse") ?? "";
+      otherStoredIn = prefs.getString("otherStoredIn") ?? "";
+      otherKeepInRoom = prefs.getString("otherKeepInRoom") ?? "";
+      otherDescrip = prefs.getString("otherDescrip") ?? "";
+      otherRatings = prefs.getString("otherRatings") ?? "";
+      otherVendorAddress = prefs.getString("otherVendorAddress") ?? "";
+      otherVenMainId = prefs.getString("otherVenMainId") ?? "";
+      otherVenModId = prefs.getString("otherVenModId") ?? "";
+      otherVenName = prefs.getString("otherVenName") ?? "";
+      otherVenPhn1 = prefs.getString("otherVenPhn1") ?? "";
+      otherVenPhn2 = prefs.getString("otherVenPhn2") ?? "";
+      vendorId = prefs.getString("otherVendorId") ?? "";
+      otherDiscount = prefs.getString("otherDiscound") ?? "";
+      otherShape = prefs.getString("otherShape") ?? "";
+      minimumDeliTime = prefs.getString("otherMiniDeliTime") ?? "";
 
-    setState((){
-          authToken = prefs.getString("authToken") ?? '';
-          userLatitude = prefs.getString("userLatitute") ?? '';
-          userLongtitude = prefs.getString("userLongtitude") ?? '';
-          adminDeliveryCharge = prefs.getInt("todayDeliveryCharge") ?? 0;
-          adminDeliveryChargeKm = prefs.getInt("todayDeliveryKm") ?? 0;
-          userId = prefs.getString("userID") ?? '';
-          user_ID = prefs.getString("userModId") ?? '';
-          otherMainID = prefs.getString("otherMainId") ?? '';
-          otherModId = prefs.getString("otherModID") ?? '';
-          userName = prefs.getString("userName") ?? '';
-          userPhone = prefs.getString("phoneNumber") ?? '';
-          deliveryAddress = prefs.getString("userAddress") ?? 'null';
-          otherSubType = prefs.getString("otherSubType")??"";
-          otherComName = prefs.getString("otherComName")??"";
-          otherName = prefs.getString("otherName")??"";
-          otherType = prefs.getString("otherType")??"";
-          otherEggOr = prefs.getString("otherEggOr")??"";
-          otherMinDel = prefs.getString("otherMinDel")??"";
-          otherBestUse = prefs.getString("otherBestUse")??"";
-          otherStoredIn = prefs.getString("otherStoredIn")??"";
-          otherKeepInRoom = prefs.getString("otherKeepInRoom")??"";
-          otherDescrip = prefs.getString("otherDescrip")??"";
-          otherRatings = prefs.getString("otherRatings")??"";
-          otherVendorAddress = prefs.getString("otherVendorAddress")??"";
-          otherVenMainId = prefs.getString("otherVenMainId")??"";
-          otherVenModId = prefs.getString("otherVenModId")??"";
-          otherVenName = prefs.getString("otherVenName")??"";
-          otherVenPhn1 = prefs.getString("otherVenPhn1")??"";
-          otherVenPhn2 = prefs.getString("otherVenPhn2")??"";
-          vendorId = prefs.getString("otherVendorId")??"";
-          otherDiscount = prefs.getString("otherDiscound")??"";
-          otherShape = prefs.getString("otherShape")??"";
-          minimumDeliTime = prefs.getString("otherMiniDeliTime")??"";
+      flavours = prefs.getStringList('otherFlavs') ?? [];
+      cakeImages = prefs.getStringList('otherImages') ?? [];
 
-          flavours = prefs.getStringList('otherFlavs')??[];
-          cakeImages = prefs.getStringList('otherImages')??[];
+      if (flavours.isNotEmpty) {
+        selectedFlav = flavours[0].toString();
+      } else {
+        selectedFlav = "None";
+      }
 
-          if(flavours.isNotEmpty){
-            selectedFlav = flavours[0].toString();
-          }else{
-            selectedFlav = "None";
-          }
-
-          if(otherType == "Kg"){
-            myPrice = double.parse(weight[0]['PricePerKg'].toString());
-            selectedWeight = weight[0]['Weight'].toString();
-          }else if(otherType == "Unit"){
-            myPrice = double.parse(weight[0]['PricePerUnit'].toString());
-            selectedWeight = changeWeight(weight[0]['Weight'].toString()).toString();
-            counter = int.parse(weight[0]['MinCount'].toString());
-            if(counter<10){
-              counterCtrl.text = "0"+counter.toString();
-            }else{
-              counterCtrl.text = counter.toString();
-            }
-          }else{
-            myPrice = double.parse(weight[0]['PricePerBox'].toString());
-            selectedWeight = weight[0]['Piece'].toString();
-            counter = int.parse(weight[0]['MinCount'].toString());
-            if(counter<10){
-              counterCtrl.text = "0"+counter.toString();
-            }else{
-              counterCtrl.text = counter.toString();
-            }
-
-          }
-            
+      if (otherType == "Kg") {
+        myPrice = double.parse(weight[0]['PricePerKg'].toString());
+        selectedWeight = weight[0]['Weight'].toString();
+      } else if (otherType == "Unit") {
+        myPrice = double.parse(weight[0]['PricePerUnit'].toString());
+        selectedWeight =
+            changeWeight(weight[0]['Weight'].toString()).toString();
+        counter = int.parse(weight[0]['MinCount'].toString());
+        if (counter < 10) {
+          counterCtrl.text = "0" + counter.toString();
+        } else {
+          counterCtrl.text = counter.toString();
+        }
+      } else {
+        myPrice = double.parse(weight[0]['PricePerBox'].toString());
+        selectedWeight = weight[0]['Piece'].toString();
+        counter = int.parse(weight[0]['MinCount'].toString());
+        if (counter < 10) {
+          counterCtrl.text = "0" + counter.toString();
+        } else {
+          counterCtrl.text = counter.toString();
+        }
+      }
     });
 
     getVendor(vendorId);
-
   }
 
   //Default loader dialog
@@ -297,9 +305,8 @@ class _OthersDetailsState extends State<OthersDetails> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             content: Container(
               height: 75,
               child: Column(
@@ -334,10 +341,10 @@ class _OthersDetailsState extends State<OthersDetails> {
 
     List forFilter = [];
 
-    try{
+    try {
       var headers = {'Authorization': '$authToken'};
-      var request = http.Request(
-          'GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+      var request = http.Request('GET',
+          Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -349,12 +356,11 @@ class _OthersDetailsState extends State<OthersDetails> {
         setState(() {
           vendorList = forFilter
               .where((element) =>
-          element['_id'].toString().toLowerCase() ==
-              id.toString().toLowerCase())
+                  element['_id'].toString().toLowerCase() ==
+                  id.toString().toLowerCase())
               .toList();
 
-          if (vendorList.isNotEmpty)
-          {
+          if (vendorList.isNotEmpty) {
             vendrorName = vendorList[0]['VendorName'].toString();
             vendrorEgg = vendorList[0]['EggOrEggless'].toString();
             vendorProfile = vendorList[0]['ProfileImage'].toString();
@@ -363,7 +369,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                 .replaceAll("[", "")
                 .replaceAll("]", "");
             vendrorLat = vendorList[0]['GoogleLocation']['Latitude'].toString();
-            vendrorLong = vendorList[0]['GoogleLocation']['Longitude'].toString();
+            vendrorLong =
+                vendorList[0]['GoogleLocation']['Longitude'].toString();
             vendrorRating = vendorList[0]['Ratings'].toString();
             vendrorPhone1 = vendorList[0]['PhoneNumber1'].toString();
             vendrorPhonr2 = vendorList[0]['PhoneNumber2'].toString();
@@ -372,25 +379,26 @@ class _OthersDetailsState extends State<OthersDetails> {
             vendor_Id = vendorList[0]['_id'].toString();
             vendorAddress = vendorList[0]['Address'].toString();
             deliveryCharge = ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toInt();
+                    (calculateDistance(
+                        double.parse(userLatitude),
+                        double.parse(userLongtitude),
+                        double.parse(vendrorLat.toString()),
+                        double.parse(vendrorLong))))
+                .toInt();
           }
         });
 
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.reasonPhrase.toString()))
-        );
+            SnackBar(content: Text(response.reasonPhrase.toString())));
         Navigator.pop(context);
       }
-    }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("error occurred"))
-      );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("error occurred")));
       Navigator.pop(context);
     }
-
   }
 
   //Buliding the dots by image length
@@ -416,17 +424,17 @@ class _OthersDetailsState extends State<OthersDetails> {
           boxShadow: [
             isActive
                 ? BoxShadow(
-              color: Color(0XFF2FB7B2).withOpacity(0.72),
-              blurRadius: 4.0,
-              spreadRadius: 1.0,
-              offset: Offset(
-                0.0,
-                0.0,
-              ),
-            )
+                    color: Color(0XFF2FB7B2).withOpacity(0.72),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: Offset(
+                      0.0,
+                      0.0,
+                    ),
+                  )
                 : BoxShadow(
-              color: Colors.transparent,
-            )
+                    color: Colors.transparent,
+                  )
           ],
           shape: BoxShape.circle,
           color: isActive ? lightPink : Color(0XFFEAEAEA),
@@ -437,7 +445,6 @@ class _OthersDetailsState extends State<OthersDetails> {
 
   @override
   Widget build(BuildContext context) {
-
     if (context.watch<ContextData>().getAddress().isNotEmpty) {
       deliveryAddress = context.watch<ContextData>().getAddress();
     } else {
@@ -452,9 +459,9 @@ class _OthersDetailsState extends State<OthersDetails> {
               SliverAppBar(
                 title: innerBoxIsScrolled
                     ? Text(
-                  "$otherName",
-                  style: TextStyle(color: darkBlue),
-                )
+                        "$otherName",
+                        style: TextStyle(color: darkBlue),
+                      )
                     : Text(""),
                 expandedHeight: 300.0,
                 leading: Container(
@@ -492,53 +499,53 @@ class _OthersDetailsState extends State<OthersDetails> {
                     ),
                     child: cakeImages.length != 0
                         ? StatefulBuilder(builder: (BuildContext context,
-                        void Function(void Function()) setState) {
-                      return Stack(children: [
-                        PageView.builder(
-                            itemCount: cakeImages.length,
-                            onPageChanged: (int i) {
-                              setState(() {
-                                pageViewCurIndex = i;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                    BorderRadius.circular(20),
-                                    color: Colors.black12,
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                            "${cakeImages[index]}"),
-                                        fit: BoxFit.fill)),
-                              );
-                            }),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: _buildPageIndicator(),
+                            void Function(void Function()) setState) {
+                            return Stack(children: [
+                              PageView.builder(
+                                  itemCount: cakeImages.length,
+                                  onPageChanged: (int i) {
+                                    setState(() {
+                                      pageViewCurIndex = i;
+                                    });
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.black12,
+                                          image: DecorationImage(
+                                              image: NetworkImage(
+                                                  "${cakeImages[index]}"),
+                                              fit: BoxFit.fill)),
+                                    );
+                                  }),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: _buildPageIndicator(),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    )
+                                  ],
+                                ),
                               ),
-                              SizedBox(
-                                height: 15,
-                              )
-                            ],
-                          ),
-                        ),
-                      ]);
-                    })
+                            ]);
+                          })
                         : Center(
-                        child: Text(
-                          'No Images Found!',
-                          style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: darkBlue),
-                        )),
+                            child: Text(
+                            'No Images Found!',
+                            style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: darkBlue),
+                          )),
                     width: double.infinity,
                   ),
                 ),
@@ -561,14 +568,14 @@ class _OthersDetailsState extends State<OthersDetails> {
                           children: [
                             RatingBar.builder(
                               initialRating:
-                              double.parse(otherRatings, (e) => 1.5),
+                                  double.parse(otherRatings, (e) => 1.5),
                               minRating: 1,
                               direction: Axis.horizontal,
                               allowHalfRating: true,
                               itemCount: 5,
                               itemSize: 15,
                               itemPadding:
-                              EdgeInsets.symmetric(horizontal: 1.0),
+                                  EdgeInsets.symmetric(horizontal: 1.0),
                               itemBuilder: (context, _) => Icon(
                                 Icons.star,
                                 color: Colors.amber,
@@ -581,20 +588,20 @@ class _OthersDetailsState extends State<OthersDetails> {
                               padding: EdgeInsets.only(left: 5),
                               child: (otherRatings != null)
                                   ? (otherRatings != 'null')
-                                  ? Text(
-                                ' $otherRatings',
-                                style: TextStyle(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    fontFamily: poppins),
-                              )
-                                  : Text('3.5',
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      fontFamily: poppins))
+                                      ? Text(
+                                          ' $otherRatings',
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              fontFamily: poppins),
+                                        )
+                                      : Text('3.5',
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              fontFamily: poppins))
                                   : Text(otherRatings),
                             )
                           ],
@@ -607,19 +614,20 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 angle: 120,
                                 child: Icon(
                                   Icons.egg_outlined,
-                                  color: otherEggOr.toLowerCase()=="eggless"?
-                                  Colors.green:Color(0xff8D2729),
+                                  color: otherEggOr.toLowerCase() == "eggless"
+                                      ? Colors.green
+                                      : Color(0xff8D2729),
                                 ),
                               ),
                               Text(
                                 '$otherEggOr',
                                 style: TextStyle(
-                                    color: otherEggOr.toLowerCase()=="eggless"?
-                                    Colors.green:Color(0xff8D2729),
+                                    color: otherEggOr.toLowerCase() == "eggless"
+                                        ? Colors.green
+                                        : Color(0xff8D2729),
                                     fontFamily: poppins,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.bold
-                                ),
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -641,22 +649,19 @@ class _OthersDetailsState extends State<OthersDetails> {
                           fontFamily: "Poppins",
                           fontSize: 18,
                           color: darkBlue,
-                          fontWeight: FontWeight.w600
-                      ),
+                          fontWeight: FontWeight.w600),
                     ),
                   ),
                   Container(
                       padding: EdgeInsets.only(left: 10, right: 10),
                       alignment: Alignment.bottomLeft,
                       child: Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
                               alignment: Alignment.bottomLeft,
-                              child: Row(
-                              children: [
+                              child: Row(children: [
                                 Text(
                                   '₹',
                                   style: TextStyle(
@@ -665,35 +670,32 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                otherType.toLowerCase()=="kg"?
-                                Text(
-                                  "${
-                                      ((myPrice * changeWeight(selectedWeight))*counter).toStringAsFixed(2)
-                                  }",
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 23,
-                                  ),
-                                ):
-                                otherType.toLowerCase()=="unit"?
-                                Text( "${
-                                    (myPrice * counter).toStringAsFixed(2)
-                                }",
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 23,
-                                  ),
-                                ):
-                                Text("${
-                                    (myPrice * counter).toStringAsFixed(2)
-                                }",
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 23,
-                                  ),),
+                                otherType.toLowerCase() == "kg"
+                                    ? Text(
+                                        "${((myPrice * changeWeight(selectedWeight)) * counter).toStringAsFixed(2)}",
+                                        style: TextStyle(
+                                          color: lightPink,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 23,
+                                        ),
+                                      )
+                                    : otherType.toLowerCase() == "unit"
+                                        ? Text(
+                                            "${(myPrice * counter).toStringAsFixed(2)}",
+                                            style: TextStyle(
+                                              color: lightPink,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 23,
+                                            ),
+                                          )
+                                        : Text(
+                                            "${(myPrice * counter).toStringAsFixed(2)}",
+                                            style: TextStyle(
+                                              color: lightPink,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 23,
+                                            ),
+                                          ),
                               ]),
                             ),
                             //increase decrease
@@ -702,28 +704,35 @@ class _OthersDetailsState extends State<OthersDetails> {
                               InkWell(
                                 splashColor: Colors.red[200]!,
                                 onTap: () {
-
-                                  if(otherType=="Unit"){
-                                    if (counter > int.parse(weight[selectedWeightIndex]['MinCount'].toString())) {
+                                  if (otherType == "Unit") {
+                                    if (counter >
+                                        int.parse(weight[selectedWeightIndex]
+                                                ['MinCount']
+                                            .toString())) {
                                       setState(() {
                                         counter = counter - 1;
                                       });
-                                    }else{
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!"))
-                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
                                     }
-                                  }else if(otherType=="Box"){
-                                    if (counter > int.parse(weight[selectedWeightIndex]['MinCount'].toString())) {
+                                  } else if (otherType == "Box") {
+                                    if (counter >
+                                        int.parse(weight[selectedWeightIndex]
+                                                ['MinCount']
+                                            .toString())) {
                                       setState(() {
                                         counter = counter - 1;
                                       });
-                                    }else{
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!"))
-                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
                                     }
-                                  }else{
+                                  } else {
                                     if (counter > 1) {
                                       setState(() {
                                         counter = counter - 1;
@@ -731,8 +740,6 @@ class _OthersDetailsState extends State<OthersDetails> {
                                       });
                                     }
                                   }
-
-
                                 },
                                 child: Container(
                                     height: 30,
@@ -772,15 +779,66 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   //     ),
                                   //   ),
                                   // ),
-                                  Text(
-                                    counter<10?
-                                    '0${counter}':
-                                    "${counter}",
-                                    style: TextStyle(
-                                      color: lightPink,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Poppins",
-                                      fontSize: 20,
+                                  GestureDetector(
+                                    onTap: () {
+                                      var theCtrl = TextEditingController(
+                                        text: "$counter",
+                                      );
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20)
+                                              ),
+                                              content: TextField(
+                                                keyboardType: TextInputType.number,
+                                                controller: theCtrl,
+                                                style: TextStyle(
+                                                    color: darkBlue,
+                                                    fontFamily: "Poppins",
+                                                    fontSize: 13
+                                                ),
+                                                decoration: InputDecoration(
+                                                  hintText: "Enter Custom Unit",
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: ()=>Navigator.pop(context),
+                                                    child: Text('Cancel',style:TextStyle(
+                                                        color: Colors.purple,
+                                                        fontFamily: "Poppins",
+                                                        fontSize: 13
+                                                    ),)
+                                                ),
+                                                TextButton(
+                                                    onPressed: (){
+                                                      Navigator.pop(context);
+                                                      if(theCtrl.text.isNotEmpty){
+                                                        counter = int.parse(theCtrl.text);
+                                                      }
+                                                    },
+                                                    child: Text('Ok',style:TextStyle(
+                                                        color: Colors.purple,
+                                                        fontFamily: "Poppins",
+                                                        fontSize: 13
+                                                    ),)
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                    },
+                                    child: Text(
+                                      counter < 10
+                                          ? '0${counter}'
+                                          : "${counter}",
+                                      style: TextStyle(
+                                        color: lightPink,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Poppins",
+                                        fontSize: 20,
+                                      ),
                                     ),
                                   ),
                                   Text(
@@ -814,12 +872,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           color: Colors.pink[400]!,
                                           width: 0.5,
                                         )),
-                                    child:
-                                    Icon(Icons.add, color: darkBlue)),
+                                    child: Icon(Icons.add, color: darkBlue)),
                               ),
                             ])
-                          ])
-                  ),
+                          ])),
                   //desc
                   Container(
                       margin: EdgeInsets.all(10),
@@ -836,8 +892,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                       margin: EdgeInsets.symmetric(horizontal: 0),
                       child: Divider(
                         color: Colors.pink[100],
-                      )
-                  ),
+                      )),
 
                   //flav and shape...
                   Text(
@@ -847,10 +902,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Text(
                     "$otherShape",
                     overflow: TextOverflow.ellipsis,
@@ -858,11 +914,12 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 13.5,
                         color: Colors.grey[400],
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
 
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
 
                   Text(
                     "Flavours",
@@ -871,313 +928,379 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children:flavours.map((e){
+                    children: flavours.map((e) {
                       return GestureDetector(
-                        onTap: (){
-                          setState((){
-                            selectedFlavIndex = flavours.indexWhere((element) => element==e);
-                            selectedFlav = e;
-                          });
-                        },
+                          onTap: () {
+                            setState(() {
+                              selectedFlavIndex = flavours
+                                  .indexWhere((element) => element == e);
+                              selectedFlav = e;
+                            });
+                          },
                           child: Container(
                             padding: EdgeInsets.all(7),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                selectedFlavIndex==flavours.indexWhere((element) => element==e)?
-                                Icon(Icons.check_circle , color: Colors.green,):
-                                Icon(Icons.radio_button_unchecked , color: Colors.grey[400],),
-                                SizedBox(width: 6,),
-                                Expanded(child: Text(
-                                  e.toString() ,style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontFamily: "Poppins"
+                                selectedFlavIndex ==
+                                        flavours.indexWhere(
+                                            (element) => element == e)
+                                    ? Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                      )
+                                    : Icon(
+                                        Icons.radio_button_unchecked,
+                                        color: Colors.grey[400],
+                                      ),
+                                SizedBox(
+                                  width: 6,
                                 ),
+                                Expanded(
+                                    child: Text(
+                                  e.toString(),
+                                  style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontFamily: "Poppins"),
                                 ))
                               ],
                             ),
-                          )
-                      );
+                          ));
                     }).toList(),
                   ),
                   Container(
                       margin: EdgeInsets.symmetric(horizontal: 0),
                       child: Divider(
                         color: Colors.pink[100],
-                      )
-                  ),
+                      )),
 
                   //weight...
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Text(
-                    otherType.toLowerCase()=="kg"?
-                    "Weight":otherType.toLowerCase()=="unit"?
-                    "Unit":
-                    "Piece",
+                    otherType.toLowerCase() == "kg"
+                        ? "Weight"
+                        : otherType.toLowerCase() == "unit"
+                            ? "Unit"
+                            : "Piece",
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 5,),
-                  otherType.toLowerCase()=="kg"?
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 45,
-                        width: double.infinity,
-                        child:ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: weight.length,
-                            itemBuilder: (c , pos){
-                              return GestureDetector(
-                                onTap: (){
-                                  setState((){
-                                     selectedWeightIndex = pos;
-                                     selectedWeight = weight[pos]['Weight'].toString();
-                                     customweightCtrl.text = "";
-                                  });
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.all(5),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color:selectedWeightIndex==pos?
-                                    lightPink:Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: lightPink,
-                                      width: 0.5
-                                    )
-                                  ),
-                                  width: 50,
-                                  child: Text(weight[pos]['Weight'] , style: TextStyle(
-                                     color: selectedWeightIndex==pos?
-                                     Colors.white:lightPink,
-                                  ),),
-                                ),
-                              );
-                            }
-                        ),
-                      ),
-                      SizedBox(height: 5,),
-                      Text(
-                        "Enter Weight",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 14.5,
-                            color: darkBlue,
-                            fontWeight: FontWeight.w600
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                  SizedBox(
+                    height: 5,
+                  ),
+                  otherType.toLowerCase() == "kg"
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.scale_outlined,
-                              color: lightPink,
-                            ),
-                            Expanded(
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  textInputAction: TextInputAction.next,
-                                  controller: customweightCtrl,
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins', fontSize: 13),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(new RegExp('[0-9.]')),
-                                    FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
-                                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-                                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))!,
-                                  ],
-                                  onChanged: (String text) {
-                                    print(text+selectedDropWeight);
-                                    setState((){
-                                      if (customweightCtrl.text.isNotEmpty) {
-                                        selectedWeightIndex = -1;
-                                        selectedWeight = text+selectedDropWeight;
-                                        changeWeight(selectedWeight);
-                                        print("weight is ${selectedWeight+selectedDropWeight}");
-                                      } else {
-                                        selectedWeightIndex = 0;
-                                        selectedWeight = weight[0]['Weight'].toString();
-                                        changeWeight(selectedWeight);
-                                      }
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(0.0),
-                                    isDense: true,
-                                    constraints: BoxConstraints(minHeight: 5),
-                                    hintText: 'Type here..',
-                                    hintStyle: TextStyle(
-                                        fontFamily: 'Poppins', fontSize: 13),
-                                    // border: InputBorder.none
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey[300]!,
-                                      borderRadius: BorderRadius.circular(5)),
-                                  child: PopupMenuButton(
-                                      child: Row(
-                                        children: [
-                                          Text('$selectedDropWeight',
-                                              style: TextStyle(
-                                                  color: darkBlue,
-                                                  fontFamily: 'Poppins')
+                            Container(
+                              height: 45,
+                              width: double.infinity,
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: weight.length,
+                                  itemBuilder: (c, pos) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedWeightIndex = pos;
+                                          selectedWeight =
+                                              weight[pos]['Weight'].toString();
+                                          customweightCtrl.text = "";
+                                        });
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.all(5),
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            color: selectedWeightIndex == pos
+                                                ? lightPink
+                                                : Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            border: Border.all(
+                                                color: lightPink, width: 0.5)),
+                                        width: 50,
+                                        child: Text(
+                                          weight[pos]['Weight'],
+                                          style: TextStyle(
+                                            color: selectedWeightIndex == pos
+                                                ? Colors.white
+                                                : lightPink,
                                           ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(Icons.keyboard_arrow_down,
-                                              color: darkBlue)
-                                        ],
+                                        ),
                                       ),
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                            onTap: () {
-                                              setState(() {
-
-                                                if(customweightCtrl.text.isNotEmpty){
-                                                  selectedDropWeight = "Kg";
-                                                  selectedWeight = customweightCtrl.text+"kg";
-                                                }
-
-                                              });
-                                            },
-                                            child: Text('Kilo Gram',style: TextStyle(
-                                                fontFamily: "Poppins"
-                                            ),)
+                                    );
+                                  }),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              "Enter Weight",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 14.5,
+                                  color: darkBlue,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Container(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.scale_outlined,
+                                    color: lightPink,
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      margin:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                      child: TextField(
+                                        keyboardType: TextInputType.number,
+                                        textInputAction: TextInputAction.next,
+                                        controller: customweightCtrl,
+                                        style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 13),
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              new RegExp('[0-9.]')),
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d*')),
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d*'))!,
+                                        ],
+                                        onChanged: (String text) {
+                                          print(text + selectedDropWeight);
+                                          setState(() {
+                                            if (customweightCtrl
+                                                .text.isNotEmpty) {
+                                              selectedWeightIndex = -1;
+                                              selectedWeight =
+                                                  text + selectedDropWeight;
+                                              changeWeight(selectedWeight);
+                                              print(
+                                                  "weight is ${selectedWeight + selectedDropWeight}");
+                                            } else {
+                                              selectedWeightIndex = 0;
+                                              selectedWeight = weight[0]
+                                                      ['Weight']
+                                                  .toString();
+                                              changeWeight(selectedWeight);
+                                            }
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(0.0),
+                                          isDense: true,
+                                          constraints:
+                                              BoxConstraints(minHeight: 5),
+                                          hintText: 'Type here..',
+                                          hintStyle: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 13),
+                                          // border: InputBorder.none
                                         ),
-
-                                        PopupMenuItem(
-                                            onTap: () {
-                                              setState(() {
-                                                if(customweightCtrl.text.isNotEmpty){
-                                                  selectedDropWeight = "G";
-                                                  selectedWeight = customweightCtrl.text+"g";
-                                                }
-                                              });
-                                            },
-                                            child: Text('Gram',style: TextStyle(
-                                                fontFamily: "Poppins"
-                                            ),)
-                                        ),
-
-
-                                      ])),
-                            )
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    child: Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.grey[300]!,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: PopupMenuButton(
+                                            child: Row(
+                                              children: [
+                                                Text('$selectedDropWeight',
+                                                    style: TextStyle(
+                                                        color: darkBlue,
+                                                        fontFamily: 'Poppins')),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Icon(Icons.keyboard_arrow_down,
+                                                    color: darkBlue)
+                                              ],
+                                            ),
+                                            itemBuilder: (context) => [
+                                                  PopupMenuItem(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          if (customweightCtrl
+                                                              .text
+                                                              .isNotEmpty) {
+                                                            selectedDropWeight =
+                                                                "Kg";
+                                                            selectedWeight =
+                                                                customweightCtrl
+                                                                        .text +
+                                                                    "kg";
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        'Kilo Gram',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "Poppins"),
+                                                      )),
+                                                  PopupMenuItem(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          if (customweightCtrl
+                                                              .text
+                                                              .isNotEmpty) {
+                                                            selectedDropWeight =
+                                                                "G";
+                                                            selectedWeight =
+                                                                customweightCtrl
+                                                                        .text +
+                                                                    "g";
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        'Gram',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "Poppins"),
+                                                      )),
+                                                ])),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
                           ],
-                        ),
-                      ),
-                      SizedBox(height: 5,),
-                    ],
-                  ):
-                  otherType.toLowerCase()=="unit"?
-                  Container(
-                    child:Container(
-                      height: 45,
-                      width: double.infinity,
-                      child:ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: weight.length,
-                          itemBuilder: (c , pos){
-                            return GestureDetector(
-                              onTap: (){
-                                setState((){
-                                  selectedWeightIndex = pos;
-                                  selectedWeight = weight[pos]['Weight'].toString();
-                                  myPrice = double.parse(weight[pos]['PricePerUnit'].toString());
-                                  counter = int.parse(weight[pos]['MinCount'].toString());
-                                });
-                              },
+                        )
+                      : otherType.toLowerCase() == "unit"
+                          ? Container(
                               child: Container(
-                                margin: EdgeInsets.all(5),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    color:selectedWeightIndex==pos?
-                                    lightPink:Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                        color: lightPink,
-                                        width: 0.5
-                                    )
-                                ),
-                                width: 50,
-                                child: Text(weight[pos]['Weight'] , style: TextStyle(
-                                  color: selectedWeightIndex==pos?
-                                  Colors.white:lightPink,
-                                ),),
+                                height: 45,
+                                width: double.infinity,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: weight.length,
+                                    itemBuilder: (c, pos) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedWeightIndex = pos;
+                                            selectedWeight = weight[pos]
+                                                    ['Weight']
+                                                .toString();
+                                            myPrice = double.parse(weight[pos]
+                                                    ['PricePerUnit']
+                                                .toString());
+                                            counter = int.parse(weight[pos]
+                                                    ['MinCount']
+                                                .toString());
+                                          });
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.all(5),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                              color: selectedWeightIndex == pos
+                                                  ? lightPink
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                  color: lightPink,
+                                                  width: 0.5)),
+                                          width: 50,
+                                          child: Text(
+                                            weight[pos]['Weight'],
+                                            style: TextStyle(
+                                              color: selectedWeightIndex == pos
+                                                  ? Colors.white
+                                                  : lightPink,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
                               ),
-                            );
-                          }
-                      ),
-                    ),
-                  ):
-                  otherType.toLowerCase()=="box"?
-                  Container(
-                    child: Container(
-                      height: 45,
-                      width: double.infinity,
-                      child:ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: weight.length,
-                          itemBuilder: (c , pos){
-                            return GestureDetector(
-                              onTap: (){
-                                setState((){
-                                  selectedWeightIndex = pos;
-                                  selectedWeight = weight[pos]['Piece'].toString();
-                                  myPrice = double.parse(weight[pos]['PricePerBox'].toString());
-                                  counter = int.parse(weight[pos]['MinCount'].toString());
-                                });
-                              },
-                              child: Container(
-                                margin: EdgeInsets.all(5),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    color:selectedWeightIndex==pos?
-                                    lightPink:Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                        color: lightPink,
-                                        width: 0.5
-                                    )
-                                ),
-                                width: 65,
-                                child: Text(weight[pos]['Piece']+" Pcs", style: TextStyle(
-                                  color: selectedWeightIndex==pos?
-                                  Colors.white:lightPink,
-                                ),),
-                              ),
-                            );
-                          }
-                      ),
-                    ),
-                  ):Container(),
+                            )
+                          : otherType.toLowerCase() == "box"
+                              ? Container(
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: weight.length,
+                                        itemBuilder: (c, pos) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedWeightIndex = pos;
+                                                selectedWeight = weight[pos]
+                                                        ['Piece']
+                                                    .toString();
+                                                myPrice = double.parse(
+                                                    weight[pos]['PricePerBox']
+                                                        .toString());
+                                                counter = int.parse(weight[pos]
+                                                        ['MinCount']
+                                                    .toString());
+                                              });
+                                            },
+                                            child: Container(
+                                              margin: EdgeInsets.all(5),
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                  color:
+                                                      selectedWeightIndex == pos
+                                                          ? lightPink
+                                                          : Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                  border: Border.all(
+                                                      color: lightPink,
+                                                      width: 0.5)),
+                                              width: 65,
+                                              child: Text(
+                                                weight[pos]['Piece'] + " Pcs",
+                                                style: TextStyle(
+                                                  color:
+                                                      selectedWeightIndex == pos
+                                                          ? Colors.white
+                                                          : lightPink,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                )
+                              : Container(),
 
                   SizedBox(
                     height: 8,
@@ -1189,63 +1312,57 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
 
                   Container(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: picOrDeliver.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            splashColor: Colors.grey,
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              setState(() {
-                                for (int i = 0;
-                                i < picOrDel.length;
-                                i++) {
-                                  if (i == index) {
-                                    fixedDelliverMethod =
-                                    picOrDeliver[i];
-                                    picOrDel[i] = true;
-                                  } else {
-                                    picOrDel[i] = false;
-                                  }
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                  top: 5, bottom: 5, left: 8),
-                              child: Row(children: [
-                                picOrDel[index] == false
-                                    ? Icon(
-                                    Icons
-                                        .radio_button_unchecked_rounded,
-                                    color: Colors.black)
-                                    : Icon(Icons.check_circle_rounded,
-                                    color: Colors.green),
-                                SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    '${picOrDeliver[index]}',
-                                    style: TextStyle(
-                                        fontFamily: poppins,
-                                        color: Colors.grey,
-                                        fontSize: 13),
-                                  ),
-                                )
-                              ]),
-                            ),
-                          );
+                      child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: picOrDeliver.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        splashColor: Colors.grey,
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          setState(() {
+                            for (int i = 0; i < picOrDel.length; i++) {
+                              if (i == index) {
+                                fixedDelliverMethod = picOrDeliver[i];
+                                picOrDel[i] = true;
+                              } else {
+                                picOrDel[i] = false;
+                              }
+                            }
+                          });
                         },
-                      )
-                  ),
+                        child: Container(
+                          padding: EdgeInsets.only(top: 5, bottom: 5, left: 8),
+                          child: Row(children: [
+                            picOrDel[index] == false
+                                ? Icon(Icons.radio_button_unchecked_rounded,
+                                    color: Colors.black)
+                                : Icon(Icons.check_circle_rounded,
+                                    color: Colors.green),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                '${picOrDeliver[index]}',
+                                style: TextStyle(
+                                    fontFamily: poppins,
+                                    color: Colors.grey,
+                                    fontSize: 13),
+                              ),
+                            )
+                          ]),
+                        ),
+                      );
+                    },
+                  )),
 
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
 
                   Text(
                     "Delivery Details",
@@ -1254,18 +1371,16 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
 
                   GestureDetector(
                     onTap: () async {
-
                       print(minimumDeliTime);
 
                       String deliTime = "";
 
-                      if(minimumDeliTime.isNotEmpty){
+                      if (minimumDeliTime.isNotEmpty) {
                         deliTime = dayMinConverter(minimumDeliTime);
                       }
 
@@ -1274,55 +1389,45 @@ class _OthersDetailsState extends State<OthersDetails> {
                           initialDate: DateTime(
                             DateTime.now().year,
                             DateTime.now().month,
-                            DateTime.now().day+int.parse(deliTime),
+                            DateTime.now().day + int.parse(deliTime),
                           ),
                           lastDate: DateTime(2100),
                           firstDate: DateTime(
                             DateTime.now().year,
                             DateTime.now().month,
-                            DateTime.now().day+int.parse(deliTime),
+                            DateTime.now().day + int.parse(deliTime),
                           ),
                           helpText: "Min Delivery Time $minimumDeliTime",
-                          builder: (c,child){
+                          builder: (c, child) {
                             return Theme(
-                                data:ThemeData(
+                                data: ThemeData(
                                     dialogTheme: DialogTheme(
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20)
-                                        )
-                                    ),
+                                            borderRadius:
+                                                BorderRadius.circular(20))),
                                     colorScheme: ColorScheme.light(
                                         onPrimary: Colors.white,
                                         onSurface: Colors.pink,
-                                        primary: Colors.pink
-                                    ),
+                                        primary: Colors.pink),
                                     textTheme: const TextTheme(
                                         headline5: TextStyle(
                                             fontSize: 17,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        ),
+                                            fontWeight: FontWeight.bold),
                                         headline4: TextStyle(
                                             fontSize: 17,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        ),
+                                            fontWeight: FontWeight.bold),
                                         overline: TextStyle(
                                             fontSize: 14,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                ),
-                                child:child!
-                            );
-                          }
-                      );
+                                            fontWeight: FontWeight.bold))),
+                                child: child!);
+                          });
 
                       setState(() {
-                        deliverDate = simplyFormat(
-                            time: SelDate, dateOnly: true
-                        );
+                        deliverDate =
+                            simplyFormat(time: SelDate, dateOnly: true);
                       });
 
                       // print(cakeMindeltime.replaceAll(RegExp('[^0-9]'), ''));
@@ -1335,22 +1440,18 @@ class _OthersDetailsState extends State<OthersDetails> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                            BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.grey[400]!,
-                                width: 0.5)),
+                                color: Colors.grey[400]!, width: 0.5)),
                         child: Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '$deliverDate',
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 13,
-                                    fontFamily: "Poppins"
-                                ),
+                                    fontFamily: "Poppins"),
                               ),
                               Icon(Icons.edit_calendar_outlined,
                                   color: darkBlue)
@@ -1363,10 +1464,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                           builder: (context) {
                             return AlertDialog(
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(20)),
-                              title:
-                              Text("Select delivery session",
+                                  borderRadius: BorderRadius.circular(20)),
+                              title: Text("Select delivery session",
                                   style: TextStyle(
                                     color: lightPink,
                                     fontFamily: "Poppins",
@@ -1378,124 +1477,162 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   isAlwaysShown: true,
                                   child: SingleChildScrollView(
                                     child: Column(
-                                      mainAxisSize:
-                                      MainAxisSize.min,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 8 AM - 9 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 8 AM - 9 AM';
+                                                    'Morning 8 AM - 9 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 9 AM - 10 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 9 AM - 10 AM';
+                                                    'Morning 9 AM - 10 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 10 AM - 11 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 10 AM - 11 AM';
+                                                    'Morning 10 AM - 11 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 11 AM - 12 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 11 PM - 12 PM';
+                                                    'Morning 11 PM - 12 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 12 PM - 1 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 12 PM - 1 PM';
+                                                    'Afternoon 12 PM - 1 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 1 PM - 2 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 1 PM - 9 PM';
+                                                    'Afternoon 1 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 2 PM - 3 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 8 PM - 9 PM';
+                                                    'Afternoon 8 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 3 PM - 4 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 3 PM - 4 PM';
+                                                    'Afternoon 3 PM - 4 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 4 PM - 5 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 4 PM - 5 PM';
+                                                    'Afternoon 4 PM - 5 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 5 PM - 6 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 5 PM - 6 PM';
+                                                    'Evening 5 PM - 6 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 6 PM - 7 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 6 PM - 7 PM';
+                                                    'Evening 6 PM - 7 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 7 PM - 8 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 7 PM - 8 PM';
+                                                    'Evening 7 PM - 8 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 8 PM - 9 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 8 PM - 9 PM';
+                                                    'Evening 8 PM - 9 PM';
                                               });
                                             }),
                                       ],
@@ -1511,14 +1648,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                            BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.grey[400]!,
-                                width: 0.5)),
+                                color: Colors.grey[400]!, width: 0.5)),
                         child: Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '$deliverSession',
@@ -1527,71 +1661,75 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     color: Colors.grey,
                                     fontSize: 13),
                               ),
-                              Icon(CupertinoIcons.clock,
-                                  color: darkBlue)
+                              Icon(CupertinoIcons.clock, color: darkBlue)
                             ])),
                   ),
 
-                  SizedBox(height: 4,),
+                  SizedBox(
+                    height: 4,
+                  ),
 
-                  fixedDelliverMethod.toLowerCase()=="delivery"?
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Address",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 14.5,
-                            color: darkBlue,
-                            fontWeight: FontWeight.w600
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: Text(
-                              '${deliveryAddress.trim()}',
+                  fixedDelliverMethod.toLowerCase() == "delivery"
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Address",
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontFamily: poppins,
-                                  color: Colors.grey,
-                                  fontSize: 13),
+                                  fontFamily: "Poppins",
+                                  fontSize: 14.5,
+                                  color: darkBlue,
+                                  fontWeight: FontWeight.w600),
                             ),
-                            trailing:
-                            Icon(Icons.check_circle, color: Colors.green ,size: 25,),
-                          ),
-                          GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddressScreen()));
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 0),
-                              child: Text(
-                                'add new address',
-                                style: const TextStyle(
-                                    color: Colors.orange,
-                                    fontFamily: "Poppins",
-                                    decoration: TextDecoration.underline),
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    '${deliveryAddress.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 25,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddressScreen()));
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      'add new address',
+                                      style: const TextStyle(
+                                          color: Colors.orange,
+                                          fontFamily: "Poppins",
+                                          decoration: TextDecoration.underline),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                          ],
+                        )
+                      : Container(),
 
-
-                        ],
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                    ],
-                  ):
-                  Container(),
-
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
 
                   Text(
                     "Selected Vendor  ",
@@ -1600,8 +1738,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                         fontFamily: "Poppins",
                         fontSize: 14.5,
                         color: darkBlue,
-                        fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
 
                   GestureDetector(
@@ -1620,45 +1757,47 @@ class _OthersDetailsState extends State<OthersDetails> {
                           children: [
                             vendorProfile.length < 7
                                 ? Container(
-                              width: 90,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/images/vendorimage.jpeg"),
-                                      fit: BoxFit.cover)),
-                            )
+                                    width: 90,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/vendorimage.jpeg"),
+                                            fit: BoxFit.cover)),
+                                  )
                                 : Container(
-                              width: 90,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
-                                  image: DecorationImage(
-                                      image: NetworkImage(vendorProfile),
-                                      fit: BoxFit.cover)),
-                            ),
+                                    width: 90,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                            image: NetworkImage(vendorProfile),
+                                            fit: BoxFit.cover)),
+                                  ),
                             SizedBox(
                               width: 8,
                             ),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         width: 155,
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Container(
                                               child: Text(
@@ -1678,26 +1817,28 @@ class _OthersDetailsState extends State<OthersDetails> {
                                               children: [
                                                 RatingBar.builder(
                                                   initialRating: vendrorRating
-                                                      .isEmpty ||
-                                                      vendrorRating == null
+                                                              .isEmpty ||
+                                                          vendrorRating == null
                                                       ? 1.0
-                                                      : double.parse(vendrorRating
-                                                      .replaceAll(
-                                                      RegExp('[^0-9]'),
-                                                      '')),
+                                                      : double.parse(
+                                                          vendrorRating
+                                                              .replaceAll(
+                                                                  RegExp(
+                                                                      '[^0-9]'),
+                                                                  '')),
                                                   minRating: 1,
                                                   direction: Axis.horizontal,
                                                   allowHalfRating: true,
                                                   itemCount: 5,
                                                   itemSize: 14,
                                                   itemPadding:
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 1.0),
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 1.0),
                                                   itemBuilder: (context, _) =>
                                                       Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
-                                                      ),
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
                                                   onRatingUpdate: (rating) {
                                                     print(rating);
                                                   },
@@ -1706,7 +1847,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                   '$vendrorRating',
                                                   style: TextStyle(
                                                       color: Colors.black54,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 13,
                                                       fontFamily: poppins),
                                                 )
@@ -1743,11 +1885,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "${vendrorEgg}",
@@ -1759,44 +1901,52 @@ class _OthersDetailsState extends State<OthersDetails> {
                                             maxLines: 1,
                                           ),
                                           SizedBox(height: 3),
-                                          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1) == "0.0"
+                                          ((adminDeliveryCharge /
+                                                              adminDeliveryChargeKm) *
+                                                          (calculateDistance(
+                                                              double.parse(
+                                                                  userLatitude),
+                                                              double.parse(
+                                                                  userLongtitude),
+                                                              double.parse(
+                                                                  vendrorLat
+                                                                      .toString()),
+                                                              double.parse(
+                                                                  vendrorLong))))
+                                                      .toStringAsFixed(1) ==
+                                                  "0.0"
                                               ? Text(
-                                            "DELIVERY FREE",
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontFamily: "Poppins",
-                                              color: Colors.orange,
-                                            ),
-                                            maxLines: 1,
-                                          )
+                                                  "DELIVERY FREE",
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontFamily: "Poppins",
+                                                    color: Colors.orange,
+                                                  ),
+                                                  maxLines: 1,
+                                                )
                                               : Text(
-                                            "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                double.parse(vendrorLong))).toStringAsFixed(1)} "
-                                                "KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                                (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                                                    double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontFamily: "Poppins",
-                                              color: Colors.orange,
-                                            ),
-                                            maxLines: 1,
-                                          ),
+                                                  "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toStringAsFixed(1)} "
+                                                  "KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) * (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontFamily: "Poppins",
+                                                    color: Colors.orange,
+                                                  ),
+                                                  maxLines: 1,
+                                                ),
                                         ],
                                       ),
                                       Expanded(
                                         child: Container(
                                           child: Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                                MainAxisAlignment.end,
                                             children: [
                                               InkWell(
                                                 onTap: () {
                                                   print('phone..');
                                                   PhoneDialog().showPhoneDialog(
-                                                      context,
+                                                    context,
                                                     "$vendrorPhone1",
                                                     "$vendrorPhonr2",
                                                   );
@@ -1867,60 +2017,75 @@ class _OthersDetailsState extends State<OthersDetails> {
                           borderRadius: BorderRadius.circular(25)),
                       child: RaisedButton(
                         shape: RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(25)),
+                            borderRadius: BorderRadius.circular(25)),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          if(otherType=="Kg"){
-                            if(changeWeight(selectedWeight)<changeWeight(weight[0]['Weight'])){
+                          if (otherType == "Kg") {
+                            if (changeWeight(selectedWeight) <
+                                changeWeight(weight[0]['Weight'])) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Minimum weight is ${weight[0]['Weight']}!")));
+                            } else if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Minimum weight is ${weight[0]['Weight']}!"))
-                              );
-                            }else if(deliverDate.toLowerCase()=="select delivery date"){
+                                  SnackBar(
+                                      content:
+                                          Text("Please select deliver date")));
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver date"))
-                              );
-                            }else if(deliverSession.toLowerCase()=="select delivery time"){
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select deliver session")));
+                            } else if (fixedDelliverMethod.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver session"))
-                              );
-                            }else if(fixedDelliverMethod.isEmpty){
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select pickup or delivery"))
-                              );
-                            }else{
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select pickup or delivery")));
+                            } else {
                               gotoCheckout();
                             }
-                          }else if(otherType=="Unit"){
-                          if(deliverDate.toLowerCase()=="select delivery date"){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Please select deliver date"))
-                            );
-                          }else if(deliverSession.toLowerCase()=="select delivery time"){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Please select deliver session"))
-                            );
-                          }else if(fixedDelliverMethod.isEmpty){
+                          } else if (otherType == "Unit") {
+                            if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select pickup or delivery"))
-                              );
-                            }else{
+                                  SnackBar(
+                                      content:
+                                          Text("Please select deliver date")));
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select deliver session")));
+                            } else if (fixedDelliverMethod.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select pickup or delivery")));
+                            } else {
                               gotoCheckout();
                             }
-                          }else{
-                            if(deliverDate.toLowerCase()=="select delivery date"){
+                          } else {
+                            if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver date"))
-                              );
-                            }else if(deliverSession.toLowerCase()=="select delivery time"){
+                                  SnackBar(
+                                      content:
+                                          Text("Please select deliver date")));
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select deliver session"))
-                              );
-                            }else if(fixedDelliverMethod.isEmpty){
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select deliver session")));
+                            } else if (fixedDelliverMethod.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Please select pickup or delivery"))
-                              );
-                            }else{
+                                  SnackBar(
+                                      content: Text(
+                                          "Please select pickup or delivery")));
+                            } else {
                               gotoCheckout();
                             }
                           }
@@ -1929,9 +2094,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                         child: Text(
                           "ORDER NOW",
                           style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold
-                          ),
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -1940,7 +2103,6 @@ class _OthersDetailsState extends State<OthersDetails> {
                   SizedBox(
                     height: 15,
                   ),
-
                 ],
               ),
             ),
@@ -1952,22 +2114,17 @@ class _OthersDetailsState extends State<OthersDetails> {
 }
 
 double changeWeight(String weight) {
-
   print(weight);
 
   String givenWeight = weight;
   double converetedWeight = 0.0;
 
-  if(givenWeight.toLowerCase().endsWith("kg")){
-
+  if (givenWeight.toLowerCase().endsWith("kg")) {
     givenWeight = givenWeight.toLowerCase().replaceAll("kg", "");
     converetedWeight = double.parse(givenWeight);
-
-  }else{
-
+  } else {
     givenWeight = givenWeight.toLowerCase().replaceAll("g", "");
-    converetedWeight = double.parse(givenWeight)/1000;
-
+    converetedWeight = double.parse(givenWeight) / 1000;
   }
 
   print("Converted : $converetedWeight");

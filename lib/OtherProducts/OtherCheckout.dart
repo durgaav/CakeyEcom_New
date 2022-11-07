@@ -265,43 +265,43 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   //Confirm order
   void showConfirmOrder(){
     showDialog(
-      context: context,
-      builder: (context)=>
-          AlertDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)
+                borderRadius: BorderRadius.circular(20)
             ),
-            title: Row(
-              children: [
-                Text('Order Confirmation' , style: TextStyle(
-                    color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
-                    fontWeight: FontWeight.bold
-                ),),
-              ],
+            title: Text('Order'
+              ,style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins"),
             ),
-            content: Text('Are You Sure? Your Order Will Be Placed!' , style: TextStyle(
-                color:lightPink , fontSize: 13 , fontFamily: "Poppins"
-            ),),
+            content: Text('Your Order Will Be Placed.',
+              style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
+            ),
             actions: [
               FlatButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel')
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel',
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
+                ),
               ),
               FlatButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                    if(paymentType.toLowerCase()=="online payment"){
-                      _handleOrder();
-                    }else{
-                      handleOrderKgs();
-                    }
-                  },
-                  child: Text('Order Now')
+                onPressed: (){
+                  Navigator.pop(context);
+                  if(paymentType.toLowerCase()=="online payment"){
+                    _handleOrder();
+                  }else{
+                    handleOrderKgs();
+                  }
+                },
+                child: Text('Ok',
+                  style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
+                ),
               ),
             ],
-          ),
+          );
+        }
     );
   }
 

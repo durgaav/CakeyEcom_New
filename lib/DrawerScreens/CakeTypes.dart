@@ -3293,14 +3293,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.normal,
-                                            fontSize: 16),
+                                            fontSize: 15),
                                       ),
                                       TextSpan(
                                         text: 'THEME CAKE ? ',
                                         style: TextStyle(
                                             color: lightPink,
                                             fontWeight: FontWeight.normal,
-                                            fontSize: 16),
+                                            fontSize: 15),
                                       )
                                     ])),
                                     Expanded(
