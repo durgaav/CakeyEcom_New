@@ -201,7 +201,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //region Functions....
 
   //Update the profile
-  Future<void> updateProfile([String tokenId=""]) async {
+  Future<void> updateProfile([String tokenId="null"]) async {
 
     print(tokenId);
 

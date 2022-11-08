@@ -100,6 +100,9 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                         );
                       }).toList(),
                       isExpanded: true,
+                      underline: Container(
+                        height: 1,color: Colors.grey[400],
+                      ),
                       onChanged: (e){
                         setState(() {
                           selectedCode = e.toString();
@@ -149,6 +152,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                                   ),
                                 ),
                                 hintText: 'Phone Number',
+                                border: InputBorder.none,
                                 counterText: "",
                                 hintStyle: TextStyle(fontFamily: "Poppins",color: Color(0xffbac4c8)),
                                 prefixIcon:Container(
@@ -165,6 +169,10 @@ class _PhoneVerifyState extends State<PhoneVerify> {
 
                             ),
                           ),
+                  ),
+                  Container(
+                    height: 1,color: Colors.grey[400],
+                    margin: EdgeInsets.only(left: 12,right: 12,top: 7),
                   ),
                   SizedBox(height: 40,),
                   Container(

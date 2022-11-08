@@ -182,7 +182,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 Navigator.pop(context);
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
                               },
-                              child: Text('Done',style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.bold),),
+                              child: Text('DONE',style: TextStyle(fontSize: 18,color: Colors.white,),),
                             ),
                           )
                         ],
