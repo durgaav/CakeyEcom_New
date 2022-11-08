@@ -1538,7 +1538,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                     padding: EdgeInsets.only(left: 10, right: 10),
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Colors.red[50],
+                          color: Color(0xffffe9df),
                           borderRadius: BorderRadius.circular(14)),
                       child: ExpansionTile(
                         onExpansionChanged: (e){

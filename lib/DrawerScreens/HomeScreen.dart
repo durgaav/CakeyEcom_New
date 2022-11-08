@@ -1320,8 +1320,6 @@ class _HomeScreenState extends State<HomeScreen> {
   //fetch cake types
   Future<void> getCakeType() async {
 
-
-
     try{
       var mainList = [];
       List subType = [];
@@ -1345,7 +1343,7 @@ class _HomeScreenState extends State<HomeScreen> {
           searchCakeType.add(
               {"name":"Others"}
           );
-          if (mainList.length > 1) {
+          if (mainList.length!=0) {
             for (int i = 0; i < mainList.length; i++) {
 
               if (mainList[i]['Type'] != null) {
@@ -1357,7 +1355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
-              if(mainList[i]['SubType'].isNotEmpty && mainList[i]['SubType']!=null){
+              if(mainList[i]['SubType']!=null&&mainList[i]['SubType'].isNotEmpty){
                 for(int k = 0 ; k<mainList[i]['SubType'].length;k++){
                   print(mainList[i]['SubType'][k]);
                   searchCakeType.add(

@@ -1454,7 +1454,7 @@ class _CakeTypesState extends State<CakeTypes> {
             {"name":"Others"}
         );
 
-        if (mainList.length > 1) {
+        if (mainList.length!=0) {
           for (int i = 0; i < mainList.length; i++) {
 
             if (mainList[i]['Type'] != null) {

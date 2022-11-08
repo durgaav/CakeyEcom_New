@@ -996,7 +996,7 @@ class _NotificationsState extends State<Notifications> {
                             );
                           })
                           : (mainList.length > 0)
-                          ?ListView.builder(
+                          ?ListView.separated(
                             itemCount: mainList.length,
                             shrinkWrap: true,
                             // physics: NeverScrollableScrollPhysics(),
@@ -1087,21 +1087,6 @@ class _NotificationsState extends State<Notifications> {
                                                 children: [
                                                   Container(
                                                     // width: 270,
-                                                      child:Text(
-                                                        "$status",
-                                                        maxLines: 3,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            color: Colors.black,
-                                                            fontFamily: "Poppins",
-                                                            fontSize: 13,
-                                                        ),
-                                                      )),
-                                                  SizedBox(
-                                                    height: 7,
-                                                  ),
-                                                  Container(
-                                                    // width: 270,
                                                       child: Text(
                                                           simplyFormat(time: DateTime.now(),dateOnly: true)==
                                                               mainList[index]['Status_Updated_On'].toString().split(" ").first?
@@ -1115,7 +1100,22 @@ class _NotificationsState extends State<Notifications> {
                                                               FontWeight.bold
                                                           ))
                                                   ),
-                                                  SizedBox(height: 6,)
+                                                  SizedBox(height: 6,),
+                                                  Container(
+                                                    // width: 270,
+                                                      child:Text(
+                                                        "$status",
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 13,
+                                                        ),
+                                                      )),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -1124,18 +1124,21 @@ class _NotificationsState extends State<Notifications> {
                                           Icon(Icons.check_box , color: Colors.green,):Container()
                                         ],
                                       ),
-                                      simplyFormat(time: DateTime.now(),dateOnly: true)==
-                                          mainList[index]['Status_Updated_On'].toString().split(" ").first?
-                                      Container():
-                                      Container(
-                                        height: 0.5,
-                                        color: darkBlue,
-                                      ),
                                     ],
                                   ),
                                 ),
                               );
-                            })
+                            },
+                        separatorBuilder: (c,it){
+                           return simplyFormat(time: DateTime.now(),dateOnly: true)==
+                               mainList[it]['Status_Updated_On'].toString().split(" ").first?
+                           Container():
+                           Container(
+                             height: 0.5,
+                             color: darkBlue,
+                           );
+                        },
+                      )
                           : Container(
                               margin: EdgeInsets.only(top:25),
                               child: Center(

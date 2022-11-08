@@ -815,8 +815,40 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                 TextButton(
                                                     onPressed: (){
                                                       Navigator.pop(context);
-                                                      if(theCtrl.text.isNotEmpty){
-                                                        counter = int.parse(theCtrl.text);
+                                                      if (otherType == "Unit") {
+                                                        if (int.parse(theCtrl.text) >
+                                                            int.parse(weight[selectedWeightIndex]
+                                                            ['MinCount']
+                                                                .toString())) {
+                                                          setState(() {
+                                                            counter = int.parse(theCtrl.text);
+                                                          });
+                                                        } else {
+                                                          ScaffoldMessenger.of(context)
+                                                              .showSnackBar(SnackBar(
+                                                              content: Text(
+                                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                                        }
+                                                      } else if (otherType == "Box") {
+                                                        if (int.parse(theCtrl.text) >
+                                                            int.parse(weight[selectedWeightIndex]
+                                                            ['MinCount']
+                                                                .toString())) {
+                                                          setState(() {
+                                                            counter = int.parse(theCtrl.text);
+                                                          });
+                                                        } else {
+                                                          ScaffoldMessenger.of(context)
+                                                              .showSnackBar(SnackBar(
+                                                              content: Text(
+                                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                                        }
+                                                      } else {
+                                                        if(theCtrl.text.isNotEmpty){
+                                                          setState((){
+                                                            counter = int.parse(theCtrl.text);
+                                                          });
+                                                        }
                                                       }
                                                     },
                                                     child: Text('Ok',style:TextStyle(
@@ -857,8 +889,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 splashColor: Colors.red[200]!,
                                 onTap: () {
                                   setState(() {
-                                    counter++;
-                                    counterCtrl.text = (counter++).toString();
+                                    counter = counter+1;
+                                    counterCtrl.text = counter.toString();
                                   });
                                 },
                                 child: Container(

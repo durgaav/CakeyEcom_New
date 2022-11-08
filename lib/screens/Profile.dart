@@ -3650,17 +3650,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                           ),
                         ),
-                        const Positioned(
+                        Positioned(
                           left: 17,
                           top: 17,
-                          child: const CircleAvatar(
+                          child: notiCount > 0?
+                          CircleAvatar(
                             radius: 3.5,
                             backgroundColor: Colors.white,
                             child: CircleAvatar(
                               radius: 2.7,
                               backgroundColor: Colors.red,
                             ),
-                          ),
+                          ):Container(height:0,width:0),
                         ),
                       ],
                     ),
