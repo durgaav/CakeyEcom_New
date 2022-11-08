@@ -3593,7 +3593,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         'PROFILE',
                         style: TextStyle(
                             color: darkBlue,
-                            fontWeight: FontWeight.bold,fontSize: 17
+                            fontWeight: FontWeight.bold,fontSize: 18
                         ),
                       ),
                     ),

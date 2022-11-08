@@ -253,7 +253,7 @@ class _HampersState extends State<Hampers> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 5.0,
                 mainAxisSpacing: 5.0 ,
-                mainAxisExtent: 225
+                mainAxisExtent: MediaQuery.of(context).size.height*0.27
             ),
             itemBuilder: (c , i)=>
                 GestureDetector(

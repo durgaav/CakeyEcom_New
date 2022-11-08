@@ -3243,7 +3243,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                   color: darkBlue,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: poppins,
-                                  fontSize: 16)
+                                  fontSize: 18)
                           ),
                         ],
                       ),

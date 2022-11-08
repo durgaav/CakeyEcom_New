@@ -47,7 +47,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         body: SafeArea(
           child: Container(
@@ -82,9 +81,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 children:[
                                   Text('${title[index]}',style: TextStyle(fontFamily:"Poppins",fontSize: 20,fontWeight: FontWeight.bold),),
                                   Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    padding: EdgeInsets.symmetric(horizontal: 20),
                                     child:
-                                    Text('${desc[index]}',style: TextStyle(fontSize: 12.7,letterSpacing: 1,fontFamily: "Poppins"),
+                                    Text('${desc[index]}',style: TextStyle(fontSize: 12.7,letterSpacing: 1,fontFamily: "Poppins",
+                                    color: Color(0xff8c9ca4)),
                                         textAlign:TextAlign.center ),
                                   ),
                                 ]
@@ -128,39 +128,48 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               ),
                             ],
                           ),
-                          currentindex!=2?Align(
-                            alignment: Alignment.centerRight,
-                            child: Container(
+                          currentindex!=2?
+                          Container(
                                 padding: EdgeInsets.symmetric(horizontal: 20),
-                                width: MediaQuery.of(context).size.width*0.6,
+                                width: MediaQuery.of(context).size.width,
                                 child:
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    TextButton(onPressed: (){
-                                      // Navigator.pop(context);
-                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
-                                    }, child: Text('SKIP',style: TextStyle(fontSize: 18, color: darkBlue,fontFamily: "Poppins"),)),
-                                    Container(
-                                        decoration:BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: lightPink
-                                        ),
-                                        child: IconButton(onPressed: (){
-                                         if(controll.page==0){
-                                           controll.animateToPage(1,curve: Curves.ease ,duration: Duration(milliseconds: 500));
-                                         }else if(controll.page==1){
-                                           controll.animateToPage(2,curve: Curves.ease ,duration: Duration(milliseconds: 500));
-                                         }
-                                        },
-                                          icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
+                                    Expanded(child: Container()),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: TextButton(onPressed: (){
+                                        // Navigator.pop(context);
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
+                                      },
+                                          child: Text('SKIP',style: TextStyle(fontSize: 18, color:Color(0xff8c9ca4),fontFamily: "Poppins"),)
+                                      ),
                                     ),
+                                    Expanded(child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Container(
+                                          height: 50,width: 50,
+                                          alignment: Alignment.center,
+                                          decoration:BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: lightPink
+                                          ),
+                                          child: IconButton(onPressed: (){
+                                            if(controll.page==0){
+                                              controll.animateToPage(1,curve: Curves.ease ,duration: Duration(milliseconds: 500));
+                                            }else if(controll.page==1){
+                                              controll.animateToPage(2,curve: Curves.ease ,duration: Duration(milliseconds: 500));
+                                            }
+                                          },
+                                            icon: Icon(Icons.arrow_forward ),color: Colors.white,iconSize: 28,)
+                                      ),
+                                    ),),
                                   ],
-                                )
-
-                            ),
-                          ):
+                                ),
+                            ):
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 20),
                             width: MediaQuery.of(context).size.width*0.6,

@@ -700,6 +700,9 @@ class _NotificationsState extends State<Notifications> {
         context: context,
         builder: (context)=>
             AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+              ),
               title: Text("Delete Notifications!" , style: TextStyle(
                   color: darkBlue , fontFamily: "Poppins",
                   fontWeight: FontWeight.bold
@@ -710,7 +713,12 @@ class _NotificationsState extends State<Notifications> {
               )
               ),
               actions: [
-
+                FlatButton(
+                  onPressed: ()=>Navigator.pop(context),
+                  child: Text('Cancel', style: TextStyle(
+                    color: Colors.purple , fontFamily: "Poppins",
+                  )),
+                ),
                 FlatButton(
                   onPressed: (){
                     Navigator.pop(context);
@@ -721,12 +729,6 @@ class _NotificationsState extends State<Notifications> {
                   )),
                 ),
 
-                FlatButton(
-                  onPressed: ()=>Navigator.pop(context),
-                  child: Text('Cancel', style: TextStyle(
-                    color: Colors.purple , fontFamily: "Poppins",
-                  )),
-                ),
               ],
             )
     );
@@ -912,7 +914,7 @@ class _NotificationsState extends State<Notifications> {
                         style: TextStyle(
                             color: darkBlue,
                             fontWeight: FontWeight.bold,
-                            fontSize: 17),
+                            fontSize: 18),
                       ),
                     ),
                     Expanded(

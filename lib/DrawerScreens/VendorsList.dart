@@ -543,7 +543,7 @@ class _VendorsListState extends State<VendorsList> {
                         SizedBox(width: 15,),
                         Text(iamFromCustom?"Select Vendors":"VENDORS",
                             style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins,
-                                fontSize: 16
+                                fontSize: 18
                             )),
                       ],
                     ),

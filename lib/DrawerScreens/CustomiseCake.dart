@@ -1603,7 +1603,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       SizedBox(width: 15,),
                       Text("FULLY CUSTOMIZATION",
                           style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: poppins,
-                              fontSize: 16
+                              fontSize: 18
                           )),
                     ],
                   ),
