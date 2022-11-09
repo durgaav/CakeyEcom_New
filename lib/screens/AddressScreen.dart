@@ -268,14 +268,15 @@ class _AddressScreenState extends State<AddressScreen> {
 
                       }else{
 
-                        setState((){
-                          context.read<ContextData>().setAddress(
-                              "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
-                          );
-                        });
+                        // setState((){
+                        //   context.read<ContextData>().setAddress(
+                        //       "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
+                        //   );
+                        // });
 
                         setState(() {
                           addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
+                          context.read<ContextData>().setAddressList(addressList);
                           pr.setStringList('addressList', addressList);
                           loadPref();
                         });

@@ -1284,7 +1284,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
-                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    .toString().split(" ").first}",style: TextStyle(color:Colors.grey[400],
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
@@ -1455,7 +1455,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color: Colors.black38,
                               height: 1,
                             ),
 
@@ -1488,7 +1488,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             const SizedBox(height: 15,),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -1578,7 +1578,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
                             Container(
@@ -1910,7 +1910,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
-                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    .toString().split(" ").first}",style: TextStyle(color:Colors.grey[400],
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
@@ -2056,7 +2056,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             Container(),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -2089,7 +2089,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             const SizedBox(height: 15,),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -2182,7 +2182,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
                             Container(
@@ -2503,7 +2503,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
-                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    .toString().split(" ").first}",style: TextStyle(color:Colors.grey[400],
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
@@ -2652,7 +2652,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -2685,7 +2685,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             const SizedBox(height: 15,),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -2782,7 +2782,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
                             Container(
@@ -3111,7 +3111,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                   ],
                                                 ),
                                                 Text("${recentOrders[index]['Status_Updated_On']
-                                                    .toString().split(" ").first}",style: TextStyle(color: Colors.black26,
+                                                    .toString().split(" ").first}",style: TextStyle(color:Colors.grey[400],
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
@@ -3279,7 +3279,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
 
@@ -3312,7 +3312,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             const SizedBox(height: 15,),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
                             Container(
@@ -3401,7 +3401,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                             Container(
                               margin: const EdgeInsets.only(left: 10,right: 10),
-                              color: Colors.black26,
+                              color:Colors.grey[400],
                               height: 1,
                             ),
                             Container(

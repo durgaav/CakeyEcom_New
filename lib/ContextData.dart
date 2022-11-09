@@ -10,6 +10,7 @@ class ContextData extends ChangeNotifier {
   bool isMyVendorAdded = false;
   bool isUpdated = false;
   String address = "";
+  List<String> addressList = [];
 
   int notiCount = 0;
 
@@ -68,5 +69,12 @@ class ContextData extends ChangeNotifier {
   }
 
   bool getDpUpdate()=>isUpdated;
+
+  void setAddressList(List<String> list){
+    addressList = list;
+    notifyListeners();
+  }
+
+  List<String> getAddressList()=>addressList;
 
 }

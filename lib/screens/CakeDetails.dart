@@ -88,6 +88,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   List cakeImages = [];
   List cakesList = [];
   List myCakesList = [];
+  List<String> deliverAddress = [];
+  var deliverAddressIndex = 0;
 
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
@@ -350,11 +352,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     ],
                   ),
                   SizedBox(
-                    height: 8,
+                    height: 12,
                   ),
                   Container(
-                    height: 1.0,
-                    color: Colors.black26,
+                    height: 0.6,
+                    color: Colors.grey[400],
                   ),
 
                   Container(
@@ -519,11 +521,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     ],
                   ),
                   SizedBox(
-                    height: 8,
+                    height: 12,
                   ),
                   Container(
-                    height: 1.0,
-                    color: Colors.black26,
+                    height: 0.6,
+                    color: Colors.grey[400],
                   ),
 
                   Container(
@@ -699,7 +701,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       ],
                     ),
                     SizedBox(
-                      height: 8,
+                      height: 12,
+                    ),
+                    Container(
+                      height: 0.6,
+                      color: Colors.grey[400],
                     ),
 
                     Container(
@@ -1200,6 +1206,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       firstVenIndex = prefs.getString('firstVenIndex')??'2';
       firstVenAmount = prefs.getString('firstVenDelCharge')??'0';
 
+
       print("del free ven :$firstVenIndex");
 
       // if(cakeType.contains("Regular") || cakeType.contains("regular") ||
@@ -1277,6 +1284,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       userModID = prefs.getString("userModId") ?? "";
       userName = prefs.getString("userName") ?? "";
       userAddress = prefs.getString('userAddress') ?? 'None';
+      deliverAddress = prefs.getStringList('addressList')??[userAddress.trim()];
       newRegUser = prefs.getBool('newRegUser') ?? false;
 
       print("Users : $vendorID\n $userName\n $userModID\n $userAddress\n $newRegUser\n $userPhone\n");
@@ -1707,39 +1715,42 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     var prefs = await SharedPreferences.getInstance();
     myCakesList.clear();
     List<String> activeVendorsIds = prefs.getStringList('activeVendorsIds')??[];
-
     showAlertDialog();
-    var res = await http.get(
-        Uri.parse('http://sugitechnologies.com/cakey/api/cakes/activevendors/list'),
-        headers: {"Authorization": "$authToken"});
+    try{
+      var res = await http.get(
+          Uri.parse('http://sugitechnologies.com/cakey/api/cakes/activevendors/list'),
+          headers: {"Authorization": "$authToken"});
 
-    if (res.statusCode == 200) {
-      setState(() {
-        myCakesList = jsonDecode(res.body);
-        List cakeList = jsonDecode(res.body);
+      if (res.statusCode == 200) {
+        setState(() {
+          myCakesList = jsonDecode(res.body);
+          List cakeList = jsonDecode(res.body);
 
-        // cakeList = myCakesList.where((element) => calculateDistance(double.parse(userLatitude),
-        //     double.parse(userLongtitude),
-        //     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
+          // cakeList = myCakesList.where((element) => calculateDistance(double.parse(userLatitude),
+          //     double.parse(userLongtitude),
+          //     element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10).toList();
 
-        if(activeVendorsIds.isNotEmpty){
-          for(int i = 0;i<activeVendorsIds.length;i++){
-            cakeList = cakeList+myCakesList.where((element) => element['VendorID'].toString().toLowerCase()==
-                activeVendorsIds[i].toLowerCase()).toList();
+          if(activeVendorsIds.isNotEmpty){
+            for(int i = 0;i<activeVendorsIds.length;i++){
+              cakeList = cakeList+myCakesList.where((element) => element['VendorID'].toString().toLowerCase()==
+                  activeVendorsIds[i].toLowerCase()).toList();
+            }
           }
-        }
 
-        cakesList = cakeList
-            .where((element) =>
-                element['CakeName'].toString().toLowerCase().contains(cakeName.toLowerCase().toString()))
-            .toList();
+          cakesList = cakeList
+              .where((element) =>
+              element['CakeName'].toString().toLowerCase().contains(cakeName.toLowerCase().toString()))
+              .toList();
 
-        print("Cake list length = ... ${cakesList.length}");
+          print("Cake list length = ... ${cakesList.length}");
 
-        getVendorsList();
+          getVendorsList();
+          Navigator.pop(context);
+        });
+      } else {
         Navigator.pop(context);
-      });
-    } else {
+      }
+    }catch(e){
       Navigator.pop(context);
     }
   }
@@ -2081,10 +2092,12 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       newRegUser = false;
     }
 
-    if (context.watch<ContextData>().getAddress().isNotEmpty) {
-      userAddress = context.watch<ContextData>().getAddress();
-    } else {
-      userAddress = userAddress;
+    // if (context.watch<ContextData>().getAddress().isNotEmpty) {
+    //   userAddress = context.watch<ContextData>().getAddress();
+    // }
+
+    if (context.watch<ContextData>().getAddressList().isNotEmpty) {
+      deliverAddress = context.watch<ContextData>().getAddressList();
     }
 
     return WillPopScope(
@@ -2835,16 +2848,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             alignment: Alignment.center,
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                      blurRadius: 3,
-                                                      color: Colors.black26,
-                                                      spreadRadius: 1)
-                                                ],
                                                 color: Colors.white),
                                             child: Icon(
                                               Icons.add,
                                               color: darkBlue,
+                                              size: 18,
                                             ),
                                           ),
                                         )
@@ -2854,7 +2862,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             child: Icon(
                                               Icons.check,
                                               color: Colors.white,
-                                              size: 16,
+                                              size: 18,
                                             )),
                                       )
                                   )
@@ -2928,16 +2936,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             alignment: Alignment.center,
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                      blurRadius: 3,
-                                                      color: Colors.black26,
-                                                      spreadRadius: 1)
-                                                ],
                                                 color: Colors.white),
                                             child: Icon(
                                               Icons.add,
                                               color: darkBlue,
+                                              size: 18,
                                             ),
                                           ),
                                         )
@@ -2947,7 +2950,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           child: Icon(
                                             Icons.check,
                                             color: Colors.white,
-                                            size: 16,
+                                            size: 18,
                                           )),
                                 ],
                               ),
@@ -3028,16 +3031,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 3,
-                                                color: Colors.black26,
-                                                spreadRadius: 1)
-                                          ],
                                           color: Colors.white),
                                       child: Icon(
                                         Icons.add,
                                         color: darkBlue,
+                                        size: 18,
                                       ),
                                     ),
                                   ):
@@ -3047,7 +3045,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       child: Icon(
                                         Icons.check,
                                         color: Colors.white,
-                                        size: 16,
+                                        size: 18,
                                       )),
                                 ],
                               ),
@@ -3110,7 +3108,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ),
                               ),
                               Container(
-                                  height: MediaQuery.of(context).size.height * 0.057,
+                                  height: MediaQuery.of(context).size.height * 0.046,
                                   width: MediaQuery.of(context).size.width,
                                   margin: EdgeInsets.symmetric(horizontal: 10),
                                   //  color: Colors.grey,
@@ -3135,7 +3133,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             },
                                             child: Container(
                                               alignment: Alignment.center,
-                                              height: 25,
                                               width: 60,
                                               margin: EdgeInsets.only(left: 10),
                                               decoration: BoxDecoration(
@@ -3990,16 +3987,41 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ListTile(
-                                  title: Text(
-                                    '${userAddress.trim()}',
-                                    style: TextStyle(
-                                        fontFamily: poppins,
-                                        color: Colors.grey,
-                                        fontSize: 13),
-                                  ),
-                                  trailing:
-                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                Column(
+                                    children:deliverAddress.map((e){
+                                      return ListTile(
+                                        onTap: (){
+                                          setState(() {
+                                            userAddress = e.trim();
+                                            deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                          });
+                                        },
+                                        title: Text(
+                                          '${e.trim()}',
+                                          style: TextStyle(
+                                              fontFamily: poppins,
+                                              color: Colors.grey,
+                                              fontSize: 13),
+                                        ),
+                                        trailing:
+                                        deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                        Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                        Container(height:0,width:0),
+                                      );
+                                    }).toList(),
+                                    // [
+                                    //   ListTile(
+                                    //     title: Text(
+                                    //       '${userAddress.trim()}',
+                                    //       style: TextStyle(
+                                    //           fontFamily: poppins,
+                                    //           color: Colors.grey,
+                                    //           fontSize: 13),
+                                    //     ),
+                                    //     trailing:
+                                    //     Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                    //   ),
+                                    // ]
                                 ),
                                 GestureDetector(
                                   onTap: (){
@@ -4235,7 +4257,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                       ),
                                                                       Container(
                                                                         height:
-                                                                            1,
+                                                                            0.3,
                                                                         color: Colors
                                                                             .grey,
                                                                         // margin: EdgeInsets.only(left:6,right:6),

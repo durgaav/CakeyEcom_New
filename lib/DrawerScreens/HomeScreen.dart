@@ -2789,7 +2789,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         Container(
-                                          height: 0.5,
+                                          height: 0.3,
                                           width: double.infinity,
                                           margin: EdgeInsets.all(10),
                                           color: Colors.black26,
@@ -2845,7 +2845,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         Container(
-                                          height: 0.5,
+                                          height: 0.3,
                                           width: double.infinity,
                                           margin: EdgeInsets.all(10),
                                           color: Colors.black26,
@@ -3301,7 +3301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               recentOrders.isNotEmpty
                                                   ? Container(
-                                                height: 0.5,
+                                                height: 0.3,
                                                 width: double.infinity,
                                                 margin: EdgeInsets.only(
                                                     left: 10, right: 10),
@@ -3530,8 +3530,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Row(
                                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                               children: [
-                                                                                Text("Order Info" , style:TextStyle(
-                                                                                    color:Colors.purple,
+                                                                                Text("ORDER INFO" , style:TextStyle(
+                                                                                    color:darkBlue,
                                                                                     fontFamily: "Poppins",
                                                                                     fontSize: 17,
                                                                                     fontWeight: FontWeight.bold
@@ -3571,7 +3571,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
                                                                             Container(
                                                                               padding: const EdgeInsets.all(10),
@@ -3660,7 +3660,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
                                                                             Container(
                                                                               padding: const EdgeInsets.all(10),
@@ -3798,7 +3798,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 height: 4,
                                                                               ),
                                                                               Container(
-                                                                                height: 0.5,
+                                                                                height: 0.3,
                                                                                 color: Colors.black54,
                                                                                 margin: EdgeInsets.only(left: 5, right: 5),
                                                                               ),
@@ -3853,8 +3853,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Row(
                                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                               children: [
-                                                                                Text("Order Info" , style:TextStyle(
-                                                                                    color:Colors.purple,
+                                                                                Text("ORDER INFO" , style:TextStyle(
+                                                                                    color:darkBlue,
                                                                                     fontFamily: "Poppins",
                                                                                     fontSize: 17,
                                                                                     fontWeight: FontWeight.bold
@@ -3894,7 +3894,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
 
                                                                             Container(
@@ -3992,7 +3992,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
                                                                             Container(
                                                                               padding: const EdgeInsets.all(10),
@@ -4128,7 +4128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 height: 4,
                                                                               ),
                                                                               Container(
-                                                                                height: 0.5,
+                                                                                height: 0.3,
                                                                                 color: Colors.black54,
                                                                                 margin: EdgeInsets.only(left: 5, right: 5),
                                                                               ),
@@ -4185,8 +4185,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Row(
                                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                               children: [
-                                                                                Text("Order Info" , style:TextStyle(
-                                                                                    color:Colors.purple,
+                                                                                Text("ORDER INFO" , style:TextStyle(
+                                                                                    color:darkBlue,
                                                                                     fontFamily: "Poppins",
                                                                                     fontSize: 17,
                                                                                     fontWeight: FontWeight.bold
@@ -4226,7 +4226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
                                                                             Container(
                                                                               padding: const EdgeInsets.all(10),
@@ -4318,7 +4318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Container(
                                                                               margin: const EdgeInsets.only(left: 10,right: 10),
                                                                               color: Colors.black26,
-                                                                              height: 1,
+                                                                              height: 0.3,
                                                                             ),
                                                                             Container(
                                                                               padding: const EdgeInsets.all(10),
@@ -4454,7 +4454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 height: 4,
                                                                               ),
                                                                               Container(
-                                                                                height: 0.5,
+                                                                                height: 0.3,
                                                                                 color: Colors.black54,
                                                                                 margin: EdgeInsets.only(left: 5, right: 5),
                                                                               ),
@@ -4508,8 +4508,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 Row(
                                                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                                   children: [
-                                                                                    Text("Order Info" , style:TextStyle(
-                                                                                        color:Colors.purple,
+                                                                                    Text("ORDER INFO" , style:TextStyle(
+                                                                                        color:darkBlue,
                                                                                         fontFamily: "Poppins",
                                                                                         fontSize: 17,
                                                                                         fontWeight: FontWeight.bold
@@ -4549,7 +4549,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 Container(
                                                                                   margin: const EdgeInsets.only(left: 10,right: 10),
                                                                                   color: Colors.black26,
-                                                                                  height: 1,
+                                                                                  height: 0.3,
                                                                                 ),
                                                                                 Container(
                                                                                   padding: const EdgeInsets.all(10),
@@ -4638,7 +4638,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 Container(
                                                                                   margin: const EdgeInsets.only(left: 10,right: 10),
                                                                                   color: Colors.black26,
-                                                                                  height: 1,
+                                                                                  height: 0.3,
                                                                                 ),
                                                                                 Container(
                                                                                   padding: const EdgeInsets.all(10),
@@ -4766,7 +4766,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                                 height: 4,
                                                                               ),
                                                                               Container(
-                                                                                height: 0.5,
+                                                                                height: 0.3,
                                                                                 color: Colors.black54,
                                                                                 margin: EdgeInsets.only(left: 5, right: 5),
                                                                               ),
@@ -5408,7 +5408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ),
                                                               SizedBox(height: 5),
                                                               Container(
-                                                                  height: 0.5,
+                                                                  height: 0.3,
                                                                   color:
                                                                   Color(0xffdddddd)),
                                                               SizedBox(height: 5),
@@ -5693,7 +5693,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ),
                                                               SizedBox(height: 5),
                                                               Container(
-                                                                  height: 0.5,
+                                                                  height: 0.3,
                                                                   color:
                                                                   Color(0xffdddddd)),
                                                               SizedBox(height: 5),

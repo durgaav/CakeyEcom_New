@@ -1062,8 +1062,8 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                       ),
                       Container(
                         margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.black26,
-                        height: 1,
+                        color: Colors.grey[400],
+                        height: 0.8,
                       ),
                       const SizedBox(height: 15,),
                       Container(
@@ -1096,8 +1096,8 @@ class _HamperCheckoutState extends State<HamperCheckout> {
 
                       Container(
                         margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.black26,
-                        height: 1,
+                        color: Colors.grey[400],
+                        height: 0.8,
                       ),
 
                       Container(
@@ -1271,8 +1271,8 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                       ),
                       Container(
                         margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.black26,
-                        height: 1,
+                        color: Colors.grey[400],
+                        height: 0.8,
                       ),
                       Container(
                         padding: const EdgeInsets.all(10),

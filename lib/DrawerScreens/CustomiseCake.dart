@@ -2350,7 +2350,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                         weight.isNotEmpty?
                         Container(
-                            height: MediaQuery.of(context).size.height * 0.06,
+                            height: MediaQuery.of(context).size.height * 0.046,
                             width: MediaQuery.of(context).size.width,
                             margin: EdgeInsets.symmetric(horizontal: 5),
                             //  color: Colors.grey,
