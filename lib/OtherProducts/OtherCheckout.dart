@@ -1531,126 +1531,132 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                   ),
                 ),
 
-                ExpansionTile(
-                  maintainState: true,
-                  onExpansionChanged: (e){
-                    setState((){
-                      expanded = e;
-                      if(e==true){
-                        //controller.jumpTo(controller.position.minScrollExtent);
+                Padding(
+                  padding: EdgeInsets.zero,
+                  child: Theme(
+                    data: ThemeData().copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      maintainState: true,
+                      onExpansionChanged: (e){
+                        setState((){
+                          expanded = e;
+                          if(e==true){
+                            //controller.jumpTo(controller.position.minScrollExtent);
 
-                        // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
-                        // Offset position = box.localToGlobal(Offset.zero); //this is global position
-                        // double y = position.dx;
-                        //
-                        // print(y);
+                            // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                            // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                            // double y = position.dx;
+                            //
+                            // print(y);
 
-                        // controller.animateTo(
-                        //   306,
-                        //   duration: Duration(seconds: 1),
-                        //   curve: Curves.fastOutSlowIn,
-                        // );
+                            // controller.animateTo(
+                            //   306,
+                            //   duration: Duration(seconds: 1),
+                            //   curve: Curves.fastOutSlowIn,
+                            // );
 
-                      }
-                    });
-                    print(e);
-                  },
-                  initiallyExpanded: true,
-                  title: Text(
-                    'Payment type',
-                    style: TextStyle(
-                        color: Colors.grey[400],
-                        fontFamily: "Poppins",
-                        fontSize: 13),
-                  ),
-                  subtitle: Text(
-                    '$paymentType',
-                    style: TextStyle(
-                        color: darkBlue,
-                        fontFamily: "Poppins",
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  trailing: !expanded?
-                  Container(
-                    alignment: Alignment.center,
-                    height: 25,
-                    width: 25,
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      shape: BoxShape.circle ,
-                    ),
-                    child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                  ):
-                  Container(
-                    alignment: Alignment.center,
-                    height: 25,
-                    width: 25,
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      shape: BoxShape.circle ,
-                    ),
-                    child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
-                  ),
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          paymentType = "Online Payment";
-                          paymentIndex = 0;
+                          }
                         });
+                        print(e);
                       },
-                      leading: paymentIndex!=0?
-                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                      Icon(Icons.check_circle , color: Colors.green,),
+                      initiallyExpanded: true,
                       title: Text(
-                        'Online Payment',
+                        'Payment type',
+                        style: TextStyle(
+                            color: Colors.grey[400],
+                            fontFamily: "Poppins",
+                            fontSize: 13),
+                      ),
+                      subtitle: Text(
+                        '$paymentType',
                         style: TextStyle(
                             color: darkBlue,
                             fontFamily: "Poppins",
                             fontSize: 14,
                             fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          paymentType = "Cash on delivery";
-                          paymentIndex = 1;
-                        });
-                      },
-                      leading: paymentIndex!=1?
-                      Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                      Icon(Icons.check_circle , color: Colors.green,),
-                      title: Text(
-                        'Cash On Delivery',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontFamily: "Poppins",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                      trailing: !expanded?
+                      Container(
+                        alignment: Alignment.center,
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          shape: BoxShape.circle ,
+                        ),
+                        child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                      ):
+                      Container(
+                        alignment: Alignment.center,
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          shape: BoxShape.circle ,
+                        ),
+                        child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
                       ),
+                      children: [
+                        ListTile(
+                          onTap: () {
+                            setState(() {
+                              paymentType = "Online Payment";
+                              paymentIndex = 0;
+                            });
+                          },
+                          leading: paymentIndex!=0?
+                          Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                          Icon(Icons.check_circle , color: Colors.green,),
+                          title: Text(
+                            'Online Payment',
+                            style: TextStyle(
+                                color: darkBlue,
+                                fontFamily: "Poppins",
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        ListTile(
+                          onTap: () {
+                            setState(() {
+                              paymentType = "Cash on delivery";
+                              paymentIndex = 1;
+                            });
+                          },
+                          leading: paymentIndex!=1?
+                          Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                          Icon(Icons.check_circle , color: Colors.green,),
+                          title: Text(
+                            'Cash On Delivery',
+                            style: TextStyle(
+                                color: darkBlue,
+                                fontFamily: "Poppins",
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        // ListTile(
+                        //   onTap: () {
+                        //     setState(() {
+                        //       paymentType = "Credit Card";
+                        //       paymentIndex = 2;
+                        //     });
+                        //   },
+                        //   leading: paymentIndex!=2?
+                        //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                        //   Icon(Icons.check_circle , color: Colors.green,),
+                        //   title: Text(
+                        //     'Credit Card',
+                        //     style: TextStyle(
+                        //         color: darkBlue,
+                        //         fontFamily: "Poppins",
+                        //         fontSize: 14,
+                        //         fontWeight: FontWeight.bold),
+                        //   ),
+                        // ),
+                      ],
                     ),
-                    // ListTile(
-                    //   onTap: () {
-                    //     setState(() {
-                    //       paymentType = "Credit Card";
-                    //       paymentIndex = 2;
-                    //     });
-                    //   },
-                    //   leading: paymentIndex!=2?
-                    //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                    //   Icon(Icons.check_circle , color: Colors.green,),
-                    //   title: Text(
-                    //     'Credit Card',
-                    //     style: TextStyle(
-                    //         color: darkBlue,
-                    //         fontFamily: "Poppins",
-                    //         fontSize: 14,
-                    //         fontWeight: FontWeight.bold),
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 3,bottom: 3),

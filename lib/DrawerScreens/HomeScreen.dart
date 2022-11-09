@@ -3305,7 +3305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 width: double.infinity,
                                                 margin: EdgeInsets.only(
                                                     left: 10, right: 10),
-                                                color: Colors.black26,
+                                                color: Colors.pink[100],
                                               )
                                                   : Container(),
                                               recentOrders.isNotEmpty

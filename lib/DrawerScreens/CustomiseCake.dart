@@ -2373,7 +2373,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       alignment: Alignment.center,
                                       margin: EdgeInsets.all(3),
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(18),
+                                          borderRadius: BorderRadius.circular(10),
                                           border: Border.all(
                                             color: Colors.grey[400]!,
                                             width: 1,
@@ -2434,7 +2434,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         fontSize: 13
                                     ),
                                     onChanged: (String text){
-
                                       setState((){
                                         if (weightCtrl.text.isNotEmpty) {
                                           fixedWeight = weightCtrl.text+"kg";
@@ -2453,6 +2452,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                     },
                                     decoration: InputDecoration(
                                       contentPadding: EdgeInsets.all(0.0),
+                                      border:InputBorder.none,
                                       isDense: true,
                                       hintText: 'Type here..',
                                       hintStyle: TextStyle(fontFamily: 'Poppins' ,
@@ -2587,6 +2587,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                              hintText: 'Type theme name here..',
                                              contentPadding: EdgeInsets.all(0.0),
                                              isDense: true,
+                                             border:InputBorder.none,
                                              hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                  fontSize: 13
                                              ),
@@ -2633,6 +2634,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   hintText: 'Type here..',
                                                   contentPadding: EdgeInsets.all(0.0),
                                                   isDense: true,
+                                                  border:InputBorder.none,
                                                   hintStyle: TextStyle(fontFamily: 'Poppins' ,
                                                       fontSize: 13
                                                   ),
@@ -2939,7 +2941,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                               BorderRadius.circular(
-                                                  20)),
+                                                  10)),
                                           title: Text(
                                               "Select delivery session",
                                               style: TextStyle(
@@ -3570,7 +3572,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       SizedBox(height: 15,),
 
                                       Container(
-                                          height: 200,
+                                          height: 190,
                                           child:
                                           ListView.builder(
                                               scrollDirection: Axis.horizontal,

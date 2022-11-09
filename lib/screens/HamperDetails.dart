@@ -1182,7 +1182,10 @@ class _HamperDetailsState extends State<HamperDetails> {
                               margin: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(10),
+                                    bottomRight: Radius.circular(10)
+                                  ),
                                   image: DecorationImage(
                                       image: NetworkImage("${imageUrl}"),
                                       fit: BoxFit.cover)),
@@ -1225,1154 +1228,1160 @@ class _HamperDetailsState extends State<HamperDetails> {
             ];
           },
           body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //name
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10, top: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Row(
-                      //   children: [
-                      //     RatingBar.builder(
-                      //       initialRating:
-                      //       double.parse(cakeRatings, (e) => 1.5),
-                      //       minRating: 1,
-                      //       direction: Axis.horizontal,
-                      //       allowHalfRating: true,
-                      //       itemCount: 5,
-                      //       itemSize: 15,
-                      //       itemPadding:
-                      //       EdgeInsets.symmetric(horizontal: 1.0),
-                      //       itemBuilder: (context, _) => Icon(
-                      //         Icons.star,
-                      //         color: Colors.amber,
-                      //       ),
-                      //       onRatingUpdate: (rating) {
-                      //         print(rating);
-                      //       },
-                      //     ),
-                      //     Container(
-                      //       padding: EdgeInsets.only(left: 5),
-                      //       child: (cakeRatings != null)
-                      //           ? (cakeRatings != 'null')
-                      //           ? Text(
-                      //         ' $cakeRatings',
-                      //         style: TextStyle(
-                      //             color: Colors.black54,
-                      //             fontWeight: FontWeight.bold,
-                      //             fontSize: 13,
-                      //             fontFamily: poppins),
-                      //       )
-                      //           : Text('3.5',
-                      //           style: TextStyle(
-                      //               color: Colors.black54,
-                      //               fontWeight: FontWeight.bold,
-                      //               fontSize: 13,
-                      //               fontFamily: poppins))
-                      //           : Text(cakeRatings),
-                      //     )
-                      //   ],
-                      // ),
-                      Expanded(child: Text(
-                        '$hamperName',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 18,
-                            color: darkBlue,
-                            fontWeight: FontWeight.w600),
-                      ),),
-                      GestureDetector(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Transform.rotate(
-                              angle: 120,
-                              child: Icon(
-                                Icons.egg_outlined,
-                                color: eggOregless.toLowerCase()=="eggless"?
-                                Colors.green:
-                                eggOregless.toLowerCase()=="egg"?
-                                Color(0xff8D2729):Colors.white,
-                              ),
-                            ),
-                            Text(
-                              '$eggOregless',
-                              style: TextStyle(
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //name
+                  Container(
+                    margin: EdgeInsets.only(left: 10, right: 10, top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // Row(
+                        //   children: [
+                        //     RatingBar.builder(
+                        //       initialRating:
+                        //       double.parse(cakeRatings, (e) => 1.5),
+                        //       minRating: 1,
+                        //       direction: Axis.horizontal,
+                        //       allowHalfRating: true,
+                        //       itemCount: 5,
+                        //       itemSize: 15,
+                        //       itemPadding:
+                        //       EdgeInsets.symmetric(horizontal: 1.0),
+                        //       itemBuilder: (context, _) => Icon(
+                        //         Icons.star,
+                        //         color: Colors.amber,
+                        //       ),
+                        //       onRatingUpdate: (rating) {
+                        //         print(rating);
+                        //       },
+                        //     ),
+                        //     Container(
+                        //       padding: EdgeInsets.only(left: 5),
+                        //       child: (cakeRatings != null)
+                        //           ? (cakeRatings != 'null')
+                        //           ? Text(
+                        //         ' $cakeRatings',
+                        //         style: TextStyle(
+                        //             color: Colors.black54,
+                        //             fontWeight: FontWeight.bold,
+                        //             fontSize: 13,
+                        //             fontFamily: poppins),
+                        //       )
+                        //           : Text('3.5',
+                        //           style: TextStyle(
+                        //               color: Colors.black54,
+                        //               fontWeight: FontWeight.bold,
+                        //               fontSize: 13,
+                        //               fontFamily: poppins))
+                        //           : Text(cakeRatings),
+                        //     )
+                        //   ],
+                        // ),
+                        Expanded(child: Text(
+                          '$hamperName',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 18,
+                              color: darkBlue,
+                              fontWeight: FontWeight.w600),
+                        ),),
+                        GestureDetector(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Transform.rotate(
+                                angle: 120,
+                                child: Icon(
+                                  Icons.egg_outlined,
                                   color: eggOregless.toLowerCase()=="eggless"?
                                   Colors.green:
                                   eggOregless.toLowerCase()=="egg"?
                                   Color(0xff8D2729):Colors.white,
-                                  fontFamily: poppins,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10,),
-                // Container(
-                //   padding: EdgeInsets.only(left: 10, right: 10),
-                //   child: Text(
-                //     '$hamperName',
-                //     overflow: TextOverflow.ellipsis,
-                //     style: TextStyle(
-                //         fontFamily: "Poppins",
-                //         fontSize: 18,
-                //         color: darkBlue,
-                //         fontWeight: FontWeight.w600),
-                //   ),
-                // ),
-
-                //price counts
-                Container(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    alignment: Alignment.bottomLeft,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            alignment: Alignment.bottomLeft,
-                            child: Row(children: [
-                              Text(
-                                '₹',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
                                 ),
                               ),
                               Text(
-                                " ${double.parse(hamperPrice) * counts}",
+                                '$eggOregless',
                                 style: TextStyle(
-                                  color: lightPink,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 23,
-                                ),
-                              )
-                            ]),
-                          ),
-                          //increase decrease
-                          Row(children: [
-                            //decrease
-                            InkWell(
-                              splashColor: Colors.red[200]!,
-                              onTap: () {
-                                if (counts > 1) {
-                                  setState(() {
-                                    counts = counts - 1;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.pink[400]!,
-                                        width: 0.5,
-                                      )),
-                                  child: Icon(Icons.remove_sharp,
-                                      color: darkBlue)),
-                            ),
-                            SizedBox(width: 8),
-                            Column(
-                              children: [
-                                Text(
-                                  counts<10?
-                                  '0$counts':
-                                  '$counts',
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "Poppins",
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                Text(
-                                  'UNIT',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "Poppins",
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 8),
-                            InkWell(
-                              splashColor: Colors.red[200]!,
-                              onTap: () {
-                                setState(() {
-                                  counts++;
-                                });
-                              },
-                              child: Container(
-                                  height: 30,
-                                  width: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.pink[400]!,
-                                        width: 0.5,
-                                      )),
-                                  child: Icon(Icons.add, color: darkBlue)),
-                            ),
-                          ])
-                        ])),
-
-                //description
-                Container(
-                    margin: EdgeInsets.all(10),
-                    child: ExpandableText(
-                      "$hamperDescription",
-                      expandText: "",
-                      collapseText: "collapse",
-                      expandOnTextTap: true,
-                      collapseOnTextTap: true,
-                      style:
-                          TextStyle(color: Colors.grey, fontFamily: "Poppins"),
-                    )),
-
-
-                Container(
-                  child: Row(
-                    children: [
-                      Expanded(child:Container(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Booking Start',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedFlavList.isEmpty
-                            //     ?
-                            Text("$startDate",
-                              style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600),
-                            )
-
-                          ],
-                        ),
-                      ),),
-                      Container(
-                        height: 45,
-                        width: 1,
-                        color: Colors.pink[100],
-                      )
-                      ,
-                      Expanded(child: Container(
-                        padding: EdgeInsets.only(left : 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Booking End',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedShape.isEmpty
-                            //     ?
-                            Text("$endDate",
-                              style: TextStyle(
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Poppins"
-                              ),
-                            )
-                          ],
-                        ),
-                      ),),
-                    ],
-                  ),
-                ),
-
-
-                //product contains
-                Padding(
-                  padding: EdgeInsets.only(top: 5, left: 6),
-                  child: Text(
-                    'Product Contains',
-                    style: TextStyle(
-                        fontFamily: poppins, color: darkBlue, fontSize: 15),
-                  ),
-                ),
-
-                SizedBox(
-                  height: 8,
-                ),
-
-                //product contains
-                Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Color(0xffffe9df),
-                          borderRadius: BorderRadius.circular(14)),
-                      child: ExpansionTile(
-                        onExpansionChanged: (e){
-                          setState((){
-                            expanded = e;
-                            if(e==true){
-                              //controller.jumpTo(controller.position.minScrollExtent);
-
-                              // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
-                              // Offset position = box.localToGlobal(Offset.zero); //this is global position
-                              // double y = position.dx;
-                              //
-                              // print(y);
-
-                              // controller.animateTo(
-                              //   306,
-                              //   duration: Duration(seconds: 1),
-                              //   curve: Curves.fastOutSlowIn,
-                              // );
-
-                            }
-                          });
-                          print(e);
-                        },
-                        initiallyExpanded: true,
-                        title: Text(
-                          'Products',
-                          style:
-                          TextStyle(color: darkBlue, fontFamily: "Poppins"),
-                        ),
-                        trailing: !expanded?
-                        Container(
-                          alignment: Alignment.center,
-                          height: 25,
-                          width: 25,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle ,
-                          ),
-                          child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                        ):
-                        Container(
-                          alignment: Alignment.center,
-                          height: 25,
-                          width: 25,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle ,
-                          ),
-                          child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
-                        ),
-                        children: productContains.map((e) {
-                          return Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.all(10),
-                            child: Text((productContains.indexWhere((element) => element==e)+1).toString()+") $e",
-                            style: TextStyle(
-                              color: darkBlue,
-                              fontFamily: "Poppins",
-                            ),),
-                          );
-                        }).toList(),
-                      ),
-                    )),
-
-                //deliver infos
-                Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15),
-                    child: Divider(
-                      color: Colors.pink[100],
-                    )),
-
-                Padding(
-                  padding: EdgeInsets.only(top: 10, left: 6),
-                  child: Text(
-                    'Delivery Information',
-                    style: TextStyle(
-                        fontFamily: poppins, color: darkBlue, fontSize: 15),
-                  ),
-                ),
-                Container(
-                    child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: picOrDeliver.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      splashColor: Colors.grey,
-                      onTap: () {
-                        FocusScope.of(context).unfocus();
-                        setState(() {
-                          for (int i = 0; i < picOrDel.length; i++) {
-                            if (i == index) {
-                              fixedDelliverMethod = picOrDeliver[i];
-                              picOrDel[i] = true;
-                            } else {
-                              picOrDel[i] = false;
-                            }
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.only(top: 5, bottom: 5, left: 8),
-                        child: Row(children: [
-                          picOrDel[index] == false
-                              ? Icon(Icons.radio_button_unchecked_rounded,
-                                  color: Colors.black)
-                              : Icon(Icons.check_circle_rounded,
-                                  color: Colors.green),
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              '${picOrDeliver[index]}',
-                              style: TextStyle(
-                                  fontFamily: poppins,
-                                  color: Colors.grey,
-                                  fontSize: 13),
-                            ),
-                          )
-                        ]),
-                      ),
-                    );
-                  },
-                )),
-
-                Container(
-                  child: Row(
-                    children: [
-                      Expanded(child:Container(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Delivery Start',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedFlavList.isEmpty
-                            //     ?
-                            Text("$deliStartDate",
-                              style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600),
-                            )
-
-                          ],
-                        ),
-                      ),),
-                      Container(
-                        height: 45,
-                        width: 1,
-                        color: Colors.pink[100],
-                      )
-                      ,
-                      Expanded(child: Container(
-                        padding: EdgeInsets.only(left : 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Delivery End',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: "Poppins"
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            // fixedShape.isEmpty
-                            //     ?
-                            Text("$deliEndDate",
-                              style: TextStyle(
-                                  color: darkBlue,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Poppins"
-                              ),
-                            )
-                          ],
-                        ),
-                      ),),
-                    ],
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(top: 10, left: 6, bottom: 5),
-                  child: Text(
-                    'Delivery Details',
-                    style: TextStyle(
-                        fontFamily: "Poppins", color: darkBlue, fontSize: 15),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () async {
-
-                    print(deliStartDate);
-                    print(deliEndDate);
-
-                    DateTime? SelDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime(
-                          int.parse(deliStartDate.split("-").last),
-                          int.parse(deliStartDate.split("-")[1]),
-                          int.parse(deliStartDate.split("-").first),
-                        ),
-                        lastDate: DateTime(
-                          int.parse(deliEndDate.split("-").last),
-                          int.parse(deliEndDate.split("-")[1]),
-                          int.parse(deliEndDate.split("-").first),
-                        ),
-                        firstDate: DateTime(
-                          int.parse(deliStartDate.split("-").last),
-                          int.parse(deliStartDate.split("-")[1]),
-                          int.parse(deliStartDate.split("-").first),
-                        ),
-                        helpText: "Select Deliver Date",
-                        builder: (c,child){
-                          return Theme(
-                              data:ThemeData(
-                                  dialogTheme: DialogTheme(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20)
-                                      )
-                                  ),
-                                  colorScheme: ColorScheme.light(
-                                      onPrimary: Colors.white,
-                                      onSurface: Colors.pink,
-                                      primary: Colors.pink
-                                  ),
-                                  textTheme: const TextTheme(
-                                      headline5: TextStyle(
-                                          fontSize: 17,
-                                          fontFamily: "Poppins",
-                                          fontWeight: FontWeight.bold
-                                      ),
-                                      headline4: TextStyle(
-                                          fontSize: 17,
-                                          fontFamily: "Poppins",
-                                          fontWeight: FontWeight.bold
-                                      ),
-                                      overline: TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: "Poppins",
-                                          fontWeight: FontWeight.bold
-                                      )
-                                  )
-                              ),
-                              child:child!
-                          );
-                        }
-                    );
-
-                    setState(() {
-                      deliverDate = simplyFormat(time: SelDate, dateOnly: true);
-                    });
-
-                    // print(SelDate.toString());
-                    // print(DateTime.now().subtract(Duration(days: 0)));
-                  },
-                  child: Container(
-                      margin: EdgeInsets.all(5),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: Colors.grey[400]!, width: 0.5)),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '$deliverDate',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 13 ,fontFamily: "Poppins"),
-                            ),
-                            Icon(Icons.edit_calendar_outlined, color: darkBlue)
-                          ])),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            title: Text("Select delivery session",
-                                style: TextStyle(
-                                  color: lightPink,
-                                  fontFamily: "Poppins",
-                                  fontSize: 16,
-                                )),
-                            content: Container(
-                              height: 250,
-                              child: Scrollbar(
-                                isAlwaysShown: true,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Morning 8 AM - 9 AM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Morning 9 AM - 10 AM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Morning 10 AM - 11 AM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Morning 11 PM - 12 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Afternoon 12 PM - 1 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Afternoon 1 PM - 9 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Afternoon 8 PM - 9 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Afternoon 3 PM - 4 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Afternoon 4 PM - 5 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Evening 5 PM - 6 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Evening 6 PM - 7 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Evening 7 PM - 8 PM';
-                                            });
-                                          }),
-                                      PopupMenuItem(
-                                          child: Text(
-                                            'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
-                                          onTap: () {
-                                            setState(() {
-                                              deliverSession =
-                                              'Evening 8 PM - 9 PM';
-                                            });
-                                          }),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        });
-                  },
-                  child: Container(
-                      margin: EdgeInsets.all(5),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: Colors.grey[400]!, width: 0.5)),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '$deliverSession',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 13,fontFamily: "Poppins"),
-                            ),
-                            Icon(CupertinoIcons.clock, color: darkBlue)
-                          ])),
-                ),
-
-
-                fixedDelliverMethod.toLowerCase() == "delivery"
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 5, left: 10),
-                            child: Text(
-                              'Address',
-                              style: TextStyle(
-                                  fontFamily: poppins,
-                                  color: darkBlue,
-                                  fontSize: 15),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                title: Text(
-                                  '${deliveryAddress}',
-                                  style: TextStyle(
-                                      fontFamily: poppins,
-                                      color: Colors.grey,
-                                      fontSize: 13),
-                                ),
-                                trailing: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 25,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              AddressScreen()));
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 14),
-                                  child: Text(
-                                    'add new address',
-                                    style: const TextStyle(
-                                        color: Colors.orange,
-                                        fontFamily: "Poppins",
-                                        decoration: TextDecoration.underline),
-                                  ),
+                                    color: eggOregless.toLowerCase()=="eggless"?
+                                    Colors.green:
+                                    eggOregless.toLowerCase()=="egg"?
+                                    Color(0xff8D2729):Colors.white,
+                                    fontFamily: poppins,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                        ],
-                      )
-                    : Container(),
-
-                Padding(
-                  padding: EdgeInsets.only(top:15, left: 10),
-                  child: Text(
-                    'Selected Vendor',
-                    style: TextStyle(
-                        fontFamily: poppins, color: darkBlue, fontSize: 15),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  SizedBox(height: 10,),
+                  // Container(
+                  //   padding: EdgeInsets.only(left: 10, right: 10),
+                  //   child: Text(
+                  //     '$hamperName',
+                  //     overflow: TextOverflow.ellipsis,
+                  //     style: TextStyle(
+                  //         fontFamily: "Poppins",
+                  //         fontSize: 18,
+                  //         color: darkBlue,
+                  //         fontWeight: FontWeight.w600),
+                  //   ),
+                  // ),
 
-                GestureDetector(
-                  onTap: () async {},
-                  child: Card(
-                    margin: EdgeInsets.only(left: 10, right: 10, top: 5),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10)),
+                  //price counts
+                  Container(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      alignment: Alignment.bottomLeft,
                       child: Row(
-                        children: [
-                          vendorProfile.length < 7
-                              ? Container(
-                                  width: 90,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(10),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/vendorimage.jpeg"),
-                                          fit: BoxFit.cover)),
-                                )
-                              : Container(
-                                  width: 90,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(10),
-                                      image: DecorationImage(
-                                          image: NetworkImage(vendorProfile),
-                                          fit: BoxFit.cover)),
-                                ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: 155,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            child: Text(
-                                              '$vendrorName',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: "Poppins",
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 6,
-                                          ),
-                                          Row(
-                                            children: [
-                                              RatingBar.builder(
-                                                initialRating: vendrorRating
-                                                            .isEmpty ||
-                                                        vendrorRating == null
-                                                    ? 1.0
-                                                    : double.parse(vendrorRating
-                                                        .replaceAll(
-                                                            RegExp('[^0-9]'),
-                                                            '')),
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 14,
-                                                itemPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 1.0),
-                                                itemBuilder: (context, _) =>
-                                                    Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                onRatingUpdate: (rating) {
-                                                  print(rating);
-                                                },
-                                              ),
-                                              Text(
-                                                '$vendrorRating',
-                                                style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                    fontFamily: poppins),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(Icons.check_circle,
-                                        color: Colors.green),
-                                  ],
-                                ),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              alignment: Alignment.bottomLeft,
+                              child: Row(children: [
                                 Text(
-                                  "Speciality in ${vendrorSpecial} ",
+                                  '₹',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: "Poppins",
                                     color: Colors.grey,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                  maxLines: 1,
                                 ),
-                                SizedBox(
-                                  height: 6,
-                                ),
-                                Container(
-                                  height: 1,
-                                  color: Colors.grey,
-                                  // margin: EdgeInsets.only(left:6,right:6),
-                                ),
-                                SizedBox(
-                                  height: 6,
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${vendrorEgg}",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontFamily: "Poppins",
-                                            color: darkBlue,
-                                          ),
-                                          maxLines: 1,
-                                        ),
-                                        SizedBox(height: 3),
-                                        ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                            (calculateDistance(double.parse(userLatitude),
-                                                double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))))
-                                                    .toStringAsFixed(1) == "0.0"
+                                Text(
+                                  " ${double.parse(hamperPrice) * counts}",
+                                  style: TextStyle(
+                                    color: lightPink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 23,
+                                  ),
+                                )
+                              ]),
+                            ),
+                            //increase decrease
+                            Row(children: [
+                              //decrease
+                              InkWell(
+                                splashColor: Colors.red[200]!,
+                                onTap: () {
+                                  if (counts > 1) {
+                                    setState(() {
+                                      counts = counts - 1;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.pink[400]!,
+                                          width: 0.5,
+                                        )),
+                                    child: Icon(Icons.remove_sharp,
+                                        color: darkBlue)),
+                              ),
+                              SizedBox(width: 8),
+                              Column(
+                                children: [
+                                  Text(
+                                    counts<10?
+                                    '0$counts':
+                                    '$counts',
+                                    style: TextStyle(
+                                      color: lightPink,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins",
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  Text(
+                                    'UNIT',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins",
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(width: 8),
+                              InkWell(
+                                splashColor: Colors.red[200]!,
+                                onTap: () {
+                                  setState(() {
+                                    counts++;
+                                  });
+                                },
+                                child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.pink[400]!,
+                                          width: 0.5,
+                                        )),
+                                    child: Icon(Icons.add, color: darkBlue)),
+                              ),
+                            ])
+                          ])),
 
-                                            ? Text(
-                                                "DELIVERY FREE",
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.orange,
-                                                ),
-                                                maxLines: 1,
-                                              )
-                                            : Text(
-                                                "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                    double.parse(vendrorLong))).toStringAsFixed(1)} KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                                    (calculateDistance(double.parse(userLatitude),
-                                                        double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontFamily: "Poppins",
-                                                  color: Colors.orange,
-                                                ),
-                                                maxLines: 1,
-                                              ),
+                  //description
+                  Container(
+                      margin: EdgeInsets.all(10),
+                      child: ExpandableText(
+                        "$hamperDescription",
+                        expandText: "",
+                        collapseText: "collapse",
+                        expandOnTextTap: true,
+                        collapseOnTextTap: true,
+                        style:
+                            TextStyle(color: Colors.grey, fontFamily: "Poppins"),
+                      )),
+
+
+                  Container(
+                    child: Row(
+                      children: [
+                        Expanded(child:Container(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Booking Start',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    fontFamily: "Poppins"
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              // fixedFlavList.isEmpty
+                              //     ?
+                              Text("$startDate",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600),
+                              )
+
+                            ],
+                          ),
+                        ),),
+                        Container(
+                          height: 45,
+                          width: 1,
+                          color: Colors.pink[100],
+                        )
+                        ,
+                        Expanded(child: Container(
+                          padding: EdgeInsets.only(left : 15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Booking End',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    fontFamily: "Poppins"
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              // fixedShape.isEmpty
+                              //     ?
+                              Text("$endDate",
+                                style: TextStyle(
+                                    color: darkBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "Poppins"
+                                ),
+                              )
+                            ],
+                          ),
+                        ),),
+                      ],
+                    ),
+                  ),
+
+
+                  //product contains
+                  Padding(
+                    padding: EdgeInsets.only(top: 5, left: 6),
+                    child: Text(
+                      'Product Contains',
+                      style: TextStyle(
+                          fontFamily: poppins, color: darkBlue, fontSize: 15),
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 8,
+                  ),
+
+                  //product contains
+                  Padding(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Color(0xffffe9df),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Theme(
+                          data: ThemeData().copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            onExpansionChanged: (e){
+                              setState((){
+                                expanded = e;
+                                if(e==true){
+                                  //controller.jumpTo(controller.position.minScrollExtent);
+
+                                  // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                                  // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                                  // double y = position.dx;
+                                  //
+                                  // print(y);
+
+                                  // controller.animateTo(
+                                  //   306,
+                                  //   duration: Duration(seconds: 1),
+                                  //   curve: Curves.fastOutSlowIn,
+                                  // );
+
+                                }
+                              });
+                              print(e);
+                            },
+                            initiallyExpanded: true,
+                            title: Text(
+                              'Products',
+                              style:
+                              TextStyle(color: darkBlue, fontFamily: "Poppins"),
+                            ),
+                            trailing: !expanded?
+                            Container(
+                              alignment: Alignment.center,
+                              height: 25,
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle ,
+                              ),
+                              child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                            ):
+                            Container(
+                              alignment: Alignment.center,
+                              height: 25,
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle ,
+                              ),
+                              child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
+                            ),
+                            children: productContains.map((e) {
+                              return Container(
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.all(10),
+                                child: Text((productContains.indexWhere((element) => element==e)+1).toString()+") $e",
+                                style: TextStyle(
+                                  color: darkBlue,
+                                  fontFamily: "Poppins",
+                                ),),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      )),
+
+                  //deliver infos
+                  Container(
+                      margin: EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: Colors.pink[100],
+                      )),
+
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, left: 6),
+                    child: Text(
+                      'Delivery Information',
+                      style: TextStyle(
+                          fontFamily: poppins, color: darkBlue, fontSize: 15),
+                    ),
+                  ),
+                  Container(
+                      child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: picOrDeliver.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        splashColor: Colors.grey,
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          setState(() {
+                            for (int i = 0; i < picOrDel.length; i++) {
+                              if (i == index) {
+                                fixedDelliverMethod = picOrDeliver[i];
+                                picOrDel[i] = true;
+                              } else {
+                                picOrDel[i] = false;
+                              }
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.only(top: 5, bottom: 5, left: 8),
+                          child: Row(children: [
+                            picOrDel[index] == false
+                                ? Icon(Icons.radio_button_unchecked_rounded,
+                                    color: Colors.black)
+                                : Icon(Icons.check_circle_rounded,
+                                    color: Colors.green),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                '${picOrDeliver[index]}',
+                                style: TextStyle(
+                                    fontFamily: poppins,
+                                    color: Colors.grey,
+                                    fontSize: 13),
+                              ),
+                            )
+                          ]),
+                        ),
+                      );
+                    },
+                  )),
+
+                  Container(
+                    child: Row(
+                      children: [
+                        Expanded(child:Container(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Delivery Start',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    fontFamily: "Poppins"
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              // fixedFlavList.isEmpty
+                              //     ?
+                              Text("$deliStartDate",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: darkBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600),
+                              )
+
+                            ],
+                          ),
+                        ),),
+                        Container(
+                          height: 45,
+                          width: 1,
+                          color: Colors.pink[100],
+                        )
+                        ,
+                        Expanded(child: Container(
+                          padding: EdgeInsets.only(left : 15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Delivery End',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    fontFamily: "Poppins"
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              // fixedShape.isEmpty
+                              //     ?
+                              Text("$deliEndDate",
+                                style: TextStyle(
+                                    color: darkBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "Poppins"
+                                ),
+                              )
+                            ],
+                          ),
+                        ),),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, left: 6, bottom: 5),
+                    child: Text(
+                      'Delivery Details',
+                      style: TextStyle(
+                          fontFamily: "Poppins", color: darkBlue, fontSize: 15),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+
+                      print(deliStartDate);
+                      print(deliEndDate);
+
+                      DateTime? SelDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime(
+                            int.parse(deliStartDate.split("-").last),
+                            int.parse(deliStartDate.split("-")[1]),
+                            int.parse(deliStartDate.split("-").first),
+                          ),
+                          lastDate: DateTime(
+                            int.parse(deliEndDate.split("-").last),
+                            int.parse(deliEndDate.split("-")[1]),
+                            int.parse(deliEndDate.split("-").first),
+                          ),
+                          firstDate: DateTime(
+                            int.parse(deliStartDate.split("-").last),
+                            int.parse(deliStartDate.split("-")[1]),
+                            int.parse(deliStartDate.split("-").first),
+                          ),
+                          helpText: "Select Deliver Date",
+                          builder: (c,child){
+                            return Theme(
+                                data:ThemeData(
+                                    dialogTheme: DialogTheme(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10)
+                                        )
+                                    ),
+                                    colorScheme: ColorScheme.light(
+                                        onPrimary: Colors.white,
+                                        onSurface: Colors.pink,
+                                        primary: Colors.pink
+                                    ),
+                                    textTheme: const TextTheme(
+                                        headline5: TextStyle(
+                                            fontSize: 17,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                        headline4: TextStyle(
+                                            fontSize: 17,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                        overline: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.bold
+                                        )
+                                    )
+                                ),
+                                child:child!
+                            );
+                          }
+                      );
+
+                      setState(() {
+                        deliverDate = simplyFormat(time: SelDate, dateOnly: true);
+                      });
+
+                      // print(SelDate.toString());
+                      // print(DateTime.now().subtract(Duration(days: 0)));
+                    },
+                    child: Container(
+                        margin: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(7),
+                            border:
+                                Border.all(color: Colors.grey[400]!, width: 0.5)),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '$deliverDate',
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 13 ,fontFamily: "Poppins"),
+                              ),
+                              Icon(Icons.edit_calendar_outlined, color: darkBlue)
+                            ])),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              title: Text("Select delivery session",
+                                  style: TextStyle(
+                                    color: lightPink,
+                                    fontFamily: "Poppins",
+                                    fontSize: 16,
+                                  )),
+                              content: Container(
+                                height: 250,
+                                child: Scrollbar(
+                                  isAlwaysShown: true,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Morning 8 AM - 9 AM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Morning 9 AM - 10 AM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Morning 10 AM - 11 AM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Morning 11 PM - 12 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Afternoon 12 PM - 1 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Afternoon 1 PM - 9 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Afternoon 8 PM - 9 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Afternoon 3 PM - 4 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Afternoon 4 PM - 5 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Evening 5 PM - 6 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Evening 6 PM - 7 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Evening 7 PM - 8 PM';
+                                              });
+                                            }),
+                                        PopupMenuItem(
+                                            child: Text(
+                                              'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                            onTap: () {
+                                              setState(() {
+                                                deliverSession =
+                                                'Evening 8 PM - 9 PM';
+                                              });
+                                            }),
                                       ],
                                     ),
-                                    Expanded(
-                                      child: Container(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                    },
+                    child: Container(
+                        margin: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(7),
+                            border:
+                                Border.all(color: Colors.grey[400]!, width: 0.5)),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '$deliverSession',
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 13,fontFamily: "Poppins"),
+                              ),
+                              Icon(CupertinoIcons.clock, color: darkBlue)
+                            ])),
+                  ),
+
+
+                  fixedDelliverMethod.toLowerCase() == "delivery"
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 5, left: 10),
+                              child: Text(
+                                'Address',
+                                style: TextStyle(
+                                    fontFamily: poppins,
+                                    color: darkBlue,
+                                    fontSize: 15),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    '${deliveryAddress}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 25,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddressScreen()));
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 14),
+                                    child: Text(
+                                      'add new address',
+                                      style: const TextStyle(
+                                          color: Colors.orange,
+                                          fontFamily: "Poppins",
+                                          decoration: TextDecoration.underline),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                          ],
+                        )
+                      : Container(),
+
+                  Padding(
+                    padding: EdgeInsets.only(top:15, left: 10),
+                    child: Text(
+                      'Selected Vendor',
+                      style: TextStyle(
+                          fontFamily: poppins, color: darkBlue, fontSize: 15),
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () async {},
+                    child: Card(
+                      margin: EdgeInsets.only(left: 10, right: 10, top: 5),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Row(
+                          children: [
+                            vendorProfile.length < 7
+                                ? Container(
+                                    width: 90,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/vendorimage.jpeg"),
+                                            fit: BoxFit.cover)),
+                                  )
+                                : Container(
+                                    width: 90,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                            image: NetworkImage(vendorProfile),
+                                            fit: BoxFit.cover)),
+                                  ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 155,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            InkWell(
-                                              onTap: () {
-                                                print('phone..');
-                                                PhoneDialog().showPhoneDialog(
-                                                    context,
-                                                    "$hampVenPhn1",
-                                                    "$hampVenPhn2");
-                                              },
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                height: 35,
-                                                width: 35,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.grey[200],
+                                            Container(
+                                              child: Text(
+                                                '$vendrorName',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: "Poppins",
                                                 ),
-                                                child: const Icon(
-                                                  Icons.phone,
-                                                  color: Colors.blueAccent,
-                                                ),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            const SizedBox(
-                                              width: 10,
+                                            SizedBox(
+                                              height: 6,
                                             ),
-                                            InkWell(
-                                              onTap: () {
-                                                // print('whatsapp : ');
-                                                // PhoneDialog().showPhoneDialog(
-                                                //     context,
-                                                //     "$hampVenPhn1",
-                                                //     "$hampVenPhn2",
-                                                //     true);
-                                              },
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                height: 35,
-                                                width: 35,
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.grey[200]),
-                                                child: const Icon(
-                                                  Icons.whatsapp_rounded,
-                                                  color: Colors.green,
+                                            Row(
+                                              children: [
+                                                RatingBar.builder(
+                                                  initialRating: vendrorRating
+                                                              .isEmpty ||
+                                                          vendrorRating == null
+                                                      ? 1.0
+                                                      : double.parse(vendrorRating
+                                                          .replaceAll(
+                                                              RegExp('[^0-9]'),
+                                                              '')),
+                                                  minRating: 1,
+                                                  direction: Axis.horizontal,
+                                                  allowHalfRating: true,
+                                                  itemCount: 5,
+                                                  itemSize: 14,
+                                                  itemPadding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 1.0),
+                                                  itemBuilder: (context, _) =>
+                                                      Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  onRatingUpdate: (rating) {
+                                                    print(rating);
+                                                  },
                                                 ),
-                                              ),
+                                                Text(
+                                                  '$vendrorRating',
+                                                  style: TextStyle(
+                                                      color: Colors.black54,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 13,
+                                                      fontFamily: poppins),
+                                                )
+                                              ],
                                             ),
                                           ],
                                         ),
                                       ),
+                                      Icon(Icons.check_circle,
+                                          color: Colors.green),
+                                    ],
+                                  ),
+                                  Text(
+                                    "Speciality in ${vendrorSpecial} ",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: "Poppins",
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                )
-                              ],
+                                    maxLines: 1,
+                                  ),
+                                  SizedBox(
+                                    height: 6,
+                                  ),
+                                  Container(
+                                    height: 1,
+                                    color: Colors.grey,
+                                    // margin: EdgeInsets.only(left:6,right:6),
+                                  ),
+                                  SizedBox(
+                                    height: 6,
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${vendrorEgg}",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontFamily: "Poppins",
+                                              color: darkBlue,
+                                            ),
+                                            maxLines: 1,
+                                          ),
+                                          SizedBox(height: 3),
+                                          ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                              (calculateDistance(double.parse(userLatitude),
+                                                  double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))))
+                                                      .toStringAsFixed(1) == "0.0"
+
+                                              ? Text(
+                                                  "DELIVERY FREE",
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontFamily: "Poppins",
+                                                    color: Colors.orange,
+                                                  ),
+                                                  maxLines: 1,
+                                                )
+                                              : Text(
+                                                  "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
+                                                      double.parse(vendrorLong))).toStringAsFixed(1)} KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                      (calculateDistance(double.parse(userLatitude),
+                                                          double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontFamily: "Poppins",
+                                                    color: Colors.orange,
+                                                  ),
+                                                  maxLines: 1,
+                                                ),
+                                        ],
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              InkWell(
+                                                onTap: () {
+                                                  print('phone..');
+                                                  PhoneDialog().showPhoneDialog(
+                                                      context,
+                                                      "$hampVenPhn1",
+                                                      "$hampVenPhn2");
+                                                },
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  height: 35,
+                                                  width: 35,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.grey[200],
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.phone,
+                                                    color: Colors.blueAccent,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  // print('whatsapp : ');
+                                                  // PhoneDialog().showPhoneDialog(
+                                                  //     context,
+                                                  //     "$hampVenPhn1",
+                                                  //     "$hampVenPhn2",
+                                                  //     true);
+                                                },
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  height: 35,
+                                                  width: 35,
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.grey[200]),
+                                                  child: const Icon(
+                                                    Icons.whatsapp_rounded,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                SizedBox(
-                  height: 30,
-                ),
+                  SizedBox(
+                    height: 30,
+                  ),
 
-                Center(
-                  child: Container(
-                    height: 50,
-                    width: 200,
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25)),
-                      onPressed: () async {
-                        FocusScope.of(context).unfocus();
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: 200,
+                      decoration:
+                          BoxDecoration(borderRadius: BorderRadius.circular(25)),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)),
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
 
-                        // int charge = 0;
-                        //
-                        // if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                        //   charge = deliveryCharge;
-                        // }else{
-                        //   charge = 0;
-                        // }
-                        //
-                        // print('total...... $charge');
-                        //
-                        // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
-                        //
-                        // print("Final $amount");
+                          // int charge = 0;
+                          //
+                          // if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                          //   charge = deliveryCharge;
+                          // }else{
+                          //   charge = 0;
+                          // }
+                          //
+                          // print('total...... $charge');
+                          //
+                          // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
+                          //
+                          // print("Final $amount");
 
-                        if(deliverDate.toLowerCase()=="select delivery date" ||
-                            deliverSession.toLowerCase()=="select delivery time")
-                        {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text("Please Select Deliver Date / Deliver Session"),
-                                  behavior: SnackBarBehavior.floating,
-                              ));
-                        }else{
-                          passToCheckout();
-                        }
+                          if(deliverDate.toLowerCase()=="select delivery date" ||
+                              deliverSession.toLowerCase()=="select delivery time")
+                          {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("Please Select Deliver Date / Deliver Session"),
+                                    behavior: SnackBarBehavior.floating,
+                                ));
+                          }else{
+                            passToCheckout();
+                          }
 
-                      },
-                      color: lightPink,
-                      child: Text(
-                        "ORDER NOW",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        },
+                        color: lightPink,
+                        child: Text(
+                          "ORDER NOW",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                SizedBox(
-                  height: 30,
-                ),
-              ],
+                  SizedBox(
+                    height: 30,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

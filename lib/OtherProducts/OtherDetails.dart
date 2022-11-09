@@ -511,8 +511,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   itemBuilder: (context, index) {
                                     return Container(
                                       decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(10),
+                                              bottomRight: Radius.circular(10)
+                                          ),
                                           color: Colors.black12,
                                           image: DecorationImage(
                                               image: NetworkImage(
@@ -1261,7 +1263,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                   ? lightPink
                                                   : Colors.white,
                                               borderRadius:
-                                                  BorderRadius.circular(15),
+                                                  BorderRadius.circular(10),
                                               border: Border.all(
                                                   color: lightPink,
                                                   width: 0.5)),
@@ -1313,7 +1315,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                           ? lightPink
                                                           : Colors.white,
                                                   borderRadius:
-                                                      BorderRadius.circular(15),
+                                                      BorderRadius.circular(10),
                                                   border: Border.all(
                                                       color: lightPink,
                                                       width: 0.5)),
@@ -1436,7 +1438,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                     dialogTheme: DialogTheme(
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(20))),
+                                                BorderRadius.circular(10))),
                                     colorScheme: ColorScheme.light(
                                         onPrimary: Colors.white,
                                         onSurface: Colors.pink,

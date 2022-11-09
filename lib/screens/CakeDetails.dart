@@ -2212,7 +2212,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     floating: true,
                     actions: [
                       CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl),
-                      SizedBox(width: 6,),
+                      SizedBox(width: 12,),
                       // Stack(
                       //   alignment: Alignment.center,
                       //   children: [
@@ -2363,8 +2363,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       itemBuilder: (context, index) {
                                         return Container(
                                           decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
+                                              borderRadius: BorderRadius.only(
+                                                  bottomLeft: Radius.circular(10),
+                                                  bottomRight: Radius.circular(10)
+                                              ),
                                               color: Colors.black12,
                                               image: DecorationImage(
                                                   image: NetworkImage(
@@ -3138,7 +3140,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                               margin: EdgeInsets.only(left: 10),
                                               decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(20),
+                                                      BorderRadius.circular(10),
                                                   border: Border.all(
                                                       color: Colors.grey[400]!, width: 1),
                                                   color: weightIndex == index
@@ -3449,6 +3451,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   contentPadding:
                                                       EdgeInsets.all(0.0),
                                                   isDense: true,
+                                                  border:InputBorder.none,
                                                   hintStyle: TextStyle(
                                                       fontFamily: 'Poppins',
                                                       fontSize: 13),
@@ -3728,7 +3731,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           data:ThemeData(
                                             dialogTheme: DialogTheme(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20)
+                                                borderRadius: BorderRadius.circular(10)
                                               )
                                             ),
                                             colorScheme: ColorScheme.light(
@@ -3803,7 +3806,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           return AlertDialog(
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(20)),
+                                                    BorderRadius.circular(10)),
                                             title:
                                                 Text("Select delivery session",
                                                     style: TextStyle(
@@ -4303,8 +4306,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                   },
                                                                                   child: Container(
                                                                                     alignment: Alignment.center,
-                                                                                    height: 35,
-                                                                                    width: 35,
+                                                                                    height: 30,
+                                                                                    width: 30,
                                                                                     decoration: BoxDecoration(
                                                                                       shape: BoxShape.circle,
                                                                                       color: Colors.grey[200],
@@ -4312,6 +4315,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                     child: const Icon(
                                                                                       Icons.phone,
                                                                                       color: Colors.blueAccent,
+                                                                                      size: 18,
                                                                                     ),
                                                                                   ),
                                                                                 ),
@@ -4326,12 +4330,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                   },
                                                                                   child: Container(
                                                                                     alignment: Alignment.center,
-                                                                                    height: 35,
-                                                                                    width: 35,
+                                                                                    height: 30,
+                                                                                    width: 30,
                                                                                     decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.grey[200]),
                                                                                     child: const Icon(
                                                                                       Icons.whatsapp_rounded,
                                                                                       color: Colors.green,
+                                                                                      size: 18,
                                                                                     ),
                                                                                   ),
                                                                                 ),
@@ -4432,7 +4437,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   ):Container(),
                                                   !vendorCakeMode?
                                                   Container(
-                                                    height: 200,
+                                                    height: 190,
                                                     child: ListView.builder(
                                                         scrollDirection: Axis.horizontal,
                                                         shrinkWrap: true,
