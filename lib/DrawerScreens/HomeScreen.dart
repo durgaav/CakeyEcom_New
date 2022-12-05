@@ -1370,7 +1370,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           }
 
-          print('Sub types>>>> $subType');
+          print('Sub types>>>> $searchCakeType');
           // searchCakeType.add("Others");
           // searchCakeType.add("Customize your cake");
           // searchCakeType = searchCakeType.map((e)=>e.toString().toLowerCase()).toSet().toList();

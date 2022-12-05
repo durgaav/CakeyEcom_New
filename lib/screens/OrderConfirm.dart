@@ -42,7 +42,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
   String weight = '';
   String cakeImage = '';
   String cakeDesc = '';
-  String cakePrice = '';
+  String cakePrice = '0.0';
   double topperPrice = 0.0;
   String cakeType = '';
   String eggOreggless = '';

@@ -99,6 +99,9 @@ class _HamperDetailsState extends State<HamperDetails> {
   double deliveryCharge = 0;
   int amount = 0;
 
+  List<String> deliverAddress = [];
+  var deliverAddressIndex = 0;
+
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
@@ -165,6 +168,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
       deliveryAddress = pref.getString("userAddress") ?? 'null';
+      deliverAddress = pref.getStringList('addressList')??[deliveryAddress.trim()];
       cakeRatings = pref.getString("userAddress") ?? 'null';
       //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
@@ -1119,10 +1123,8 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.watch<ContextData>().getAddress().isNotEmpty) {
-      deliveryAddress = context.watch<ContextData>().getAddress();
-    } else {
-      deliveryAddress = deliveryAddress;
+    if (context.watch<ContextData>().getAddressList().isNotEmpty) {
+      deliverAddress = context.watch<ContextData>().getAddressList();
     }
 
     print(hamImages);
@@ -2022,19 +2024,28 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ListTile(
-                                  title: Text(
-                                    '${deliveryAddress}',
-                                    style: TextStyle(
-                                        fontFamily: poppins,
-                                        color: Colors.grey,
-                                        fontSize: 13),
-                                  ),
-                                  trailing: Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
-                                    size: 25,
-                                  ),
+                                Column(
+                                  children:deliverAddress.map((e){
+                                    return ListTile(
+                                      onTap: (){
+                                        setState(() {
+                                          deliveryAddress = e.trim();
+                                          deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                        });
+                                      },
+                                      title: Text(
+                                        '${e.trim()}',
+                                        style: TextStyle(
+                                            fontFamily: poppins,
+                                            color: Colors.grey,
+                                            fontSize: 13),
+                                      ),
+                                      trailing:
+                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                      Container(height:0,width:0),
+                                    );
+                                  }).toList(),
                                 ),
                                 GestureDetector(
                                   onTap: () {

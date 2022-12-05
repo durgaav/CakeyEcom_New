@@ -954,6 +954,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
               });
           }
+          if(filteredEggList.isEmpty){
+            nearVendorClicked = true;
+          }
           Navigator.pop(context);
         });
       }else{
@@ -3875,7 +3878,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         borderRadius: BorderRadius.circular(30)
                                     ),
                                     onPressed: (){
-
+                                      FocusScope.of(context).unfocus();
                                       setState((){
 
                                       });
@@ -3921,12 +3924,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
                                           );
-                                        }else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
-                                            && nearVendorClicked==false ){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please Select a vendor'))
-                                          );
-                                        }else{
+                                        }
+                                        // else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
+                                        //     && nearVendorClicked==false){
+                                        //   ScaffoldMessenger.of(context).showSnackBar(
+                                        //       SnackBar(content: Text('Please Select a vendor'))
+                                        //   );
+                                        // }
+                                        else{
                                           setState((){
                                             if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
                                               vendorID = "";
