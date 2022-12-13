@@ -241,7 +241,7 @@ class _OthersDetailsState extends State<OthersDetails> {
       otherModId = prefs.getString("otherModID") ?? '';
       userName = prefs.getString("userName") ?? '';
       userPhone = prefs.getString("phoneNumber") ?? '';
-      deliveryAddress = prefs.getString("userAddress") ?? 'null';
+      deliveryAddress = prefs.getString("userCurrentLocation") ?? 'null';
       deliverAddress = prefs.getStringList('addressList')??[deliveryAddress.trim()];
       otherSubType = prefs.getString("otherSubType") ?? "";
       otherComName = prefs.getString("otherComName") ?? "";
@@ -449,9 +449,9 @@ class _OthersDetailsState extends State<OthersDetails> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.watch<ContextData>().getAddressList().isNotEmpty) {
-      deliverAddress = context.watch<ContextData>().getAddressList();
-    }
+    // if (context.watch<ContextData>().getAddressList().isNotEmpty) {
+    //   deliverAddress = context.watch<ContextData>().getAddressList();
+    // }
 
     return Scaffold(
       body: SafeArea(
@@ -1721,29 +1721,49 @@ class _OthersDetailsState extends State<OthersDetails> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  children:deliverAddress.map((e){
-                                    return ListTile(
-                                      onTap: (){
-                                        setState(() {
-                                          deliveryAddress = e.trim();
-                                          deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                        });
-                                      },
-                                      title: Text(
-                                        '${e.trim()}',
-                                        style: TextStyle(
-                                            fontFamily: poppins,
-                                            color: Colors.grey,
-                                            fontSize: 13),
-                                      ),
-                                      trailing:
-                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                      Container(height:0,width:0),
-                                    );
-                                  }).toList(),
+                                ListTile(
+                                  onTap: (){
+                                    setState(() {
+                                      // deliveryAddress = deliverAddress.trim();
+                                      // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                    });
+                                  },
+                                  title: Text(
+                                    '${deliveryAddress.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing:
+                                  //deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,)
+                                  //     :
+                                  // Container(height:0,width:0),
                                 ),
+                                // Column(
+                                //   children:deliverAddress.map((e){
+                                //     return ListTile(
+                                //       onTap: (){
+                                //         setState(() {
+                                //           deliveryAddress = e.trim();
+                                //           deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //         });
+                                //       },
+                                //       title: Text(
+                                //         '${e.trim()}',
+                                //         style: TextStyle(
+                                //             fontFamily: poppins,
+                                //             color: Colors.grey,
+                                //             fontSize: 13),
+                                //       ),
+                                //       trailing:
+                                //       deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //       Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                //       Container(height:0,width:0),
+                                //     );
+                                //   }).toList(),
+                                // ),
                                 // ListTile(
                                 //   title: Text(
                                 //     '${deliveryAddress.trim()}',
@@ -1760,11 +1780,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 // ),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddressScreen()));
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) =>
+                                    //             AddressScreen()));
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 0),

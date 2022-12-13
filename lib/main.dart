@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    addPrem();
+    //addPrem();
     sub = Connectivity().onConnectivityChanged.listen((event) {
       print("Con status.... ${event}");
       handleNetwork(event);

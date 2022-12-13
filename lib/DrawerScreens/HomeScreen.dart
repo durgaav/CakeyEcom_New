@@ -35,6 +35,7 @@ import 'package:location/location.dart';
 import '../screens/SingleVendor.dart';
 import 'CakeTypes.dart';
 import 'Notifications.dart';
+import 'package:permission_handler/permission_handler.dart' as Handler;
 
 //This is home ...
 class HomeScreen extends StatefulWidget {
@@ -1095,7 +1096,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       fetchProfileByPhn();
       //getotherProdList();
-      _getUserLocation();
+      //_getUserLocation();
       getAdminDeliveryCharge();
     });
 
@@ -1256,7 +1257,6 @@ class _HomeScreenState extends State<HomeScreen> {
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
-
 
   //fetch others..
   Future<void> getotherProdList() async{
@@ -1835,8 +1835,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> getCoordinates(String predictedAddress) async{
 
-    var pref = await SharedPreferences
-        .getInstance();
+    var pref = await SharedPreferences.getInstance();
 
     try{
 
@@ -1846,9 +1845,10 @@ class _HomeScreenState extends State<HomeScreen> {
             .locationFromAddress(
             predictedAddress);
         print(location);
-        setState(() {
+        setState(() async{
           userLat = location[0].latitude;
           userLong = location[0].longitude;
+
           pref.setString(
               'userLatitute', "${userLat}");
           pref.setString('userLongtitude',
@@ -1872,6 +1872,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     }catch(e){
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Unable to get location details..."))
       );
@@ -1883,7 +1884,6 @@ class _HomeScreenState extends State<HomeScreen> {
     print(calculateDistance(latude, longtude, 11.1412209  , 77.21523169999999));
 
   }
-
 
   //send others
   Future<void> sendOthers(String id) async{
@@ -1955,9 +1955,6 @@ class _HomeScreenState extends State<HomeScreen> {
       prefs.setString("otherMiniDeliTime" ,"1days");
     }
 
-
-
-
     prefs.setStringList("otherFlavs" , flavs);
     prefs.setStringList("otherImages" , images);
 
@@ -1984,6 +1981,151 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
+  //location permission checker
+  Future<void> checkLocationPermission() async{
+
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+
+    var permiStatus = await Handler.Permission.location.status;
+    if(permiStatus.isGranted){
+      print("Location is granted...");
+      loadPrefs();
+      _getUserLocation();
+    }
+    else if(permiStatus.isDenied){
+      showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: false,
+          builder: (c){
+            return StatefulBuilder(
+              builder: (ctx,setState){
+                return SafeArea(
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/images/splash.png"),
+                            fit: BoxFit.cover
+                        )
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Row(
+                        //   children: [
+                        //     Expanded(child: Container()),
+                        //     IconButton(
+                        //         onPressed: (){
+                        //           Navigator.pop(context);
+                        //         },
+                        //         icon: Icon(Icons.close)
+                        //     ),
+                        //   ],
+                        // )
+                        Icon(Icons.my_location_rounded,size: 60,color:lightPink,),
+                        SizedBox(height: 15,),
+                        Text("To continue with your\ncurrent location",style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),textAlign: TextAlign.center,),
+                        SizedBox(height: 15,),
+                        GestureDetector(
+                          onTap: () async{
+                            print("Location is not granted...");
+                            Map<Handler.Permission, Handler.PermissionStatus> statuses = await [
+                              Handler.Permission.location
+                            ].request();
+                            var permiStatus = await Handler.Permission.location.status;
+                            if(permiStatus.isGranted){
+                              Navigator.pop(context);
+                              print("Location is granted...");
+                              loadPrefs();
+                              _getUserLocation();
+                            }else{
+
+                            }
+                          },
+                          child: Container(
+                            height:height*0.06,
+                            width:width*0.6,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Colors.pink,
+                                borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Text("Allow Location Permission",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,
+                                color:Colors.white
+                            ),),
+                          ),
+                        ),
+                        SizedBox(height: 20,),
+                        Row(
+                          children: [
+                            Expanded(child: Container(
+                              height:height*0.001,
+                              color:Colors.grey,
+                              margin: EdgeInsets.only(right: 5),
+                            )),
+                            Text(" OR ",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                            ),),
+                            Expanded(child: Container(
+                              height:height*0.001,
+                              color:Colors.grey,
+                              margin: EdgeInsets.only(left: 5),
+                            )),
+                          ],
+                        ),
+                        SizedBox(height: 15,),
+                        Text("Select location manually",style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),),
+                        SizedBox(height: 15,),
+                        GestureDetector(
+                          onTap:() async{
+
+                          },
+                          child: Container(
+                            height:height*0.06,
+                            width:width*0.4,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: darkBlue,
+                                borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Text("Select Location",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,
+                                color:Colors.white
+                            ),),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+      );
+    }
+    else if(permiStatus.isPermanentlyDenied){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content:Text("Permission is denied,please allow manually, Go to Settings->Apps->Cakey->Permissions->Location."))
+      );
+    }
+  }
+
   //endregion
 
   @override
@@ -2004,7 +2146,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () async {
-      loadPrefs();
+      //loadPrefs();
+      checkLocationPermission();
     });
   }
 
@@ -3127,6 +3270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     searchCakeType.length>2?
                                                     InkWell(
                                                       onTap: () async {
+                                                        //checkLocationPermission();
                                                         var prefs = await SharedPreferences.getInstance();
                                                         prefs.setStringList('activeVendorsIds',activeVendorsIds);
                                                         prefs.setBool('iamYourVendor', false);
@@ -5177,12 +5321,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             ListView.builder(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
+                                padding: EdgeInsets.only(bottom: 10),
                                 itemCount: cakeSearchList.length,
                                 itemBuilder: (c, i) {
 
+                                  var item = nearestVendors.where((element) => element['_id'].toString().toLowerCase()==cakeSearchList[i]['VendorID'].toString().toLowerCase()).toList();
+
+                                  print(item);
+                                  print(nearestVendors.length);
+
                                   var deliverCharge = double.parse("${((deliveryChargeFromAdmin / deliverykmFromAdmin) *
-                                      (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
-                                          cakeSearchList[i]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+                                      (calculateDistance(userLat, userLong, item[0]['GoogleLocation']['Latitude'],
+                                          item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+
+                                  print('home del charge ... $deliverCharge');
+
                                   var betweenKm = (calculateDistance(userLat, userLong, cakeSearchList[i]['GoogleLocation']['Latitude'],
                                       cakeSearchList[i]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
 
@@ -5414,7 +5567,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               SizedBox(height: 5),
                                                               Container(
                                                                 // width:120,
-                                                                child: Text(
+                                                                child:double.parse(
+                                                                    double.parse("${((calculateDistance(userLat, userLong, item[0]['GoogleLocation']['Latitude'],
+                                                                        item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                                )<2.0||
+                                                                    double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
+                                                                Text(
+                                                                  'DELIVERY FREE',
+                                                                  style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                                ):
+                                                                Text(
                                                                   'DELIVERY CHARGE RS.${deliverCharge}',
                                                                   style: TextStyle(
                                                                       color:
@@ -5699,7 +5861,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               SizedBox(height: 5),
                                                               Container(
                                                                 // width:120,
-                                                                child: Text(
+                                                                child:
+                                                                // double.parse(
+                                                                //     double.parse("${((calculateDistance(userLat, userLong, item[0]['GoogleLocation']['Latitude'],
+                                                                //         item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                                // )<2.0||
+                                                                //     double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
+                                                                // Text(
+                                                                //   'DELIVERY FREE',
+                                                                //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                                // ):
+                                                                Text(
                                                                   'DELIVERY CHARGE RS.${deliverCharge}',
                                                                   style: TextStyle(
                                                                       color:

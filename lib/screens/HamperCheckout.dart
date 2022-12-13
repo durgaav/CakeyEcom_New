@@ -381,7 +381,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -422,7 +422,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
     ) - tempDiscountPrice) - discountPrice+sgstPrice+gstPrice).toStringAsFixed(2);
 
     var options = {
-      'key': 'rzp_live_rmfBgI2OrqZR4j',
+      'key': 'rzp_test_b42mo2s6NVrs7t',
       'amount': double.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -470,7 +470,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
     }
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));

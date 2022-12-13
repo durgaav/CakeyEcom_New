@@ -167,8 +167,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       user_ID = pref.getString("userModId") ?? '';
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
-      deliveryAddress = pref.getString("userAddress") ?? 'null';
-      deliverAddress = pref.getStringList('addressList')??[deliveryAddress.trim()];
+      deliveryAddress = pref.getString("userCurrentLocation") ?? 'null';
+      //deliverAddress = pref.getStringList('userCurrentLocation')??[deliveryAddress.trim()];
       cakeRatings = pref.getString("userAddress") ?? 'null';
       //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
@@ -692,7 +692,7 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -751,7 +751,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     var amount = 0;
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_live_rmfBgI2OrqZR4j:sMcew08MYYxPwnksKmDLpKsj'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
@@ -780,7 +780,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     var amount = 0;
 
     var options = {
-      'key': 'rzp_live_rmfBgI2OrqZR4j',
+      'key': 'rzp_test_b42mo2s6NVrs7t',
       'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -2024,36 +2024,57 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  children:deliverAddress.map((e){
-                                    return ListTile(
-                                      onTap: (){
-                                        setState(() {
-                                          deliveryAddress = e.trim();
-                                          deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                        });
-                                      },
-                                      title: Text(
-                                        '${e.trim()}',
-                                        style: TextStyle(
-                                            fontFamily: poppins,
-                                            color: Colors.grey,
-                                            fontSize: 13),
-                                      ),
-                                      trailing:
-                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                      Container(height:0,width:0),
-                                    );
-                                  }).toList(),
+                                //deliverAddress
+                                ListTile(
+                                  onTap: (){
+                                    setState(() {
+                                      // deliveryAddress = e.trim();
+                                      // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                    });
+                                  },
+                                  title: Text(
+                                    '${deliveryAddress.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing:
+                                  //deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,)
+                                  //     :
+                                  // Container(height:0,width:0),
                                 ),
+                                // Column(
+                                //   children:deliverAddress.map((e){
+                                //     return ListTile(
+                                //       onTap: (){
+                                //         setState(() {
+                                //           deliveryAddress = e.trim();
+                                //           deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //         });
+                                //       },
+                                //       title: Text(
+                                //         '${e.trim()}',
+                                //         style: TextStyle(
+                                //             fontFamily: poppins,
+                                //             color: Colors.grey,
+                                //             fontSize: 13),
+                                //       ),
+                                //       trailing:
+                                //       deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //       Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                //       Container(height:0,width:0),
+                                //     );
+                                //   }).toList(),
+                                // ),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddressScreen()));
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) =>
+                                    //             AddressScreen()));
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 14),

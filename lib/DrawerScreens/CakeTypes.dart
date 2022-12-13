@@ -1352,6 +1352,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
       getCakeType();
       getCakeList();
+      getVendor("");
     });
   }
 
@@ -1601,13 +1602,13 @@ class _CakeTypesState extends State<CakeTypes> {
 
   Future<void> getVendor(String venID) async{
 
-    showAlertDialog();
+    //showAlertDialog();
 
     try{
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1618,17 +1619,19 @@ class _CakeTypesState extends State<CakeTypes> {
 
 
         setState((){
-           seleVendorDetailsList = map.where((e)=>e['_id'].toString().toLowerCase()==venID).toList();
+           seleVendorDetailsList = map;
         });
 
-        Navigator.pop(context);
+        print("my vendors $map");
+
+        //Navigator.pop(context);
       }
       else {
         print(response.reasonPhrase);
-        Navigator.pop(context);
+        //Navigator.pop(context);
       }
     }catch(e){
-      Navigator.pop(context);
+      //Navigator.pop(context);
     }
   }
 
@@ -4634,10 +4637,18 @@ class _CakeTypesState extends State<CakeTypes> {
                                     physics: NeverScrollableScrollPhysics(),
                                     itemCount: cakeSearchList.length,
                                     itemBuilder: (c, i) {
+                                      print(seleVendorDetailsList);
 
-                                      var deliverCharge = double.parse("${(( adminDeliveryCharge / adminDeliveryChargeKm) *
-                                          (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), cakeSearchList[i]['GoogleLocation']['Latitude'],
-                                              cakeSearchList[i]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+                                      var item = seleVendorDetailsList.where((element) => element["_id"].toString().toLowerCase()==cakeSearchList[i]['VendorID'].toString().toLowerCase()).toList();
+
+                                      // var deliverCharge = double.parse("${(( adminDeliveryCharge / adminDeliveryChargeKm) *
+                                      //     (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), cakeSearchList[i]['GoogleLocation']['Latitude'],
+                                      //         cakeSearchList[i]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+
+                                      var deliverCharge = double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                          (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),item[0]['GoogleLocation']['Latitude'],
+                                              item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1);
+
                                       var betweenKm = (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude) ,
                                           cakeSearchList[i]['GoogleLocation']['Latitude'],
                                           cakeSearchList[i]['GoogleLocation']['Longitude'])).toStringAsFixed(1);
@@ -4855,7 +4866,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                                           SizedBox(height: 5),
                                                           Container(
                                                             // width:120,
-                                                            child:Text('DELIVERY CHARGE Rs.$deliverCharge',
+                                                            child:
+                                                            double.parse(
+                                                                double.parse("${((calculateDistance(double.parse(userLatitude), double.parse(userLongtitude) , item[0]['GoogleLocation']['Latitude'],
+                                                                    item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                            )<2.0||
+                                                                double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
+                                                            Text(
+                                                              'DELIVERY FREE',
+                                                              style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                            ):
+                                                            Text('DELIVERY CHARGE Rs.$deliverCharge',
                                                               style: TextStyle(
                                                                   color: Colors.orange,
                                                                   fontWeight:
@@ -5137,7 +5158,17 @@ class _CakeTypesState extends State<CakeTypes> {
                                                                   SizedBox(height: 5),
                                                                   Container(
                                                                     // width:120,
-                                                                    child: Text(
+                                                                    child:
+                                                                    // double.parse(
+                                                                    //     double.parse("${((calculateDistance(double.parse(userLatitude), double.parse(userLongtitude) , item[0]['GoogleLocation']['Latitude'],
+                                                                    //         item[0]['GoogleLocation']['Longitude'])))}").toStringAsFixed(1)
+                                                                    // )<2.0||
+                                                                    //     double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
+                                                                    // Text(
+                                                                    //   'DELIVERY FREE',
+                                                                    //   style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: poppins),
+                                                                    // ):
+                                                                    Text(
                                                                       'DELIVERY CHARGE RS.${deliverCharge}',
                                                                       style: TextStyle(
                                                                           color:

@@ -78,7 +78,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   String firstVenIndex = "";
   String firstVenAmount = "";
-
+  bool egglessSwitch = false;
 
   //load context vendor...
   bool isMySelVen = false;
@@ -152,6 +152,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String vendorMobileNum = ''; //ven mobile
   String vendorAddress = ''; //ven address
   String cakeEggorEgless = "";
+  String eggEggless = "";
   String cakeEgglessAvail = "";
   String cakeEgglessPrice = "0.0";
   bool isFromEggless = false;
@@ -968,19 +969,21 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   //apply egg cake
   void applyEggCake(){
-    Navigator.pop(context);
+
     setState((){
-      cakeEggorEgless = 'Egg';
+      eggEggless = 'Egg';
       cakePrice = defCakePrice;
+      egglessSwitch = false;
     });
   }
 
   //apply Eggless cake...
   void applyEgglessCake(){
-    Navigator.pop(context);
+
     setState((){
-      cakeEggorEgless = 'Eggless';
+      eggEggless = 'Eggless';
       cakePrice = cakeEgglessPrice;
+      egglessSwitch = true;
     });
   }
 
@@ -1233,12 +1236,19 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       cakePrice = prefs.getString('cakeMinPrice')!;
       defCakePrice = prefs.getString('cakeMinPrice')!;
       cakeEggorEgless = prefs.getString('cakeEggorEggless')!;
+      eggEggless = prefs.getString('cakeEggorEggless')!;
       cakeEgglessAvail = prefs.getString('cakeEgglessAvail')!;
       cakeEgglessPrice = prefs.getString('cakeEgglesCost')!;
       basicCakeWeight = prefs.getString('cakeMinWeight')!;
       otherInstruction = prefs.getString('cakeOtherInstToCus')??"None";
 
       fixedWeight = basicCakeWeight;
+
+      print("egg avail ");
+      print(eggEggless);
+      print(cakeEggorEgless);
+      print(cakeEgglessAvail);
+      print("egg avail******");
 
       cakeDescription = prefs.getString('cakeDescription')!;
       cakeType = prefs.getString('cakeType')!;
@@ -1283,7 +1293,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       userID = prefs.getString("userID") ?? "";
       userModID = prefs.getString("userModId") ?? "";
       userName = prefs.getString("userName") ?? "";
-      userAddress = prefs.getString('userAddress') ?? 'None';
+      userAddress = prefs.getString('userCurrentLocation') ?? 'None';
       deliverAddress = prefs.getStringList('addressList')??[userAddress.trim()];
       newRegUser = prefs.getBool('newRegUser') ?? false;
 
@@ -1439,19 +1449,25 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     String dlintKm = "";
 
+    print("Location KM...$betweenKm");
+
     if(mySelVendors.isEmpty||nearestVendors.isEmpty){
       dlintKm = "0.0";
     }else{
-      dlintKm = deliverCharge;
-    }
-
-    if(cakeType.contains("Regular") || cakeType.contains("Normal")){
-
-      if(firstVenIndex=="0"||firstVenIndex=="1"){
-        dlintKm = "0";
+      if(double.parse(betweenKm)<2.0){
+        dlintKm = "0.0";
+      }else{
+        dlintKm = deliverCharge;
       }
-
     }
+
+    // if(cakeType.contains("Regular") || cakeType.contains("Normal")){
+    //
+    //   if(firstVenIndex=="0"||firstVenIndex=="1"){
+    //     dlintKm = "0";
+    //   }
+    //
+    // }
 
     print("deliver based km $dlintKm");
 
@@ -1548,7 +1564,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     }
     prefs.setString('orderCakeSubType', cakeSubType);
     prefs.setString('orderCakeImages', cakeImages[0].toString());
-    prefs.setString('orderCakeEggOrEggless', cakeEggorEgless);
+    prefs.setString('orderCakeEggOrEggless', eggEggless);
     prefs.setString('orderCakeVenLat', vendorLat);
     prefs.setString('orderCakeVenLong', vendorLong);
 
@@ -1650,15 +1666,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
 
     print('Loaded....');
-  }
-
-  //add new address
-  Future<void> saveNewAddress(String street, String city, String district, String pincode) async {
-    setState(() {
-      userAddress = "$street , $city , $district , $pincode";
-    });
-
-    Navigator.pop(context);
   }
 
   //get vendorsList
@@ -1773,7 +1780,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     });
   }
 
-
   //changing dynamcially cake based on vendors
   Future<void> loadCakeDetailsByVendor(String venId , String cakesType ,
       [int index = 0,bool selectedFrm = false]) async{
@@ -1843,6 +1849,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         cakePrice = artTempList[0]['BasicCakePrice'];
         defCakePrice = artTempList[0]['BasicCakePrice'];
         cakeEggorEgless = artTempList[0]['DefaultCakeEggOrEggless'];
+        eggEggless = artTempList[0]['DefaultCakeEggOrEggless'];
         cakeEgglessAvail = artTempList[0]['IsEgglessOptionAvailable'];
         cakeEgglessPrice = artTempList[0]['BasicEgglessCostPerKg'];
         basicCakeWeight = artTempList[0]['MinWeight'];
@@ -1935,8 +1942,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         }
 
 
-        if(cakeEggorEgless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=='y'){
+        if(cakeEggorEgless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=='y') {
           // showEgglessSheet();
+
         }
 
         if(cakeEggorEgless.toLowerCase()=="eggless"){
@@ -2431,7 +2439,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 10),
+                          margin: EdgeInsets.only(left: 20, right: 5, top: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -2477,7 +2485,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   )
                                 ],
                               ),
-                              GestureDetector(
+                              Container(
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -2485,20 +2493,45 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       angle: 120,
                                       child: Icon(
                                         Icons.egg_outlined,
-                                        color: cakeEggorEgless.toLowerCase()=="eggless"?
+                                        color: eggEggless.toLowerCase()=="eggless"?
                                         Colors.green:Color(0xff8D2729),
                                       ),
                                     ),
                                     Text(
-                                        '$cakeEggorEgless',
+                                        '$eggEggless',
                                         style: TextStyle(
-                                            color: cakeEggorEgless.toLowerCase()=="eggless"?
+                                            color: eggEggless.toLowerCase()=="eggless"?
                                             Colors.green:Color(0xff8D2729),
                                             fontFamily: poppins,
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold
                                         ),
                                       ),
+                                    SizedBox(width: 6,),
+                                    Transform.scale(
+                                      scale: 0.7,
+                                      child: CupertinoSwitch(
+                                        thumbColor: Color(0xffffffff),
+                                        value: egglessSwitch,
+                                        onChanged: (bool? val) {
+                                          setState(() {
+                                            print("egg avail ");
+                                            print(eggEggless);
+                                            print(cakeEggorEgless);
+                                            print(cakeEgglessAvail);
+                                            print("egg avail******");
+                                            //egglessSwitch = val!;
+                                            if(cakeEggorEgless.toLowerCase()=="egg"&&eggEggless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=="y") {
+                                              applyEgglessCake();
+                                            }
+                                            else if(cakeEggorEgless.toLowerCase()=="egg"&&eggEggless.toLowerCase()=="eggless"&&cakeEgglessAvail.toLowerCase()=="y"){
+                                              applyEggCake();
+                                            }
+                                          });
+                                        },
+                                        activeColor: Colors.green,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               )
@@ -3987,14 +4020,43 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // ListTile(
+                                //   onTap: (){
+                                //     setState(() {
+                                //       // userAddress = e.trim();
+                                //       // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //     });
+                                //   },
+                                //   title: Text(
+                                //     '${userAddress.trim()}',
+                                //     style: TextStyle(
+                                //         fontFamily: poppins,
+                                //         color: Colors.grey,
+                                //         fontSize: 13),
+                                //   ),
+                                //   trailing:
+                                //   // deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //   Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                //   //Container(height:0,width:0),
+                                // ),
                                 Column(
                                     children:deliverAddress.map((e){
                                       return ListTile(
-                                        onTap: (){
-                                          setState(() {
-                                            userAddress = e.trim();
-                                            deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                          });
+                                        onTap: () async{
+                                          showAlertDialog();
+                                          try{
+                                            List<Location> locat = await locationFromAddress(e);
+                                            print(locat);
+                                            setState(() {
+                                              userAddress = e.trim();
+                                              userLatitude = locat[0].latitude.toString();
+                                              userLongtitude = locat[0].longitude.toString();
+                                              deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                            });
+                                            Navigator.pop(context);
+                                          }catch(e){
+                                            Navigator.pop(context);
+                                          }
                                         },
                                         title: Text(
                                           '${e.trim()}',
@@ -4028,7 +4090,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => AddressScreen()));
+                                            builder: (context) => AddressScreen())
+                                    );
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 14),
@@ -4284,7 +4347,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 maxLines: 1,
                                                                               ),
                                                                               SizedBox(height: 3),
-                                                                              firstVenIndex!="-1"?
+                                                                              double.parse((calculateDistance(double.parse(userLatitude),
+                                                                                  double.parse(userLongtitude), mySelVendors[0]['GoogleLocation']['Latitude'],
+                                                                                  mySelVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(1))<2.0?
                                                                               Text(
                                                                                 "DELIVERY FREE",
                                                                                 style: TextStyle(
@@ -4928,7 +4993,6 @@ int addZeroBefSingleDigit(int count){
 
   return finalCount;
 }
-
 
 String simplyFormat({required DateTime? time, bool dateOnly = false}) {
   List<String> months = [
