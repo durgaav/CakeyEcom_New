@@ -1094,8 +1094,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             SizedBox(width: 5,),
                             Expanded(
                                 child: Text(
-                                  deliverType.toLowerCase()=="delivery"?
-                                  "${userAddress.trim()}":'Pickuping by you.',
+                                  paymentObjs['deliverType'].toLowerCase()=="delivery"?
+                                  "${paymentObjs['deliveryAddress'].trim()}":'Pickuping by you.',
                                   style: TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,

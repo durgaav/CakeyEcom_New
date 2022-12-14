@@ -2995,7 +2995,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                                       print(productsContains);
 
-                                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>HamperDetails()));
+                                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>HamperDetails(
+                                                        data:hampers[i],
+                                                      )));
 
                                                     },
                                                     child: Container(

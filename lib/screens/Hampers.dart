@@ -96,9 +96,13 @@ class _HampersState extends State<Hampers> {
     pref.setString("hamperLong", hampers[index]['GoogleLocation']['Longitude'].toString()??'null');
     pref.setStringList("hamperProducts", productsContains??[]);
 
+
+
     print(productsContains);
 
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>HamperDetails()));
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>HamperDetails(
+      data: hampers[index],
+    )));
 
   }
 

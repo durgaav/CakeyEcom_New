@@ -6,6 +6,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,13 +17,19 @@ import '../DrawerScreens/CustomiseCake.dart';
 import 'AddressScreen.dart';
 
 class HamperDetails extends StatefulWidget {
-  const HamperDetails({Key? key}) : super(key: key);
+
+  var data = {};
+  HamperDetails({required this.data});
 
   @override
-  State<HamperDetails> createState() => _HamperDetailsState();
+  State<HamperDetails> createState() => _HamperDetailsState(data: data);
 }
 
 class _HamperDetailsState extends State<HamperDetails> {
+
+  var data = {};
+  _HamperDetailsState({required this.data});
+
   //colors...
   String poppins = "Poppins";
   Color darkBlue = Color(0xffF213959);
@@ -154,13 +161,15 @@ class _HamperDetailsState extends State<HamperDetails> {
   void navigateToCheckout() async{
 
     var paymentObj = {
-      "img":"https://media.bakingo.com/sq-choco-vanilla-cake0006chva-AA.jpg",
-      "name":"My Cake Name",
-      "egg":eggOregless,
-      "price":500,
-      "vendor":"Surya...",
-      "type":"Hampers",
-      "details":{}
+      "img":data['HamperImage'],
+      "name":data['HampersName'],
+      "egg":data['EggOrEggless'],
+      "price":data['Price'],
+      "vendor":data['VendorName'],
+      "type":"Hamper",
+      "details":data,
+      "deliverType":fixedDelliverMethod,
+      "deliveryAddress":deliveryAddress,
     };
 
     Navigator.push(context, MaterialPageRoute(builder: (c)=>PaymentGateway(
@@ -186,8 +195,8 @@ class _HamperDetailsState extends State<HamperDetails> {
       user_ID = pref.getString("userModId") ?? '';
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
-      deliveryAddress = pref.getString("userCurrentLocation") ?? 'null';
-      //deliverAddress = pref.getStringList('userCurrentLocation')??[deliveryAddress.trim()];
+      //deliveryAddress = pref.getString("userCurrentLocation") ?? 'null';
+      deliverAddress = pref.getStringList('addressList')??[deliveryAddress.trim()];
       cakeRatings = pref.getString("userAddress") ?? 'null';
       //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
@@ -214,7 +223,6 @@ class _HamperDetailsState extends State<HamperDetails> {
     getVendor(hampVenId);
 
     print(hamImages.length);
-
 
   }
 
@@ -285,807 +293,6 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   }
 
-  void showConfirmOrder(){
-    showDialog(
-      context: context,
-      builder: (context)=>
-          AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)
-            ),
-            title: Row(
-              children: [
-                Text('Order Confirmation' , style: TextStyle(
-                    color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
-                    fontWeight: FontWeight.bold
-                ),),
-              ],
-            ),
-            content: Text('This Process Cannot Be Undone! Do You Want To Proceed Checkout ?' , style: TextStyle(
-                color:lightPink , fontSize: 13 , fontFamily: "Poppins"
-            ),),
-            actions: [
-              FlatButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel')
-              ),
-              FlatButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                    showCheckoutSheet();
-                  },
-                  child: Text('Proceed')
-              ),
-            ],
-          ),
-    );
-  }
-
-  //showcheckout
-  void showCheckoutSheet() {
-
-    int index = 0;
-    var payType = "Online Payment";
-    double delCharge = 0.0;
-
-    if(fixedDelliverMethod.toLowerCase()=="pickup"){
-      delCharge = 0.0;
-    }else{
-      delCharge = double.parse(
-          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-      (calculateDistance(double.parse(userLatitude),
-      double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
-      );
-    }
-
-
-    showModalBottomSheet(
-      isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-          topRight: Radius.circular(15),
-          topLeft: Radius.circular(15),
-        )),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  topLeft: Radius.circular(20),
-                )),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'CHECKOUT',
-                          style: TextStyle(
-                              color: darkBlue,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18
-                          ),
-                        ),
-                        Container(
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(7)),
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.close,
-                                size: 25,
-                                color: lightPink,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 0, right: 0),
-                      height: 0.4,
-                      color: Colors.black,
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      hamperName,
-                      style: TextStyle(color: darkBlue, fontFamily: "Poppins" ,fontSize: 16),
-                    ),
-                    SizedBox(height: 10,),
-                    Container(
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              alignment: Alignment.bottomLeft,
-                              child: Row(children: [
-                                Text(
-                                  '₹',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  " ${(double.parse(hamperPrice)+delCharge) * counts}",
-                                  style: TextStyle(
-                                    color: lightPink,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 23,
-                                  ),
-                                )
-                              ]),
-                            ),
-                            //increase decrease
-                            Row(children: [
-                              //decrease
-                              InkWell(
-                                splashColor: Colors.red[200]!,
-                                onTap: () {
-                                  setState(() {
-                                    if (counts > 1) {
-                                      counts = counts - 1;
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                    height: 30,
-                                    width: 30,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.pink[400]!,
-                                          width: 0.5,
-                                        )),
-                                    child: Icon(Icons.remove_sharp,
-                                        color: darkBlue)),
-                              ),
-                              SizedBox(width: 8),
-                              Column(
-                                children: [
-                                  Text(
-                                    counts<10?
-                                    '0$counts':
-                                    "${counts}",
-                                    style: TextStyle(
-                                      color: lightPink,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Poppins",
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  Text(
-                                    'UNIT',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Poppins",
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 8),
-                              InkWell(
-                                splashColor: Colors.red[200]!,
-                                onTap: () {
-                                  setState(() {
-                                    counts++;
-                                  });
-                                },
-                                child: Container(
-                                    height: 30,
-                                    width: 30,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.pink[400]!,
-                                          width: 0.5,
-                                        )),
-                                    child: Icon(Icons.add, color: darkBlue)),
-                              ),
-                            ])
-                          ]),
-                    ),
-                    SizedBox(height: 10,),
-                    GridView(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisExtent: 115,
-                          crossAxisSpacing: 6,
-                          mainAxisSpacing: 6
-                      ),
-                      children: [
-                        Card(
-                          elevation: 2.0,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.calendar_month,
-                                color: darkBlue,
-                                size: 35,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                deliverDate,
-                                style: TextStyle(
-                                    color: lightPink, fontFamily: "Poppins"),
-                              )
-                            ],
-                          ),
-                        ),
-                        Card(
-                          elevation: 2.0,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.access_alarm_sharp,
-                                color: darkBlue,
-                                size: 35,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                deliverSession,
-                                style: TextStyle(
-                                    color: lightPink, fontFamily: "Poppins"),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10,),
-
-                    Card(
-                      elevation: 2.0,
-                      child:Container(
-                        padding: EdgeInsets.all(10),
-                        child: Row(
-                          children: [
-                            Icon(Icons.delivery_dining , color: lightPink,size: 30,),
-                            SizedBox(width: 6,),
-                            Expanded(child: Text(
-                              fixedDelliverMethod.toLowerCase()=="delivery"?
-                              deliveryAddress.trim():'Pickup by you', style: TextStyle(
-                              color: darkBlue , fontFamily: "Poppins"
-                            ),
-                            ))
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    GestureDetector(
-                      onTap: ()=>setState((){
-                        index = 0;
-                        paymentMethod = "Online Payment";
-                        payType = "Online Payment";
-                      }),
-                      child: Container(
-                        padding:EdgeInsets.all(8),
-                        child: Row(
-                          children: [
-                            index==0?
-                            Icon(Icons.radio_button_checked , color: Colors.green, size: 26,):
-                            Icon(Icons.radio_button_unchecked_rounded , color: Colors.grey, size: 26,),
-                            SizedBox(width: 6,),
-                            Expanded(child: Text(
-                              'Online Payment' ,
-                              style: TextStyle(
-                                color: darkBlue ,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Poppins"
-                              ),
-                            ))
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 6,),
-                    GestureDetector(
-                      onTap: ()=>setState((){
-                        index = 1;
-                        paymentMethod = "Cash On Delivery";
-                        payType = "Cash On Delivery";
-                      }),
-                      child: Container(
-                        padding:EdgeInsets.all(8),
-                        child: Row(
-                          children: [
-                            index==1?
-                            Icon(Icons.radio_button_checked , color: Colors.green, size: 26,):
-                            Icon(Icons.radio_button_unchecked_rounded , color: Colors.grey, size: 26,),
-                            SizedBox(width: 6,),
-                            Expanded(child: Text(
-                              'Cash On $fixedDelliverMethod' ,
-                              style: TextStyle(
-                                color: darkBlue ,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Poppins"
-                              ),
-                            ))
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    Center(
-                      child: Container(
-                        height: 50,
-                        width: 220,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                          color: Colors.pink,
-                          onPressed: () {
-
-                            // int charge = 0;
-                            //
-                            // if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                            //   charge = deliveryCharge;
-                            // }else{
-                            //   charge = 0;
-                            // }
-
-                            // print('total...... $charge');
-
-                            // print(
-                            //     ((int.parse(hamperPrice) * counts) + charge).toInt().toString()
-                            // );
-
-                            Navigator.pop(context);
-
-                            // if(payType.toLowerCase()=="cash on delivery"){
-                            //   proceedOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
-                            // }else{
-                            //   _handleOrder((((int.parse(hamperPrice)+delCharge) * counts) + charge).toInt().toString());
-                            // }
-
-                          },
-                          child: Text(
-                            "PROCEED",
-                            style: TextStyle(
-                                color: Colors.white, fontFamily: "Poppins",fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10,),
-
-                    //end
-                  ],
-                ),
-              );
-            },
-          );
-        });
-  }
-
-  //handle razor pay order here...
-  void _handleOrder(var amount) async{
-
-    showAlertDialog();
-
-    var headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
-    };
-    var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
-    request.body = json.encode({
-      "amount": int.parse(amount.toString())*100,
-      "currency": "INR",
-      "receipt": "Receipt",
-      "notes": {
-        "notes_key_1": "Order for $hamperName",
-        // "notes_key_2": "Order for $cakeName"
-      }
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var res = jsonDecode(await response.stream.bytesToString());
-      print(res);
-      _handleFinalPayment(res['amount'].toString() , res['id']);
-      Navigator.pop(context);
-    }
-    else {
-      // print();
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
-          +response.reasonPhrase.toString())));
-    }
-
-    //{id: order_K1RKAn7G9lnanu, entity: order, amount: "700", amount_paid: "0",
-    // amount_due: "700", currency: INR, receipt: Receipt, offer_id: null, status: created,
-    // attempts: "0", notes: {notes_key_1: Order for Vanilla Cake}, created_at: "1659590700"}
-
-
-    // var amount = 0.0;
-    //
-    // if(orderFromCustom!="no"){
-    //   amount = ((((double.parse(cakePrice)*
-    //       double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-    //       extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-    //       tempDiscountPrice);
-    // }else{
-    //   amount = ((counts * (
-    //       double.parse(cakePrice)*
-    //           double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-    //           (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-    //   ) + double.parse((tempTax).toString()) +
-    //       deliveryCharge)
-    //       - tempDiscountPrice);
-    // }
-    //
-
-  }
-
-  void _capturePayment(String payId) async {
-
-    var amount = 0;
-
-    var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}',
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
-    request.body = json.encode({
-      "amount": int.parse(amount.toString())*100,
-      "currency": "INR"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-  }
-
-  //handle razorpay payment here...
-  void _handleFinalPayment(String amt , String orderId){
-
-    print("Test ord id : $orderId");
-
-    var amount = 0;
-
-    var options = {
-      'key': 'rzp_test_b42mo2s6NVrs7t',
-      'amount': int.parse(amount.toString())*100, //in the smallest currency sub-unit.
-      'name': 'Surya Prakash',
-      'order_id': "$orderId", // Generate order_id using Orders API
-      'description': '$hamperName',
-      'timeout': 300, // in seconds
-      'prefill': {
-        'contact': '',
-        // 'email': '$userName',
-        'email': 'test@gmail.com',
-      },
-      "theme":{
-        "color":'#E8416D'
-      },
-    };
-
-    print(options);
-
-    _razorpay.open(options);
-  }
-
-  //payment done alert
-  void showPaymentDoneAlert(String status){
-    showDialog(
-        context: context,
-        builder: (context){
-          return Dialog(
-            child: Container(
-                height: 85,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12)
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 6,
-                      decoration: BoxDecoration(
-                        color: status=="done"?Colors.green:Colors.red,
-                        // borderRadius:BorderRadius.only(
-                        //   topLeft: Radius.circular(12),
-                        //   bottomLeft: Radius.circular(12),
-                        // )
-                      ),
-                    ),
-                    SizedBox(width: 10,),
-                    Icon(
-                      status=="done"?Icons.check_circle_rounded:Icons.cancel,
-                      color: status=="done"?Colors.green:Colors.red,
-                      size: 45,
-                    ),
-                    SizedBox(width: 10,),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(status=="done"?"Payment Complete":"Payment Not Complete",style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.bold,
-                          ),),
-                          Text(status=="done"?'Your payment for $hamperName was successful.'
-                              :"Your payment for $hamperName was unsuccessful.",style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: "Poppins",
-                              fontSize: 12
-                          ),)
-                        ],
-                      ),
-                    )
-                  ],
-                )
-            ),
-          );
-        }
-    );
-  }
-
-  //payment handlers...
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    // Do something when payment succeeds
-    print("Pay success : "+response.paymentId.toString());
-    proceedOrder(amount);
-    // _capturePayment(response.paymentId.toString());
-    // showPaymentDoneAlert("done");
-  }
-
-  ///make the order
-  Future<void> proceedOrder(amount) async{
-
-    showAlertDialog();
-
-    double delCharge = 0.0;
-
-    if(fixedDelliverMethod.toLowerCase() == "delivery"){
-      delCharge = double.parse(
-          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                  double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
-      );
-    }else{
-      delCharge = 0;
-    }
-
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/hamperorder/new'));
-    request.body = json.encode({
-      "HamperID": "$hamper_id",
-      "Hamper_ID": "$hampeModid",
-      "HampersName": "$hamperName",
-      "Product_Contains": productContains,
-      "HamperImage": "${hamImages[0]}",
-      "Description": "$hamperDescription",
-      "VendorID": "$vendor_Id",
-      "Vendor_ID": "$vendorId",
-      "VendorName": "$vendrorName",
-      "EggOrEggless": "$eggOregless",
-      "VendorPhoneNumber1": "$vendrorPhone1",
-      "VendorPhoneNumber2": "$vendrorPhonr2",
-      "VendorAddress": "$vendorAddress",
-      "GoogleLocation": {
-        "Latitude": "$vendrorLat",
-        "Longitude": "$vendrorLong"
-      },
-      "UserID": "$userId",
-      "User_ID": "$user_ID",
-      "UserName": "$userName",
-      "UserPhoneNumber": "$userPhone",
-      "DeliveryAddress": "$deliveryAddress",
-      "DeliveryDate": "$deliverDate",
-      "DeliverySession": "$deliverSession",
-      "DeliveryInformation": "$fixedDelliverMethod",
-      "Price": "$hamperPrice",
-      "ItemCount": "$counts",
-      "DeliveryCharge": "$delCharge",
-      "Total": "$amount",
-      "Weight": "$hamWeight",
-      "Title": "$hamTitle",
-      "PaymentType": "$paymentMethod",
-      "PaymentStatus":paymentMethod.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      if(map['statusCode']==200){
-        sendNotificationToVendor(noId);
-      }
-
-      Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(map['message'].toString()),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ));
-
-    }
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ));
-      Navigator.pop(context);
-    }
-
-  }
-
-  Future<void> sendNotificationToVendor(String? NoId) async{
-
-    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
-
-    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
-
-    var headers = {
-      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
-    request.body = json.encode({
-      "registration_ids": [
-        "$NoId",
-      ],
-      "notification": {
-        "title": "New Order Is Here!",
-        "body": "Hi $vendrorName , $hamperName is just Ordered By $userName."
-      },
-      "data": {
-        "msgId": "msg_12342"
-      }
-    });
-    request.headers.addAll(headers);
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    // Do something when payment fails
-    print("Pay error : "+response.toString());
-    showPaymentDoneAlert("failed");
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    // Do something when an external wallet is selected
-    print("wallet : "+response.toString());
-    showPaymentDoneAlert("failed");
-  }
-
-  Future<void> passToCheckout() async{
-
-    print(user_ID);
-    print(productContains);
-
-    double charge = 0.0;
-    double total = 0.0;
-
-    if(fixedDelliverMethod.toLowerCase()=="delivery"){
-      charge = double.parse(deliveryCharge.toString());
-    }else{
-      charge = 0;
-    }
-
-    total = double.parse(((double.parse(hamperPrice) * counts) + charge).toStringAsFixed(1));
-
-    var prefs = await SharedPreferences.getInstance();
-
-    //hampers...
-    prefs.setString("hampOrdName", hamperName);
-    prefs.setString("hampOrdId", hamper_id);
-    prefs.setString("hampOrdModId", hampeModid);
-    prefs.setString("hamOrdPrice", hamperPrice);
-    prefs.setString("hamOrdImage", hamImages[0]);
-    prefs.setString("hamOrdDescription", hamperDescription);
-    prefs.setStringList("hamOrdProducts", productContains);
-    prefs.setString("hamOrdEggorEggless", eggOregless);
-    prefs.setString("hamOrdWeight", hamWeight);
-    prefs.setString("hamOrdTitle", hamTitle);
-
-    //vendor...
-    prefs.setString("hampOrdVenName", vendrorName);
-    prefs.setString("hampOrdVenId", vendor_Id);
-    prefs.setString("hampOrdVenModId", vendorId);
-    prefs.setString("hampOrdVenAddress", vendorAddress);
-    prefs.setString("hampOrdVenPhone1", vendrorPhone1);
-    prefs.setString("hampOrdVenPhone2", vendrorPhonr2);
-    prefs.setString("hampOrdVenLatt", vendrorLat);
-    prefs.setString("hampOrdVenLong", vendrorLong);
-    prefs.setString("hampOrdVenNotId", noId);
-
-    //deliver user...
-    prefs.setString("hampOrdDeliDate", deliverDate);
-    prefs.setString("hampOrdDeliSession", deliverSession);
-    prefs.setString("hampOrdDeliAddress", deliveryAddress);
-    prefs.setString("hampOrdDeliType", fixedDelliverMethod);
-    prefs.setString("hampOrdDeliUser", userName);
-    prefs.setString("hampOrdDeliPhone", userPhone);
-    prefs.setString("hampOrdDeliUserId", userId);
-    prefs.setString("hampOrdDeliUserModId", user_ID);
-
-    //for calculations...
-    prefs.setInt("hamOrdCount", counts);
-    prefs.setDouble("hamOrdDeliCharge", charge);
-    prefs.setDouble("hamOrdTotal", total);
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HamperCheckout([], [])));
-
-  }
-
   //Buliding the dots by image length
   List<Widget> _buildPageIndicator() {
     List<Widget> list = [];
@@ -1134,14 +341,14 @@ class _HamperDetailsState extends State<HamperDetails> {
     Future.delayed(Duration.zero, () async {
       getDetails();
     });
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    print(data);
+
     if (context.watch<ContextData>().getAddressList().isNotEmpty) {
       deliverAddress = context.watch<ContextData>().getAddressList();
     }
@@ -2044,49 +1251,71 @@ class _HamperDetailsState extends State<HamperDetails> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 //deliverAddress
-                                ListTile(
-                                  onTap: (){
-                                    setState(() {
-                                      // deliveryAddress = e.trim();
-                                      // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                    });
-                                  },
-                                  title: Text(
-                                    '${deliveryAddress.trim()}',
-                                    style: TextStyle(
-                                        fontFamily: poppins,
-                                        color: Colors.grey,
-                                        fontSize: 13),
-                                  ),
-                                  trailing:
-                                  //deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,)
-                                  //     :
-                                  // Container(height:0,width:0),
-                                ),
-                                // Column(
-                                //   children:deliverAddress.map((e){
-                                //     return ListTile(
-                                //       onTap: (){
-                                //         setState(() {
-                                //           deliveryAddress = e.trim();
-                                //           deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                //         });
-                                //       },
-                                //       title: Text(
-                                //         '${e.trim()}',
-                                //         style: TextStyle(
-                                //             fontFamily: poppins,
-                                //             color: Colors.grey,
-                                //             fontSize: 13),
-                                //       ),
-                                //       trailing:
-                                //       deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                //       Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                //       Container(height:0,width:0),
-                                //     );
-                                //   }).toList(),
+                                // ListTile(
+                                //   onTap: (){
+                                //     setState(() {
+                                //       // deliveryAddress = e.trim();
+                                //       // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //     });
+                                //   },
+                                //   title: Text(
+                                //     '${deliveryAddress.trim()}',
+                                //     style: TextStyle(
+                                //         fontFamily: poppins,
+                                //         color: Colors.grey,
+                                //         fontSize: 13),
+                                //   ),
+                                //   trailing:
+                                //   //deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //   Icon(Icons.check_circle, color: Colors.green ,size: 25,)
+                                //   //     :
+                                //   // Container(height:0,width:0),
                                 // ),
+                                Column(
+                                  children:deliverAddress.map((e){
+                                    return ListTile(
+                                      onTap: () async{
+                                        showAlertDialog();
+                                        try{
+                                          List<Location> locat = await locationFromAddress(e);
+                                          List<Location> venLocation = await locationFromAddress(data['VendorAddress']);
+                                          print(locat);
+                                          setState(() {
+                                            deliveryAddress = e.trim();
+                                            userLatitude = locat[0].latitude.toString();
+                                            userLongtitude = locat[0].longitude.toString();
+                                            deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                          });
+                                          Navigator.pop(context);
+                                          if(calculateDistance(double.parse(userLatitude),
+                                              double.parse(userLongtitude), venLocation[0].latitude, venLocation[0].longitude)>10.0){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Selected Delivery Address Is Too Far..."))
+                                            );
+                                          }
+                                        }catch(e){
+                                          print("Error... $e");
+                                          Navigator.pop(context);
+                                        }
+                                        // setState(() {
+                                        //   deliveryAddress = e.trim();
+                                        //   deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                        // });
+                                      },
+                                      title: Text(
+                                        '${e.trim()}',
+                                        style: TextStyle(
+                                            fontFamily: poppins,
+                                            color: Colors.grey,
+                                            fontSize: 13),
+                                      ),
+                                      trailing:
+                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                      Container(height:0,width:0),
+                                    );
+                                  }).toList(),
+                                ),
                                 GestureDetector(
                                   onTap: () {
                                     // Navigator.push(
