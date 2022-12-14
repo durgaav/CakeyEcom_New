@@ -1121,7 +1121,6 @@ class _CheckOutState extends State<CheckOut> {
           body = jsonEncode(data);
         }
 
-
         print(body);
 
         //http://sugitechnologies.com:88

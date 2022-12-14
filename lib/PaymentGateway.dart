@@ -18,11 +18,18 @@ import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 
 class PaymentGateway extends StatefulWidget {
+
+  var paymentObjs = {};
+  PaymentGateway({required this.paymentObjs});
+
   @override
-  State<PaymentGateway> createState() => _PaymentGatewayState();
+  State<PaymentGateway> createState() => _PaymentGatewayState(paymentObjs: paymentObjs);
 }
 
 class _PaymentGatewayState extends State<PaymentGateway> {
+
+  var paymentObjs = {};
+  _PaymentGatewayState({required this.paymentObjs});
 
   //Colors
   Color lightGrey = Color(0xffF5F5F5);
@@ -802,6 +809,9 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   @override
   Widget build(BuildContext context) {
+
+    print(paymentObjs);
+
     return Scaffold(
         appBar: AppBar(
           leading: Container(
@@ -909,7 +919,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
-                              image:NetworkImage("${cakeImage}"),
+                              image:NetworkImage("${paymentObjs['img']}"),
                               fit: BoxFit.cover
                           )
                       ),
@@ -935,18 +945,26 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              child: Text('Prod name'
+                              child: Text('${paymentObjs['name']}'
                                 // '(Rs.$cakePrice) x $counts'
                                 ,style: TextStyle(
                                     fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
                                 ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                             ),
                             SizedBox(height: 5,),
-                            Text('$eggOreggless',
+                            Text('${paymentObjs['egg']}',
                                 style: TextStyle(
                                     fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                                 ),
-                                overflow: TextOverflow.ellipsis,maxLines: 10),
+                                overflow: TextOverflow.ellipsis,maxLines: 10
+                            ),
+                            // SizedBox(height: 5,),
+                            // Text('Shape - None Flavour - None',
+                            //     style: TextStyle(
+                            //         fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                            //     ),
+                            //     overflow: TextOverflow.ellipsis,maxLines: 10
+                            // ),
                             // SizedBox(height: 5,),
                             // Wrap(
                             //   children: [
@@ -962,12 +980,17 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             SizedBox(height: 5,),
                             Text.rich(
                                 TextSpan(
-                                    text:'₹ ${(double.parse(cakePrice)*counts).toStringAsFixed(2)}',
+                                    text:'₹ ${(double.parse(paymentObjs['price'].toString())*counts).toStringAsFixed(2)}',
                                     style: TextStyle(
                                         fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                         fontFamily: "Poppins"),
                                     children: [
-
+                                      TextSpan(
+                                        text: " *(includes selected weight,flavours,shape,toppers.)",
+                                        style: TextStyle(
+                                            fontSize: 8,color: darkBlue,
+                                            fontFamily: "Poppins"),
+                                      )
                                     ]
                                 )
                             ),
@@ -991,7 +1014,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             fontSize: 11,fontFamily: "Poppins"
                         ),),
                         subtitle: Text(
-                          '${vendorName}',style: TextStyle(
+                          '${paymentObjs['vendor']}',style: TextStyle(
                             fontSize: 14,fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,color: Colors.black
                         ),),
@@ -1045,7 +1068,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             Text('Cake Type',style: TextStyle(
                                 fontSize: 11,fontFamily: "Poppins"
                             ),),
-                            Text('Hamper',style: TextStyle(
+                            Text('${paymentObjs['type']}',style: TextStyle(
                                 fontSize: 14,fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,color: Colors.black
                             ),),

@@ -1380,41 +1380,56 @@ class _CakeTypesState extends State<CakeTypes> {
 
         setState((){
 
-          if(iamYourVendor == true){
+          print("Result 2...");
 
-            List myList = map.where((element) =>
-            calculateDistance(
-                double.parse(userLatitude),
-                double.parse(userLongtitude),
-                element['GoogleLocation']['Latitude'],
-                element['GoogleLocation']['Longitude']) <=
-                10)
-                .toList();
-
-
-            otherProducts = myList.where((element) => element['VendorName'].toString().toLowerCase()==
-                mySelVendors[0]['VendorName'].toString().toLowerCase()).toList();
-
-          }else{
-            // otherProducts = map.where((element) =>
-            // calculateDistance(
-            //     double.parse(userLatitude),
-            //     double.parse(userLongtitude),
-            //     element['GoogleLocation']['Latitude'],
-            //     element['GoogleLocation']['Longitude']) <=
-            //     10)
-            //     .toList();
-
-            if(activeVendorsIds.isNotEmpty){
-              for(int i = 0;i<activeVendorsIds.length;i++){
-                otherProducts = otherProducts+map.where((element) => element['VendorID'].toString().toLowerCase()==
-                    activeVendorsIds[i].toLowerCase()).toList();
-              }
+          if(activeVendorsIds.isNotEmpty){
+            for(int i = 0;i<activeVendorsIds.length;i++){
+              otherProducts = otherProducts+map.where((element) => element['VendorID'].toString().toLowerCase()==
+                  activeVendorsIds[i].toLowerCase()).toList();
             }
-
-            otherProducts = otherProducts.toSet().toList();
-
           }
+
+          otherProducts = otherProducts.toSet().toList();
+
+          // if(iamYourVendor == true){
+          //
+          //   print("Result 1...");
+          //
+          //   List myList = map.where((element) =>
+          //   calculateDistance(
+          //       double.parse(userLatitude),
+          //       double.parse(userLongtitude),
+          //       element['GoogleLocation']['Latitude'],
+          //       element['GoogleLocation']['Longitude']) <=
+          //       10)
+          //       .toList();
+          //
+          //
+          //   otherProducts = myList.where((element) => element['VendorID'].toString().toLowerCase()==
+          //       mySelVendors[0]['VendorID'].toString().toLowerCase()).toList();
+          //
+          // }
+          // else{
+          //   // otherProducts = map.where((element) =>
+          //   // calculateDistance(
+          //   //     double.parse(userLatitude),
+          //   //     double.parse(userLongtitude),
+          //   //     element['GoogleLocation']['Latitude'],
+          //   //     element['GoogleLocation']['Longitude']) <=
+          //   //     10)
+          //   //     .toList();
+          //   print("Result 2...");
+          //
+          //   if(activeVendorsIds.isNotEmpty){
+          //     for(int i = 0;i<activeVendorsIds.length;i++){
+          //       otherProducts = otherProducts+map.where((element) => element['VendorID'].toString().toLowerCase()==
+          //           activeVendorsIds[i].toLowerCase()).toList();
+          //     }
+          //   }
+          //
+          //   otherProducts = otherProducts.toSet().toList();
+          //
+          // }
 
         });
 

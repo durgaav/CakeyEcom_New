@@ -4020,71 +4020,71 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // ListTile(
-                                //   onTap: (){
-                                //     setState(() {
-                                //       // userAddress = e.trim();
-                                //       // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                //     });
-                                //   },
-                                //   title: Text(
-                                //     '${userAddress.trim()}',
-                                //     style: TextStyle(
-                                //         fontFamily: poppins,
-                                //         color: Colors.grey,
-                                //         fontSize: 13),
-                                //   ),
-                                //   trailing:
-                                //   // deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                //   Icon(Icons.check_circle, color: Colors.green ,size: 25,),
-                                //   //Container(height:0,width:0),
-                                // ),
-                                Column(
-                                    children:deliverAddress.map((e){
-                                      return ListTile(
-                                        onTap: () async{
-                                          showAlertDialog();
-                                          try{
-                                            List<Location> locat = await locationFromAddress(e);
-                                            print(locat);
-                                            setState(() {
-                                              userAddress = e.trim();
-                                              userLatitude = locat[0].latitude.toString();
-                                              userLongtitude = locat[0].longitude.toString();
-                                              deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                            });
-                                            Navigator.pop(context);
-                                          }catch(e){
-                                            Navigator.pop(context);
-                                          }
-                                        },
-                                        title: Text(
-                                          '${e.trim()}',
-                                          style: TextStyle(
-                                              fontFamily: poppins,
-                                              color: Colors.grey,
-                                              fontSize: 13),
-                                        ),
-                                        trailing:
-                                        deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                        Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                        Container(height:0,width:0),
-                                      );
-                                    }).toList(),
-                                    // [
-                                    //   ListTile(
-                                    //     title: Text(
-                                    //       '${userAddress.trim()}',
-                                    //       style: TextStyle(
-                                    //           fontFamily: poppins,
-                                    //           color: Colors.grey,
-                                    //           fontSize: 13),
-                                    //     ),
-                                    //     trailing:
-                                    //     Icon(Icons.check_circle, color: Colors.green ,size: 25,),
-                                    //   ),
-                                    // ]
+                                ListTile(
+                                  onTap: (){
+                                    setState(() {
+                                      // userAddress = e.trim();
+                                      // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                    });
+                                  },
+                                  title: Text(
+                                    '${userAddress.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing:
+                                  // deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                  //Container(height:0,width:0),
                                 ),
+                                // Column(
+                                //     children:deliverAddress.map((e){
+                                //       return ListTile(
+                                //         onTap: () async{
+                                //           showAlertDialog();
+                                //           try{
+                                //             List<Location> locat = await locationFromAddress(e);
+                                //             print(locat);
+                                //             setState(() {
+                                //               userAddress = e.trim();
+                                //               userLatitude = locat[0].latitude.toString();
+                                //               userLongtitude = locat[0].longitude.toString();
+                                //               deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //             });
+                                //             Navigator.pop(context);
+                                //           }catch(e){
+                                //             Navigator.pop(context);
+                                //           }
+                                //         },
+                                //         title: Text(
+                                //           '${e.trim()}',
+                                //           style: TextStyle(
+                                //               fontFamily: poppins,
+                                //               color: Colors.grey,
+                                //               fontSize: 13),
+                                //         ),
+                                //         trailing:
+                                //         deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //         Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                //         Container(height:0,width:0),
+                                //       );
+                                //     }).toList(),
+                                //     // [
+                                //     //   ListTile(
+                                //     //     title: Text(
+                                //     //       '${userAddress.trim()}',
+                                //     //       style: TextStyle(
+                                //     //           fontFamily: poppins,
+                                //     //           color: Colors.grey,
+                                //     //           fontSize: 13),
+                                //     //     ),
+                                //     //     trailing:
+                                //     //     Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                //     //   ),
+                                //     // ]
+                                // ),
                                 GestureDetector(
                                   onTap: (){
                                     Navigator.push(

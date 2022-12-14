@@ -1231,19 +1231,21 @@ class _HomeScreenState extends State<HomeScreen> {
     //     .locationFromAddress("Street No.10,Coimbatore,Coimbatore,641107");
 
     geocode.Placemark place = placemarks[0];
-
-    print(placemarks);
+    print("Placemarks...");
+    print(placemarks[0]);
 
     setState(() {
       latude = lat;
       longtude = long;
+      var locationAddress = placemarks[0].subLocality.toString()+","+placemarks[0].locality.toString()+","+placemarks[0].administrativeArea.toString()+","
+      +placemarks[0].postalCode.toString()+","+placemarks[0].country.toString();
       if (place.subLocality.toString().isEmpty) {
         userLocalityAdr = '${place.locality}';
       } else {
         userLocalityAdr = '${place.subLocality}';
       }
       userMainLocation = '${place.locality}';
-      prefs.setString("userCurrentLocation", userLocalityAdr);
+      prefs.setString("userCurrentLocation", locationAddress);
       prefs.setString("userMainLocation", place.locality.toString());
     });
   }
@@ -1838,26 +1840,25 @@ class _HomeScreenState extends State<HomeScreen> {
     var pref = await SharedPreferences.getInstance();
 
     try{
-
       if (predictedAddress.isNotEmpty) {
         List<geocode.Location> location =
         await geocode
             .locationFromAddress(
             predictedAddress);
-        print(location);
-        setState(() async{
+        print(location[0]);
+        setState(() {
           userLat = location[0].latitude;
           userLong = location[0].longitude;
-
-          pref.setString(
-              'userLatitute', "${userLat}");
-          pref.setString('userLongtitude',
-              "${userLong}");
-          pref.setString(
-              "userCurrentLocation",
-              predictedAddress);
-          userLocalityAdr =
-              predictedAddress;
+          // pref.setString(
+          //     'userLatitute', "${userLat}");
+          // pref.setString('userLongtitude',
+          //     "${userLong}");
+          // pref.setString(
+          //     "userCurrentLocation",
+          //     predictedAddress);
+          // userLocalityAdr =
+          //     predictedAddress;
+          GetAddressFromLatLong(userLat, userLong);
           getVendorForDeliveryto(authToken);
           //getHampers();
           getCakeList();
@@ -1872,16 +1873,11 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     }catch(e){
-      print(e);
+      print("Coor error : $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Unable to get location details..."))
       );
     }
-
-
-    print(location);
-
-    print(calculateDistance(latude, longtude, 11.1412209  , 77.21523169999999));
 
   }
 
@@ -2490,7 +2486,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.black54,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: poppins,
-                                  fontSize: 13),
+                                  fontSize: 13
+                              ),
                             )
                           ],
                         ),
@@ -2515,105 +2512,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         hint: "Type location...",
                                         strictbounds: false,
                                         logo: Text(""),
-                                        // region: "in",
-                                        // types: [
-                                        //   "accounting"
-                                        //   'airport'
-                                        //   'amusement_park'
-                                        //   'aquarium'
-                                        //   'art_gallery'
-                                        //   'atm'
-                                        //   'bakery'
-                                        //   'bank'
-                                        //   'bar'
-                                        //   'beauty_salon'
-                                        //   'bicycle_store'
-                                        //   'book_store'
-                                        //   'bowling_alley'
-                                        //   'bus_station'
-                                        //   'cafe'
-                                        //   'campground'
-                                        //   'car_dealer'
-                                        //   'car_rental'
-                                        //   'car_repair'
-                                        //   'car_wash'
-                                        //   'casino'
-                                        //   'cemetery'
-                                        //   'church'
-                                        //   'city_hall'
-                                        //   'clothing_store'
-                                        //   'convenience_store'
-                                        //   'courthouse'
-                                        //   'dentist'
-                                        //   'department_store'
-                                        //   'doctor'
-                                        //   'drugstore'
-                                        //   'electrician'
-                                        //   'electronics_store'
-                                        //   'embassy'
-                                        //   'fire_station'
-                                        //   'florist'
-                                        //   'funeral_home'
-                                        //   'furniture_store'
-                                        //   'gas_station'
-                                        //   'gym'
-                                        //   'hair_care'
-                                        //   'hardware_store'
-                                        //   'hindu_temple'
-                                        //   'home_goods_store'
-                                        //   'hospital'
-                                        //   'insurance_agency'
-                                        //   'jewelry_store'
-                                        //   'laundry'
-                                        //   'lawyer'
-                                        //   'library'
-                                        //   'light_rail_station'
-                                        //   'liquor_store'
-                                        //   'local_government_office'
-                                        //   'locksmith'
-                                        //   'lodging'
-                                        //   'meal_delivery'
-                                        //   'meal_takeaway'
-                                        //   'mosque'
-                                        //   'movie_rental'
-                                        //   'movie_theater'
-                                        //   'moving_company'
-                                        //   'museum'
-                                        //   'night_club'
-                                        //   'painter'
-                                        //   'park'
-                                        //   'parking'
-                                        //   'pet_store'
-                                        //   'pharmacy'
-                                        //   'physiotherapist'
-                                        //   'plumber'
-                                        //   'police'
-                                        //   'post_office'
-                                        //   'primary_school'
-                                        //   'real_estate_agency'
-                                        //   'restaurant'
-                                        //   'roofing_contractor'
-                                        //   'rv_park'
-                                        //   'school'
-                                        //   'secondary_school'
-                                        //   'shoe_store'
-                                        //   'shopping_mall'
-                                        //   'spa'
-                                        //   'stadium'
-                                        //   'storage'
-                                        //   'store'
-                                        //   'subway_station'
-                                        //   'supermarket'
-                                        //   'synagogue'
-                                        //   'taxi_stand'
-                                        //   'tourist_attraction'
-                                        //   'train_station'
-                                        //   'transit_station'
-                                        //   'travel_agency'
-                                        //   'university'
-                                        //   'veterinary_care'
-                                        //   'zoo'
-                                        // ],
                                         types: [],
                                         apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
                                         onError: (e){
@@ -2646,7 +2544,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(width: 5,),
                             GestureDetector(
                               onTap: () async{
+
                                 FocusScope.of(context).unfocus();
+
+                                // final result = await Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(builder: (context) =>LocationScreen()),
+                                // );
+                                //
+                                // if(!mounted) return;
+                                //
+                                // print("Popped result form .... $result");
+                                //
+                                // if(result!=null){
+                                //   getCoordinates(result.toString());
+                                // }
                                 var placeResult = await PlacesAutocomplete.show(
                                   context: context,
                                   mode: Mode.overlay,
@@ -2654,105 +2566,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   hint: "Type location...",
                                   strictbounds: false,
                                   logo: Text(""),
-                                  // region: "in",
-                                  // types: [
-                                  //   "accounting"
-                                  //   'airport'
-                                  //   'amusement_park'
-                                  //   'aquarium'
-                                  //   'art_gallery'
-                                  //   'atm'
-                                  //   'bakery'
-                                  //   'bank'
-                                  //   'bar'
-                                  //   'beauty_salon'
-                                  //   'bicycle_store'
-                                  //   'book_store'
-                                  //   'bowling_alley'
-                                  //   'bus_station'
-                                  //   'cafe'
-                                  //   'campground'
-                                  //   'car_dealer'
-                                  //   'car_rental'
-                                  //   'car_repair'
-                                  //   'car_wash'
-                                  //   'casino'
-                                  //   'cemetery'
-                                  //   'church'
-                                  //   'city_hall'
-                                  //   'clothing_store'
-                                  //   'convenience_store'
-                                  //   'courthouse'
-                                  //   'dentist'
-                                  //   'department_store'
-                                  //   'doctor'
-                                  //   'drugstore'
-                                  //   'electrician'
-                                  //   'electronics_store'
-                                  //   'embassy'
-                                  //   'fire_station'
-                                  //   'florist'
-                                  //   'funeral_home'
-                                  //   'furniture_store'
-                                  //   'gas_station'
-                                  //   'gym'
-                                  //   'hair_care'
-                                  //   'hardware_store'
-                                  //   'hindu_temple'
-                                  //   'home_goods_store'
-                                  //   'hospital'
-                                  //   'insurance_agency'
-                                  //   'jewelry_store'
-                                  //   'laundry'
-                                  //   'lawyer'
-                                  //   'library'
-                                  //   'light_rail_station'
-                                  //   'liquor_store'
-                                  //   'local_government_office'
-                                  //   'locksmith'
-                                  //   'lodging'
-                                  //   'meal_delivery'
-                                  //   'meal_takeaway'
-                                  //   'mosque'
-                                  //   'movie_rental'
-                                  //   'movie_theater'
-                                  //   'moving_company'
-                                  //   'museum'
-                                  //   'night_club'
-                                  //   'painter'
-                                  //   'park'
-                                  //   'parking'
-                                  //   'pet_store'
-                                  //   'pharmacy'
-                                  //   'physiotherapist'
-                                  //   'plumber'
-                                  //   'police'
-                                  //   'post_office'
-                                  //   'primary_school'
-                                  //   'real_estate_agency'
-                                  //   'restaurant'
-                                  //   'roofing_contractor'
-                                  //   'rv_park'
-                                  //   'school'
-                                  //   'secondary_school'
-                                  //   'shoe_store'
-                                  //   'shopping_mall'
-                                  //   'spa'
-                                  //   'stadium'
-                                  //   'storage'
-                                  //   'store'
-                                  //   'subway_station'
-                                  //   'supermarket'
-                                  //   'synagogue'
-                                  //   'taxi_stand'
-                                  //   'tourist_attraction'
-                                  //   'train_station'
-                                  //   'transit_station'
-                                  //   'travel_agency'
-                                  //   'university'
-                                  //   'veterinary_care'
-                                  //   'zoo'
-                                  // ],
                                   types: [],
                                   apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
                                   onError: (e){
@@ -2760,7 +2573,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   components: [new wbservice.Component(wbservice.Component.country, "in")],
                                 );
-
                                 if(placeResult == null){
 
                                 }else{
@@ -2868,6 +2680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       });
                       setState(() {
                         loadPrefs();
+                        checkLocationPermission();
                       });
                     },
                     child: SingleChildScrollView(

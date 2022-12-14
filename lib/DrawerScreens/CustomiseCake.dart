@@ -1155,7 +1155,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             'Flavour': jsonEncode(tempList),
             'Shape': fixedShape,
             'Weight': fixedWeight+'kg',
-            'DeliveryAddress': deliverAddress,
+            'DeliveryAddress': userCurLocation,
             'DeliveryDate': fixedDate,
             'DeliverySession': fixedSession,
             'DeliveryInformation': fixedDelliverMethod,
@@ -3133,7 +3133,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   crossAxisAlignment:CrossAxisAlignment.center,
                                   children:[
                                     Expanded(
-                                      child:Text('$deliverAddress',
+                                      child:Text('$userCurLocation',
                                         style: TextStyle(fontFamily: poppins,color: Color(0xffaeaeae),fontSize: 13),
                                       ),
                                     ),

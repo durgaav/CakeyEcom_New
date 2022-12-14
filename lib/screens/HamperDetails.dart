@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:cakey/PaymentGateway.dart';
 import 'package:cakey/screens/HamperCheckout.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -147,6 +148,24 @@ class _HamperDetailsState extends State<HamperDetails> {
             ),
           );
         });
+  }
+
+
+  void navigateToCheckout() async{
+
+    var paymentObj = {
+      "img":"https://media.bakingo.com/sq-choco-vanilla-cake0006chva-AA.jpg",
+      "name":"My Cake Name",
+      "egg":eggOregless,
+      "price":500,
+      "vendor":"Surya...",
+      "type":"Hampers",
+      "details":{}
+    };
+
+    Navigator.push(context, MaterialPageRoute(builder: (c)=>PaymentGateway(
+      paymentObjs:paymentObj,
+    )));
   }
 
   //prev screen details
@@ -2386,17 +2405,19 @@ class _HamperDetailsState extends State<HamperDetails> {
                           //
                           // print("Final $amount");
 
-                          if(deliverDate.toLowerCase()=="select delivery date" ||
-                              deliverSession.toLowerCase()=="select delivery time")
-                          {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text("Please Select Deliver Date / Deliver Session"),
-                                    behavior: SnackBarBehavior.floating,
-                                ));
-                          }else{
-                            passToCheckout();
-                          }
+                          // if(deliverDate.toLowerCase()=="select delivery date" ||
+                          //     deliverSession.toLowerCase()=="select delivery time")
+                          // {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //       SnackBar(
+                          //           content: Text("Please Select Deliver Date / Deliver Session"),
+                          //           behavior: SnackBarBehavior.floating,
+                          //       ));
+                          // }else{
+                          //   passToCheckout();
+                          // }
+
+                          navigateToCheckout();
 
                         },
                         color: lightPink,
