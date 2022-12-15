@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:cakey/PaymentGateway.dart';
+import 'package:cakey/ShowToFarDialog.dart';
 import 'package:cakey/screens/HamperCheckout.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -108,7 +109,9 @@ class _HamperDetailsState extends State<HamperDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = 0;
+  var deliverAddressIndex = -1;
+
+  var tooFar = false;
 
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -334,7 +337,6 @@ class _HamperDetailsState extends State<HamperDetails> {
       ),
     );
   }
-
 
   @override
   void initState() {
@@ -869,6 +871,12 @@ class _HamperDetailsState extends State<HamperDetails> {
                             for (int i = 0; i < picOrDel.length; i++) {
                               if (i == index) {
                                 fixedDelliverMethod = picOrDeliver[i];
+                                if(fixedDelliverMethod.toLowerCase()=="pickup"){
+                                  tooFar = false;
+                                }else{
+                                  tooFar = true;
+                                  deliverAddressIndex = -1;
+                                }
                                 picOrDel[i] = true;
                               } else {
                                 picOrDel[i] = false;
@@ -1285,13 +1293,14 @@ class _HamperDetailsState extends State<HamperDetails> {
                                             userLatitude = locat[0].latitude.toString();
                                             userLongtitude = locat[0].longitude.toString();
                                             deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                            tooFar = false;
                                           });
                                           Navigator.pop(context);
                                           if(calculateDistance(double.parse(userLatitude),
                                               double.parse(userLongtitude), venLocation[0].latitude, venLocation[0].longitude)>10.0){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Selected Delivery Address Is Too Far..."))
-                                            );
+                                            tooFar = true;
+                                            TooFarDialog().showTooFarDialog(context,e);
+                                            //showTooFarDialog();
                                           }
                                         }catch(e){
                                           print("Error... $e");
@@ -1608,6 +1617,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                     height: 30,
                   ),
 
+                  tooFar?
+                  Container():
                   Center(
                     child: Container(
                       height: 50,
@@ -1619,9 +1630,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                             borderRadius: BorderRadius.circular(25)),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-
                           // int charge = 0;
-                          //
+                          //deliverAddressIndex
                           // if(fixedDelliverMethod.toLowerCase()=="delivery"){
                           //   charge = deliveryCharge;
                           // }else{
@@ -1645,9 +1655,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                           // }else{
                           //   passToCheckout();
                           // }
-
                           navigateToCheckout();
-
                         },
                         color: lightPink,
                         child: Text(

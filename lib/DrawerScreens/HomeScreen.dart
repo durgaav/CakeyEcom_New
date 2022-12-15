@@ -1726,7 +1726,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       else {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.reasonPhrase.toString()))
+            SnackBar(content: Text("Error : "+response.reasonPhrase.toString()))
         );
       }
     }catch(e){
@@ -1774,7 +1774,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } on SocketException catch (_) {
       NetworkDialog().showNoNetworkAlert(context);
-      print('not connected');
+      print('not  connected');
     }
   }
 
@@ -2023,7 +2023,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // )
                         Icon(Icons.my_location_rounded,size: 60,color:lightPink,),
                         SizedBox(height: 15,),
-                        Text("To continue with your\ncurrent location",style: TextStyle(
+                        Text("To get better service please allow location permission.",style: TextStyle(
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,
                             fontSize: 16
@@ -2060,36 +2060,36 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),),
                           ),
                         ),
-                        SizedBox(height: 20,),
-                        Row(
-                          children: [
-                            Expanded(child: Container(
-                              height:height*0.001,
-                              color:Colors.grey,
-                              margin: EdgeInsets.only(right: 5),
-                            )),
-                            Text(" OR ",style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16
-                            ),),
-                            Expanded(child: Container(
-                              height:height*0.001,
-                              color:Colors.grey,
-                              margin: EdgeInsets.only(left: 5),
-                            )),
-                          ],
-                        ),
-                        SizedBox(height: 15,),
-                        Text("Select location manually",style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),),
+                        // SizedBox(height: 20,),
+                        // Row(
+                        //   children: [
+                        //     Expanded(child: Container(
+                        //       height:height*0.001,
+                        //       color:Colors.grey,
+                        //       margin: EdgeInsets.only(right: 5),
+                        //     )),
+                        //     Text(" OR ",style: TextStyle(
+                        //         fontFamily: "Poppins",
+                        //         fontWeight: FontWeight.bold,
+                        //         fontSize: 16
+                        //     ),),
+                        //     Expanded(child: Container(
+                        //       height:height*0.001,
+                        //       color:Colors.grey,
+                        //       margin: EdgeInsets.only(left: 5),
+                        //     )),
+                        //   ],
+                        // ),
+                        // SizedBox(height: 15,),
+                        // Text("",style: TextStyle(
+                        //     fontFamily: "Poppins",
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 16
+                        // ),),
                         SizedBox(height: 15,),
                         GestureDetector(
                           onTap:() async{
-
+                            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
                           },
                           child: Container(
                             height:height*0.06,
@@ -2099,7 +2099,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: darkBlue,
                                 borderRadius: BorderRadius.circular(20)
                             ),
-                            child: Text("Select Location",style: TextStyle(
+                            child: Text("Cancel",style: TextStyle(
                                 fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,
                                 color:Colors.white
@@ -2142,8 +2142,13 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () async {
+      var pr = await SharedPreferences.getInstance();
+      if(pr.getString('showMoreVendor')!=null&&pr.getString('showMoreVendor')!="null"){
+        checkLocationPermission();
+      }else{
+        checkLocationPermission();
+      }
       //loadPrefs();
-      checkLocationPermission();
     });
   }
 

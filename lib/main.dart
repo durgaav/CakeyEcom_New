@@ -16,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Notification/Notification.dart';
 
 
@@ -82,6 +83,10 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     // TODO: implement dispose
     sub.cancel();
+    Future.delayed(Duration.zero,() async{
+      var pr = await SharedPreferences.getInstance();
+      pr.setString("showMoreVendor", "null");
+    });
     super.dispose();
   }
 
@@ -92,6 +97,10 @@ class _MyAppState extends State<MyApp> {
       print("Con status.... ${event}");
       handleNetwork(event);
       //ConnectivityResult.none
+    });
+    Future.delayed(Duration.zero,() async{
+      var pr = await SharedPreferences.getInstance();
+      pr.setString("showMoreVendor", "null");
     });
     // TODO: implement initState
     messaging = FirebaseMessaging.instance;
