@@ -132,6 +132,13 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   String userLongtitude = "";
   String deliveryChargeCustomer = "";
 
+  var itemTotal = 0.0;
+  var deliveryTotal = 0.0;
+  var discountTotal = 0.0;
+  var gstTotal = 0.0;
+  var sgstTotal = 0.0;
+  var totalBillAmount = 0.0;
+
 
   var couponCtrl = new TextEditingController();
 
@@ -295,7 +302,16 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                   if(paymentType.toLowerCase()=="online payment"){
                     _handleOrder();
                   }else{
-                    proceedOrder(amount);
+                    // proceedOrder(amount);
+                    if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
+                      handleHamperOrder();
+                    }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
+
+                    }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
+
+                    }else{
+
+                    }
                   }
                 },
                 child: Text('Ok',
@@ -369,14 +385,93 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   //region Functions
 
+  //calculations
+  Future<void> handleCalculations(int tax,var data) async{
+
+    var productPriceUI = data['price'];
+    var deliveryChargeUI = data['deliverCharge'];
+    var discountsUI = data['discount'];
+    var countUI = data['count'];
+    var extraChargeUI = data['count'];
+
+    print('Del charge $deliveryChargeUI');
+
+    if(data['type'].toString().toLowerCase()=="hamper"){
+      //price + counts
+      var initialPrice = double.parse(productPriceUI)*double.parse(countUI.toString());
+
+      //initial + deliver charge
+      var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
+
+      //gstAmt = second * tax/100
+      var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
+
+      //discount = secondCalculate + thirdCalculateTax * discount / 100
+      var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
+      double.parse(discountsUI.toString()))/100;
+
+      // print("Calculations....");
+      // print(initialPrice);
+      // print(secondCalculatePrice);
+      // print(thirdCalculateTax);
+      // print(fourthCalculateDiscount);
+      //
+      // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
+      //
+      // print("Calculations****");
+
+      setState(() {
+        itemTotal = initialPrice;
+        deliveryTotal = double.parse(deliveryChargeUI.toString());
+        discountTotal = double.parse(fourthCalculateDiscount.toString());
+        taxes = (tax/2).toInt();
+        gstTotal = thirdCalculateTax/2;
+        sgstTotal = thirdCalculateTax/2;
+        totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
+      });
+    }else if(data['type'].toString().toLowerCase()=="cakes"){
+      //price + counts
+      var initialPrice = double.parse(productPriceUI)*double.parse(countUI.toString());
+
+      //initial + deliver charge
+      var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
+
+      //gstAmt = second * tax/100
+      var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
+
+      //discount = secondCalculate + thirdCalculateTax * discount / 100
+      var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
+          double.parse(discountsUI.toString()))/100;
+
+      // print("Calculations....");
+      // print(initialPrice);
+      // print(secondCalculatePrice);
+      // print(thirdCalculateTax);
+      // print(fourthCalculateDiscount);
+      //
+      // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
+      //
+      // print("Calculations****");
+
+      setState(() {
+        itemTotal = initialPrice;
+        deliveryTotal = double.parse(deliveryChargeUI.toString());
+        discountTotal = double.parse(fourthCalculateDiscount.toString());
+        taxes = (tax/2).toInt();
+        gstTotal = thirdCalculateTax/2;
+        sgstTotal = thirdCalculateTax/2;
+        totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
+      });
+    }
+
+  }
+
   //handle razor pay order here...
   void _handleOrder() async{
 
     showAlertDialog();
 
-    var amount = ( ((
-        (double.parse(cakePrice)*counts) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice+gstPrice+sgstPrice).toStringAsFixed(2);
+    var amount = totalBillAmount.toStringAsFixed(2);
 
     var headers = {
       'Content-Type': 'application/json',
@@ -416,15 +511,13 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
     print("Test ord id : $orderId");
 
-    var amount = ( ((
-        (double.parse(cakePrice)*counts) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice+sgstPrice+gstPrice).toStringAsFixed(2);
+    //var amount = Bill.toStringAsFixed(2);
 
     var options = {
       'key': 'rzp_test_b42mo2s6NVrs7t',
-      'amount': double.parse(amount.toString())*100, //in the smallest currency sub-unit.
+      'amount': double.parse(amt.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
-      'order_id': "$orderId", // Generate order_id using Orders API
+      'order_id': orderId, // Generate order_id using Orders API
       'description': '$cakeName',
       'timeout': 300, // in seconds
       'prefill': {
@@ -563,14 +656,15 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
     var pref = await SharedPreferences.getInstance();
 
+    setState(() {
+      userModId = pref.getString("userModId") ?? '';
+      userID = pref.getString("userID") ?? '';
+      userName = pref.getString("userName") ?? '';
+      userPhone = pref.getString("phoneNumber") ?? '';
+      authToken = pref.getString("authToken") ?? '';
+    });
+
     showAlertDialog();
-
-    double myTax = 0;
-    double myPrice = counts * double.parse(cakePrice);
-
-    //prefs.setDouble('orderCakeGst', gst);
-    //prefs.setDouble('orderCakeSGst', sgst);
-    //prefs.setInt('orderCakeTaxperc', taxes??0);
 
     try{
       var headers = {
@@ -582,31 +676,33 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
       http.StreamedResponse response = await request.send();
 
-      if (response.statusCode == 200) {
+      List map = jsonDecode(await response.stream.bytesToString());
 
-        List map = jsonDecode(await response.stream.bytesToString());
+      print(map);
+
+      if (response.statusCode == 200) {
 
         Navigator.pop(context);
         setState(() {
-          taxes = int.parse(map[0]['Total_GST']);
-          myTax = (myPrice * taxes)/100;
-          gstPrice = myTax/2;
-          sgstPrice = myTax/2;
-
+          // taxes = int.parse(map[0]['Total_GST']);
+          // myTax = (myPrice * taxes)/100;
+          // gstPrice = myTax/2;
+          // sgstPrice = myTax/2;
           // pref.setDouble('orderCakeGst', gstPrice);
           // pref.setDouble('orderCakeSGst', sgstPrice);
           // pref.setInt('orderCakeTaxperc', taxes??0);
-
+          handleCalculations(int.parse(map[0]['Total_GST']), paymentObjs);
         });
         print(map);
       }
       else {
+        print(map);
         Navigator.pop(context);
         setState(() {
-          taxes = int.parse("0");
-          myTax = (myPrice * taxes)/100;
-          gstPrice = myTax/2;
-          sgstPrice = myTax/2;
+          // taxes = int.parse("0");
+          // myTax = (myPrice * taxes)/100;
+          // gstPrice = myTax/2;
+          // sgstPrice = myTax/2;
 
           // pref.setDouble('orderCakeGst', gstPrice);
           // pref.setDouble('orderCakeSGst', sgstPrice);
@@ -615,13 +711,13 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         print(response.reasonPhrase);
       }
     }catch(e){
+      print(e);
       Navigator.pop(context);
       setState(() {
-        taxes = int.parse("0");
-        myTax = (myPrice * taxes)/100;
-        gstPrice = myTax/2;
-        sgstPrice = myTax/2;
-
+        // taxes = int.parse("0");
+        // myTax = (myPrice * taxes)/100;
+        // gstPrice = myTax/2;
+        // sgstPrice = myTax/2;
         // pref.setDouble('orderCakeGst', gstPrice);
         // pref.setDouble('orderCakeSGst', sgstPrice);
         // pref.setInt('orderCakeTaxperc', taxes??0);
@@ -629,7 +725,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     }
 
   }
-
 
   Future<void> sendNotificationToVendor(String? NoId) async{
 
@@ -671,10 +766,21 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     // Do something when payment succeeds
     print("Pay success : "+response.paymentId.toString());
     // _capturePayment(response.paymentId.toString());
-    var amount = ( ((
-        (double.parse(cakePrice)*counts) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
-    proceedOrder(amount);
+    // var amount = ( ((
+    //     (double.parse(cakePrice)*counts) + deliveryCharge
+    // ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
+    // proceedOrder(amount);
+
+    if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
+      handleHamperOrder();
+    }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
+
+    }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
+
+    }else{
+
+    }
+
     // showPaymentDoneAlert("done");
   }
 
@@ -688,6 +794,108 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     // Do something when an external wallet is selected
     print("wallet : "+response.toString());
     // showPaymentDoneAlert("failed");
+  }
+
+  //make hamper order
+  Future<void> handleHamperOrder() async{
+    var obj = paymentObjs['details'];
+    showAlertDialog();
+    try{
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/hamperorder/new'));
+      request.body = json.encode({
+        "HamperID":obj['_id'],
+        "Hamper_ID":obj['Id'],
+        "HampersName": obj['HampersName'],
+        "Product_Contains":obj['Product_Contains'],
+        "HamperImage": obj['HamperImage'],
+        "Description":obj['Description'],
+        "VendorID": obj['VendorID'],
+        "Vendor_ID": obj['Vendor_ID'],
+        "VendorName": obj['VendorName'],
+        "EggOrEggless": obj['EggOrEggless'],
+        "VendorPhoneNumber1": obj['VendorPhoneNumber1'],
+        "VendorPhoneNumber2": obj['VendorPhoneNumber2'].toString(),
+        "VendorAddress":obj['VendorAddress'],
+        "GoogleLocation": {
+          "Latitude": obj['GoogleLocation']['Latitude'],
+          "Longitude": obj['GoogleLocation']['Longitude']
+        },
+        "UserID":userID,
+        "User_ID":userModId,
+        "UserName":userName,
+        "UserPhoneNumber":userPhone,
+        "DeliveryAddress":paymentObjs['deliveryAddress'],
+        "DeliveryDate": paymentObjs['deliverDate'],
+        "DeliverySession": paymentObjs['deliverSession'],
+        "DeliveryInformation":paymentObjs['deliverType'],
+        "Discount":discountTotal,
+        "Price":itemTotal,
+        "ItemCount":paymentObjs['count'],
+        "DeliveryCharge":deliveryTotal,
+        "Gst":gstTotal,
+        "Sgst":sgstTotal,
+        "Tax":taxes*2,
+        "Total":totalBillAmount,
+        "Weight": obj['Weight'],
+        "Title": obj['Title'],
+        "PaymentType": paymentType,
+        "PaymentStatus":paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
+      });
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        var map = jsonDecode(await response.stream.bytesToString());
+
+        if(map['statusCode']==200){
+          sendNotificationToVendor(notificationTid);
+        }
+
+        Navigator.pop(context);
+        showOrderCompleteSheet();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(map['message'].toString()),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ));
+
+      }
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response.reasonPhrase.toString()),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ));
+        Navigator.pop(context);
+      }
+
+    }catch(e){
+
+    }
+
+  }
+
+  //make cake order
+  Future<void> handleCakeOrder() async{
+
+    try{
+
+
+
+    }catch(e){
+
+
+
+    }
+
   }
 
   ///make the order
@@ -794,6 +1002,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       //recieveDetailsFromScreen();
+      getTaxDetails();
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -980,7 +1189,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             SizedBox(height: 5,),
                             Text.rich(
                                 TextSpan(
-                                    text:'₹ ${(double.parse(paymentObjs['price'].toString())*counts).toStringAsFixed(2)}',
+                                    text:'₹ ${itemTotal.toStringAsFixed(2)}',
                                     style: TextStyle(
                                         fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                         fontFamily: "Poppins"),
@@ -1197,7 +1406,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                 padding: EdgeInsets.all(15),
                                 message: "Item total depends on item count/selected shape,flavour,article,weight",
                                 child:
-                                Text('₹ ${(double.parse(cakePrice)*counts).toStringAsFixed(2)}'
+                                Text('₹ ${itemTotal.toStringAsFixed(2)}'
                                   ,style: const TextStyle(fontWeight: FontWeight.bold),)
 
                             ),
@@ -1214,7 +1423,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                               fontFamily: "Poppins",
                               color: Colors.black54,
                             ),),
-                            Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text('₹ ${deliveryTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -1234,7 +1443,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                       padding:EdgeInsets.only(right:5),
                                       child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${discountTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1256,7 +1465,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                       padding:EdgeInsets.only(right:5),
                                       child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${gstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1278,7 +1487,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                       padding:EdgeInsets.only(right:5),
                                       child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
-                                  Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('₹ ${sgstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
                             )
                           ],
@@ -1301,10 +1510,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                 fontWeight: FontWeight.bold
                             ),),
 
-                            Text('₹ ${
-                                ( ((
-                                    (double.parse(cakePrice)*counts) + deliveryCharge
-                                ) - tempDiscountPrice) - discountPrice+gstPrice+sgstPrice).toStringAsFixed(2)
+                            Text('₹ ${totalBillAmount.toStringAsFixed(2)
                             }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
                           ],
                         ),

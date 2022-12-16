@@ -22,7 +22,9 @@ import '../ContextData.dart';
 import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/CustomiseCake.dart';
 import '../DrawerScreens/Notifications.dart';
+import '../PaymentGateway.dart';
 import '../ProfileDialog.dart';
+import '../ShowToFarDialog.dart';
 import '../drawermenu/app_bar.dart';
 import 'AddressScreen.dart';
 import 'Profile.dart';
@@ -32,16 +34,18 @@ import 'package:expandable_text/expandable_text.dart';
 class CakeDetails extends StatefulWidget {
   // const CakeDetails({Key? key}) : super(key: key);
   List shapes, flavour, articals , cakeTiers , tiersDelTimes;
-  CakeDetails(this.shapes, this.flavour, this.articals ,this.cakeTiers ,this.tiersDelTimes);
+  var data = {};
+  CakeDetails(this.shapes, this.flavour, this.articals ,this.cakeTiers ,this.tiersDelTimes,this.data);
 
   @override
   State<CakeDetails> createState() =>
-      _CakeDetailsState(shapes, flavour, articals , cakeTiers , tiersDelTimes);
+      _CakeDetailsState(shapes, flavour, articals , cakeTiers , tiersDelTimes,data);
 }
 
 class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   List shapes, flavour, articals , cakeTiers , tiersDelTimes;
-  _CakeDetailsState(this.shapes, this.flavour, this.articals , this.cakeTiers , this.tiersDelTimes);
+  var data = {};
+  _CakeDetailsState(this.shapes, this.flavour, this.articals , this.cakeTiers , this.tiersDelTimes,this.data);
 
 
   //region VARIABLES
@@ -50,6 +54,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
   Color lightGrey = Color(0xffF5F5F5);
+
+  var tooFar = false;
 
   //bool
   bool newRegUser = false;
@@ -1121,6 +1127,38 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
   //region FUNCTIONS
 
+  //handleNavigation to pg;
+  Future<void> handleNavigation() async{
+
+    var paymentObj = {
+      "img": data['MainCakeImage'],
+      "name": data['CakeName'],
+      "egg":eggEggless,
+      "price": data['BasicCakePrice'],
+      "count":counts,
+      "vendor":data['VendorName'],
+      "type": "Cakes",
+      "details": data,
+      "deliverType": fixedDelliverMethod,
+      "deliveryAddress": "deliveryAddress",
+      "deliverDate":deliverDate,
+      "deliverSession":deliverSession,
+      "deliverCharge":fixedDelliverMethod.toLowerCase()=="pickup"?0:((adminDeliveryCharge / adminDeliveryChargeKm)*(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+          double.parse(vendorLat), double.parse(vendorLong)))),
+      "discount":0,
+    };
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (c) => PaymentGateway(
+              paymentObjs: paymentObj,
+            )
+        )
+    );
+
+  }
+
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
@@ -1704,7 +1742,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         calculateDistance(double.parse(userLatitude),double.parse(userLongtitude),
             element['GoogleLocation']['Latitude'],element['GoogleLocation']['Longitude'])<=10
         ).toList();
-
 
         nearestVendors = nearestVendors.toSet().toList();
 
@@ -4020,71 +4057,105 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ListTile(
-                                  onTap: (){
-                                    setState(() {
-                                      // userAddress = e.trim();
-                                      // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                    });
-                                  },
-                                  title: Text(
-                                    '${userAddress.trim()}',
-                                    style: TextStyle(
-                                        fontFamily: poppins,
-                                        color: Colors.grey,
-                                        fontSize: 13),
-                                  ),
-                                  trailing:
-                                  // deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,),
-                                  //Container(height:0,width:0),
-                                ),
-                                // Column(
-                                //     children:deliverAddress.map((e){
-                                //       return ListTile(
-                                //         onTap: () async{
-                                //           showAlertDialog();
-                                //           try{
-                                //             List<Location> locat = await locationFromAddress(e);
-                                //             print(locat);
-                                //             setState(() {
-                                //               userAddress = e.trim();
-                                //               userLatitude = locat[0].latitude.toString();
-                                //               userLongtitude = locat[0].longitude.toString();
-                                //               deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
-                                //             });
-                                //             Navigator.pop(context);
-                                //           }catch(e){
-                                //             Navigator.pop(context);
-                                //           }
-                                //         },
-                                //         title: Text(
-                                //           '${e.trim()}',
-                                //           style: TextStyle(
-                                //               fontFamily: poppins,
-                                //               color: Colors.grey,
-                                //               fontSize: 13),
-                                //         ),
-                                //         trailing:
-                                //         deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                //         Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                //         Container(height:0,width:0),
-                                //       );
-                                //     }).toList(),
-                                //     // [
-                                //     //   ListTile(
-                                //     //     title: Text(
-                                //     //       '${userAddress.trim()}',
-                                //     //       style: TextStyle(
-                                //     //           fontFamily: poppins,
-                                //     //           color: Colors.grey,
-                                //     //           fontSize: 13),
-                                //     //     ),
-                                //     //     trailing:
-                                //     //     Icon(Icons.check_circle, color: Colors.green ,size: 25,),
-                                //     //   ),
-                                //     // ]
+                                // ListTile(
+                                //   onTap: (){
+                                //     setState(() {
+                                //       // userAddress = e.trim();
+                                //       // deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                //     });
+                                //   },
+                                //   title: Text(
+                                //     '${userAddress.trim()}',
+                                //     style: TextStyle(
+                                //         fontFamily: poppins,
+                                //         color: Colors.grey,
+                                //         fontSize: 13),
+                                //   ),
+                                //   trailing:
+                                //   // deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                //   Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                //   //Container(height:0,width:0),
                                 // ),
+                                Column(
+                                    children:deliverAddress.map((e){
+                                      return ListTile(
+                                        onTap: () async{
+
+                                          showAlertDialog();
+                                          try {
+                                            List<Location> locat =
+                                            await locationFromAddress(e.toString().trim());
+                                            List<Location> venLocation = await locationFromAddress(vendorAddress.trim());
+                                            print(locat);
+                                            setState(() {
+                                              userAddress = e.trim();
+                                              userLatitude =
+                                                  locat[0].latitude.toString();
+                                              userLongtitude =
+                                                  locat[0].longitude.toString();
+                                              deliverAddressIndex =
+                                                  deliverAddress.indexWhere(
+                                                          (element) => element == e);
+                                              tooFar = false;
+                                            });
+                                            Navigator.pop(context);
+                                            if (calculateDistance(
+                                                double.parse(userLatitude),
+                                                double.parse(userLongtitude),
+                                                venLocation[0].latitude,
+                                                venLocation[0].longitude) >
+                                                10.0) {
+                                              tooFar = true;
+                                              TooFarDialog().showTooFarDialog(context, e);
+                                              //showTooFarDialog();
+                                            }
+                                          } catch (e) {
+                                            print("Error... $e");
+                                            Navigator.pop(context);
+                                          }
+
+                                          // showAlertDialog();
+                                          // try{
+                                          //   List<Location> locat = await locationFromAddress(e);
+                                          //   print(locat);
+                                          //   setState(() {
+                                          //     userAddress = e.trim();
+                                          //     userLatitude = locat[0].latitude.toString();
+                                          //     userLongtitude = locat[0].longitude.toString();
+                                          //     deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                          //   });
+                                          //   Navigator.pop(context);
+                                          // }catch(e){
+                                          //   Navigator.pop(context);
+                                          // }
+                                        },
+                                        title: Text(
+                                          '${e.trim()}',
+                                          style: TextStyle(
+                                              fontFamily: poppins,
+                                              color: Colors.grey,
+                                              fontSize: 13),
+                                        ),
+                                        trailing:
+                                        deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
+                                        Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                        Container(height:0,width:0),
+                                      );
+                                    }).toList(),
+                                    // [
+                                    //   ListTile(
+                                    //     title: Text(
+                                    //       '${userAddress.trim()}',
+                                    //       style: TextStyle(
+                                    //           fontFamily: poppins,
+                                    //           color: Colors.grey,
+                                    //           fontSize: 13),
+                                    //     ),
+                                    //     trailing:
+                                    //     Icon(Icons.check_circle, color: Colors.green ,size: 25,),
+                                    //   ),
+                                    // ]
+                                ),
                                 GestureDetector(
                                   onTap: (){
                                     Navigator.push(
@@ -4867,6 +4938,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   height: 15,
                                 ),
                                 //final Button
+                                tooFar?
+                                Container():
                                 Center(
                                   child: Container(
                                     height: 50,
@@ -4880,46 +4953,47 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       onPressed: () async {
                                         FocusScope.of(context).unfocus();
 
-                                        if (newRegUser == true) {
-                                          ProfileAlert().showProfileAlert(context);
-                                          print(dayMinConverter("2days"));
-                                          print(dayMinConverter("26hours"));
-                                          print(basicCakeWeight);
-                                          print(customweightCtrl.text);
-                                        } else {
-                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
-                                              <double.parse(basicCakeWeight
-                                          .toLowerCase().replaceAll("kg", ""))){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text("Minimum weight is $basicCakeWeight...")
-                                                )
-                                            );
-                                          }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
-                                              customweightCtrl.text.startsWith("0")&&
-                                                  customweightCtrl.text.endsWith("0")){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text("Please enter correct weight or select weight!")
-                                                )
-                                            );
-                                          }
-                                          else if(deliverDate.toLowerCase()=="select delivery date"){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Please select deliver date"))
-                                            );
-                                          }else if(deliverSession.toLowerCase()=="select delivery time"){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select deliver session"))
-                                            );
-                                          }else if(fixedDelliverMethod.isEmpty){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select pickup or delivery"))
-                                            );
-                                          }else{
-                                            loadOrderPreference();
-                                          }
-                                        }
+                                        // if (newRegUser == true) {
+                                        //   ProfileAlert().showProfileAlert(context);
+                                        //   print(dayMinConverter("2days"));
+                                        //   print(dayMinConverter("26hours"));
+                                        //   print(basicCakeWeight);
+                                        //   print(customweightCtrl.text);
+                                        // } else {
+                                        //   if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
+                                        //       <double.parse(basicCakeWeight
+                                        //   .toLowerCase().replaceAll("kg", ""))){
+                                        //     ScaffoldMessenger.of(context).showSnackBar(
+                                        //         SnackBar(
+                                        //             content: Text("Minimum weight is $basicCakeWeight...")
+                                        //         )
+                                        //     );
+                                        //   }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
+                                        //       customweightCtrl.text.startsWith("0")&&
+                                        //           customweightCtrl.text.endsWith("0")){
+                                        //     ScaffoldMessenger.of(context).showSnackBar(
+                                        //         SnackBar(
+                                        //             content: Text("Please enter correct weight or select weight!")
+                                        //         )
+                                        //     );
+                                        //   }
+                                        //   else if(deliverDate.toLowerCase()=="select delivery date"){
+                                        //     ScaffoldMessenger.of(context).showSnackBar(
+                                        //       SnackBar(content: Text("Please select deliver date"))
+                                        //     );
+                                        //   }else if(deliverSession.toLowerCase()=="select delivery time"){
+                                        //     ScaffoldMessenger.of(context).showSnackBar(
+                                        //         SnackBar(content: Text("Please select deliver session"))
+                                        //     );
+                                        //   }else if(fixedDelliverMethod.isEmpty){
+                                        //     ScaffoldMessenger.of(context).showSnackBar(
+                                        //         SnackBar(content: Text("Please select pickup or delivery"))
+                                        //     );
+                                        //   }else{
+                                        //     loadOrderPreference();
+                                        //   }
+                                        //}
+                                        handleNavigation();
                                       },
                                       color: lightPink,
                                       child: Text(

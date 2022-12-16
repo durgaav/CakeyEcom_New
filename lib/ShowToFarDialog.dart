@@ -27,7 +27,7 @@ class TooFarDialog{
             TextButton(onPressed:(){
               Navigator.pop(context);
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c)=>HomeScreen()), (route) => false);
-            }, child: Text("SHOW VENDOR",style: TextStyle(color: Colors.deepPurple),)),
+            }, child: Text("SHOW VENDORS",style: TextStyle(color: Colors.deepPurple),)),
           ],
         );
       }

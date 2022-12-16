@@ -952,8 +952,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
                             SizedBox(height: 5,),
                             Text('$eggOreggless',
                                 style: TextStyle(
-                                fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                                ),
+                                fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]),
                                 overflow: TextOverflow.ellipsis,maxLines: 10),
                             // SizedBox(height: 5,),
                             Wrap(

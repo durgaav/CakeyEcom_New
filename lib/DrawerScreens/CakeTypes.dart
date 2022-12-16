@@ -2057,7 +2057,8 @@ class _CakeTypesState extends State<CakeTypes> {
             cakeFlavs,
             [],
             cakeTiers,
-            tiersDelTimes
+            tiersDelTimes,
+            cakeSearchList[index],
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
@@ -2327,7 +2328,8 @@ class _CakeTypesState extends State<CakeTypes> {
         cakeFlavs,
         [],
         cakeTiers,
-        tiersDelTimes
+        tiersDelTimes,
+        filterCakesSearchList[index]
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);

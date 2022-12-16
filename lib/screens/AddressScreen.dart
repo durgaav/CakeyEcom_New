@@ -166,7 +166,7 @@ class _AddressScreenState extends State<AddressScreen> {
           Position position = await _getGeoLocationPosition();
           List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
-          Placemark place = placemarks[1];
+          Placemark place = placemarks[0];
           print(place);
           // Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
 

@@ -18,7 +18,6 @@ import '../DrawerScreens/CustomiseCake.dart';
 import 'AddressScreen.dart';
 
 class HamperDetails extends StatefulWidget {
-
   var data = {};
   HamperDetails({required this.data});
 
@@ -27,7 +26,6 @@ class HamperDetails extends StatefulWidget {
 }
 
 class _HamperDetailsState extends State<HamperDetails> {
-
   var data = {};
   _HamperDetailsState({required this.data});
 
@@ -130,9 +128,8 @@ class _HamperDetailsState extends State<HamperDetails> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             content: Container(
               height: 75,
               child: Column(
@@ -160,24 +157,34 @@ class _HamperDetailsState extends State<HamperDetails> {
         });
   }
 
-
-  void navigateToCheckout() async{
+  void navigateToCheckout() async {
 
     var paymentObj = {
-      "img":data['HamperImage'],
-      "name":data['HampersName'],
-      "egg":data['EggOrEggless'],
-      "price":data['Price'],
-      "vendor":data['VendorName'],
-      "type":"Hamper",
-      "details":data,
-      "deliverType":fixedDelliverMethod,
-      "deliveryAddress":deliveryAddress,
+      "img": data['HamperImage'],
+      "name": data['HampersName'],
+      "egg": data['EggOrEggless'],
+      "price": data['Price'],
+      "count":counts,
+      "vendor": data['VendorName'],
+      "type": "Hamper",
+      "details": data,
+      "deliverType": fixedDelliverMethod,
+      "deliveryAddress": deliveryAddress,
+      "deliverDate":deliverDate,
+      "deliverSession":deliverSession,
+      "deliverCharge":fixedDelliverMethod.toLowerCase()=="pickup"?0:((adminDeliveryCharge / adminDeliveryChargeKm)*(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
+          double.parse(vendrorLat.toString()), double.parse(vendrorLong)))),
+      "discount":0,
     };
 
-    Navigator.push(context, MaterialPageRoute(builder: (c)=>PaymentGateway(
-      paymentObjs:paymentObj,
-    )));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (c) => PaymentGateway(
+                  paymentObjs: paymentObj,
+                )
+        )
+    );
   }
 
   //prev screen details
@@ -193,13 +200,14 @@ class _HamperDetailsState extends State<HamperDetails> {
       userLongtitude = pref.getString("userLongtitude") ?? '';
       adminDeliveryCharge = pref.getInt("todayDeliveryCharge") ?? 0;
       adminDeliveryChargeKm = pref.getInt("todayDeliveryKm") ?? 0;
-      hamImages = pref.getStringList("hamperImages")??[];
+      hamImages = pref.getStringList("hamperImages") ?? [];
       userId = pref.getString("userID") ?? '';
       user_ID = pref.getString("userModId") ?? '';
       userName = pref.getString("userName") ?? '';
       userPhone = pref.getString("phoneNumber") ?? '';
       //deliveryAddress = pref.getString("userCurrentLocation") ?? 'null';
-      deliverAddress = pref.getStringList('addressList')??[deliveryAddress.trim()];
+      deliverAddress =
+          pref.getStringList('addressList') ?? [deliveryAddress.trim()];
       cakeRatings = pref.getString("userAddress") ?? 'null';
       //hamperImage = pref.getString("hamperImage") ?? '';
       hamperName = pref.getString("hamperName") ?? '';
@@ -223,9 +231,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       productContains = pref.getStringList('hamperProducts') ?? ['No Products'];
     });
 
-    getVendor(hampVenId);
-
-    print(hamImages.length);
+    getVendor(data['VendorID'].toString());
 
   }
 
@@ -236,10 +242,10 @@ class _HamperDetailsState extends State<HamperDetails> {
 
     List forFilter = [];
 
-    try{
+    try {
       var headers = {'Authorization': '$authToken'};
-      var request = http.Request(
-          'GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+      var request = http.Request('GET',
+          Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -251,9 +257,11 @@ class _HamperDetailsState extends State<HamperDetails> {
         setState(() {
           vendorList = forFilter
               .where((element) =>
-          element['_id'].toString().toLowerCase() ==
-              id.toString().toLowerCase())
+                  element['_id'].toString().toLowerCase() ==
+                  id.toString().toLowerCase())
               .toList();
+
+          print("Vendor list $vendorList");
 
           if (vendorList.isNotEmpty) {
             vendrorName = vendorList[0]['VendorName'].toString();
@@ -274,26 +282,29 @@ class _HamperDetailsState extends State<HamperDetails> {
             vendorAddress = vendorList[0]['Address'].toString();
             deliveryCharge = double.parse(
                 ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                    (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                        double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)
-            );
+                        (calculateDistance(
+                            double.parse(userLatitude),
+                            double.parse(userLongtitude),
+                            double.parse(vendrorLat.toString()),
+                            double.parse(vendrorLong))))
+                    .toStringAsFixed(1));
+
+            print("Deliver charge : $deliveryCharge");
+
           }
         });
 
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.reasonPhrase.toString()))
-        );
+            SnackBar(content: Text(response.reasonPhrase.toString())));
         Navigator.pop(context);
       }
-    }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("error occurred"))
-      );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("error occurred")));
       Navigator.pop(context);
     }
-
   }
 
   //Buliding the dots by image length
@@ -319,17 +330,17 @@ class _HamperDetailsState extends State<HamperDetails> {
           boxShadow: [
             isActive
                 ? BoxShadow(
-              color: Color(0XFF2FB7B2).withOpacity(0.72),
-              blurRadius: 4.0,
-              spreadRadius: 1.0,
-              offset: Offset(
-                0.0,
-                0.0,
-              ),
-            )
+                    color: Color(0XFF2FB7B2).withOpacity(0.72),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: Offset(
+                      0.0,
+                      0.0,
+                    ),
+                  )
                 : BoxShadow(
-              color: Colors.transparent,
-            )
+                    color: Colors.transparent,
+                  )
           ],
           shape: BoxShape.circle,
           color: isActive ? lightPink : Color(0XFFEAEAEA),
@@ -348,7 +359,6 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   @override
   Widget build(BuildContext context) {
-
     print(data);
 
     if (context.watch<ContextData>().getAddressList().isNotEmpty) {
@@ -397,47 +407,48 @@ class _HamperDetailsState extends State<HamperDetails> {
                 flexibleSpace: FlexibleSpaceBar(
                   background: hamImages.isNotEmpty
                       ? Stack(
-                        children: [
-                          PageView.builder(
-                            onPageChanged: (int i) {
-                                setState(() {
-                                  pageViewCurIndex = i;
-                                });
-                             },
-                            itemCount: hamImages.length,
-                            itemBuilder: (c,i){
-                            var imageUrl = hamImages[i].toString().replaceAll("[", "")
-                                .replaceAll("]", "");
-                            return Container(
-                              margin: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(10),
-                                    bottomRight: Radius.circular(10)
+                          children: [
+                            PageView.builder(
+                                onPageChanged: (int i) {
+                                  setState(() {
+                                    pageViewCurIndex = i;
+                                  });
+                                },
+                                itemCount: hamImages.length,
+                                itemBuilder: (c, i) {
+                                  var imageUrl = hamImages[i]
+                                      .toString()
+                                      .replaceAll("[", "")
+                                      .replaceAll("]", "");
+                                  return Container(
+                                    margin: const EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(10),
+                                            bottomRight: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: NetworkImage("${imageUrl}"),
+                                            fit: BoxFit.cover)),
+                                  );
+                                }),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: _buildPageIndicator(),
                                   ),
-                                  image: DecorationImage(
-                                      image: NetworkImage("${imageUrl}"),
-                                      fit: BoxFit.cover)),
-                            );
-                          }),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: _buildPageIndicator(),
-                                ),
-                                SizedBox(
-                                  height: 15,
-                                )
-                              ],
+                                  SizedBox(
+                                    height: 15,
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      )
+                          ],
+                        )
                       : Container(
                           alignment: Alignment.center,
                           margin: EdgeInsets.all(5),
@@ -511,15 +522,17 @@ class _HamperDetailsState extends State<HamperDetails> {
                         //     )
                         //   ],
                         // ),
-                        Expanded(child: Text(
-                          '$hamperName',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 18,
-                              color: darkBlue,
-                              fontWeight: FontWeight.w600),
-                        ),),
+                        Expanded(
+                          child: Text(
+                            '$hamperName',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 18,
+                                color: darkBlue,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ),
                         GestureDetector(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -528,23 +541,25 @@ class _HamperDetailsState extends State<HamperDetails> {
                                 angle: 120,
                                 child: Icon(
                                   Icons.egg_outlined,
-                                  color: eggOregless.toLowerCase()=="eggless"?
-                                  Colors.green:
-                                  eggOregless.toLowerCase()=="egg"?
-                                  Color(0xff8D2729):Colors.white,
+                                  color: eggOregless.toLowerCase() == "eggless"
+                                      ? Colors.green
+                                      : eggOregless.toLowerCase() == "egg"
+                                          ? Color(0xff8D2729)
+                                          : Colors.white,
                                 ),
                               ),
                               Text(
                                 '$eggOregless',
                                 style: TextStyle(
-                                    color: eggOregless.toLowerCase()=="eggless"?
-                                    Colors.green:
-                                    eggOregless.toLowerCase()=="egg"?
-                                    Color(0xff8D2729):Colors.white,
+                                    color:
+                                        eggOregless.toLowerCase() == "eggless"
+                                            ? Colors.green
+                                            : eggOregless.toLowerCase() == "egg"
+                                                ? Color(0xff8D2729)
+                                                : Colors.white,
                                     fontFamily: poppins,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.bold
-                                ),
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -552,7 +567,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   // Container(
                   //   padding: EdgeInsets.only(left: 10, right: 10),
                   //   child: Text(
@@ -623,9 +640,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                               Column(
                                 children: [
                                   Text(
-                                    counts<10?
-                                    '0$counts':
-                                    '$counts',
+                                    counts < 10 ? '0$counts' : '$counts',
                                     style: TextStyle(
                                       color: lightPink,
                                       fontWeight: FontWeight.bold,
@@ -677,82 +692,81 @@ class _HamperDetailsState extends State<HamperDetails> {
                         collapseText: "collapse",
                         expandOnTextTap: true,
                         collapseOnTextTap: true,
-                        style:
-                            TextStyle(color: Colors.grey, fontFamily: "Poppins"),
+                        style: TextStyle(
+                            color: Colors.grey, fontFamily: "Poppins"),
                       )),
-
 
                   Container(
                     child: Row(
                       children: [
-                        Expanded(child:Container(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Booking Start',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    fontFamily: "Poppins"
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Booking Start',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontFamily: "Poppins"),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              // fixedFlavList.isEmpty
-                              //     ?
-                              Text("$startDate",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600),
-                              )
-
-                            ],
+                                SizedBox(
+                                  height: 2,
+                                ),
+                                // fixedFlavList.isEmpty
+                                //     ?
+                                Text(
+                                  "$startDate",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: darkBlue,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              ],
+                            ),
                           ),
-                        ),),
+                        ),
                         Container(
                           height: 45,
                           width: 1,
                           color: Colors.pink[100],
-                        )
-                        ,
-                        Expanded(child: Container(
-                          padding: EdgeInsets.only(left : 15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Booking End',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    fontFamily: "Poppins"
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Booking End',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontFamily: "Poppins"),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              // fixedShape.isEmpty
-                              //     ?
-                              Text("$endDate",
-                                style: TextStyle(
-                                    color: darkBlue,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: "Poppins"
+                                SizedBox(
+                                  height: 2,
                                 ),
-                              )
-                            ],
+                                // fixedShape.isEmpty
+                                //     ?
+                                Text(
+                                  "$endDate",
+                                  style: TextStyle(
+                                      color: darkBlue,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Poppins"),
+                                )
+                              ],
+                            ),
                           ),
-                        ),),
+                        ),
                       ],
                     ),
                   ),
-
 
                   //product contains
                   Padding(
@@ -776,12 +790,13 @@ class _HamperDetailsState extends State<HamperDetails> {
                             color: Color(0xffffe9df),
                             borderRadius: BorderRadius.circular(10)),
                         child: Theme(
-                          data: ThemeData().copyWith(dividerColor: Colors.transparent),
+                          data: ThemeData()
+                              .copyWith(dividerColor: Colors.transparent),
                           child: ExpansionTile(
-                            onExpansionChanged: (e){
-                              setState((){
+                            onExpansionChanged: (e) {
+                              setState(() {
                                 expanded = e;
-                                if(e==true){
+                                if (e == true) {
                                   //controller.jumpTo(controller.position.minScrollExtent);
 
                                   // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
@@ -803,39 +818,53 @@ class _HamperDetailsState extends State<HamperDetails> {
                             initiallyExpanded: true,
                             title: Text(
                               'Products',
-                              style:
-                              TextStyle(color: darkBlue, fontFamily: "Poppins"),
+                              style: TextStyle(
+                                  color: darkBlue, fontFamily: "Poppins"),
                             ),
-                            trailing: !expanded?
-                            Container(
-                              alignment: Alignment.center,
-                              height: 25,
-                              width: 25,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle ,
-                              ),
-                              child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                            ):
-                            Container(
-                              alignment: Alignment.center,
-                              height: 25,
-                              width: 25,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle ,
-                              ),
-                              child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
-                            ),
+                            trailing: !expanded
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    height: 25,
+                                    width: 25,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: darkBlue,
+                                      size: 25,
+                                    ),
+                                  )
+                                : Container(
+                                    alignment: Alignment.center,
+                                    height: 25,
+                                    width: 25,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.keyboard_arrow_up,
+                                      color: darkBlue,
+                                      size: 25,
+                                    ),
+                                  ),
                             children: productContains.map((e) {
                               return Container(
                                 alignment: Alignment.centerLeft,
                                 padding: EdgeInsets.all(10),
-                                child: Text((productContains.indexWhere((element) => element==e)+1).toString()+") $e",
-                                style: TextStyle(
-                                  color: darkBlue,
-                                  fontFamily: "Poppins",
-                                ),),
+                                child: Text(
+                                  (productContains.indexWhere(
+                                                  (element) => element == e) +
+                                              1)
+                                          .toString() +
+                                      ") $e",
+                                  style: TextStyle(
+                                    color: darkBlue,
+                                    fontFamily: "Poppins",
+                                  ),
+                                ),
                               );
                             }).toList(),
                           ),
@@ -871,9 +900,10 @@ class _HamperDetailsState extends State<HamperDetails> {
                             for (int i = 0; i < picOrDel.length; i++) {
                               if (i == index) {
                                 fixedDelliverMethod = picOrDeliver[i];
-                                if(fixedDelliverMethod.toLowerCase()=="pickup"){
+                                if (fixedDelliverMethod.toLowerCase() ==
+                                    "pickup") {
                                   tooFar = false;
-                                }else{
+                                } else {
                                   tooFar = true;
                                   deliverAddressIndex = -1;
                                 }
@@ -911,70 +941,71 @@ class _HamperDetailsState extends State<HamperDetails> {
                   Container(
                     child: Row(
                       children: [
-                        Expanded(child:Container(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Delivery Start',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    fontFamily: "Poppins"
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Delivery Start',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontFamily: "Poppins"),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              // fixedFlavList.isEmpty
-                              //     ?
-                              Text("$deliStartDate",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: darkBlue,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600),
-                              )
-
-                            ],
+                                SizedBox(
+                                  height: 2,
+                                ),
+                                // fixedFlavList.isEmpty
+                                //     ?
+                                Text(
+                                  "$deliStartDate",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: darkBlue,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              ],
+                            ),
                           ),
-                        ),),
+                        ),
                         Container(
                           height: 45,
                           width: 1,
                           color: Colors.pink[100],
-                        )
-                        ,
-                        Expanded(child: Container(
-                          padding: EdgeInsets.only(left : 15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Delivery End',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    fontFamily: "Poppins"
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Delivery End',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontFamily: "Poppins"),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              // fixedShape.isEmpty
-                              //     ?
-                              Text("$deliEndDate",
-                                style: TextStyle(
-                                    color: darkBlue,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: "Poppins"
+                                SizedBox(
+                                  height: 2,
                                 ),
-                              )
-                            ],
+                                // fixedShape.isEmpty
+                                //     ?
+                                Text(
+                                  "$deliEndDate",
+                                  style: TextStyle(
+                                      color: darkBlue,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Poppins"),
+                                )
+                              ],
+                            ),
                           ),
-                        ),),
+                        ),
                       ],
                     ),
                   ),
@@ -989,7 +1020,6 @@ class _HamperDetailsState extends State<HamperDetails> {
                   ),
                   GestureDetector(
                     onTap: () async {
-
                       print(deliStartDate);
                       print(deliEndDate);
 
@@ -1011,44 +1041,36 @@ class _HamperDetailsState extends State<HamperDetails> {
                             int.parse(deliStartDate.split("-").first),
                           ),
                           helpText: "Select Deliver Date",
-                          builder: (c,child){
+                          builder: (c, child) {
                             return Theme(
-                                data:ThemeData(
+                                data: ThemeData(
                                     dialogTheme: DialogTheme(
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)
-                                        )
-                                    ),
+                                            borderRadius:
+                                                BorderRadius.circular(10))),
                                     colorScheme: ColorScheme.light(
                                         onPrimary: Colors.white,
                                         onSurface: Colors.pink,
-                                        primary: Colors.pink
-                                    ),
+                                        primary: Colors.pink),
                                     textTheme: const TextTheme(
                                         headline5: TextStyle(
                                             fontSize: 17,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        ),
+                                            fontWeight: FontWeight.bold),
                                         headline4: TextStyle(
                                             fontSize: 17,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        ),
+                                            fontWeight: FontWeight.bold),
                                         overline: TextStyle(
                                             fontSize: 14,
                                             fontFamily: "Poppins",
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                ),
-                                child:child!
-                            );
-                          }
-                      );
+                                            fontWeight: FontWeight.bold))),
+                                child: child!);
+                          });
 
                       setState(() {
-                        deliverDate = simplyFormat(time: SelDate, dateOnly: true);
+                        deliverDate =
+                            simplyFormat(time: SelDate, dateOnly: true);
                       });
 
                       // print(SelDate.toString());
@@ -1060,17 +1082,20 @@ class _HamperDetailsState extends State<HamperDetails> {
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(7),
-                            border:
-                                Border.all(color: Colors.grey[400]!, width: 0.5)),
+                            border: Border.all(
+                                color: Colors.grey[400]!, width: 0.5)),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '$deliverDate',
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 13 ,fontFamily: "Poppins"),
+                                style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                    fontFamily: "Poppins"),
                               ),
-                              Icon(Icons.edit_calendar_outlined, color: darkBlue)
+                              Icon(Icons.edit_calendar_outlined,
+                                  color: darkBlue)
                             ])),
                   ),
                   GestureDetector(
@@ -1097,119 +1122,158 @@ class _HamperDetailsState extends State<HamperDetails> {
                                       children: [
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 8 AM - 9 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 8 AM - 9 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 8 AM - 9 AM';
+                                                    'Morning 8 AM - 9 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 9 AM - 10 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 9 AM - 10 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 9 AM - 10 AM';
+                                                    'Morning 9 AM - 10 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 10 AM - 11 AM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 10 AM - 11 AM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 10 AM - 11 AM';
+                                                    'Morning 10 AM - 11 AM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Morning 11 AM - 12 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Morning 11 AM - 12 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Morning 11 PM - 12 PM';
+                                                    'Morning 11 PM - 12 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 12 PM - 1 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 12 PM - 1 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 12 PM - 1 PM';
+                                                    'Afternoon 12 PM - 1 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 1 PM - 2 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 1 PM - 2 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 1 PM - 9 PM';
+                                                    'Afternoon 1 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 2 PM - 3 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 2 PM - 3 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 8 PM - 9 PM';
+                                                    'Afternoon 8 PM - 9 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 3 PM - 4 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 3 PM - 4 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 3 PM - 4 PM';
+                                                    'Afternoon 3 PM - 4 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Afternoon 4 PM - 5 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Afternoon 4 PM - 5 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Afternoon 4 PM - 5 PM';
+                                                    'Afternoon 4 PM - 5 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 5 PM - 6 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 5 PM - 6 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 5 PM - 6 PM';
+                                                    'Evening 5 PM - 6 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 6 PM - 7 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 6 PM - 7 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 6 PM - 7 PM';
+                                                    'Evening 6 PM - 7 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 7 PM - 8 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 7 PM - 8 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 7 PM - 8 PM';
+                                                    'Evening 7 PM - 8 PM';
                                               });
                                             }),
                                         PopupMenuItem(
                                             child: Text(
-                                              'Evening 8 PM - 9 PM', style: TextStyle(fontFamily: "Poppins"),),
+                                              'Evening 8 PM - 9 PM',
+                                              style: TextStyle(
+                                                  fontFamily: "Poppins"),
+                                            ),
                                             onTap: () {
                                               setState(() {
                                                 deliverSession =
-                                                'Evening 8 PM - 9 PM';
+                                                    'Evening 8 PM - 9 PM';
                                               });
                                             }),
                                       ],
@@ -1226,20 +1290,21 @@ class _HamperDetailsState extends State<HamperDetails> {
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(7),
-                            border:
-                                Border.all(color: Colors.grey[400]!, width: 0.5)),
+                            border: Border.all(
+                                color: Colors.grey[400]!, width: 0.5)),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '$deliverSession',
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 13,fontFamily: "Poppins"),
+                                style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                    fontFamily: "Poppins"),
                               ),
                               Icon(CupertinoIcons.clock, color: darkBlue)
                             ])),
                   ),
-
 
                   fixedDelliverMethod.toLowerCase() == "delivery"
                       ? Column(
@@ -1280,29 +1345,40 @@ class _HamperDetailsState extends State<HamperDetails> {
                                 //   // Container(height:0,width:0),
                                 // ),
                                 Column(
-                                  children:deliverAddress.map((e){
+                                  children: deliverAddress.map((e) {
                                     return ListTile(
-                                      onTap: () async{
+                                      onTap: () async {
                                         showAlertDialog();
-                                        try{
-                                          List<Location> locat = await locationFromAddress(e);
-                                          List<Location> venLocation = await locationFromAddress(data['VendorAddress']);
+                                        try {
+                                          List<Location> locat =
+                                              await locationFromAddress(
+                                                  e.toString().trim());
+                                          List<Location> venLocation = await locationFromAddress(vendorAddress.trim());
                                           print(locat);
                                           setState(() {
                                             deliveryAddress = e.trim();
-                                            userLatitude = locat[0].latitude.toString();
-                                            userLongtitude = locat[0].longitude.toString();
-                                            deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                            userLatitude =
+                                                locat[0].latitude.toString();
+                                            userLongtitude =
+                                                locat[0].longitude.toString();
+                                            deliverAddressIndex =
+                                                deliverAddress.indexWhere(
+                                                    (element) => element == e);
                                             tooFar = false;
                                           });
                                           Navigator.pop(context);
-                                          if(calculateDistance(double.parse(userLatitude),
-                                              double.parse(userLongtitude), venLocation[0].latitude, venLocation[0].longitude)>10.0){
+                                          if (calculateDistance(
+                                                  double.parse(userLatitude),
+                                                  double.parse(userLongtitude),
+                                                  venLocation[0].latitude,
+                                                  venLocation[0].longitude) >
+                                              10.0) {
                                             tooFar = true;
-                                            TooFarDialog().showTooFarDialog(context,e);
+                                            TooFarDialog()
+                                                .showTooFarDialog(context, e);
                                             //showTooFarDialog();
                                           }
-                                        }catch(e){
+                                        } catch (e) {
                                           print("Error... $e");
                                           Navigator.pop(context);
                                         }
@@ -1318,20 +1394,25 @@ class _HamperDetailsState extends State<HamperDetails> {
                                             color: Colors.grey,
                                             fontSize: 13),
                                       ),
-                                      trailing:
-                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                      Container(height:0,width:0),
+                                      trailing: deliverAddressIndex ==
+                                              deliverAddress.indexWhere(
+                                                  (element) => element == e)
+                                          ? Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 25,
+                                            )
+                                          : Container(height: 0, width: 0),
                                     );
                                   }).toList(),
                                 ),
                                 GestureDetector(
                                   onTap: () {
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) =>
-                                    //             AddressScreen()));
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddressScreen()));
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 14),
@@ -1354,7 +1435,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                       : Container(),
 
                   Padding(
-                    padding: EdgeInsets.only(top:15, left: 10),
+                    padding: EdgeInsets.only(top: 15, left: 10),
                     child: Text(
                       'Selected Vendor',
                       style: TextStyle(
@@ -1404,12 +1485,14 @@ class _HamperDetailsState extends State<HamperDetails> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         width: 155,
@@ -1439,10 +1522,12 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                               .isEmpty ||
                                                           vendrorRating == null
                                                       ? 1.0
-                                                      : double.parse(vendrorRating
-                                                          .replaceAll(
-                                                              RegExp('[^0-9]'),
-                                                              '')),
+                                                      : double.parse(
+                                                          vendrorRating
+                                                              .replaceAll(
+                                                                  RegExp(
+                                                                      '[^0-9]'),
+                                                                  '')),
                                                   minRating: 1,
                                                   direction: Axis.horizontal,
                                                   allowHalfRating: true,
@@ -1464,7 +1549,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                   '$vendrorRating',
                                                   style: TextStyle(
                                                       color: Colors.black54,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 13,
                                                       fontFamily: poppins),
                                                 )
@@ -1517,32 +1603,20 @@ class _HamperDetailsState extends State<HamperDetails> {
                                             maxLines: 1,
                                           ),
                                           SizedBox(height: 3),
-                                          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                              (calculateDistance(double.parse(userLatitude),
-                                                  double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))))
-                                                      .toStringAsFixed(1) == "0.0"
-
-                                              ? Text(
-                                                  "DELIVERY FREE",
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontFamily: "Poppins",
-                                                    color: Colors.orange,
-                                                  ),
-                                                  maxLines: 1,
-                                                )
-                                              : Text(
-                                                  "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()),
-                                                      double.parse(vendrorLong))).toStringAsFixed(1)} KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
-                                                      (calculateDistance(double.parse(userLatitude),
-                                                          double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong)))).toStringAsFixed(1)}",
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontFamily: "Poppins",
-                                                    color: Colors.orange,
-                                                  ),
-                                                  maxLines: 1,
-                                                ),
+                                          Text(
+                                            "${(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude), double.parse(vendrorLat.toString()), double.parse(vendrorLong))).toStringAsFixed(1)} KM Charge Rs.${((adminDeliveryCharge / adminDeliveryChargeKm) *
+                                                (calculateDistance(
+                                                    double.parse(userLatitude),
+                                                    double.parse(userLongtitude),
+                                                    double.parse(vendrorLat.toString()),
+                                                    double.parse(vendrorLong)))).toStringAsFixed(1)}",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontFamily: "Poppins",
+                                              color: Colors.orange,
+                                            ),
+                                            maxLines: 1,
+                                          ),
                                         ],
                                       ),
                                       Expanded(
@@ -1557,7 +1631,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                   PhoneDialog().showPhoneDialog(
                                                       context,
                                                       "$hampVenPhn1",
-                                                      "$hampVenPhn2");
+                                                      "$hampVenPhn2"
+                                                  );
                                                 },
                                                 child: Container(
                                                   alignment: Alignment.center,
@@ -1617,55 +1692,58 @@ class _HamperDetailsState extends State<HamperDetails> {
                     height: 30,
                   ),
 
-                  tooFar?
-                  Container():
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: 200,
-                      decoration:
-                          BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          // int charge = 0;
-                          //deliverAddressIndex
-                          // if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                          //   charge = deliveryCharge;
-                          // }else{
-                          //   charge = 0;
-                          // }
-                          //
-                          // print('total...... $charge');
-                          //
-                          // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
-                          //
-                          // print("Final $amount");
+                  tooFar
+                      ? Container()
+                      : Center(
+                          child: Container(
+                            height: 50,
+                            width: 200,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25)),
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25)),
+                              onPressed: () async {
+                                FocusScope.of(context).unfocus();
+                                var charge = 0.0;
+                                //deliverAddressIndex
+                                // if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                                //   charge = deliveryCharge;
+                                // }else{
+                                //   charge = 0;
+                                // }
+                                //
+                                // print('total...... $charge');
+                                //
+                                // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
+                                //
+                                // print("Final $amount");
+                                //
+                                // if(deliverDate.toLowerCase()=="select delivery date" ||
+                                //     deliverSession.toLowerCase()=="select delivery time")
+                                // {
+                                //   ScaffoldMessenger.of(context).showSnackBar(
+                                //       SnackBar(
+                                //           content: Text("Please Select Deliver Date / Deliver Session"),
+                                //           behavior: SnackBarBehavior.floating,
+                                //       ));
+                                // }else{
+                                //   passToCheckout();
+                                // }
 
-                          // if(deliverDate.toLowerCase()=="select delivery date" ||
-                          //     deliverSession.toLowerCase()=="select delivery time")
-                          // {
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //       SnackBar(
-                          //           content: Text("Please Select Deliver Date / Deliver Session"),
-                          //           behavior: SnackBarBehavior.floating,
-                          //       ));
-                          // }else{
-                          //   passToCheckout();
-                          // }
-                          navigateToCheckout();
-                        },
-                        color: lightPink,
-                        child: Text(
-                          "ORDER NOW",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                                navigateToCheckout();
+                              },
+                              color: lightPink,
+                              child: Text(
+                                "ORDER NOW",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
 
                   SizedBox(
                     height: 30,

@@ -300,7 +300,6 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
-
   //Confirm order
   void showConfirmOrder(){
     showDialog(
@@ -1003,19 +1002,6 @@ class _CheckOutState extends State<CheckOut> {
 
     print(tempShapeList);
     print(tempFlavList);
-
-    Map topperField = {};
-
-    if(topperPrice==0.0){
-      topperField = {};
-    }else{
-      topperField = {
-        "TopperId":topperId,
-        "TopperName":topperName,
-        "TopperImage":topperImg,
-        "TopperPrice":'$topperPrice',
-      };
-    }
 
     try {
         var data = {

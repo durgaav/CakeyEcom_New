@@ -865,7 +865,8 @@ class _HomeScreenState extends State<HomeScreen> {
           cakeFlavs,
           [],
           cakeTiers,
-          tiersDelTimes
+          tiersDelTimes,
+          cakeSearchList[index]
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
@@ -1237,6 +1238,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       latude = lat;
       longtude = long;
+      prefs.setString('userLatitute', "${latude.toString()}");
+      prefs.setString('userLongtitude', "${longtude.toString()}");
       var locationAddress = placemarks[0].subLocality.toString()+","+placemarks[0].locality.toString()+","+placemarks[0].administrativeArea.toString()+","
       +placemarks[0].postalCode.toString()+","+placemarks[0].country.toString();
       if (place.subLocality.toString().isEmpty) {
@@ -1245,7 +1248,7 @@ class _HomeScreenState extends State<HomeScreen> {
         userLocalityAdr = '${place.subLocality}';
       }
       userMainLocation = '${place.locality}';
-      prefs.setString("userCurrentLocation", locationAddress);
+      prefs.setString("userCurrentLocation", userLocalityAdr);
       prefs.setString("userMainLocation", place.locality.toString());
     });
   }
@@ -1518,7 +1521,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _permissionGranted = await myLocation.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
         _permissionGranted = await myLocation.requestPermission();
-        ;
       }
     }
 
@@ -1550,13 +1552,50 @@ class _HomeScreenState extends State<HomeScreen> {
     getVendorsList(authToken);
   }
 
+  Future<void> getLocationBasedOnAddress(String address) async {
+    var pref = await SharedPreferences.getInstance();
+    try{
+      if (address.isNotEmpty) {
+        List<geocode.Location> location =
+        await geocode.locationFromAddress(address);
+        print(location[0]);
+        setState(() {
+          userLat = location[0].latitude;
+          userLong = location[0].longitude;
+          // pref.setString(
+          //     'userLatitute', "${userLat}");
+          // pref.setString('userLongtitude',
+          //     "${userLong}");
+          // pref.setString(
+          //     "userCurrentLocation",
+          //     predictedAddress);
+          // userLocalityAdr =
+          //     predictedAddress;
+          GetAddressFromLatLong(userLat, userLong);
+          getVendorForDeliveryto(authToken);
+          //getHampers();
+          getCakeList();
+          getCakeType();
+          //getotherProdList();
+        });
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Unable to get location details..."))
+        );
+      }
+    }catch(e){
+
+    }
+
+    GetAddressFromLatLong(userLat, userLong);
+    getVendorsList(authToken);
+  }
+
   Future<void> getVendorForDeliveryto(String token) async {
     activeVendorsIds.clear();
     showAlertDialog();
     print("location....");
-    print(_userLocation!.latitude);
-    print(_userLocation!.longitude);
-
     print("getting vendors....");
     filteredByEggList.clear();
     try {
@@ -1839,12 +1878,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     var pref = await SharedPreferences.getInstance();
 
+    print("Getting data...");
+
     try{
       if (predictedAddress.isNotEmpty) {
         List<geocode.Location> location =
-        await geocode
-            .locationFromAddress(
-            predictedAddress);
+        await geocode.locationFromAddress(predictedAddress);
         print(location[0]);
         setState(() {
           userLat = location[0].latitude;
@@ -2144,7 +2183,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(Duration.zero, () async {
       var pr = await SharedPreferences.getInstance();
       if(pr.getString('showMoreVendor')!=null&&pr.getString('showMoreVendor')!="null"){
-        checkLocationPermission();
+        var addr = pr.getString('showMoreVendor')??'';
+        authToken = pr.getString("authToken") ?? 'no auth';
+        getLocationBasedOnAddress(addr);
+        loadPrefs();
+        //getCoordinates("Thekkalur ,Avinashi , Tiruppur , 641654");
       }else{
         checkLocationPermission();
       }
