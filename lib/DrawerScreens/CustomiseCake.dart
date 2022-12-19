@@ -1143,8 +1143,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
       try{
 
+        // http://sugitechnologies.com/cakey
+
           var request = http.MultipartRequest('POST',
-              Uri.parse('http://sugitechnologies.com/cakey/api/customize/cake/new'));
+              Uri.parse('http://localhost:3001/api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
@@ -1291,7 +1293,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/${obj.toLowerCase()}/new'));
+    //var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/${obj.toLowerCase()}/new'));
+    var request = http.Request('POST', Uri.parse('http://localhost:3001/api/${obj.toLowerCase()}/new'));
     request.body = json.encode({
       obj: value
     });

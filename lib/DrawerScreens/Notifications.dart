@@ -56,6 +56,8 @@ class _NotificationsState extends State<Notifications> {
   String authToken = "";
   bool isLoading = true;
 
+  var publicTax = 0;
+
   //Default loader dialog
   void showAlertDialog() {
     showDialog(
@@ -91,6 +93,39 @@ class _NotificationsState extends State<Notifications> {
             ),
           );
         });
+  }
+
+  //ticket dialog
+  void showTicketDialog(var data) {
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: Text("Message",style: TextStyle(
+                fontFamily: "Poppins"
+            ),),
+            content:Text("${data['For_Display']}",style: TextStyle(
+                fontFamily: "Poppins"
+            ),),
+            actions: [
+              Column(
+                children: [
+                  TextButton(onPressed: (){Navigator.pop(context);}, child: Text("CLOSE")),
+                  TextButton(onPressed: (){
+                    Navigator.pop(context);
+                    updateTheTickets(data, "disagree");
+                  }, child: Text("DISAGREE")),
+                  TextButton(onPressed: (){
+                    Navigator.pop(context);
+                    updateTheTickets(data , "agree");
+                  }, child: Text("AGREE")),
+                ],
+              )
+            ],
+          );
+        }
+    );
   }
 
   Future<void> sendDetailstoScreen(List myList) async{
@@ -736,15 +771,136 @@ class _NotificationsState extends State<Notifications> {
 
   //region Functions
 
+  //get taxes
+  Future<void> fetchTax() async{
+
+    var pref = await SharedPreferences.getInstance();
+
+    var auth = pref.getString("authToken")??'';
+
+    //prefs.setDouble('orderCakeGst', gst);
+    //prefs.setDouble('orderCakeSGst', sgst);
+    //prefs.setInt('orderCakeTaxperc', taxes??0);
+
+    try{
+      var headers = {
+        'Authorization': '$auth'
+      };
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        List map = jsonDecode(await response.stream.bytesToString());
+        print(map);
+        setState(() {
+          if(map[0]['Total_GST']!=null){
+            publicTax = int.parse(map[0]['Total_GST'].toString());
+          }
+        });
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+
+    }
+
+  }
+
+  //update tickets..
+  Future<void> updateTheTickets(var data , String type) async{
+
+    print(data);
+
+    showAlertDialog();
+
+    var shape = {};
+    var flavour = [];
+
+    if(data['Shape']!=null){
+      shape = data['Shape'];
+    }
+
+    if(data['Flavour']!=null){
+      flavour = data['Flavour'];
+    }
+
+    var theData = {
+      "TicketID": data['TicketID'],
+      "Change_Request_Price": data['Difference_In_Price'],
+      "Change_Request_Payment_Status":data['PaymentType'].toString().toLowerCase()=="cash on delivery"?"Pending":"Paid",
+      "Customer_Approved_Status": "Approved",
+      "Customer_Paid_Status":data['PaymentType'].toString().toLowerCase()=="cash on delivery"?"Pending":"Paid",
+      "Total_GST": "$publicTax",
+      "Last_Intimate": ["HelpdeskC"],
+      "Flavour":flavour,
+      "Shape":shape
+    };
+
+    if(type=="disagree"){
+      theData = {
+        "Customer_Paid_Status": "Cancelled",
+        "Customer_Approved_Status": "Not Approved",
+        "Last_Intimate": ["HelpdeskC"],
+      };
+    }
+
+    try{
+
+      http.Response res = await http.put(
+        Uri.parse('http://localhost:3001/api/tickets/changeRequest/Approve/${data['OrderID']}'),
+        body:jsonEncode(theData),
+        headers: {
+          "Content-Type":"application/json"
+        }
+      );
+
+      if(res.statusCode == 200){
+        print(res.body);
+        Navigator.pop(context);
+        if(jsonDecode(res.body)['statusCode']==200){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Ticket Updated Successfully!"))
+          );
+          fetchNotifications();
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Ticket Updated Failed!"))
+          );
+        }
+      }else{
+        Navigator.pop(context);
+        print(res.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Ticket Updated Failed!"))
+        );
+      }
+
+    }catch(e){
+      Navigator.pop(context);
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Ticket Update Facing Some Errors...!"))
+      );
+    }
+
+  }
+
   //get notifications
   Future<void> fetchNotifications() async {
     mainList.clear();
     setState((){
       isLoading = true;
     });
+
+    //http://localhost:3001 http://sugitechnologies.com/cakey http://localhost:3001/api/users/notification/
+
     try {
       var res = await http.get(Uri.parse(
-          "http://sugitechnologies.com/cakey/api/users/notification/$userId"),
+          "http://localhost:3001/api/users/notification/6333e3439e05797c3a35a973"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -773,6 +929,7 @@ class _NotificationsState extends State<Notifications> {
       });
       context.read<ContextData>().setNotiCount(0);
     }
+    fetchTax();
   }
 
   //network check
@@ -1040,6 +1197,10 @@ class _NotificationsState extends State<Notifications> {
                                   });
                                 },
                                 onTap: (){
+                                  if(mainList[index]['TicketID']!=null){
+                                    showTicketDialog(mainList[index]);
+                                  }
+
                                   if(mainList[index]['CustomizedCake']=="y"){
                                     showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
                                   }
@@ -1106,7 +1267,7 @@ class _NotificationsState extends State<Notifications> {
                                                   Container(
                                                     // width: 270,
                                                       child:Text(
-                                                        "$status",
+                                                        "${mainList[index]['For_Display']}",
                                                         maxLines: 3,
                                                         overflow: TextOverflow.ellipsis,
                                                         style: TextStyle(
