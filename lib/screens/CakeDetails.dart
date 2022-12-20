@@ -95,7 +95,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   List cakesList = [];
   List myCakesList = [];
   List<String> deliverAddress = [];
-  var deliverAddressIndex = 0;
+  var deliverAddressIndex = -1;
 
   var multiFlav = [];
   List<bool> multiFlavChecs = [];
@@ -3666,6 +3666,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       onTap: () {
                                         FocusScope.of(context).unfocus();
                                         setState(() {
+                                          if(index==0){
+                                            deliverAddressIndex = 0;
+                                          }else{
+                                            deliverAddressIndex = -1;
+                                          }
                                           for (int i = 0;
                                               i < picOrDel.length;
                                               i++) {
@@ -4080,7 +4085,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     children:deliverAddress.map((e){
                                       return ListTile(
                                         onTap: () async{
-
                                           showAlertDialog();
                                           try {
                                             List<Location> locat =
@@ -4953,47 +4957,51 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       onPressed: () async {
                                         FocusScope.of(context).unfocus();
 
-                                        // if (newRegUser == true) {
-                                        //   ProfileAlert().showProfileAlert(context);
-                                        //   print(dayMinConverter("2days"));
-                                        //   print(dayMinConverter("26hours"));
-                                        //   print(basicCakeWeight);
-                                        //   print(customweightCtrl.text);
-                                        // } else {
-                                        //   if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
-                                        //       <double.parse(basicCakeWeight
-                                        //   .toLowerCase().replaceAll("kg", ""))){
-                                        //     ScaffoldMessenger.of(context).showSnackBar(
-                                        //         SnackBar(
-                                        //             content: Text("Minimum weight is $basicCakeWeight...")
-                                        //         )
-                                        //     );
-                                        //   }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
-                                        //       customweightCtrl.text.startsWith("0")&&
-                                        //           customweightCtrl.text.endsWith("0")){
-                                        //     ScaffoldMessenger.of(context).showSnackBar(
-                                        //         SnackBar(
-                                        //             content: Text("Please enter correct weight or select weight!")
-                                        //         )
-                                        //     );
-                                        //   }
-                                        //   else if(deliverDate.toLowerCase()=="select delivery date"){
-                                        //     ScaffoldMessenger.of(context).showSnackBar(
-                                        //       SnackBar(content: Text("Please select deliver date"))
-                                        //     );
-                                        //   }else if(deliverSession.toLowerCase()=="select delivery time"){
-                                        //     ScaffoldMessenger.of(context).showSnackBar(
-                                        //         SnackBar(content: Text("Please select deliver session"))
-                                        //     );
-                                        //   }else if(fixedDelliverMethod.isEmpty){
-                                        //     ScaffoldMessenger.of(context).showSnackBar(
-                                        //         SnackBar(content: Text("Please select pickup or delivery"))
-                                        //     );
-                                        //   }else{
-                                        //     loadOrderPreference();
-                                        //   }
-                                        //}
-                                        handleNavigation();
+                                        if (newRegUser == true) {
+                                          ProfileAlert().showProfileAlert(context);
+                                          print(dayMinConverter("2days"));
+                                          print(dayMinConverter("26hours"));
+                                          print(basicCakeWeight);
+                                          print(customweightCtrl.text);
+                                        } else {
+                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
+                                              <double.parse(basicCakeWeight
+                                          .toLowerCase().replaceAll("kg", ""))){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text("Minimum weight is $basicCakeWeight...")
+                                                )
+                                            );
+                                          }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
+                                              customweightCtrl.text.startsWith("0")&&
+                                                  customweightCtrl.text.endsWith("0")){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text("Please enter correct weight or select weight!")
+                                                )
+                                            );
+                                          }
+                                          else if(deliverDate.toLowerCase()=="select delivery date"){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Please select deliver date"))
+                                            );
+                                          }else if(deliverSession.toLowerCase()=="select delivery time"){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Please select deliver session"))
+                                            );
+                                          }else if(fixedDelliverMethod.isEmpty){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Please select pickup or delivery"))
+                                            );
+                                          }else if(deliverAddressIndex==-1){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Please select delivery delivery address."))
+                                            );
+                                          }else{
+                                            loadOrderPreference();
+                                          }
+                                        }
+                                        ///handleNavigation();
                                       },
                                       color: lightPink,
                                       child: Text(

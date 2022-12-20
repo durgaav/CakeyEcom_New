@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../ContextData.dart';
@@ -36,6 +37,8 @@ class _NotificationsState extends State<Notifications> {
   var result2 = '';
   int i = 0;
 
+  var tempData = {};
+
   // String data = 'new';
   List OrderList = [];
   List CustomizeList = [];
@@ -50,13 +53,14 @@ class _NotificationsState extends State<Notifications> {
   List<bool> selectedTiles = [];
   List selectedNotiIds = [];
 
-
   int pageViewCurIndex = 0;
 
   String authToken = "";
   bool isLoading = true;
 
   var publicTax = 0;
+
+  var _razorpay = Razorpay();
 
   //Default loader dialog
   void showAlertDialog() {
@@ -95,6 +99,65 @@ class _NotificationsState extends State<Notifications> {
         });
   }
 
+  //payment done alert
+  void showPaymentDoneAlert(String status){
+    showDialog(
+        context: context,
+        builder: (context){
+          return Dialog(
+            child: Container(
+                height: 85,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12)
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 6,
+                      decoration: BoxDecoration(
+                        color: status=="done"?Colors.green:Colors.red,
+                        // borderRadius:BorderRadius.only(
+                        //   topLeft: Radius.circular(12),
+                        //   bottomLeft: Radius.circular(12),
+                        // )
+                      ),
+                    ),
+                    SizedBox(width: 10,),
+                    Icon(
+                      status=="done"?Icons.check_circle_rounded:Icons.cancel,
+                      color: status=="done"?Colors.green:Colors.red,
+                      size: 45,
+                    ),
+                    SizedBox(width: 10,),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(status=="done"?"Payment Complete":"Payment Not Complete",style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                          ),),
+                          Text(status=="done"?'Your payment was successful.'
+                              :"Your payment  was unsuccessful.",style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Poppins",
+                              fontSize: 12
+                          ),)
+                        ],
+                      ),
+                    )
+                  ],
+                )
+            ),
+          );
+        }
+    );
+  }
+
   //ticket dialog
   void showTicketDialog(var data) {
     showDialog(
@@ -118,10 +181,157 @@ class _NotificationsState extends State<Notifications> {
                   }, child: Text("DISAGREE")),
                   TextButton(onPressed: (){
                     Navigator.pop(context);
-                    updateTheTickets(data , "agree");
+                    showOkOrNotDialog(data);
                   }, child: Text("AGREE")),
                 ],
               )
+            ],
+          );
+        }
+    );
+  }
+
+  //custom cake invoice details
+  void showCustomCakeInvoices(String orderId) {
+
+    print("Entered...");
+
+    print(orderId);
+
+    List myList = ordersList.where((element) => element['_id']==orderId).toList();
+
+    print(myList[0]["Status"]);
+
+    var opac = 1.0;
+    var timer = new Timer(Duration(seconds: 2), () {setState((){opac = 1.0;});});
+    timer;
+
+    print(myList);
+
+    showDialog(
+        context: context,
+        builder: (c){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius:BorderRadius.circular(15),
+            ),
+            contentPadding: EdgeInsets.all(8),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("INVOICE DETAILS",style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16
+                ),),
+                SizedBox(height: 8,),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Price",style: TextStyle(
+                          fontFamily: "Poppins",
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['Price']).toStringAsFixed(2)}",style: TextStyle(
+                          fontFamily: "Poppins",
+                      ),),
+                    ],
+                  ),
+                ),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("GST",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['Gst']).toStringAsFixed(2)}",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                    ],
+                  ),
+                ),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("SGST",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['Sgst']).toStringAsFixed(2)}",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                    ],
+                  ),
+                ),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Extra Charge",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['ExtraCharges']).toStringAsFixed(2)}",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                    ],
+                  ),
+                ),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Delivery Charge",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['DeliveryCharge']).toStringAsFixed(2)}",style: TextStyle(
+                        fontFamily: "Poppins",
+                      ),),
+                    ],
+                  ),
+                ),
+                Container(
+                  width:MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Total",style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold
+                      ),),
+                      Text("Rs.${double.parse(myList[0]['Total']).toStringAsFixed(2)}",style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold
+                      ),),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text("CANCEL")
+              ),
+              TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text("DO PAYMENT")
+              ),
             ],
           );
         }
@@ -448,13 +658,13 @@ class _NotificationsState extends State<Notifications> {
   }
 
   Future<void> getOrdersList() async{
-
+    //http://sugitechnologies.com/cakey/api/customize/cake/listbyuserid
     try{
       var headers = {
         'Authorization': '$authToken'
       };
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/customize/cake/listbyuserid/$userId'));
+          Uri.parse('http://localhost:3001/api/customize/cake/listbyuserid/$userId'));
 
       request.headers.addAll(headers);
 
@@ -486,6 +696,8 @@ class _NotificationsState extends State<Notifications> {
   //show custom cake order view
   void showCustomCakeDetailsDialog(String orderId){
 
+    print("Entered...");
+
     print(orderId);
 
     List myList = ordersList.where((element) => element['_id']==orderId).toList();
@@ -498,7 +710,7 @@ class _NotificationsState extends State<Notifications> {
 
     print(myList);
 
-      myList.isNotEmpty&&myList[0]['Status'].toString().toLowerCase()=='sent'?
+      myList.isNotEmpty&&myList[0]['Status'].toString().toLowerCase()=='price approved'?
       showModalBottomSheet(
           isScrollControlled: true,
           shape: RoundedRectangleBorder(
@@ -634,7 +846,7 @@ class _NotificationsState extends State<Notifications> {
                                     Expanded(child:Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(myList[0]['Status']==null?'N/A':
-                                      '${myList[0]['Status']}', style:TextStyle(
+                                      'Sent', style:TextStyle(
                                           fontFamily: "Poppins",
                                           color:myList[0]['Status'].toString().toLowerCase()=="new"?
                                           Colors.red:
@@ -808,6 +1020,90 @@ class _NotificationsState extends State<Notifications> {
 
     }
 
+  }
+
+  //create the order id
+  Future<void> makeOrderId(var data , var amt) async{
+    showAlertDialog();
+    tempData = data;
+    try{
+
+      var amount = amt.toString();
+
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
+      };
+      var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
+      request.body = json.encode({
+        "amount": double.parse(amount.toString())*100,
+        "currency": "INR",
+        "receipt": "Receipt",
+        "notes": {
+          "notes_key_1": "Order for cakey",
+          // "notes_key_2": "Order for $cakeName"
+        }
+      });
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var res = jsonDecode(await response.stream.bytesToString());
+        print(res);
+        _handleFinalPayment(res['amount'].toString() , res['id']);
+        Navigator.pop(context);
+      }
+      else {
+        // print();
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
+            +response.reasonPhrase.toString())));
+      }
+
+    }catch(e){
+      print(e);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Failed")));
+    }
+
+  }
+
+  //handle razorpay payment here...
+  void _handleFinalPayment(String amt , String orderId){
+
+    print("Test ord id : $orderId");
+
+    //var amount = Bill.toStringAsFixed(2);
+
+    var options = {
+      'key': 'rzp_test_b42mo2s6NVrs7t',
+      'amount': double.parse(amt.toString())*100, //in the smallest currency sub-unit.
+      'name': 'Surya Prakash',
+      'order_id': orderId, // Generate order_id using Orders API
+      'description': '',
+      'timeout': 300, // in seconds
+      'prefill': {
+        'contact': '',
+        // 'email': '$userName',
+        'email': '',
+      },
+      "theme":{
+        "color":'#E8416D'
+      },
+      // "method": {
+      //   "netbanking": false,
+      //   "card": true,
+      //   "upi": true,
+      //   "wallet": false,
+      //   "emi": false,
+      //   "paylater": false
+      // },
+    };
+
+    print(options);
+
+    _razorpay.open(options);
   }
 
   //update tickets..
@@ -1016,6 +1312,77 @@ class _NotificationsState extends State<Notifications> {
     }
   }
 
+  //payment handlers...
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    // Do something when payment succeeds
+    print("Pay success : "+response.paymentId.toString());
+    updateTheTickets(tempData, "agree");
+    // _capturePayment(response.paymentId.toString());
+    // var amount = ( ((
+    //     (double.parse(cakePrice)*counts) + deliveryCharge
+    // ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
+    // proceedOrder(amount);
+
+    // if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
+    //   handleHamperOrder();
+    // }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
+    //
+    // }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
+    //
+    // }else{
+    //
+    // }
+
+    // showPaymentDoneAlert("done");
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    print("Pay error : "+response.toString());
+    showPaymentDoneAlert("failed");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet is selected
+    print("wallet : "+response.toString());
+    // showPaymentDoneAlert("failed");
+  }
+
+  void showOkOrNotDialog(var data){
+    showDialog(
+        context: context,
+        builder: (c){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15)
+            ),
+            content:Text("Do you want to proceed the cost change?",style: TextStyle(
+              fontFamily: "Poppins",
+            ),),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text("CANCEL")
+              ),
+              TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    if(data['PaymentType'].toString().toLowerCase()=="cash on delivery"){
+                      updateTheTickets(data , "agree");
+                    }else{
+                      makeOrderId(data,data['Difference_In_Price']);
+                    }
+                  },
+                  child: Text("PROCEED")
+              ),
+            ],
+          );
+        }
+    );
+  }
+
   //endregion
 
   @override
@@ -1031,6 +1398,9 @@ class _NotificationsState extends State<Notifications> {
       getOrdersList();
       print(userId);
     });
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     // Full date and time
     final result1 = simplyFormat(time: currentTime);
   }
@@ -1191,18 +1561,13 @@ class _NotificationsState extends State<Notifications> {
 
                               selectedTiles.add(false);
                               return GestureDetector(
-                                onLongPress: (){
-                                  setState((){
-                                    selectedTiles[index] = !selectedTiles[index];
-                                  });
-                                },
                                 onTap: (){
-                                  if(mainList[index]['TicketID']!=null){
-                                    showTicketDialog(mainList[index]);
-                                  }
-
-                                  if(mainList[index]['CustomizedCake']=="y"){
-                                    showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
+                                  if(mainList[index]['TicketID']!=null && mainList[index]['OrderID']!=null){
+                                      showTicketDialog(mainList[index]);
+                                  }else if(mainList[index]['CustomizedCakeID']!=null && mainList[index]['Status'].toString().toLowerCase()=="sent"){
+                                    print("log");
+                                    //showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
+                                    showCustomCakeInvoices(mainList[index]['CustomizedCakeID']);
                                   }
                                 },
                                 child: Container(

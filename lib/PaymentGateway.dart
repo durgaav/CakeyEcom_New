@@ -483,7 +483,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       "currency": "INR",
       "receipt": "Receipt",
       "notes": {
-        "notes_key_1": "Order for $cakeName",
+        "notes_key_1": "Order for cakey",
         // "notes_key_2": "Order for $cakeName"
       }
     });

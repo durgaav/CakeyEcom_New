@@ -1254,7 +1254,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             //         SnackBar(content: new Text("Whatsapp not found.")));
             //   }
             // }
-
+            var pr = await SharedPreferences.getInstance();
+            pr.setString("showMoreVendor", "null");
             Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context)=>HomeScreen())
             );
