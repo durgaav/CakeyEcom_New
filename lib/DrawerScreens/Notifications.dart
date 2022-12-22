@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
@@ -15,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../ContextData.dart';
 import '../Dialogs.dart';
+import '../OtherProducts/OtherDetails.dart';
 import '../screens/OrderConfirm.dart';
 
 class Notifications extends StatefulWidget {
@@ -38,6 +40,7 @@ class _NotificationsState extends State<Notifications> {
   int i = 0;
 
   var tempData = {};
+  String customPaymentType = "";
 
   // String data = 'new';
   List OrderList = [];
@@ -192,198 +195,280 @@ class _NotificationsState extends State<Notifications> {
   }
 
   //custom cake invoice details
-  void showCustomCakeInvoices(String orderId) {
+  void showCustomCakeInvoices(String orderId , var data) {
 
     print("Entered...");
 
     print(orderId);
-
     List myList = ordersList.where((element) => element['_id']==orderId).toList();
 
-    print(myList[0]["Status"]);
+    var selectedIndex = 0;
+    List item = ["Cash on delivery","Online payment"];
 
-    var opac = 1.0;
-    var timer = new Timer(Duration(seconds: 2), () {setState((){opac = 1.0;});});
-    timer;
+    String cancelReason = "No reason";
 
     print(myList);
 
     showDialog(
         context: context,
         builder: (c){
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius:BorderRadius.circular(15),
-            ),
-            contentPadding: EdgeInsets.all(8),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("INVOICE DETAILS",style: TextStyle(
-                  fontFamily: "Poppins",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16
-                ),),
-                SizedBox(height: 8,),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return StatefulBuilder(
+            builder: (cc,setState){
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius:BorderRadius.circular(15),
+                ),
+                contentPadding: EdgeInsets.all(8),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("Price",style: TextStyle(
-                          fontFamily: "Poppins",
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['Price']).toStringAsFixed(2)}",style: TextStyle(
-                          fontFamily: "Poppins",
-                      ),),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Text("INVOICE DETAILS",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                            ),),
+                            Expanded(child:GestureDetector(
+                              onTap: (){
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  alignment: Alignment.centerRight,
+                                  child:Icon(Icons.cancel,color: Colors.red,)
+                              ),
+                            ))
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8,),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Price per KG",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['Price'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Weight",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("${myList[0]['Weight'].toString()}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("GST",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['Gst'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("SGST",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['Sgst'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Extra Charge",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['ExtraCharges'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Delivery Charge",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['DeliveryCharge'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Discount",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['Discount'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                              fontFamily: "Poppins",
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Total",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold
+                            ),),
+                            Text("Rs.${double.parse(myList[0]['Total'].toString()).toStringAsFixed(2)}",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold
+                            ),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width:MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                        child:Column(
+                          children:item.map((e){
+                            return GestureDetector(
+                              onTap:(){
+                                setState((){
+                                  selectedIndex=item.indexWhere((ele)=>ele==e);
+                                });
+                              },
+                              child: Container(
+                                padding:EdgeInsets.all(5),
+                                child: Row(
+                                  children: [
+                                    selectedIndex==item.indexWhere((ele)=>ele==e)?
+                                    Icon(Icons.check_circle , color: Colors.green,):
+                                    Icon(Icons.radio_button_off , color: Colors.green,),
+                                    SizedBox(width:5),
+                                    Text(e),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        )
+                      ),
                     ],
                   ),
                 ),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("GST",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['Gst']).toStringAsFixed(2)}",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                    ],
+                actions: [
+                  TextButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                        showEditTextDialog(data , item[selectedIndex]);
+                      },
+                      child: Text("CANCEL ORDER")
                   ),
-                ),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("SGST",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['Sgst']).toStringAsFixed(2)}",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                    ],
+                  // TextButton(
+                  //     onPressed: (){
+                  //       Navigator.pop(context);
+                  //     },
+                  //     child: Text("CANCEL")
+                  // ),
+                  TextButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                        if(item[selectedIndex].toString().toLowerCase()=="cash on delivery"){
+                          customPaymentType = item[selectedIndex];
+                          MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, item[selectedIndex], "agree",""));
+                        }else{
+                          makeOrderId(data, double.parse(myList[0]['Total'].toString()).toStringAsFixed(2));
+                        }
+                      },
+                      child: Text("PROCEED")
                   ),
-                ),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Extra Charge",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['ExtraCharges']).toStringAsFixed(2)}",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                    ],
-                  ),
-                ),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Delivery Charge",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['DeliveryCharge']).toStringAsFixed(2)}",style: TextStyle(
-                        fontFamily: "Poppins",
-                      ),),
-                    ],
-                  ),
-                ),
-                Container(
-                  width:MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Total",style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.bold
-                      ),),
-                      Text("Rs.${double.parse(myList[0]['Total']).toStringAsFixed(2)}",style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.bold
-                      ),),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: Text("CANCEL")
-              ),
-              TextButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: Text("DO PAYMENT")
-              ),
-            ],
+                ],
+              );
+            },
           );
         }
     );
   }
 
-  Future<void> sendDetailstoScreen(List myList) async{
+  //custom cake order cancel reason
+  void showEditTextDialog(var data , String paymetType) {
 
-    print(myList[0]['Flavour']);
+    String reason = "";
 
-    var prefs = await SharedPreferences.getInstance();
-
-    prefs.setString('orderFromCustom', "yes");
-    prefs.setString('customCakeName', myList[0]['CakeName'].toString());
-    prefs.setString('customCakePrice', myList[0]['Price'].toString());
-    prefs.setString('customCakeShape', myList[0]['Shape'].toString());
-    prefs.setString('customCakeVendor', myList[0]['VendorName'].toString());
-    prefs.setString('customCakeType', myList[0]['CakeType'].toString());
-    prefs.setString('customCakeUserAdd', myList[0]['DeliveryAddress'].toString());
-    prefs.setString('customCakeVenPhn1', myList[0]['VendorPhoneNumber1'].toString());
-    prefs.setString('customCakeVenPhn2', myList[0]['VendorPhoneNumber2'].toString());
-    prefs.setString('customCakeVenModId', myList[0]['Vendor_ID'].toString());
-    prefs.setString('customCakeVenId', myList[0]['VendorID'].toString());
-    prefs.setString('customCakeVenAddrss', myList[0]['VendorAddress'].toString());
-    prefs.setString('customCakeExtra', myList[0]['ExtraCharges'].toString());
-    prefs.setString('customCakeGst', myList[0]['Gst'].toString());
-    prefs.setString('customCakeSgst', myList[0]['Sgst'].toString());
-    prefs.setString('customCakeTotal', myList[0]['Total'].toString());
-    //prefs.setInt('customCakeTaxes', int.parse(myList[0]['Tax']));
-    prefs.setString('customCakeDisc', myList[0]['Discount'].toString());
-    prefs.setString('customCakeWeight', myList[0]['Weight'].toString());
-    prefs.setString('customCakeId', myList[0]['_id'].toString());
-    prefs.setString('customCakeVendLat', myList[0]['GoogleLocation']['Latitude'].toString().toString());
-    prefs.setString('customCakeVendLong', myList[0]['GoogleLocation']['Longitude'].toString().toString());
-    prefs.setString('customCakePickOrDel', myList[0]['DeliveryInformation'].toString().toString());
-
-
-    print( myList[0]['Discount'].toString());
-    print( myList[0]['ExtraCharges'].toString());
-    print( myList[0]['Price'].toString());
-    print( myList[0]['Gst'].toString());
-    print( myList[0]['Sgst'].toString());
-    print( myList[0]['Total'].toString());
-    print( myList[0]['Weight'].toString());
-
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context)=> CheckOut([],myList[0]['Flavour']))
+    showDialog(
+      context: context,
+      builder:(context){
+        return StatefulBuilder(builder: (c , setState){
+          return AlertDialog(
+            content: TextField(
+              onChanged: (e){
+                setState((){
+                  reason = e.toString();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: "Enter the reason for the cancellation",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+              onPressed: (){
+                Navigator.pop(context);
+                if(reason==""){
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter the reason for cancellation.")));
+                }else{
+                  MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",reason));
+                }
+              },
+              child: Text("SUBMIT")
+              ),
+            ],
+          );
+        });
+      }
     );
 
-    print('Loaded....');
 
   }
 
@@ -983,6 +1068,55 @@ class _NotificationsState extends State<Notifications> {
 
   //region Functions
 
+  Future<void> sendDetailstoScreen(List myList) async{
+
+    print(myList[0]['Flavour']);
+
+    var prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('orderFromCustom', "yes");
+    prefs.setString('customCakeName', myList[0]['CakeName'].toString());
+    prefs.setString('customCakePrice', myList[0]['Price'].toString());
+    prefs.setString('customCakeShape', myList[0]['Shape'].toString());
+    prefs.setString('customCakeVendor', myList[0]['VendorName'].toString());
+    prefs.setString('customCakeType', myList[0]['CakeType'].toString());
+    prefs.setString('customCakeUserAdd', myList[0]['DeliveryAddress'].toString());
+    prefs.setString('customCakeVenPhn1', myList[0]['VendorPhoneNumber1'].toString());
+    prefs.setString('customCakeVenPhn2', myList[0]['VendorPhoneNumber2'].toString());
+    prefs.setString('customCakeVenModId', myList[0]['Vendor_ID'].toString());
+    prefs.setString('customCakeVenId', myList[0]['VendorID'].toString());
+    prefs.setString('customCakeVenAddrss', myList[0]['VendorAddress'].toString());
+    prefs.setString('customCakeExtra', myList[0]['ExtraCharges'].toString());
+    prefs.setString('customCakeGst', myList[0]['Gst'].toString());
+    prefs.setString('customCakeSgst', myList[0]['Sgst'].toString());
+    prefs.setString('customCakeTotal', myList[0]['Total'].toString());
+    //prefs.setInt('customCakeTaxes', int.parse(myList[0]['Tax']));
+    prefs.setString('customCakeDisc', myList[0]['Discount'].toString());
+    prefs.setString('customCakeWeight', myList[0]['Weight'].toString());
+    prefs.setString('customCakeId', myList[0]['_id'].toString());
+    prefs.setString('customCakeVendLat', myList[0]['GoogleLocation']['Latitude'].toString().toString());
+    prefs.setString('customCakeVendLong', myList[0]['GoogleLocation']['Longitude'].toString().toString());
+    prefs.setString('customCakePickOrDel', myList[0]['DeliveryInformation'].toString().toString());
+
+
+    print( myList[0]['Discount'].toString());
+    print( myList[0]['ExtraCharges'].toString());
+    print( myList[0]['Price'].toString());
+    print( myList[0]['Gst'].toString());
+    print( myList[0]['Sgst'].toString());
+    print( myList[0]['Total'].toString());
+    print( myList[0]['Weight'].toString());
+
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context)=> CheckOut([],myList[0]['Flavour']))
+    );
+
+    print('Loaded....');
+
+  }
+
   //get taxes
   Future<void> fetchTax() async{
 
@@ -1066,7 +1200,6 @@ class _NotificationsState extends State<Notifications> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Failed")));
     }
-
   }
 
   //handle razorpay payment here...
@@ -1162,6 +1295,7 @@ class _NotificationsState extends State<Notifications> {
             SnackBar(content: Text("Ticket Updated Successfully!"))
           );
           fetchNotifications();
+          getOrdersList();
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Ticket Updated Failed!"))
@@ -1316,24 +1450,11 @@ class _NotificationsState extends State<Notifications> {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Do something when payment succeeds
     print("Pay success : "+response.paymentId.toString());
-    updateTheTickets(tempData, "agree");
-    // _capturePayment(response.paymentId.toString());
-    // var amount = ( ((
-    //     (double.parse(cakePrice)*counts) + deliveryCharge
-    // ) - tempDiscountPrice) - discountPrice + gstPrice + sgstPrice).toStringAsFixed(2);
-    // proceedOrder(amount);
-
-    // if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
-    //   handleHamperOrder();
-    // }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
-    //
-    // }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
-    //
-    // }else{
-    //
-    // }
-
-    // showPaymentDoneAlert("done");
+    if(tempData['CustomizedCakeID']!=null && tempData['Status'].toString().toLowerCase()=="sent"){
+      handleCustomiseCakeUpdate(tempData, customPaymentType, "agree", "");
+    }else{
+      updateTheTickets(tempData, "agree");
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -1381,6 +1502,85 @@ class _NotificationsState extends State<Notifications> {
           );
         }
     );
+  }
+
+  //handle customise cake api update
+  Future<void> handleCustomiseCakeUpdate(var data , String paymentType , String aggreeOrDis , String cancelReason) async{
+    showAlertDialog();
+    //{
+    //         "_id": "63a3da501379ff574cc7493b",
+    //         "CustomizedCakeID": "63a29df4cf3425fcc2d4714c",
+    //         "CustomizedCake_ID": "CKYCCO-15",
+    //         "CakeName": "My Customized Cake",
+    //         "Status": "Sent",
+    //         "Status_Updated_On": "22-12-2022 09:47 AM",
+    //         "UserID": "6333e3439e05797c3a35a973",
+    //         "User_ID": "CKYCUS-4",
+    //         "UserName": "Naveen Surya",
+    //         "CustomizedCake": "y",
+    //         "For_Display": "You received your Customized Cake order's Price Invoice",
+    //         "TicketID": "63a2a128bbedd4597136f381",
+    //         "Flavour": [],
+    //         "__v": 0
+    //     },
+
+    var pass = {
+      "TicketID": data['TicketID'], //TicketID
+      "Customer_Approved_Status": "Approved", //Approved
+      "Customer_Paid_Status": paymentType.toLowerCase()=="cash on delivery"?"Pending":"Paid", //Paid or Pending
+      "Last_Intimate": ["HelpdeskC"], //Static
+      "PaymentType": paymentType, //Cash on delivery or payment method
+      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash on delivery":"Paid" //Paid Status
+    };
+
+    if(aggreeOrDis=="disagree"){
+      pass = {
+        "TicketID": data['TicketID'], //TicketID
+        "Customer_Approved_Status": "NotApproved", //Not Approved
+        "Customer_Paid_Status": "Cancelled", //Cancelled
+        "Last_Intimate": ["HelpdeskC"], //Static
+        "ReasonForCancel": cancelReason, //inputs from customer
+      };
+    }
+
+    print(pass);
+
+    try{
+
+      http.Response res = await http.put(
+          Uri.parse('http://localhost:3001/api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
+          body:jsonEncode(pass),
+          headers: {
+            "Content-Type":"application/json"
+          }
+      );
+
+      if(res.statusCode == 200) {
+        print(res.body);
+        Navigator.pop(context);
+        if (jsonDecode(res.body)['statusCode'] == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Cake Details Updated Successfully!"))
+          );
+          fetchNotifications();
+          getOrdersList();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Cake Details Updated Failed!"))
+          );
+        }
+      }
+
+    }catch(e){
+
+      Navigator.pop(context);
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Cake Details Update Facing Some Errors...!"))
+      );
+
+    }
+
   }
 
   //endregion
@@ -1567,7 +1767,7 @@ class _NotificationsState extends State<Notifications> {
                                   }else if(mainList[index]['CustomizedCakeID']!=null && mainList[index]['Status'].toString().toLowerCase()=="sent"){
                                     print("log");
                                     //showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
-                                    showCustomCakeInvoices(mainList[index]['CustomizedCakeID']);
+                                    showCustomCakeInvoices(mainList[index]['CustomizedCakeID'] , mainList[index] );
                                   }
                                 },
                                 child: Container(
