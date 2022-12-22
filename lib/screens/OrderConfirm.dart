@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cakey/PaymentGateway.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,14 @@ class _OrderConfirmState extends State<OrderConfirm> {
   double sgstPrice = 0;
   double discountPrice = 0;
 
+  var topperName = "";
+  var topperImage = "";
+  var topperId = "";
+
+  var premiumCake = "";
+
+  var data = {};
+
 
   //region Functions
 
@@ -131,6 +140,10 @@ class _OrderConfirmState extends State<OrderConfirm> {
 
   Future<void> recieveDetailsFromScreen() async{
 
+    //'orderCakeTopperid',
+    // 'orderCakeTopperName'
+    // 'orderCakeTopperImg',
+
     var prefs = await SharedPreferences.getInstance();
 
     try{
@@ -138,6 +151,11 @@ class _OrderConfirmState extends State<OrderConfirm> {
       setState(() {
 
         //Strings
+        cakeName = prefs.getString("orderCakeName")!;
+        topperName = prefs.getString("orderCakeTopperName")!;
+        topperImage = prefs.getString("orderCakeTopperImg")!;
+        topperId = prefs.getString("orderCakeTopperid")!;
+        premiumCake = prefs.getString("orderCakeisPremium")!;
         cakeName = prefs.getString("orderCakeName")!;
         authToken = prefs.getString("authToken")!;
         cakePrice = prefs.getString("orderCakePrice")??'0';
@@ -150,6 +168,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
         }
         //cakeType = "Cakes";
         weight = prefs.getString("orderCakeWeight")!;
+        eggOreggless = prefs.getString("orderCakeEggOrEggless")!;
         cakeImage = prefs.getString("orderCakeImages")!;
         userAddress = prefs.getString("orderCakeDeliverAddress")!;
         vendorName = prefs.getString("orderCakeVendorName")!;
@@ -272,6 +291,9 @@ class _OrderConfirmState extends State<OrderConfirm> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async {
       recieveDetailsFromScreen();
+      var pr = await SharedPreferences.getInstance();
+      data = jsonDecode(pr.getString('theMainCakeDetails')??'');
+      print("Maindata drom ... $data");
     });
     super.initState();
   }
@@ -602,29 +624,29 @@ class _OrderConfirmState extends State<OrderConfirm> {
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Discounts',style: const TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Row(
-                                //${discount} % $discountPrice
-                                children:[
-                                  Container(
-                                      padding:EdgeInsets.only(right:5),
-                                      child: Text('0 %',style: const TextStyle(fontSize:10.5,),)
-                                  ),
-                                  Text('₹ 0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ]
-                            )
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.all(10),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     crossAxisAlignment: CrossAxisAlignment.center,
+                      //     children: [
+                      //       const Text('Discounts',style: const TextStyle(
+                      //         fontFamily: "Poppins",
+                      //         color: Colors.black54,
+                      //       ),),
+                      //       Row(
+                      //           //${discount} % $discountPrice
+                      //           children:[
+                      //             Container(
+                      //                 padding:EdgeInsets.only(right:5),
+                      //                 child: Text('0 %',style: const TextStyle(fontSize:10.5,),)
+                      //             ),
+                      //             Text('₹ ${double.parse(discountPrice.toString()).toStringAsFixed(1)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                      //           ]
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
                       Container(
                         padding: const EdgeInsets.all(10),
                         child: Row(
@@ -716,8 +738,48 @@ class _OrderConfirmState extends State<OrderConfirm> {
                     onPressed: () async{
                       var pref = await SharedPreferences.getInstance();
                       pref.setString("orderFromCustom", "no");
-                      // calculatedCountsAndPrice();
-                      Navigator.push(context, MaterialPageRoute(builder:(contex)=>CheckOut(artic.toList() , flav.toList())));
+                      //calculatedCountsAndPrice();
+                      var paymentObj = {
+                        "img": data['MainCakeImage'],
+                        "name": data['CakeName'],
+                        "egg":eggOreggless,
+                        "price": (counts * (double.parse(cakePrice.toString()) +
+                            double.parse(extraCharges.toString()))*
+                            double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2),
+                        "count":counts,
+                        "vendor": data['VendorName'],
+                        "type":"Cakes",
+                        "details": data,
+                        "deliverType": deliverType,
+                        "deliveryAddress": userAddress,
+                        "deliverDate":deliverDate,
+                        "deliverSession":deliverSession,
+                        "deliverCharge":deliverType.toLowerCase()=="pickup"?0:deliveryCharge,
+                        "discount":data['Discount'],
+                        "extra_charges":extraCharges,
+                        "weight":weight,
+                        "flavours":flav,
+                        "shapes":shape,
+                        "tier":cakeTier,
+                        "topper_price":topperPrice,
+                        "topper_name":topperName,
+                        "topper_image":topperImage,
+                        "topper_id":topperId,
+                        "msg_on_cake":cakeMessage,
+                        "spl_req":cakeSplReq,
+                        "premium_vendor":premiumCake,
+                        "vendor_id":vendorID,
+                      };
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (c) => PaymentGateway(
+                                paymentObjs: paymentObj,
+                              )
+                          )
+                      );
+                      //Navigator.push(context, MaterialPageRoute(builder:(contex)=>CheckOut(artic.toList() , flav.toList())));
                     },
                     color: lightPink,
                     child: Text("CONFIRM YOUR ORDER",style: TextStyle(

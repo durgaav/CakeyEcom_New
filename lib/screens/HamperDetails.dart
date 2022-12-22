@@ -175,6 +175,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       "deliverCharge":fixedDelliverMethod.toLowerCase()=="pickup"?0:((adminDeliveryCharge / adminDeliveryChargeKm)*(calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
           double.parse(vendrorLat.toString()), double.parse(vendrorLong)))),
       "discount":0,
+      "vendor_id":vendor_Id,
     };
 
     Navigator.push(
@@ -1694,7 +1695,8 @@ class _HamperDetailsState extends State<HamperDetails> {
 
                   tooFar
                       ? Container()
-                      : Center(
+                      :
+                  Center(
                           child: Container(
                             height: 50,
                             width: 200,
@@ -1707,31 +1709,37 @@ class _HamperDetailsState extends State<HamperDetails> {
                                 FocusScope.of(context).unfocus();
                                 var charge = 0.0;
                                 //deliverAddressIndex
-                                // if(fixedDelliverMethod.toLowerCase()=="delivery"){
-                                //   charge = deliveryCharge;
-                                // }else{
-                                //   charge = 0;
-                                // }
-                                //
-                                // print('total...... $charge');
-                                //
-                                // amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
-                                //
-                                // print("Final $amount");
-                                //
-                                // if(deliverDate.toLowerCase()=="select delivery date" ||
-                                //     deliverSession.toLowerCase()=="select delivery time")
-                                // {
-                                //   ScaffoldMessenger.of(context).showSnackBar(
-                                //       SnackBar(
-                                //           content: Text("Please Select Deliver Date / Deliver Session"),
-                                //           behavior: SnackBarBehavior.floating,
-                                //       ));
-                                // }else{
-                                //   passToCheckout();
-                                // }
+                                if(fixedDelliverMethod.toLowerCase()=="delivery"){
+                                  charge = deliveryCharge;
+                                }else{
+                                  charge = 0;
+                                }
 
-                                navigateToCheckout();
+                                print('total...... $charge');
+
+                                amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
+
+                                print("Final $amount");
+
+                                if(deliverDate.toLowerCase()=="select delivery date" ||
+                                    deliverSession.toLowerCase()=="select delivery time")
+                                {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text("Please Select Deliver Date / Deliver Session"),
+                                          behavior: SnackBarBehavior.floating,
+                                      ));
+                                } else if(deliverAddressIndex == -1){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Please Select Deliver Address"),
+                                        behavior: SnackBarBehavior.floating,
+                                      ));
+                                } else{
+                                  navigateToCheckout();
+                                }
+
+                                //navigateToCheckout();
                               },
                               color: lightPink,
                               child: Text(

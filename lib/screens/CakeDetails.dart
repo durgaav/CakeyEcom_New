@@ -1676,6 +1676,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     print(jsonDecode(shape));
 
+    prefs.setString("theMainCakeDetails",jsonEncode(data));
+
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(
@@ -4205,7 +4207,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  
+
                                                   Text('Selected Vendor',
                                                           style: TextStyle(
                                                               fontSize: 15,
@@ -4633,6 +4635,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                    mySelVendors = [nearestVendors[index]];
                                                                    isNearVendrClicked = true;
                                                                    print(mySelVendors);
+                                                                   //fetchToppersById(mySelVendors[0]['VendorID'].toString());
                                                                    loadCakeDetailsByVendor(mySelVendors[0]['_id'].toString(), cakeName , 0);
                                                                 });
                                                               },
@@ -4786,7 +4789,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                             SizedBox(
                                                                               height: 8,
                                                                             ),
-                                                                            deliverCharge=="0.0"?Text(
+                                                                            double.parse(betweenKm)<=2.0?Text(
                                                                                "DELIVERY FREE",
                                                                               style: TextStyle(color: Colors.orange, fontSize: 10, fontFamily: "Poppins"),
                                                                             ):
@@ -4995,7 +4998,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             );
                                           }else if(deliverAddressIndex==-1){
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select delivery delivery address."))
+                                                SnackBar(content: Text("Please select delivery address."))
                                             );
                                           }else{
                                             loadOrderPreference();

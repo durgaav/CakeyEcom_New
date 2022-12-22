@@ -431,7 +431,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       });
     }else if(data['type'].toString().toLowerCase()=="cakes"){
       //price + counts
-      var initialPrice = double.parse(productPriceUI)*double.parse(countUI.toString());
+      var initialPrice = double.parse(productPriceUI);
 
       //initial + deliver charge
       var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
@@ -647,9 +647,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       // cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
 
     });
-
-    getTaxDetails();
-
   }
 
   Future<void> getTaxDetails() async{
@@ -699,6 +696,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         print(map);
         Navigator.pop(context);
         setState(() {
+          handleCalculations(0, paymentObjs);
           // taxes = int.parse("0");
           // myTax = (myPrice * taxes)/100;
           // gstPrice = myTax/2;
@@ -714,6 +712,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       print(e);
       Navigator.pop(context);
       setState(() {
+        handleCalculations(0, paymentObjs);
         // taxes = int.parse("0");
         // myTax = (myPrice * taxes)/100;
         // gstPrice = myTax/2;
@@ -723,6 +722,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         // pref.setInt('orderCakeTaxperc', taxes??0);
       });
     }
+
+    getVendorDetails();
 
   }
 
@@ -885,16 +886,235 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   //make cake order
   Future<void> handleCakeOrder() async{
+    var obj = paymentObjs['details'];
+    showAlertDialog();
 
-    try{
+    print(premiumVendor);
+
+    List tempFlavList = [];
+
+    double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())+topperPrice;
+
+    tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
+        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice+topperPrice;
+    print(tempPrice);
+    tempTax = tempPrice * (double.parse(taxes.toString())/100);
 
 
+    String billTot = ((counts * (
+        double.parse(cakePrice)*
+            double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+            (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+    ) + double.parse((tempTax).toString()) +
+        deliveryCharge)
+        - tempDiscountPrice+topperPrice).toString();
 
-    }catch(e){
+    print(billTot);
 
+    setState((){
+      // for (var i = 0 ; i<flavs.length ; i++){
+      //   tempFlavList.add(flavs[i]);
+      // }
+    });
 
+    var extra = double.parse(extraCharges.toString())*
+        double.parse(weight.toLowerCase().replaceAll("kg", ""));
 
-    }
+    var tempShapeList = jsonDecode(shape);
+
+    print(tempShapeList);
+    print(tempFlavList);
+
+    // try
+    // {"img": data['MainCakeImage'],
+    //                         "name": data['CakeName'],
+    //                         "egg":eggOreggless,
+    //                         "price": (counts * (double.parse(cakePrice.toString()) +
+    //                             double.parse(extraCharges.toString()))*
+    //                             double.parse(weight.toLowerCase().replaceAll('kg', ""))+topperPrice).toStringAsFixed(2),
+    //                         "count":counts,
+    //                         "vendor": data['VendorName'],
+    //                         "type":"Cakes",
+    //                         "details": data,
+    //                         "deliverType": deliverType,
+    //                         "deliveryAddress": userAddress,
+    //                         "deliverDate":deliverDate,
+    //                         "deliverSession":deliverSession,
+    //                         "deliverCharge":deliverType.toLowerCase()=="pickup"?0:deliveryCharge,
+    //                         "discount":data['Discount'],
+    //                         "extra_charges":extraCharges,
+    //                         "weight":weight,
+    //                         "flavours":flav,
+    //                         "shapes":shape,
+    //                         "tier":cakeTier,
+    //                         "topper_price":topperPrice,
+    //                         "topper_name":topperName,
+    //                         "topper_image":topperImage,
+    //                         "topper_id":topperId,
+    //                         "msg_on_cake":cakeMessage,
+    //                         "spl_req":cakeSplReq,
+    //                         "premium_vendor":premiumCake
+      var data = {
+        "CakeID": obj['_id'],
+        "Cake_ID": obj['Id'],
+        "CakeName": obj['CakeName'],
+        "CakeCommonName": obj['CakeCommonName'],
+        // "CakeType": cakeType,
+        // "CakeSubType": cakeSubType,
+        "Image": obj['MainCakeImage'],
+        "EggOrEggless": paymentObjs[''],
+        "Flavour":paymentObjs[''],
+        "Shape": paymentObjs[''],
+        paymentObjs['']!="null"||paymentObjs['']!=null?
+        "Tier":paymentObjs['']:null,
+        "Weight": tierCakeWeight=="null"?
+        weight.toLowerCase().replaceAll("kg", "")+"kg":
+        tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+        "Description": obj['Description'],
+        "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+        "PaymentType": paymentType,
+        "Total": "$totalBillAmount",
+        "Sgst": (tempTax/2).toString(),
+        "Gst": (tempTax/2).toString(),
+        "DeliveryCharge": paymentObjs[''].toString(),
+        "ExtraCharges": paymentObjs[''].toString(),
+        "Discount": paymentObjs[''].toString(),
+        "ItemCount": paymentObjs[''],
+        "Price": paymentObjs[''],
+        "DeliverySession": paymentObjs[''],
+        "DeliveryDate": paymentObjs[''],
+        "UserPhoneNumber": userPhone,
+        "UserName": userName,
+        "UserID": userID,
+        "User_ID": userModId,
+        "Tax":taxes.toString(),
+        "DeliveryInformation": paymentObjs[''],
+        "DeliveryAddress": userAddress,
+        "PremiumVendor":paymentObjs['']=="no"?"n":'y',
+        "VendorName":vendorName,
+        "VendorID":vendorID,
+        "Vendor_ID":vendorModId,
+        "VendorPhoneNumber1":vendorPhone1,
+        "VendorPhoneNumber2":vendorPhone2,
+        "VendorAddress":vendorAddress,
+        "GoogleLocation":{
+          "Latitude":obj['GoogleLocation']['Latitude'],
+          "Longitude":obj['GoogleLocation']['Longitude']
+        },
+        "MessageOnTheCake":paymentObjs[''],
+        "SpecialRequest":paymentObjs[''],
+        "TopperId":paymentObjs[''],
+        "TopperName":paymentObjs[''],
+        "TopperImage":paymentObjs[''],
+        "TopperPrice":'$topperPrice',
+      };
+
+      //44 datas
+
+      var premiumData = {
+        "CakeID": cakeID,
+        "Cake_ID": cakeModId,
+        "CakeName": cakeName,
+        "CakeCommonName": cakeCommonName,
+        "Image": cakeImage,
+        "EggOrEggless": eggOreggless,
+        "Flavour": "tempFlavList",
+        "Shape": "tempShapeList",
+        cakeTier!="null"||cakeTier!=null?
+        "Tier":cakeTier:null,
+        "Weight": tierCakeWeight=="null"?
+        weight.toLowerCase().replaceAll("kg", "")+"kg":
+        tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+        "Description": cakeDesc,
+        "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+        "PaymentType": paymentType,
+        "Total": "billTot".toString(),
+        "Sgst": (tempTax/2).toString(),
+        "Gst": (tempTax/2).toString(),
+        "DeliveryCharge": deliveryCharge.toString(),
+        "ExtraCharges": "extra".toString(),
+        "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0,
+        "ItemCount": counts,
+        "Price": cakePrice.toString(),
+        "DeliverySession": deliverSession,
+        "DeliveryDate": deliverDate,
+        "UserPhoneNumber": userPhone,
+        "UserName": userName,
+        "UserID": userID,
+        "User_ID": userModId,
+        "Tax":taxes.toString(),
+        "DeliveryInformation": deliverType,
+        "DeliveryAddress": userAddress,
+        "PremiumVendor":premiumVendor=="no"?"n":'y',
+        "MessageOnTheCake":cakeMessage,
+        "SpecialRequest":cakeSplReq,
+        "TopperId":topperId,
+        "TopperName":topperName,
+        "TopperImage":topperImg,
+        "TopperPrice":'$topperPrice',
+      };
+
+      //37
+
+      var body = jsonEncode('object');
+
+      if(premiumVendor == 'yes'){
+        body = jsonEncode(premiumData);
+      }else{
+        body = jsonEncode(data);
+      }
+
+      print(body);
+
+      //http://sugitechnologies.com:88
+
+    //   var response = await http.post(Uri.parse("http://sugitechnologies.com/cakey/api/order/new"),
+    //       headers: {"Content-Type": "application/json"},
+    //       body: body
+    //   );
+    //
+    //   print("${response.statusCode}");
+    //   print("${response.body}");
+    //   var map = jsonDecode(response.body);
+    //
+    //   if(response.statusCode == 200){
+    //
+    //     Navigator.pop(context);
+    //
+    //     if(map['statusCode'].toString()=="200"){
+    //
+    //       showOrderCompleteSheet();
+    //
+    //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //           content: Text(map['message']),
+    //           behavior: SnackBarBehavior.floating
+    //       ));
+    //
+    //       NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
+    //
+    //     }
+    //
+    //   }else{
+    //
+    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //         content: Text(map['message']),
+    //         behavior: SnackBarBehavior.floating
+    //     ));
+    //     Navigator.pop(context);
+    //
+    //   }
+    //
+    //
+    // } catch(e){
+    //   print('error...');
+    //   print(e);
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //       content: Text("Unable to place order!"),
+    //       behavior: SnackBarBehavior.floating
+    //   ));
+    //   Navigator.pop(context);
+    // }
 
   }
 
@@ -995,13 +1215,55 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   }
 
+
+  Future<void> getVendorDetails() async {
+
+    try{
+
+      var headers = {
+        'Authorization': '$authToken'
+      };
+      var request = http.Request('GET', Uri.parse('http://localhost:3001/api/vendors/list'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      List map = jsonDecode(await response.stream.bytesToString());
+
+      if(response.statusCode == 200){
+
+        Map filtered = map.where((element) => element['_id'].toString().toLowerCase()==paymentObjs['vendor_id'].toString().toLowerCase()).toList()[0];
+
+        print("filltered... $filtered");
+
+        setState(() {
+          vendorModId = filtered['Id'].toString();
+          vendorName = filtered['VendorName'].toString();
+          vendorAddress = filtered['Address'].toString();
+          vendorLong = filtered['GoogleLocation']['Longitude'].toString();
+          vendorLat = filtered['GoogleLocation']['Latitude'].toString();
+          vendorPhone1 = filtered['PhoneNumber1'].toString();
+          vendorPhone2 = filtered['PhoneNumber2'].toString();
+        });
+
+      }else{
+
+      }
+
+    }catch(e){
+
+    }
+
+  }
+
   //endregion
 
   @override
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
-      //recieveDetailsFromScreen();
+      recieveDetailsFromScreen();
       getTaxDetails();
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
@@ -1441,7 +1703,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:5),
-                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${paymentObjs['discount']} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${discountTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -1704,7 +1966,6 @@ class CardExpirationFormatter extends TextInputFormatter {
   }
 }
 
-
 class MaskedTextInputFormatter extends TextInputFormatter {
   final String mask;
   final String separator;
@@ -1732,3 +1993,5 @@ class MaskedTextInputFormatter extends TextInputFormatter {
     return newValue;
   }
 }
+
+
