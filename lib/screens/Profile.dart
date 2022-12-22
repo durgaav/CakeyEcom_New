@@ -81,6 +81,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //Edit text Controllers...
   var userNameCtrl = new TextEditingController();
   var userAddrCtrl = new TextEditingController();
+  var pinCodeCtrl = new TextEditingController();
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
 
@@ -211,14 +212,15 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       //without profile img....
         var request = http.MultipartRequest('PUT',
             Uri.parse(
-                'http://sugitechnologies.com/cakey/api/users/update/$userID'));
+                'http://localhost:3001/api/users/update/$userID'));
         request.headers['Content-Type'] = 'multipart/form-data';
 
         request.fields.addAll({
           'UserName': userNameCtrl.text.isEmpty?"$userName":userNameCtrl.text,
           'Address': userAddrCtrl.text.isEmpty?"$userAddress":userAddrCtrl.text,
           'Notification':!notifiOnOrOf?'n':"y",
-          'Notification_Id':'$tokenId'
+          'Notification_Id':'$tokenId',
+          "Pincode":pinCodeCtrl.text
         });
 
 
@@ -538,12 +540,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
-      http.Response response = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/users/list/"
+      //http://localhost:3001 http://sugitechnologies.com/cakey/
+      http.Response response = await http.get(Uri.parse("http://localhost:3001/api/users/list/"
           "${int.parse(phoneNumber)}"),
           headers: {"Authorization":"$authToken"}
       );
       if(response.statusCode==200){
-        // print(jsonDecode(response.body));
+        print(jsonDecode(response.body));
         setState(() {
           List body = jsonDecode(response.body);
           userID = body[0]['_id'].toString();
@@ -552,6 +555,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           fbToken = body[0]['Notification_Id'].toString();
           context.read<ContextData>().setProfileUrl(userProfileUrl);
           userName = body[0]['UserName'].toString();
+          pinCodeCtrl.text = body[0]['Pincode'].toString();
           prefs.setString('userID', userID);
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
@@ -818,11 +822,38 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),
               controller: userAddrCtrl,
               textCapitalization: TextCapitalization.sentences,
-              maxLines: 4,
+              maxLines: 1,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: "Address",
                 border: OutlineInputBorder(),
+                hintStyle: TextStyle(
+                    fontFamily: "Poppins" ,
+                    color: darkBlue
+                ),
+              ),
+            ),
+            const SizedBox(height: 15,),
+            Text(
+              'Pincode',
+              style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey
+              ),
+            ),
+            SizedBox(height: 10,),
+            TextField(
+              maxLength: 6,
+              style: TextStyle(
+                fontFamily: "Poppins" ,
+              ),
+              controller: pinCodeCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: "Pincode",
+                border: OutlineInputBorder(),
+                counterText: "",
                 hintStyle: TextStyle(
                     fontFamily: "Poppins" ,
                     color: darkBlue
@@ -864,9 +895,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           child: RaisedButton(
             onPressed: (){
               FocusScope.of(context).unfocus();
-              if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty){
+              if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty||pinCodeCtrl.text.isEmpty){
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Make sure fields are not empty...'))
+                  SnackBar(content: Text('Make sure fields are not empty...'),backgroundColor: Colors.red,)
+                );
+              }else if(pinCodeCtrl.text.length<6){
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please check the pin code.'),backgroundColor: Colors.red,)
                 );
               }else{
                 updateProfile();
