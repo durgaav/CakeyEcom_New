@@ -160,6 +160,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
         authToken = prefs.getString("authToken")!;
         cakePrice = prefs.getString("orderCakePrice")??'0';
         topperPrice = prefs.getDouble('orderCakeTopperPrice')??0.0;
+        tierCakeWeight = prefs.getString('orderCakeTierWeight')??"0.0";
         // var addedToper = double.parse(cakePrice)+topperPrice;
         // cakePrice = addedToper.toString();
         cakeType = prefs.getString("orderCakeType")??'Cakes';
@@ -769,6 +770,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                         "spl_req":cakeSplReq,
                         "premium_vendor":premiumCake,
                         "vendor_id":vendorID,
+                        "cake_price":cakePrice.toString()
                       };
 
                       Navigator.push(

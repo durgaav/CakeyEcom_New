@@ -557,6 +557,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 setState((){
                                   myShapeIndex = index;
                                   shapeGrpValue = index;
+                                  fixedWeight = shapes[index]['MinWeight'].toString();
                                 });
                               },
                               child: Container(
@@ -1678,32 +1679,94 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
     prefs.setString("theMainCakeDetails",jsonEncode(data));
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(
-            flav: fixedFlavList,
-            artic: [
-              {"Name": '$fixedArticle', "Price": '$articleExtraCharge'}
-            ].toList()),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
+    // Navigator.of(context).push(
+    //   PageRouteBuilder(
+    //     pageBuilder: (context, animation, secondaryAnimation) => OrderConfirm(
+    //         flav: fixedFlavList,
+    //         artic: [
+    //           {"Name": '$fixedArticle', "Price": '$articleExtraCharge'}
+    //         ].toList()),
+    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //       const begin = Offset(1.0, 0.0);
+    //       const end = Offset.zero;
+    //       const curve = Curves.ease;
+    //
+    //       final tween = Tween(begin: begin, end: end);
+    //       final curvedAnimation = CurvedAnimation(
+    //         parent: animation,
+    //         curve: curve,
+    //       );
+    //
+    //       return SlideTransition(
+    //         position: tween.animate(curvedAnimation),
+    //         child: child,
+    //       );
+    //     },
+    //   ),
+    // );
 
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
+    print("the cake price...");
 
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-      ),
+    var priceData = ((((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+        double.parse(cakePrice)) + (
+        double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+            double.parse(flavExtraCharge.toString())) +(
+        double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+            double.parse(extraShapeCharge.toString())))*counts)
+        +double.parse(topperPrice.toString())).toStringAsFixed(2);
+
+    var extraData = (double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+        double.parse(flavExtraCharge.toString()))+(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
+        double.parse(extraShapeCharge.toString()));
+
+    var deliverChargeData = 0.0;
+
+    if(mySelVendors.isNotEmpty){
+      deliverChargeData = double.parse("${((adminDeliveryCharge / adminDeliveryChargeKm) *
+          (calculateDistance(double.parse(userLatitude),
+              double.parse(userLongtitude),mySelVendors[0]['GoogleLocation']['Latitude'],
+              mySelVendors[0]['GoogleLocation']['Longitude'])))}");
+    }
+
+    var paymentObj = {
+      "img": data['MainCakeImage'],
+      "name": data['CakeName'],
+      "egg":eggEggless,
+      "price":priceData,
+      "count":counts,
+      "vendor": data['VendorName'],
+      "type":"Cakes",
+      "details": data,
+      "deliverType":fixedDelliverMethod,
+      "deliveryAddress": deliverAddress[deliverAddressIndex],
+      "deliverDate":deliverDate,
+      "deliverSession":deliverSession,
+      "deliverCharge":fixedDelliverMethod.toLowerCase()=="pickup"?0:deliverChargeData,
+      "discount":data['Discount'],
+      "extra_charges":extraData,
+      "weight":weight,
+      "flavours":fixedFlavList,
+      "shapes":shape,
+      "tier":"",
+      "topper_price":topperPrice,
+      "topper_name":topperName,
+      "topper_image":topperImage,
+      "topper_id":topperId,
+      "msg_on_cake":messageCtrl.text,
+      "spl_req":specialReqCtrl.text,
+      "premium_vendor":"",
+      "vendor_id":vendorID,
+      "cake_price":cakePrice
+    };
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (c) => PaymentGateway(
+              paymentObjs: paymentObj,
+            )
+        )
     );
-
 
     print('Loaded....');
   }

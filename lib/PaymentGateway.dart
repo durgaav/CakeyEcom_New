@@ -305,8 +305,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                     // proceedOrder(amount);
                     if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
                       handleHamperOrder();
-                    }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
-
+                    }else if(paymentObjs['type'].toString().toLowerCase()=="cakes"){
+                      handleCakeOrder();
                     }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
 
                     }else{
@@ -774,9 +774,9 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
     if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
       handleHamperOrder();
-    }else if(paymentObjs['type'].toString().toLowerCase()=="cake"){
-
-    }else if(paymentObjs['type'].toString().toLowerCase()=="other"){
+    }else if(paymentObjs['type'].toString().toLowerCase()=="cakes"){
+      handleCakeOrder();
+    }else if(paymentObjs['type'].toString().toLowerCase()=="others"){
 
     }else{
 
@@ -889,42 +889,42 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     var obj = paymentObjs['details'];
     showAlertDialog();
 
-    print(premiumVendor);
-
-    List tempFlavList = [];
-
-    double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
-        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())+topperPrice;
-
-    tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
-        double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice+topperPrice;
-    print(tempPrice);
-    tempTax = tempPrice * (double.parse(taxes.toString())/100);
-
-
-    String billTot = ((counts * (
-        double.parse(cakePrice)*
-            double.parse(weight.toLowerCase().replaceAll('kg', ""))+
-            (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
-    ) + double.parse((tempTax).toString()) +
-        deliveryCharge)
-        - tempDiscountPrice+topperPrice).toString();
-
-    print(billTot);
-
-    setState((){
-      // for (var i = 0 ; i<flavs.length ; i++){
-      //   tempFlavList.add(flavs[i]);
-      // }
-    });
-
-    var extra = double.parse(extraCharges.toString())*
-        double.parse(weight.toLowerCase().replaceAll("kg", ""));
-
-    var tempShapeList = jsonDecode(shape);
-
-    print(tempShapeList);
-    print(tempFlavList);
+    // print(premiumVendor);
+    //
+    // List tempFlavList = [];
+    //
+    // double price = (counts*(double.parse(cakePrice.toString())+extraCharges))*
+    //     double.parse(weight.toLowerCase().replaceAll("kg", "").toString())+topperPrice;
+    //
+    // tempPrice = (counts * (double.parse(cakePrice)+extraCharges))*
+    //     double.parse(weight.toLowerCase().replaceAll("kg", "").toString())-tempDiscountPrice+topperPrice;
+    // print(tempPrice);
+    // tempTax = tempPrice * (double.parse(taxes.toString())/100);
+    //
+    //
+    // String billTot = ((counts * (
+    //     double.parse(cakePrice)*
+    //         double.parse(weight.toLowerCase().replaceAll('kg', ""))+
+    //         (extraCharges*double.parse(weight.toLowerCase().replaceAll('kg', "")))
+    // ) + double.parse((tempTax).toString()) +
+    //     deliveryCharge)
+    //     - tempDiscountPrice+topperPrice).toString();
+    //
+    // print(billTot);
+    //
+    // setState((){
+    //   // for (var i = 0 ; i<flavs.length ; i++){
+    //   //   tempFlavList.add(flavs[i]);
+    //   // }
+    // });
+    //
+    // var extra = double.parse(extraCharges.toString())*
+    //     double.parse(weight.toLowerCase().replaceAll("kg", ""));
+    //
+    // var tempShapeList = jsonDecode(shape);
+    //
+    // print(tempShapeList);
+    // print(tempFlavList);
 
     // try
     // {"img": data['MainCakeImage'],
@@ -955,17 +955,16 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     //                         "msg_on_cake":cakeMessage,
     //                         "spl_req":cakeSplReq,
     //                         "premium_vendor":premiumCake
+
       var data = {
         "CakeID": obj['_id'],
         "Cake_ID": obj['Id'],
         "CakeName": obj['CakeName'],
         "CakeCommonName": obj['CakeCommonName'],
-        // "CakeType": cakeType,
-        // "CakeSubType": cakeSubType,
         "Image": obj['MainCakeImage'],
-        "EggOrEggless": paymentObjs[''],
-        "Flavour":paymentObjs[''],
-        "Shape": paymentObjs[''],
+        "EggOrEggless": paymentObjs['egg'],
+        "Flavour":jsonEncode(paymentObjs['flavours'].toString()),
+        "Shape": jsonEncode(paymentObjs['shapes'].toString()),
         paymentObjs['']!="null"||paymentObjs['']!=null?
         "Tier":paymentObjs['']:null,
         "Weight": tierCakeWeight=="null"?
@@ -975,23 +974,23 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
         "PaymentType": paymentType,
         "Total": "$totalBillAmount",
-        "Sgst": (tempTax/2).toString(),
-        "Gst": (tempTax/2).toString(),
-        "DeliveryCharge": paymentObjs[''].toString(),
-        "ExtraCharges": paymentObjs[''].toString(),
-        "Discount": paymentObjs[''].toString(),
-        "ItemCount": paymentObjs[''],
-        "Price": paymentObjs[''],
-        "DeliverySession": paymentObjs[''],
-        "DeliveryDate": paymentObjs[''],
+        "Sgst": (taxes/2).toString(),
+        "Gst": (taxes/2).toString(),
+        "DeliveryCharge": paymentObjs['deliverCharge'].toString(),
+        "ExtraCharges": paymentObjs['extra_charges'].toString(),
+        "Discount": paymentObjs['discount'].toString(),
+        "ItemCount": paymentObjs['count'],
+        "Price": paymentObjs['cake_price'],
+        "DeliverySession": paymentObjs['deliverSession'],
+        "DeliveryDate": paymentObjs['deliverDate'],
         "UserPhoneNumber": userPhone,
         "UserName": userName,
         "UserID": userID,
         "User_ID": userModId,
         "Tax":taxes.toString(),
-        "DeliveryInformation": paymentObjs[''],
+        "DeliveryInformation": paymentObjs['deliverType'],
         "DeliveryAddress": userAddress,
-        "PremiumVendor":paymentObjs['']=="no"?"n":'y',
+        "PremiumVendor":paymentObjs['premium_vendor']=="no"?"n":'y',
         "VendorName":vendorName,
         "VendorID":vendorID,
         "Vendor_ID":vendorModId,
@@ -1002,12 +1001,12 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           "Latitude":obj['GoogleLocation']['Latitude'],
           "Longitude":obj['GoogleLocation']['Longitude']
         },
-        "MessageOnTheCake":paymentObjs[''],
-        "SpecialRequest":paymentObjs[''],
-        "TopperId":paymentObjs[''],
-        "TopperName":paymentObjs[''],
-        "TopperImage":paymentObjs[''],
-        "TopperPrice":'$topperPrice',
+        "MessageOnTheCake":paymentObjs['msg_on_cake'],
+        "SpecialRequest":paymentObjs['spl_req'],
+        "TopperId":paymentObjs['topper_id'],
+        "TopperName":paymentObjs['topperName'],
+        "TopperImage":paymentObjs['topperImage'],
+        "TopperPrice":paymentObjs['topper_price'],
       };
 
       //44 datas
@@ -1054,7 +1053,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "TopperImage":topperImg,
         "TopperPrice":'$topperPrice',
       };
-
       //37
 
       var body = jsonEncode('object');
@@ -1725,7 +1723,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:5),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${gstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
@@ -1747,7 +1745,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                 children:[
                                   Container(
                                       padding:EdgeInsets.only(right:5),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                      child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                   ),
                                   Text('₹ ${sgstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ]
