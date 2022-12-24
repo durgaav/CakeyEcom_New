@@ -749,7 +749,7 @@ class _NotificationsState extends State<Notifications> {
         'Authorization': '$authToken'
       };
       var request = http.Request('GET',
-          Uri.parse('http://localhost:3001/api/customize/cake/listbyuserid/$userId'));
+          Uri.parse('http://sugitechnologies.com/cakey//api/customize/cake/listbyuserid/$userId'));
 
       request.headers.addAll(headers);
 
@@ -1280,7 +1280,7 @@ class _NotificationsState extends State<Notifications> {
     try{
 
       http.Response res = await http.put(
-        Uri.parse('http://localhost:3001/api/tickets/changeRequest/Approve/${data['OrderID']}'),
+        Uri.parse('http://sugitechnologies.com/cakey//api/tickets/changeRequest/Approve/${data['OrderID']}'),
         body:jsonEncode(theData),
         headers: {
           "Content-Type":"application/json"
@@ -1326,11 +1326,11 @@ class _NotificationsState extends State<Notifications> {
       isLoading = true;
     });
 
-    //http://localhost:3001 http://sugitechnologies.com/cakey http://localhost:3001/api/users/notification/
+    //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey http://sugitechnologies.com/cakey//api/users/notification/
 
     try {
       var res = await http.get(Uri.parse(
-          "http://localhost:3001/api/users/notification/6333e3439e05797c3a35a973"),
+          "http://sugitechnologies.com/cakey//api/users/notification/6333e3439e05797c3a35a973"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -1548,7 +1548,7 @@ class _NotificationsState extends State<Notifications> {
     try{
 
       http.Response res = await http.put(
-          Uri.parse('http://localhost:3001/api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
+          Uri.parse('http://sugitechnologies.com/cakey//api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
           body:jsonEncode(pass),
           headers: {
             "Content-Type":"application/json"

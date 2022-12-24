@@ -24,6 +24,7 @@ import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import '../Dialogs.dart';
 import '../ProfileDialog.dart';
+import '../ShowToFarDialog.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../drawermenu/app_bar.dart';
 import '../screens/AddressScreen.dart';
@@ -105,6 +106,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   String fixedDate = 'Select delivery date';
   String fixedSession = 'Select delivery time';
   String deliverAddress = 'Washington , Vellaimaligai , USA ,007 ';
+  List<String> deliveryAddress = [];
+  int deliverAddressIndex = -1;
   String selectedDropWeight = "Kg";
   String fixedDelliverMethod = "Not Yet Select";
 
@@ -198,6 +201,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   int adminDeliveryChargeKm = 0;
   String userLatitude = "";
   String userLongtitude = "";
+  bool tooFar = false;
 
   int _key = 0;
 
@@ -711,6 +715,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       authToken= pref.getString('authToken')??'null';
       userCurLocation = pref.getString('userCurrentLocation')??'Not Found';
       userMainLocation = pref.getString('userMainLocation')??'Not Found';
+
+      deliveryAddress = pref.getStringList('addressList')??[deliverAddress.trim()];
+
     });
     getVendorsList();
     getShapesList();
@@ -1146,7 +1153,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         // http://sugitechnologies.com/cakey
 
           var request = http.MultipartRequest('POST',
-              Uri.parse('http://localhost:3001/api/customize/cake/new'));
+              Uri.parse('http://sugitechnologies.com/cakey//api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
@@ -1295,7 +1302,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       'Content-Type': 'application/json'
     };
     //var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/${obj.toLowerCase()}/new'));
-    var request = http.Request('POST', Uri.parse('http://localhost:3001/api/${obj.toLowerCase()}/new'));
+    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey//api/${obj.toLowerCase()}/new'));
     request.body = json.encode({
       obj: value
     });
@@ -1504,11 +1511,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     notiCount = context.watch<ContextData>().getNotiCount();
 
-    if(context.watch<ContextData>().getAddress().isNotEmpty){
-      deliverAddress = context.watch<ContextData>().getAddress();
-    }else{
-      deliverAddress = deliverAddress;
+    if (context.watch<ContextData>().getAddressList().isNotEmpty) {
+      deliveryAddress = context.watch<ContextData>().getAddressList();
     }
+
+    // if(context.watch<ContextData>().getAddress().isNotEmpty){
+    //   deliverAddress = context.watch<ContextData>().getAddress();
+    // }else{
+    //   deliverAddress = deliverAddress;
+    // }
 
     selFromVenList = context.watch<ContextData>().getAddedMyVendor();
     mySelectdVendors = context.watch<ContextData>().getMyVendorsList();
@@ -2841,6 +2852,10 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         return InkWell(
                                           onTap:(){
                                             setState(() {
+                                              if(index==0){
+                                                tooFar = false;
+                                                deliverAddressIndex = 1;
+                                              }
                                               FocusScope.of(context).unfocus();
                                               picOrDel = index;
                                               fixedDelliverMethod = picOrDeliver[index];
@@ -3131,19 +3146,61 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 style: TextStyle(color: Color(0xffaeaeae),fontSize: 14,fontFamily: "Poppins"),
                               ),
                             ),
-                            Container(
-                              padding:EdgeInsets.only(left:15 , right:15,top:3),
-                              child:Row(
-                                  crossAxisAlignment:CrossAxisAlignment.center,
-                                  children:[
-                                    Expanded(
-                                      child:Text('$userCurLocation',
-                                        style: TextStyle(fontFamily: poppins,color: Color(0xffaeaeae),fontSize: 13),
-                                      ),
-                                    ),
-                                    Icon(Icons.check_circle,color: Color(0xff058d05),size: 25,),
-                                  ]
-                              ),
+                            Column(
+                              children:deliveryAddress.map((e){
+                                return ListTile(
+                                  onTap: () async{
+                                    // setState(() {
+                                    //   deliveryAddress = e.trim();
+                                    //   deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
+                                    // });
+                                    print("Vendor address...${vendorAddress.trim()}");
+                                    showAlertDialog();
+                                    try {
+                                      List<Location> locat =
+                                      await locationFromAddress(e.toString().trim());
+                                      List<Location> venLocation = await locationFromAddress(userCurLocation.trim());
+                                      print(locat);
+                                      setState(() {
+                                        deliverAddress = e.trim();
+                                        userLatitude =
+                                            locat[0].latitude.toString();
+                                        userLongtitude =
+                                            locat[0].longitude.toString();
+                                        deliverAddressIndex =
+                                            deliveryAddress.indexWhere(
+                                                    (element) => element == e);
+                                        tooFar = false;
+                                      });
+                                      Navigator.pop(context);
+                                      if (calculateDistance(
+                                          double.parse(userLatitude),
+                                          double.parse(userLongtitude),
+                                          venLocation[0].latitude,
+                                          venLocation[0].longitude) >
+                                          10.0) {
+                                        tooFar = true;
+                                        TooFarDialog().showTooFarDialog(context, e);
+                                        //showTooFarDialog();
+                                      }
+                                    } catch (e) {
+                                      print("Error... $e");
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                  title: Text(
+                                    '${e.trim()}',
+                                    style: TextStyle(
+                                        fontFamily: poppins,
+                                        color: Colors.grey,
+                                        fontSize: 13),
+                                  ),
+                                  trailing:
+                                  deliverAddressIndex==deliveryAddress.indexWhere((element) => element==e)?
+                                  Icon(Icons.check_circle, color: Colors.green ,size: 25,):
+                                  Container(height:0,width:0),
+                                );
+                              }).toList(),
                             ),
                             Container(
                               margin: EdgeInsets.only(left: 12 , top:10 , bottom:10),
@@ -3870,6 +3927,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               SizedBox(height: 15,),
 
                               // vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
+                              tooFar?
+                              Container():
                               Center(
                                 child: Container(
                                   height: MediaQuery.of(context).size.height*0.067,
@@ -3899,7 +3958,19 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                   content: Text("Please enter correct weight or select weight!")
                                               )
                                           );
-                                        }else if(fixedWeight=="0.0"){
+                                        } else if(double.parse(changeWeight(fixedWeight).toString()) <5.0 && nearestVendors.isNotEmpty && !vendorListClicked ) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please select vendor...")
+                                              )
+                                          );
+                                        } else if(deliverAddressIndex==-1){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                  content: Text("Please select delivery address!")
+                                              )
+                                          );
+                                        } else if(fixedWeight=="0.0"){
                                           ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
                                                   content: Text("Please select weight!")

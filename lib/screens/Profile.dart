@@ -212,7 +212,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       //without profile img....
         var request = http.MultipartRequest('PUT',
             Uri.parse(
-                'http://localhost:3001/api/users/update/$userID'));
+                'http://sugitechnologies.com/cakey//api/users/update/$userID'));
         request.headers['Content-Type'] = 'multipart/form-data';
 
         request.fields.addAll({
@@ -540,8 +540,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
-      //http://localhost:3001 http://sugitechnologies.com/cakey/
-      http.Response response = await http.get(Uri.parse("http://localhost:3001/api/users/list/"
+      //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey/
+      http.Response response = await http.get(Uri.parse("http://sugitechnologies.com/cakey//api/users/list/"
           "${int.parse(phoneNumber)}"),
           headers: {"Authorization":"$authToken"}
       );

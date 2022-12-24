@@ -133,9 +133,12 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   String userLongtitude = "";
   String deliveryChargeCustomer = "";
 
-  var couponCtrl = new TextEditingController();
+  var couponCtrl = new TextEditingController(text:"bbq12m");
 
   var _razorpay = Razorpay();
+
+  var topperData = {};
+  String originalWeight = "";
 
 
   //Default loader dialog
@@ -304,7 +307,6 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         }
     );
   }
-
 
   //payment done alert
   void showPaymentDoneAlert(String status){
@@ -570,6 +572,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       otherType =  prefs.getString("otherOrdKgType")??"";
       cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
 
+      topperData = jsonDecode(prefs.getString("others_topper_data")??'');
+      originalWeight = prefs.getString("others_original_weight")??'';
+
     });
 
     getTaxDetails();
@@ -647,7 +652,6 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
   }
 
-
   Future<void> sendNotificationToVendor(String? NoId) async{
 
     // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
@@ -688,100 +692,121 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     showAlertDialog();
 
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+    try{
+
+      var amount = ( ((
+          double.parse(cakePrice) + deliveryCharge
+      ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+
+      var data = {
+        "Other_ProductID": cakeID,
+        "Other_Product_ID": cakeModId,
+        "ProductName": cakeName,
+        "ProductCommonName": cakeCommonName,
+        "CakeType": "Others",
+        "CakeSubType": cakeSubType,
+        "Image": cakeImage,
+        "EggOrEggless": eggOreggless,
+        "Flavour": flavs,
+        "Shape": shape,
+        "ProductMinWeightPerKg": {
+          "Weight": originalWeight,
+          "PricePerKg": pricePerKg
+        },
+        "Description": cakeDesc,
+        "VendorID": vendorID,
+        "Vendor_ID": vendorModId,
+        "VendorName":vendorName,
+        "VendorPhoneNumber1": vendorPhone1,
+        "VendorPhoneNumber2": vendorPhone2,
+        "VendorAddress": vendorAddress,
+        "GoogleLocation": {
+          "Latitude": vendorLat,
+          "Longitude": vendorLong
+        },
+        "UserID": userID,
+        "User_ID": userModId,
+        "UserName": userName,
+        "UserPhoneNumber": userPhone,
+        "DeliveryAddress": userAddress,
+        "DeliveryDate": deliverDate,
+        "DeliverySession": deliverSession,
+        "DeliveryInformation": deliverType,
+        "ItemCount": counts,
+        "Discount": tempDiscountPrice,
+        "DeliveryCharge": deliveryCharge,
+        "Total": amount,
+        "Gst":gstPrice,
+        "Sgst":sgstPrice,
+        "Tax":taxes,
+        "PaymentType": paymentType,
+        "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
+      };
+
+      if( cakeSubType.toLowerCase()=="brownie" && topperData['price']!=0.0){
+        data.addAll({
+          "TopperId":topperData['id'],
+          "TopperName":topperData['name'],
+          "TopperImage":topperData['image'],
+          "TopperPrice":topperData['topperPrice'],
+        });
+      }
 
 
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST',
-        Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerKg": {
-        "Weight": weight,
-        "PricePerKg": pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "ItemCount": counts,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Total": amount,
-      "Gst":gstPrice,
-      "Sgst":sgstPrice,
-      "Tax":taxes,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
+      http.Response response = await http.post(
+          Uri.parse("http://sugitechnologies.com/cakey/api/otherproduct/order/new"),
+          body:jsonEncode(data),
+          headers:{'Content-Type':'application/json'}
+      );
 
-    http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
-
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
+      var map = jsonDecode(response.body);
 
       print(map);
 
-      if(map['statusCode']==200){
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
+      if (response.statusCode == 200) {
 
-        sendNotificationToVendor(notificationTid);
         Navigator.pop(context);
-        showOrderCompleteSheet();
-      }else{
+
+        if(map['statusCode']==200){
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.black,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+
+          sendNotificationToVendor(notificationTid);
+          Navigator.pop(context);
+          showOrderCompleteSheet();
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.black,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
+      }
+      else {
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(map['message']),
+              content: Text("Unable to place order"),
               backgroundColor: Colors.black,
               behavior: SnackBarBehavior.floating,
             )
         );
       }
-    }
-    else {
+
+    }catch(e){
       Navigator.pop(context);
-      print(response.reasonPhrase);
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.reasonPhrase.toString()),
+            content: Text("Unable to place order"),
             backgroundColor: Colors.black,
             behavior: SnackBarBehavior.floating,
           )
@@ -815,7 +840,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "Flavour": flavs,
       "Shape": shape,
       "ProductMinWeightPerUnit": {
-        "Weight": weight,
+        "Weight": originalWeight,
         "ProductCount": counts,
         "PricePerUnit": pricePerKg
       },
@@ -919,7 +944,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       "Flavour": flavs,
       "Shape": shape,
       "ProductMinWeightPerBox": {
-        "Piece":weight,
+        "Piece":originalWeight,
         "ProductCount":counts,
         "PricePerBox":pricePerKg
       },
@@ -1045,6 +1070,11 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
   @override
   Widget build(BuildContext context) {
+
+    print("weight $topperData");
+    discountPrice = (double.parse(cakePrice)*discount)/100;
+    tempDiscount = discount;
+
     return Scaffold(
         appBar: AppBar(
           leading: Container(
@@ -1361,27 +1391,27 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                 controller: couponCtrl,
                                 onChanged: (text){
                                   setState((){
-                                    if(couponCtrl.text.toLowerCase()=="bbq12m"){
-
-                                      setState((){
-                                        discountPrice = (double.parse(cakePrice)*discount)/100;
-                                        tempDiscount = discount;
-                                      });
-
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Discount Applied.!'),
-                                            backgroundColor: Colors.green,
-                                          )
-                                      );
-                                    }else{
-
-                                      setState((){
-                                        discountPrice = 0;
-                                        tempDiscount = 0;
-                                      });
-
-                                    }
+                                    // if(couponCtrl.text.toLowerCase()=="bbq12m"){
+                                    //
+                                    //   setState((){
+                                    //     discountPrice = (double.parse(cakePrice)*discount)/100;
+                                    //     tempDiscount = discount;
+                                    //   });
+                                    //
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //       SnackBar(
+                                    //         content: Text('Discount Applied.!'),
+                                    //         backgroundColor: Colors.green,
+                                    //       )
+                                    //   );
+                                    // }else{
+                                    //
+                                    //   setState((){
+                                    //     discountPrice = 0;
+                                    //     tempDiscount = 0;
+                                    //   });
+                                    //
+                                    // }
                                   });
                                 },
                                 maxLines: 1,

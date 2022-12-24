@@ -1772,14 +1772,12 @@ class _CakeTypesState extends State<CakeTypes> {
     }
 
 
-
-
     prefs.setStringList("otherFlavs" , flavs);
     prefs.setStringList("otherImages" , images);
 
     Navigator.of(context).push(PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => OthersDetails(
-        weight: weight,
+        weight: weight,data:otherProducts[index]
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);

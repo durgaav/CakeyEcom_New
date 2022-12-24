@@ -210,6 +210,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   String fixedShape = '';
   String fixedtheme = '';
   String fixedWeight = '1.0';
+  String myWeight = "";
   String cakeMsg = '';
   String specialReq = '';
   String fixedAddress = '';
@@ -557,7 +558,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 setState((){
                                   myShapeIndex = index;
                                   shapeGrpValue = index;
-                                  fixedWeight = shapes[index]['MinWeight'].toString();
+                                  print(shapes[index]);
+                                  // myWeight = shapes[index]['MinWeight'].toString();
+                                  // fixedWeight = changeKilo(shapes[index]['MinWeight'].toString());
                                 });
                               },
                               child: Container(
@@ -1282,6 +1285,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       otherInstruction = prefs.getString('cakeOtherInstToCus')??"None";
 
       fixedWeight = basicCakeWeight;
+      myWeight = basicCakeWeight;
 
       print("egg avail ");
       print(eggEggless);
@@ -1728,6 +1732,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
               mySelVendors[0]['GoogleLocation']['Longitude'])))}");
     }
 
+    if((calculateDistance(double.parse(userLatitude),
+        double.parse(userLongtitude),mySelVendors[0]['GoogleLocation']['Latitude'],
+        mySelVendors[0]['GoogleLocation']['Longitude']))<2.0)
+    {
+      deliverChargeData = 0.0;
+    }
+
     var paymentObj = {
       "img": data['MainCakeImage'],
       "name": data['CakeName'],
@@ -1744,7 +1755,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       "deliverCharge":fixedDelliverMethod.toLowerCase()=="pickup"?0:deliverChargeData,
       "discount":data['Discount'],
       "extra_charges":extraData,
-      "weight":weight,
+      "weight":weight[weightIndex],
       "flavours":fixedFlavList,
       "shapes":shape,
       "tier":"",
@@ -1876,7 +1887,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         extraShapeCharge = int.parse(shapes[index]['Price'], onError: (e)=>0);
         fixedWeight = shapes[index]['MinWeight'].toString();
         customweightCtrl.text = fixedWeight.toString().toLowerCase().replaceAll("kg", "");
-        weightIndex = -1;
+        //weightIndex = weight.indexWhere((element) => element.toString().toLowerCase()==fixedWeight.toString().toLowerCase());
       }
 
     });
@@ -1940,6 +1951,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
             .toList();
 
         adrss = artTempList[0]['VendorAddress'];
+
+        data = artTempList[0];
 
         cakeImages = artTempList[0]['AdditionalCakeImages'];
         cakeId = artTempList[0]['_id'];
@@ -2686,8 +2699,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         ),
                                       ):
                                       Text(
-                                        ""
-                                            "${
+                                        "${
                                             ((((double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
                                               double.parse(cakePrice)) + (
                                               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))*
@@ -3263,6 +3275,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 weightIndex = index;
                                                 fixedWeight = changeKilo(weight[index]);
                                                 customweightCtrl.text = changeKilo(weight[index]);
+                                                myWeight = weight[index];
                                                 print(fixedWeight);
                                               });
                                             },
@@ -5019,7 +5032,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     child: RaisedButton(
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(25)),
+                                              BorderRadius.circular(25)
+                                      ),
                                       onPressed: () async {
                                         FocusScope.of(context).unfocus();
 

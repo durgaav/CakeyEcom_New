@@ -926,7 +926,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     // print(tempShapeList);
     // print(tempFlavList);
 
-    // try
+     try{
     // {"img": data['MainCakeImage'],
     //                         "name": data['CakeName'],
     //                         "egg":eggOreggless,
@@ -963,13 +963,10 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "CakeCommonName": obj['CakeCommonName'],
         "Image": obj['MainCakeImage'],
         "EggOrEggless": paymentObjs['egg'],
-        "Flavour":jsonEncode(paymentObjs['flavours'].toString()),
-        "Shape": jsonEncode(paymentObjs['shapes'].toString()),
-        paymentObjs['']!="null"||paymentObjs['']!=null?
-        "Tier":paymentObjs['']:null,
-        "Weight": tierCakeWeight=="null"?
-        weight.toLowerCase().replaceAll("kg", "")+"kg":
-        tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+        "Flavour":paymentObjs['flavours'],
+        "Shape":paymentObjs['shapes'],
+        //"Tier":'',
+        "Weight":paymentObjs['weight'],
         "Description": obj['Description'],
         "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
         "PaymentType": paymentType,
@@ -1003,116 +1000,125 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         },
         "MessageOnTheCake":paymentObjs['msg_on_cake'],
         "SpecialRequest":paymentObjs['spl_req'],
-        "TopperId":paymentObjs['topper_id'],
-        "TopperName":paymentObjs['topperName'],
-        "TopperImage":paymentObjs['topperImage'],
-        "TopperPrice":paymentObjs['topper_price'],
       };
+
+      if(topperPrice!=0){
+        data.addAll({
+          "TopperId":paymentObjs['topper_id'],
+          "TopperName":paymentObjs['topperName'],
+          "TopperImage":paymentObjs['topperImage'],
+          "TopperPrice":paymentObjs['topper_price'],
+        });
+      }
 
       //44 datas
 
-      var premiumData = {
-        "CakeID": cakeID,
-        "Cake_ID": cakeModId,
-        "CakeName": cakeName,
-        "CakeCommonName": cakeCommonName,
-        "Image": cakeImage,
-        "EggOrEggless": eggOreggless,
-        "Flavour": "tempFlavList",
-        "Shape": "tempShapeList",
-        cakeTier!="null"||cakeTier!=null?
-        "Tier":cakeTier:null,
-        "Weight": tierCakeWeight=="null"?
-        weight.toLowerCase().replaceAll("kg", "")+"kg":
-        tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
-        "Description": cakeDesc,
-        "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
-        "PaymentType": paymentType,
-        "Total": "billTot".toString(),
-        "Sgst": (tempTax/2).toString(),
-        "Gst": (tempTax/2).toString(),
-        "DeliveryCharge": deliveryCharge.toString(),
-        "ExtraCharges": "extra".toString(),
-        "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0,
-        "ItemCount": counts,
-        "Price": cakePrice.toString(),
-        "DeliverySession": deliverSession,
-        "DeliveryDate": deliverDate,
-        "UserPhoneNumber": userPhone,
-        "UserName": userName,
-        "UserID": userID,
-        "User_ID": userModId,
-        "Tax":taxes.toString(),
-        "DeliveryInformation": deliverType,
-        "DeliveryAddress": userAddress,
-        "PremiumVendor":premiumVendor=="no"?"n":'y',
-        "MessageOnTheCake":cakeMessage,
-        "SpecialRequest":cakeSplReq,
-        "TopperId":topperId,
-        "TopperName":topperName,
-        "TopperImage":topperImg,
-        "TopperPrice":'$topperPrice',
-      };
+      // var premiumData = {
+      //   "CakeID": cakeID,
+      //   "Cake_ID": cakeModId,
+      //   "CakeName": cakeName,
+      //   "CakeCommonName": cakeCommonName,
+      //   "Image": cakeImage,
+      //   "EggOrEggless": eggOreggless,
+      //   "Flavour": "tempFlavList",
+      //   "Shape": "tempShapeList",
+      //   cakeTier!="null"||cakeTier!=null?
+      //   "Tier":cakeTier:null,
+      //   "Weight": tierCakeWeight=="null"?
+      //   weight.toLowerCase().replaceAll("kg", "")+"kg":
+      //   tierCakeWeight.toLowerCase().replaceAll("kg", "")+"kg",
+      //   "Description": cakeDesc,
+      //   "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
+      //   "PaymentType": paymentType,
+      //   "Total": "billTot".toString(),
+      //   "Sgst": (tempTax/2).toString(),
+      //   "Gst": (tempTax/2).toString(),
+      //   "DeliveryCharge": deliveryCharge.toString(),
+      //   "ExtraCharges": "extra".toString(),
+      //   "Discount": couponCtrl.text.toLowerCase()=="bbq12m"?double.parse(discountPrice.toString()):0,
+      //   "ItemCount": counts,
+      //   "Price": cakePrice.toString(),
+      //   "DeliverySession": deliverSession,
+      //   "DeliveryDate": deliverDate,
+      //   "UserPhoneNumber": userPhone,
+      //   "UserName": userName,
+      //   "UserID": userID,
+      //   "User_ID": userModId,
+      //   "Tax":taxes.toString(),
+      //   "DeliveryInformation": deliverType,
+      //   "DeliveryAddress": userAddress,
+      //   "PremiumVendor":premiumVendor=="no"?"n":'y',
+      //   "MessageOnTheCake":cakeMessage,
+      //   "SpecialRequest":cakeSplReq,
+      //   "TopperId":topperId,
+      //   "TopperName":topperName,
+      //   "TopperImage":topperImg,
+      //   "TopperPrice":'$topperPrice',
+      // };
       //37
 
       var body = jsonEncode('object');
 
-      if(premiumVendor == 'yes'){
-        body = jsonEncode(premiumData);
-      }else{
-        body = jsonEncode(data);
-      }
+      // if(premiumVendor == 'yes'){
+      //   body = jsonEncode(premiumData);
+      // }else{
+      body = jsonEncode(data);
+      //}
 
       print(body);
 
       //http://sugitechnologies.com:88
 
-    //   var response = await http.post(Uri.parse("http://sugitechnologies.com/cakey/api/order/new"),
-    //       headers: {"Content-Type": "application/json"},
-    //       body: body
-    //   );
+      var response = await http.post(Uri.parse("http://sugitechnologies.com/cakey//api/order/new"),
+          headers: {"Content-Type": "application/json"},
+          body:body
+      );
+
+      print("${response.statusCode}");
+      print("${response.body}");
+      var map = jsonDecode(response.body);
     //
-    //   print("${response.statusCode}");
-    //   print("${response.body}");
-    //   var map = jsonDecode(response.body);
-    //
-    //   if(response.statusCode == 200){
-    //
-    //     Navigator.pop(context);
-    //
-    //     if(map['statusCode'].toString()=="200"){
-    //
-    //       showOrderCompleteSheet();
-    //
-    //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //           content: Text(map['message']),
-    //           behavior: SnackBarBehavior.floating
-    //       ));
-    //
-    //       NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
-    //
-    //     }
-    //
-    //   }else{
-    //
-    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //         content: Text(map['message']),
-    //         behavior: SnackBarBehavior.floating
-    //     ));
-    //     Navigator.pop(context);
-    //
-    //   }
-    //
-    //
-    // } catch(e){
-    //   print('error...');
-    //   print(e);
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //       content: Text("Unable to place order!"),
-    //       behavior: SnackBarBehavior.floating
-    //   ));
-    //   Navigator.pop(context);
-    // }
+      if(response.statusCode == 200){
+
+        Navigator.pop(context);
+
+        if(map['statusCode'].toString()=="200"){
+
+          showOrderCompleteSheet();
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(map['message']),
+              behavior: SnackBarBehavior.floating
+          ));
+
+          NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
+
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(map['message']),
+              behavior: SnackBarBehavior.floating
+          ));
+        }
+
+      }else{
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(map['message']),
+            behavior: SnackBarBehavior.floating
+        ));
+        Navigator.pop(context);
+
+      }
+
+    } catch(e){
+      print('error...');
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Unable to place order!"),
+          behavior: SnackBarBehavior.floating
+      ));
+      Navigator.pop(context);
+    }
 
   }
 
@@ -1221,7 +1227,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://localhost:3001/api/vendors/list'));
+      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey//api/vendors/list'));
 
       request.headers.addAll(headers);
 

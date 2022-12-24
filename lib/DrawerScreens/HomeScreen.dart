@@ -1996,6 +1996,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => OthersDetails(
         weight: weight,
+        data:otherProdList[index]
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
