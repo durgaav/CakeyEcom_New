@@ -1,6 +1,10 @@
 // @dart=2.9
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:cakey/screens/utils.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:cakey/CommonWebSocket.dart';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/TestScreen.dart';
@@ -18,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Notification/Notification.dart';
-
 
 Future<void> main() async {
 
@@ -58,6 +61,70 @@ class _MyAppState extends State<MyApp> {
    FirebaseMessaging messaging = null;
    StreamSubscription<ConnectivityResult> sub;
    var disconected = false;
+   IO.Socket socket;
+
+  //region SOCKETS ***
+
+  void initSocket(BuildContext context) async{
+
+    var pr = await SharedPreferences.getInstance();
+
+    //let data = socket?.emit("adduser", { Email: token?.result?.Email, type: token?.result?.TypeOfUser, _id: token?.result?._id, Id: token?.result?.Id, Name: token?.result?.Name })
+
+    print("Socket connecting...");
+    //AlertsAndColors().showLoader(context);
+    //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
+    socket = IO.io("${SOCKET_URL}", <String, dynamic>{
+      'autoConnect': true,
+      'transports': ['websocket'],
+    });
+    socket.connect();
+    socket.onConnect((e) {
+      print('Connection established. $e');
+      //Navigator.pop(context);
+    });
+    socket.onDisconnect((e){
+      print('Connection Disconnected $e');
+      //Navigator.pop(context);
+    });
+    socket.onConnectError((err) {
+      print(err);
+    });
+    socket.onError((err) => print(err));
+
+    // socket.emit("adduser",{
+    //   "Email":"919876543210",
+    //   "type":"Customer",
+    //   "_id":"6333e3439e05797c3a35a973",
+    //   "Name":"Naveen Surya",
+    //   "Id":"CKYCUS-4"
+    // });
+
+    socket.on('getUser', (data) {
+      print("String..............................................");
+      //chatList.add(MessageModel.fromJson(data));
+      print("Socket data ... $data");
+      pr.setString("socketActiveMembers", jsonEncode(data));
+    });
+
+    socket.on("Typing",(data){
+      print(data);
+      pr.setString("socketTyping", jsonEncode(data));
+    });
+
+    socket.on("getMessage", (data){
+      print(data);
+      pr.setString("socketMessages", jsonEncode(data));
+      //{Consersation_Id: 63b94547ec778dc1a89bd163, Sent_By_Id: helpdeskC@gmail.com, Message: super,
+      // Created_By: helpdeskC@gmail.com, Created_On: 07-01-2023 04:17 PM}
+    });
+
+    //[{userId: helpdeskC@gmail.com, socketId: 9yO0tv5y0eElbm8PAAAD, type: Helpdesk C}, {userId: 919876543210, socketId: 6B1YHt_Ux3s-SG2wAAAE, type: Customer}]
+    //
+    // socket.emit("adduser", { "Email": "surya@mindmade.in", "type": "vendor" });
+  }
+
+  //endregion
 
   Future<void> addPrem() async{
     // Check if location service is enable
@@ -86,6 +153,13 @@ class _MyAppState extends State<MyApp> {
     Future.delayed(Duration.zero,() async{
       var pr = await SharedPreferences.getInstance();
       pr.setString("showMoreVendor", "null");
+      pr.remove("socketMessages");
+      pr.remove("socketTyping");
+      pr.remove("socketActiveMembers");
+      pr.remove("chatListener");
+      socket.disconnect();
+      socket.close();
+      socket.destroy();
     });
     super.dispose();
   }
@@ -98,9 +172,11 @@ class _MyAppState extends State<MyApp> {
       handleNetwork(event);
       //ConnectivityResult.none
     });
+    // CommonWebSocket().initSocket(context);
     Future.delayed(Duration.zero,() async{
       var pr = await SharedPreferences.getInstance();
       pr.setString("showMoreVendor", "null");
+      initSocket(context);
     });
     // TODO: implement initState
     messaging = FirebaseMessaging.instance;
@@ -143,7 +219,9 @@ class _MyAppState extends State<MyApp> {
         );
       }, duration: Duration(milliseconds: 6000));
     });
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {});
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+
+    });
     super.initState();
   }
 
@@ -159,33 +237,32 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
-    print(disconected);
-
     return ChangeNotifierProvider<ContextData>(
       create: (context)=>ContextData(),
-      child: OverlaySupport(
-        child: AnnotatedRegion(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: Color(0xffF5F5F5),
-            // For Android.
-            // Use [light] for white status bar and [dark] for black status bar.
-            statusBarIconBrightness: Brightness.dark,
-            // For iOS.
-            // Use [dark] for white status bar and [light] for black status bar.
-            statusBarBrightness: Brightness.light,
-          ),
-          child: MaterialApp(
-              theme: ThemeData(
-                  primarySwatch: buildMaterialColor(Color(0xffFE8416D))
-              ),
-              // theme: ThemeData.dark(),
-              debugShowCheckedModeBanner: false,
-              home:SplashScreen()
+      builder:(context , child){
+        return OverlaySupport(
+          child: AnnotatedRegion(
+            value: const SystemUiOverlayStyle(
+              statusBarColor: Color(0xffF5F5F5),
+              // For Android.
+              // Use [light] for white status bar and [dark] for black status bar.
+              statusBarIconBrightness: Brightness.dark,
+              // For iOS.
+              // Use [dark] for white status bar and [light] for black status bar.
+              statusBarBrightness: Brightness.light,
+            ),
+            child: MaterialApp(
+                theme: ThemeData(
+                    primarySwatch: buildMaterialColor(Color(0xffFE8416D))
+                ),
+                // theme: ThemeData.dark(),
+                debugShowCheckedModeBanner: false,
+                home:SplashScreen()
               // home:TestScreen()
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

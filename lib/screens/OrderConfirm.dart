@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cakey/PaymentGateway.dart';
 import 'package:cakey/screens/CheckOut.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -231,7 +232,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/tax/list'));
 
       request.headers.addAll(headers);
 

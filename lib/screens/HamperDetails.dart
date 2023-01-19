@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:cakey/PaymentGateway.dart';
 import 'package:cakey/ShowToFarDialog.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/HamperCheckout.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +109,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = -1;
+  var deliverAddressIndex = 0;
 
   var tooFar = false;
 
@@ -176,6 +178,7 @@ class _HamperDetailsState extends State<HamperDetails> {
           double.parse(vendrorLat.toString()), double.parse(vendrorLong)))),
       "discount":0,
       "vendor_id":vendor_Id,
+      "vendor_mail":vendorList[0]['Email'],
     };
 
     Navigator.push(
@@ -246,7 +249,7 @@ class _HamperDetailsState extends State<HamperDetails> {
     try {
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+          Uri.parse('${API_URL}api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -901,6 +904,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             for (int i = 0; i < picOrDel.length; i++) {
                               if (i == index) {
                                 fixedDelliverMethod = picOrDeliver[i];
+                                deliverAddressIndex = 0;
                                 if (fixedDelliverMethod.toLowerCase() ==
                                     "pickup") {
                                   tooFar = false;
@@ -1654,12 +1658,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                  // print('whatsapp : ');
-                                                  // PhoneDialog().showPhoneDialog(
-                                                  //     context,
-                                                  //     "$hampVenPhn1",
-                                                  //     "$hampVenPhn2",
-                                                  //     true);
+                                                  Functions().handleChatWithVendors(context, vendorList[0]['Email'], vendorList[0]['VendorName']);
                                                 },
                                                 child: Container(
                                                   alignment: Alignment.center,

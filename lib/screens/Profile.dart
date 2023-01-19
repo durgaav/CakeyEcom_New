@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/AddressScreen.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -21,6 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../DrawerScreens/CakeTypes.dart';
 import '../DrawerScreens/Notifications.dart';
 import 'WelcomeScreen.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Profile extends StatefulWidget {
   int defindex = 0 ;
@@ -78,6 +81,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   int seconds = 0;
   int notiCount = 0;
 
+  //sockets
+  IO.Socket? socket;
+
   //Edit text Controllers...
   var userNameCtrl = new TextEditingController();
   var userAddrCtrl = new TextEditingController();
@@ -91,6 +97,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     // TODO: implement initState
     tabControl = new TabController(length: 2,vsync: this,initialIndex: defindex);
     Future.delayed(Duration.zero, () async{
+      initSocket(context);
       loadPrefs();
     });
     super.initState();
@@ -104,6 +111,43 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  //socket init
+  initSocket(BuildContext context) {
+
+    //let data = socket?.emit("adduser", { Email: token?.result?.Email, type: token?.result?.TypeOfUser, _id: token?.result?._id, Id: token?.result?.Id, Name: token?.result?.Name })
+
+    print("Socket connecting...");
+    //AlertsAndColors().showLoader(context);
+    //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
+    //socket = IO.io("http://sugitechnologies.com:3001", <String, dynamic>{
+    socket = IO.io("$SOCKET_URL", <String, dynamic>{
+      'autoConnect': true,
+      'transports': ['websocket'],
+    });
+    // socket!.connect();
+    // socket!.onConnect((e) {
+    //   print('Connection established. $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onDisconnect((e){
+    //   print('Connection Disconnected $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onConnectError((err) {
+    //   print(err);
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onError((err) => print(err));
+
+    //socket?.emit("adduser", { Email: token?.result?.Email, type: "helpDeskv" })
+
+    // socket.on('getMessage', (newMessage) {
+    //   //chatList.add(MessageModel.fromJson(data));
+    //   print(newMessage);
+    // });
+    //
+    // socket.emit("adduser", { "Email": "surya@mindmade.in", "type": "vendor" });
+  }
 
   //loadPrefs
   Future<void> loadPrefs() async {
@@ -145,6 +189,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               FlatButton(
                 onPressed: (){
                   Navigator.pop(context);
+                  Future.delayed(Duration.zero,() async{
+                    var pr = await SharedPreferences.getInstance();
+                    pr.setString("showMoreVendor", "null");
+                    pr.remove("socketMessages");
+                    pr.remove("socketTyping");
+                    pr.remove("socketActiveMembers");
+                    pr.remove("chatListener");
+                    socket!.disconnect();
+                    socket!.close();
+                    socket!.destroy();
+                  });
                   FirebaseAuth.instance.signOut();
                   Navigator.pushAndRemoveUntil(
                       context,
@@ -212,7 +267,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       //without profile img....
         var request = http.MultipartRequest('PUT',
             Uri.parse(
-                'http://sugitechnologies.com/cakey//api/users/update/$userID'));
+                '${API_URL}api/users/update/$userID'));
         request.headers['Content-Type'] = 'multipart/form-data';
 
         request.fields.addAll({
@@ -280,7 +335,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/order/cancel/$id'));
+    var request = http.Request('PUT', Uri.parse('${API_URL}api/order/cancel/$id'));
     request.body = json.encode({
       "Status": "Cancelled",
       "Status_Updated_By": "$byId"
@@ -333,7 +388,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/hamperorder/canceled/$id'));
+    var request = http.Request('PUT', Uri.parse('${API_URL}api/hamperorder/canceled/$id'));
     request.body = json.encode({
       "Cancelled_By": "User"
     });
@@ -386,7 +441,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/acceptorcancel/$id'));
+    var request = http.Request('PUT', Uri.parse('${API_URL}api/otherproduct/order/acceptorcancel/$id'));
     request.body = json.encode({
       "Status": "Cancelled",
       "Cancelled_By": "User",
@@ -473,7 +528,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     try{
       http.Response response = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/ordersandhamperorders/listbyuser/$_id"),
+          Uri.parse("${API_URL}api/ordersandhamperorders/listbyuser/$_id"),
           headers: {"Authorization":"$authToken"}
       );
       if(response.statusCode==200){
@@ -517,7 +572,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var headers = {
       'Authorization': '$authToken'
     };
-    var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+    var request = http.Request('GET', Uri.parse('${API_URL}api/vendors/list'));
 
     request.headers.addAll(headers);
 
@@ -541,7 +596,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     showAlertDialog();
     try{
       //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey/
-      http.Response response = await http.get(Uri.parse("http://sugitechnologies.com/cakey//api/users/list/"
+      http.Response response = await http.get(Uri.parse("${API_URL}api/users/list/"
           "${int.parse(phoneNumber)}"),
           headers: {"Authorization":"$authToken"}
       );
@@ -610,7 +665,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       'Content-Type': 'application/json'
     };
     var request = http.Request('PUT',
-        Uri.parse('http://sugitechnologies.com/cakey/api/cake/ratings/$cakeId'));
+        Uri.parse('${API_URL}api/cake/ratings/$cakeId'));
     request.body = json.encode({
       "Ratings": rate
     });
@@ -713,7 +768,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             image: NetworkImage('$userProfileUrl'),
-                            fit: BoxFit.fill
+                            fit: BoxFit.cover
                           )
                         ),
                       ):CircleAvatar(
@@ -1031,7 +1086,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               print(differenceOF(DateTime(
                 int.parse(diff.split("-").last.toString()),
                 int.parse(diff.split("-")[1].toString()),
-                int.parse(diff.split("-").first.toString()), 
+                int.parse(diff.split("-").first.toString()),
                   14,04
               ).toString()));
 
@@ -1392,6 +1447,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
+                                        Functions().handleChatWithVendors(context, recentOrders[index]['Email'], recentOrders[index]['VendorName']);
                                         //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
@@ -1448,13 +1504,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             SizedBox(height: 10,),
 
                             recentOrders[index]['Status']!="Cancelled"
-                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                                &&days<1&&minutes<=15&&recentOrders[index]['Status']=="New"?
                             Container(
                               padding: EdgeInsets.only(left: 15,right: 15),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Cancel Order In ${5-minutes} Mins",
+                                  Text("Cancel Order In ${15-minutes} Mins",
                                     style: TextStyle(
                                         fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold,
@@ -2015,6 +2071,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
+                                        Functions().handleChatWithVendors(context, recentOrders[index]['Email'], recentOrders[index]['VendorName']);
                                         //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
@@ -2051,14 +2108,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                             SizedBox(height: 10,),
                             recentOrders[index]['Status']!="Cancelled"
-                                &&days <1 &&minutes<=10&&
+                                &&days <1 &&minutes<=15&&
                                 recentOrders[index]['Status']=="New"?
                             Container(
                               padding: EdgeInsets.only(left: 15,right: 15),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Cancel Order In ${5-minutes} Mins",
+                                  Text("Cancel Order In ${15-minutes} Mins",
                                     style: TextStyle(
                                         fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold,
@@ -2608,6 +2665,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
+                                        Functions().handleChatWithVendors(context, recentOrders[index]['Email'], recentOrders[index]['VendorName']);
                                         //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
@@ -2647,13 +2705,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             SizedBox(height: 10,),
 
                             recentOrders[index]['Status']!="Cancelled"
-                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                                &&days<1&&minutes<=15&&recentOrders[index]['Status']=="New"?
                             Container(
                               padding: EdgeInsets.only(left: 15,right: 15),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Cancel Order In ${5-minutes} Mins",
+                                  Text("Cancel Order In ${15-minutes} Mins",
                                     style: TextStyle(
                                         fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold,
@@ -3216,6 +3274,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     const SizedBox(width: 10,),
                                     InkWell(
                                       onTap: () async{
+                                        Functions().handleChatWithVendors(context, recentOrders[index]['Email'], recentOrders[index]['VendorName']);
                                         //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                       },
                                       child: Container(
@@ -3272,13 +3331,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             SizedBox(height: 10,),
 
                             recentOrders[index]['Status']!="Cancelled"
-                                &&days<1&&minutes<=5&&recentOrders[index]['Status']=="New"?
+                                &&days<1&&minutes<=15&&recentOrders[index]['Status']=="New"?
                             Container(
                               padding: EdgeInsets.only(left: 15,right: 15),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Cancel Order In ${5-minutes} Mins",
+                                  Text("Cancel Order In ${15-minutes} Mins",
                                     style: TextStyle(
                                         fontFamily: "Poppins",
                                         fontWeight: FontWeight.bold,

@@ -3,9 +3,11 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/OrderConfirm.dart';
 import 'package:cakey/screens/SingleVendor.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1179,7 +1181,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     print("entered...top");
 
     var res = await http.get(
-        Uri.parse("http://sugitechnologies.com/cakey/api/toppers/listbyvendorandstock/$id"),
+        Uri.parse("${API_URL}api/toppers/listbyvendorandstock/$id"),
         headers: {"Authorization": "$authToken"});
 
     print(authToken);
@@ -1188,7 +1190,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     if(res.statusCode==200){
 
       setState((){
-        print('body');
+        print('body test...');
         print(res.body);
         if(res.body.length < 50){
         }else{
@@ -1197,7 +1199,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       });
 
     }else{
-
+      setState((){
+        toppersList = [];
+      });
     }
     print("exit...top");
   }
@@ -1399,11 +1403,10 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       print(firstVenIndex);
       print(firstVenAmount);
 
-
-      getCakesList();
     });
     // context.read<ContextData>().addMyVendor(false);
     // context.read<ContextData>().setMyVendors([]);
+    getCakesList();
   }
 
   //***load prefs to ORDER.....***
@@ -1767,7 +1770,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       "spl_req":specialReqCtrl.text,
       "premium_vendor":"",
       "vendor_id":vendorID,
-      "cake_price":cakePrice
+      "cake_price":cakePrice,
+      "vendor_mail":mySelVendors[0]['Email'],
     };
 
     Navigator.push(
@@ -1787,7 +1791,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     print("begin...");
 
     var res = await http.get(
-        Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+        Uri.parse("${API_URL}api/activevendors/list"),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -1838,7 +1842,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     showAlertDialog();
     try{
       var res = await http.get(
-          Uri.parse('http://sugitechnologies.com/cakey/api/cakes/activevendors/list'),
+          Uri.parse('${API_URL}api/cakes/activevendors/list'),
           headers: {"Authorization": "$authToken"});
 
       if (res.statusCode == 200) {
@@ -2347,7 +2351,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     pinned: true,
                     floating: true,
                     actions: [
-                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl),
+                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){getDetailsFromScreen();}),
                       SizedBox(width: 12,),
                       // Stack(
                       //   alignment: Alignment.center,
@@ -3746,6 +3750,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                         setState(() {
                                           if(index==0){
                                             deliverAddressIndex = 0;
+                                            tooFar = false;
                                           }else{
                                             deliverAddressIndex = -1;
                                           }
@@ -4564,7 +4569,11 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                 ),
                                                                                 InkWell(
                                                                                   onTap: () {
+
+                                                                                    print(mySelVendors[0]);
+                                                                                    Functions().handleChatWithVendors(context, mySelVendors[0]['Email'], mySelVendors[0]['VendorName']);
                                                                                     // print('whatsapp : ');
+
                                                                                     // PhoneDialog().showPhoneDialog(context, mySelVendors[0]['PhoneNumber1'],
                                                                                     //     mySelVendors[0]['PhoneNumber2'], true);
                                                                                   },

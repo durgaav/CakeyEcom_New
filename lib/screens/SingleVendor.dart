@@ -6,6 +6,7 @@ import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/ChatScreen.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -164,7 +165,7 @@ class _SingleVendorState extends State<SingleVendor> {
 
     try{
 
-      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/vendors/list"),
+      var res = await http.get(Uri.parse("${API_URL}api/vendors/list"),
           headers: {"Authorization":"$authToken"}
       );
 

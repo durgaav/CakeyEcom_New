@@ -2,12 +2,14 @@ import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:cakey/screens/ChatsList.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../ContextData.dart';
 import '../DrawerScreens/Notifications.dart';
 import '../screens/Profile.dart';
@@ -36,6 +38,46 @@ class _NavDrawerState extends State<NavDrawer> {
   String userName = '';
 
   int currentActivity = 0;
+  //sockets
+  IO.Socket? socket;
+
+  //socket init
+  initSocket(BuildContext context) {
+
+    //let data = socket?.emit("adduser", { Email: token?.result?.Email, type: token?.result?.TypeOfUser, _id: token?.result?._id, Id: token?.result?.Id, Name: token?.result?.Name })
+
+    print("Socket connecting...");
+    //AlertsAndColors().showLoader(context);
+    //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
+    //socket = IO.io("http://sugitechnologies.com:3001", <String, dynamic>{
+    socket = IO.io("${SOCKET_URL}", <String, dynamic>{
+      'autoConnect': true,
+      'transports': ['websocket'],
+    });
+    // socket!.connect();
+    // socket!.onConnect((e) {
+    //   print('Connection established. $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onDisconnect((e){
+    //   print('Connection Disconnected $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onConnectError((err) {
+    //   print(err);
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onError((err) => print(err));
+
+    //socket?.emit("adduser", { Email: token?.result?.Email, type: "helpDeskv" })
+
+    // socket.on('getMessage', (newMessage) {
+    //   //chatList.add(MessageModel.fromJson(data));
+    //   print(newMessage);
+    // });
+    //
+    // socket.emit("adduser", { "Email": "surya@mindmade.in", "type": "vendor" });
+  }
 
   void showlogoutDialog() {
     showDialog(
@@ -63,6 +105,17 @@ class _NavDrawerState extends State<NavDrawer> {
               FlatButton(
                 onPressed: (){
                   Navigator.pop(context);
+                  Future.delayed(Duration.zero,() async{
+                    var pr = await SharedPreferences.getInstance();
+                    pr.setString("showMoreVendor", "null");
+                    pr.remove("socketMessages");
+                    pr.remove("socketTyping");
+                    pr.remove("socketActiveMembers");
+                    pr.remove("chatListener");
+                    socket!.disconnect();
+                    socket!.close();
+                    socket!.destroy();
+                  });
                   FirebaseAuth.instance.signOut();
                   Navigator.pushAndRemoveUntil(
                       context,
@@ -87,6 +140,7 @@ class _NavDrawerState extends State<NavDrawer> {
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero,() async{
+      initSocket(context);
       var prefs = await SharedPreferences.getInstance();
       prefs.setBool('iamYourVendor', false);
       prefs.setBool('vendorCakeMode',false);
@@ -354,6 +408,22 @@ class _NavDrawerState extends State<NavDrawer> {
               title: Container(
                 width: 180,
                 child: Text('Notifications',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
+                ),
+              ),
+            ),
+            ListTile(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList()));
+              },
+              leading: CircleAvatar(
+                backgroundColor: Colors.red[50],
+                child: Icon(Icons.support_agent,color:lightPink,),
+              ),
+              title: Container(
+                width: 180,
+                child: Text('Support',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
                 ),

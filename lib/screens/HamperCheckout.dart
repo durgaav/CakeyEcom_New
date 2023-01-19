@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -577,7 +578,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/tax/list'));
 
       request.headers.addAll(headers);
 
@@ -713,7 +714,7 @@ class _HamperCheckoutState extends State<HamperCheckout> {
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/hamperorder/new'));
+    var request = http.Request('POST', Uri.parse('${API_URL}api/hamperorder/new'));
     request.body = json.encode({
       "HamperID": "$cakeID",
       "Hamper_ID": "$cakeModId",

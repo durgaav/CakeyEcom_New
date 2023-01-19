@@ -3,6 +3,8 @@ import 'dart:io' as fil;
 import 'dart:io';
 import 'dart:math';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
+import 'package:cakey/functions.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -803,7 +805,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   Future<void> getFlavsList() async{
 
     try{
-      var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/flavour/list'),
+      var res = await http.get(Uri.parse('${API_URL}api/flavour/list'),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -835,7 +837,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the shapes fom collection
   Future<void> getShapesList() async{
 
-    var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/shape/list'),
+    var res = await http.get(Uri.parse('${API_URL}api/shape/list'),
         headers: {"Authorization":"$authToken"}
     );
 
@@ -870,7 +872,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //geting the article fom collection
   Future<void> getArticleList() async{
 
-    var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/article/list'),
+    var res = await http.get(Uri.parse('${API_URL}api/article/list'),
         headers: {"Authorization":"$authToken"}
     );
 
@@ -898,7 +900,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     try{
 
       print('weight...');
-      var res = await http.get(Uri.parse('http://sugitechnologies.com/cakey/api/weight/list'),
+      var res = await http.get(Uri.parse('${API_URL}api/weight/list'),
           headers: {"Authorization":"$authToken"}
       );
       if(res.statusCode==200){
@@ -935,7 +937,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     print("vendor....");
     showAlertDialog();
     try{
-      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+      var res = await http.get(Uri.parse("${API_URL}api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
       if(res.statusCode==200){
@@ -1046,7 +1048,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         }else{
           categories.insert(0, '$category');
           currentIndex = 0;
-          cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
+          //cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
           fixedCategory = category;
         }
       }
@@ -1153,7 +1155,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         // http://sugitechnologies.com/cakey
 
           var request = http.MultipartRequest('POST',
-              Uri.parse('http://sugitechnologies.com/cakey//api/customize/cake/new'));
+              Uri.parse('${API_URL}api/customize/cake/new'));
 
           request.headers['Content-Type'] = 'multipart/form-data';
 
@@ -1164,7 +1166,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             'Flavour': jsonEncode(tempList),
             'Shape': fixedShape,
             'Weight': fixedWeight+'kg',
-            'DeliveryAddress': userCurLocation,
+            'DeliveryAddress': deliverAddress,
             'DeliveryDate': fixedDate,
             'DeliverySession': fixedSession,
             'DeliveryInformation': fixedDelliverMethod,
@@ -1302,7 +1304,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       'Content-Type': 'application/json'
     };
     //var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/${obj.toLowerCase()}/new'));
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey//api/${obj.toLowerCase()}/new'));
+    var request = http.Request('POST', Uri.parse('${API_URL}api/${obj.toLowerCase()}/new'));
     request.body = json.encode({
       obj: value
     });
@@ -1625,7 +1627,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           )),
                     ],
                   ),
-                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
+                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                 ],
               ),
             ),
@@ -3537,44 +3539,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                               const SizedBox(width: 10,),
                                                               InkWell(
                                                                 onTap: (){
-
-                                                                  // if(newRegUser==true){
-                                                                  //   showDpUpdtaeDialog();
-                                                                  // }
-                                                                  // else {
-                                                                  //   if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                                                                  //       weightCtrl.text.startsWith("0")&&
-                                                                  //           weightCtrl.text.endsWith("0")){
-                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
-                                                                  //         SnackBar(
-                                                                  //             content: Text("Please enter correct weight or select weight!")
-                                                                  //         )
-                                                                  //     );
-                                                                  //   }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
-                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
-                                                                  //         SnackBar(content: Text('Please select a image file for theme...'))
-                                                                  //     );
-                                                                  //   }
-                                                                  //   else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
-                                                                  //         SnackBar(content: Text('Invalid Address'))
-                                                                  //     );
-                                                                  //   }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                                                  //       fixedSession.toLowerCase()=="not yet select"||
-                                                                  //       fixedDelliverMethod.toLowerCase()=="not yet select"){
-                                                                  //     ScaffoldMessenger.of(context).showSnackBar(
-                                                                  //         SnackBar(content: Text('Please Select Deliver Date And Type'))
-                                                                  //     );
-                                                                  //   }else{
-                                                                  //     setState((){
-                                                                  //       if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                                                  //         vendorID = "";
-                                                                  //       }
-                                                                  //     });
-                                                                  //     showCakeNameEdit();
-                                                                  //   }
-                                                                  // }
-
+                                                                  Functions().handleChatWithVendors(context, mySelectdVendors[0]['Email'], mySelectdVendors[0]['VendorName']);
                                                                 },
                                                                 child: Container(
                                                                   alignment: Alignment.center,

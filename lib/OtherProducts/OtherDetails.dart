@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:cakey/OtherProducts/OtherCheckout.dart';
+import 'package:cakey/functions.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
@@ -74,6 +76,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   String vendrorRating = "";
   String vendrorPhone1 = "";
   String vendrorPhonr2 = "";
+  String vendrorMail= "";
   String vendorProfile = "";
   String vendorId = "";
   String vendor_Id = "";
@@ -104,8 +107,8 @@ class _OthersDetailsState extends State<OthersDetails> {
   var counterCtrl = TextEditingController();
 
   var picOrDeliver = ['Pickup', 'Delivery'];
-  var picOrDel = [false, false];
-  var fixedDelliverMethod = "";
+  var picOrDel = [true, false];
+  var fixedDelliverMethod = "Pickup";
   String deliverDate = "Select delivery date";
   String deliverSession = "Select delivery time";
 
@@ -122,7 +125,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = -1;
+  var deliverAddressIndex = 0;
   String originalWeight = "";
 
   //toppers...
@@ -155,84 +158,90 @@ class _OthersDetailsState extends State<OthersDetails> {
   //goto checkout
   Future<void> gotoCheckout() async {
     var prefs = await SharedPreferences.getInstance();
+    try{
+      prefs.setString("otherOrdName", otherName);
+      prefs.setString("otherOrdCommonName", otherComName);
+      prefs.setString("otherOrdShape", otherShape);
+      prefs.setString("otherOrdMainId", otherMainID);
+      prefs.setString("otherOrdModID", otherModId);
+      prefs.setString("otherOrdDescrip", otherDescrip);
+      prefs.setString("otherOrdImage", cakeImages[0].toString());
+      prefs.setString("otherOrdEgg", otherEggOr);
 
-    prefs.setString("otherOrdName", otherName);
-    prefs.setString("otherOrdCommonName", otherComName);
-    prefs.setString("otherOrdShape", otherShape);
-    prefs.setString("otherOrdMainId", otherMainID);
-    prefs.setString("otherOrdModID", otherModId);
-    prefs.setString("otherOrdDescrip", otherDescrip);
-    prefs.setString("otherOrdImage", cakeImages[0].toString());
-    prefs.setString("otherOrdEgg", otherEggOr);
+      print("selectedWeight .. $selectedWeight");
 
-    print("selectedWeight .. $selectedWeight");
+      //weight //price
+      if (otherType == "Kg") {
+        prefs.setString("otherOrdWeight", selectedWeight);
+        prefs.setString(
+            "otherOrdPrice",
+            ((myPrice * changeWeight(selectedWeight)) * counter)
+                .toStringAsFixed(2));
+        prefs.setString("otherOrdPricePerKg", myPrice.toString());
+      } else if (otherType == "Unit") {
+        prefs.setString("otherOrdWeight", selectedWeight);
+        prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+        prefs.setString("otherOrdPricePerKg", myPrice.toString());
+      } else {
+        prefs.setString("otherOrdWeight", selectedWeight);
+        prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+        prefs.setString("otherOrdPricePerKg", myPrice.toString());
+      }
 
-    //weight //price
-    if (otherType == "Kg") {
-      prefs.setString("otherOrdWeight", selectedWeight);
-      prefs.setString(
-          "otherOrdPrice",
-          ((myPrice * changeWeight(selectedWeight)) * counter)
-              .toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg", myPrice.toString());
-    } else if (otherType == "Unit") {
-      prefs.setString("otherOrdWeight", selectedWeight);
-      prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg", myPrice.toString());
-    } else {
-      prefs.setString("otherOrdWeight", selectedWeight);
-      prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
-      prefs.setString("otherOrdPricePerKg", myPrice.toString());
+      prefs.setString("otherOrdVenName", vendrorName);
+      prefs.setString("otherOrdVenMainID", vendor_Id);
+      prefs.setString("otherOrdVenModId", vendorId);
+      prefs.setString("otherOrdVenAddress", vendorAddress);
+      prefs.setString("otherOrdVenPhn1", vendrorPhone1);
+      prefs.setString("otherOrdVenPhn2", vendrorPhonr2);
+      prefs.setString("otherOrdVenMail", vendrorMail);
+      prefs.setString("otherOrdVenLat", vendrorLat);
+      prefs.setString("otherOrdVenLong", vendrorLong);
+      prefs.setString("otherOrdVenNotiID", notiId);
+
+      prefs.setInt("otherOrdCounter", counter);
+
+      var topperData = {
+        "name":topperName,
+        "id":topperId,
+        "image":topperImage,
+        "topperPrice":topperPrice
+      };
+
+      prefs.setString("others_topper_data",jsonEncode(topperData));
+      prefs.setString("others_original_weight",originalWeight);
+
+      if (fixedDelliverMethod == "Pickup") {
+        prefs.setString("otherOrdDeliveryCharge", "0");
+      } else {
+        prefs.setString(
+            "otherOrdDeliveryCharge",
+            ((adminDeliveryCharge / adminDeliveryChargeKm) *
+                (calculateDistance(
+                    double.parse(userLatitude , (e)=>0.0),
+                    double.parse(userLongtitude,(e)=>0.0),
+                    double.parse(vendrorLat.toString(),(e)=>0.0),
+                    double.parse(vendrorLong,(e)=>0.0))))
+                .toStringAsFixed(1)
+        );
+      }
+
+      prefs.setString("otherOrdDeliDate", deliverDate);
+      prefs.setString("otherOrdDiscount", otherDiscount);
+      prefs.setString("otherOrdPickOrDel", fixedDelliverMethod);
+      prefs.setString("otherOrdDeliveryAdrs", deliverAddress[deliverAddressIndex]);
+      prefs.setString("otherOrdDeliSession", deliverSession);
+      prefs.setString("otherOrdKgType", otherType);
+      prefs.setString("otherOrdSubTypee", otherSubType);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => OtherCheckout([], [selectedFlav]))
+      );
+    }catch(e){
+       print(e);
     }
-
-    prefs.setString("otherOrdVenName", vendrorName);
-    prefs.setString("otherOrdVenMainID", vendor_Id);
-    prefs.setString("otherOrdVenModId", vendorId);
-    prefs.setString("otherOrdVenAddress", vendorAddress);
-    prefs.setString("otherOrdVenPhn1", vendrorPhone1);
-    prefs.setString("otherOrdVenPhn2", vendrorPhonr2);
-    prefs.setString("otherOrdVenLat", vendrorLat);
-    prefs.setString("otherOrdVenLong", vendrorLong);
-    prefs.setString("otherOrdVenNotiID", notiId);
-
-    prefs.setInt("otherOrdCounter", counter);
-
-    var topperData = {
-      "name":topperName,
-      "id":topperId,
-      "image":topperImage,
-      "topperPrice":topperPrice
-    };
-
-    prefs.setString("others_topper_data",jsonEncode(topperData));
-    prefs.setString("others_original_weight",originalWeight);
-
-    if (fixedDelliverMethod == "Pickup") {
-      prefs.setString("otherOrdDeliveryCharge", "0");
-    } else {
-      prefs.setString(
-          "otherOrdDeliveryCharge",
-          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                  (calculateDistance(
-                      double.parse(userLatitude),
-                      double.parse(userLongtitude),
-                      double.parse(vendrorLat.toString()),
-                      double.parse(vendrorLong))))
-              .toStringAsFixed(1));
-    }
-
-    prefs.setString("otherOrdDeliDate", deliverDate);
-    prefs.setString("otherOrdDiscount", otherDiscount);
-    prefs.setString("otherOrdPickOrDel", fixedDelliverMethod);
-    prefs.setString("otherOrdDeliveryAdrs", deliverAddress[deliverAddressIndex]);
-    prefs.setString("otherOrdDeliSession", deliverSession);
-    prefs.setString("otherOrdKgType", otherType);
-    prefs.setString("otherOrdSubTypee", otherSubType);
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => OtherCheckout([], [selectedFlav])));
   }
 
   Future<void> getDetails() async {
@@ -360,7 +369,7 @@ class _OthersDetailsState extends State<OthersDetails> {
     try {
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/vendors/list'));
+          Uri.parse('${API_URL}api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -390,6 +399,7 @@ class _OthersDetailsState extends State<OthersDetails> {
             vendrorRating = vendorList[0]['Ratings'].toString();
             vendrorPhone1 = vendorList[0]['PhoneNumber1'].toString();
             vendrorPhonr2 = vendorList[0]['PhoneNumber2'].toString();
+            vendrorMail = vendorList[0]['Email'].toString();
             vendorId = vendorList[0]['Id'].toString();
             notiId = vendorList[0]['Notification_Id'].toString();
             vendor_Id = vendorList[0]['_id'].toString();
@@ -465,7 +475,7 @@ class _OthersDetailsState extends State<OthersDetails> {
     print("entered...top");
 
     var res = await http.get(
-        Uri.parse("http://sugitechnologies.com/cakey/api/toppers/listbyvendorandstock/$id"),
+        Uri.parse("${API_URL}api/toppers/listbyvendorandstock/$id"),
         headers: {"Authorization": "$authToken"});
 
     print(authToken);
@@ -1628,7 +1638,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                           setState(() {
                             if(index==0){
                               tooFar = false;
-                              deliverAddressIndex = 1;
+                              deliverAddressIndex = 0;
                             }
                             for (int i = 0; i < picOrDel.length; i++) {
                               if (i == index) {
@@ -2335,12 +2345,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                  // print('whatsapp : ');
-                                                  // PhoneDialog().showPhoneDialog(
-                                                  //     context,
-                                                  //     "$vendrorPhone1",
-                                                  //     "$vendrorPhonr2",
-                                                  //     true);
+                                                  Functions().handleChatWithVendors(context, vendorList[0]['Email'], vendorList[0]['VendorName']);
                                                 },
                                                 child: Container(
                                                   alignment: Alignment.center,
@@ -2387,18 +2392,13 @@ class _OthersDetailsState extends State<OthersDetails> {
                             borderRadius: BorderRadius.circular(25)),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-
-                          if(deliverAddressIndex==-1){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                    Text("Please select the delivery address")));
-                          }else if(fixedDelliverMethod.isEmpty){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                    Text("Please select pickup or delivery")));
-                          }else if (otherType == "Kg") {
+                          // if(fixedDelliverMethod.isEmpty){
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //       SnackBar(
+                          //           content:
+                          //           Text("Please select pickup or delivery")));
+                          // }else
+                            if (otherType == "Kg") {
                             if (changeWeight(selectedWeight) <
                                 changeWeight(weight[0]['Weight'])) {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(

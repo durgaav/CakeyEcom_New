@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cakey/screens/HamperDetails.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -160,7 +161,7 @@ class _HampersState extends State<Hampers> {
     var headers = {
       'Authorization': '$authToken'
     };
-    var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/hamper/approvedlist'));
+    var request = http.Request('GET', Uri.parse('${API_URL}api/hamper/approvedlist'));
 
     request.headers.addAll(headers);
 

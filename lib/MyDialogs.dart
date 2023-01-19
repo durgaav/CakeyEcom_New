@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyDialogs{
@@ -45,6 +46,45 @@ class MyDialogs{
           );
         }
     );
+  }
+
+  void showTheLoader(BuildContext context){
+
+    Color lightPink = Color(0xffFE8416D);
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+            ),
+            content: Container(
+              height: 75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CircularProgressIndicator(),
+                  CupertinoActivityIndicator(
+                    radius: 17,
+                    color: lightPink,
+                  ),
+                  SizedBox(
+                    height: 13,
+                  ),
+                  Text(
+                    'Please Wait...',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
 }

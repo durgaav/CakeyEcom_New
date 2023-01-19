@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/CakeDetails.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -1365,9 +1367,8 @@ class _CakeTypesState extends State<CakeTypes> {
     otherProducts.clear();
     try{
 
-
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/activevendors/list'));
+          Uri.parse('${API_URL}api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1452,7 +1453,7 @@ class _CakeTypesState extends State<CakeTypes> {
 
     var headers = {'Authorization': '$authToken'};
     var request = http.Request('GET',
-        Uri.parse('http://sugitechnologies.com/cakey/api/caketype/list'));
+        Uri.parse('${API_URL}api/caketype/list'));
 
     request.headers.addAll(headers);
 
@@ -1532,9 +1533,9 @@ class _CakeTypesState extends State<CakeTypes> {
     cakesList.clear();
     print("Ven iddd : $myVendorId");
 
-    String commonCake = 'http://sugitechnologies.com/cakey/api/cakes/activevendors/list';
+    String commonCake = '${API_URL}api/cakes/activevendors/list';
     String vendorCake =
-        'http://sugitechnologies.com/cakey/api/cake/listbyIdandstatus/$myVendorId';
+        '${API_URL}api/cake/listbyIdandstatus/$myVendorId';
 
     try {
       http.Response response = await http.get(
@@ -1623,7 +1624,7 @@ class _CakeTypesState extends State<CakeTypes> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/activevendors/list'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1666,7 +1667,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //Fetching Flavours...API
   Future<void> fetchFlavours() async {
     var res = await http.get(
-        Uri.parse('http://sugitechnologies.com/cakey/api/flavour/list'),
+        Uri.parse('${API_URL}api/flavour/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -1685,7 +1686,7 @@ class _CakeTypesState extends State<CakeTypes> {
   //get shapes from api
   Future<void> fetchShapes() async {
     var res = await http.get(
-        Uri.parse('http://sugitechnologies.com/cakey/api/shape/list'),
+        Uri.parse('${API_URL}api/shape/list'),
         headers: {"Authorization": "$authToken"});
 
     if (res.statusCode == 200) {
@@ -2748,7 +2749,7 @@ class _CakeTypesState extends State<CakeTypes> {
     activeVendorsIds.clear();
     try {
       var res = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+          Uri.parse("${API_URL}api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -3172,11 +3173,11 @@ class _CakeTypesState extends State<CakeTypes> {
       },
       child: WillPopScope(
         onWillPop: () async {
-
           if(activeSearch==true){
             activeSearchClear();
             return Future.value(false);
-          }else{
+          }
+          else{
             if (iamYourVendor == true) {
               Navigator.pop(context);
               return false;
@@ -3185,9 +3186,7 @@ class _CakeTypesState extends State<CakeTypes> {
               //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
             }
           }
-
           return Future.value(true);
-
         },
         child:Scaffold(
             drawer: NavDrawer(
@@ -3265,7 +3264,7 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                         ],
                       ),
-                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
+                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                     ],
                   ),
                 ),
@@ -3685,6 +3684,8 @@ class _CakeTypesState extends State<CakeTypes> {
                                           ),
                                           InkWell(
                                             onTap: () {
+                                              print(mySelVendors[0]['Email']);
+                                              Functions().handleChatWithVendors(context,mySelVendors[0]['Email'],mySelVendors[0]['VendorName']);
                                               // PhoneDialog().showPhoneDialog(context,mySelVendors[0]['PhoneNumber1'].toString(),
                                               //     mySelVendors[0]['PhoneNumber2'].toString(), true);
                                             },

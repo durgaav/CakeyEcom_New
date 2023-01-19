@@ -1,16 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
+import 'package:cakey/functions.dart';
+import 'package:cakey/screens/coupon_codes_list.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
+import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,6 +88,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   double finalTotal = 0;
   String otherType = "";
   String pricePerKg = "";
+  String codeID = "";
+  double sharePercentage = 0.0;
 
 
   List<String> toppings = [];
@@ -115,6 +122,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   int tempDiscount = 0;
   int taxes = 0;
   double bilTotal = 0;
+  var tempBillTotal = 0.0;
 
   double gstPrice = 0;
   double sgstPrice = 0;
@@ -133,7 +141,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   String userLongtitude = "";
   String deliveryChargeCustomer = "";
 
-  var couponCtrl = new TextEditingController(text:"bbq12m");
+  var couponCtrl = new TextEditingController();
 
   var _razorpay = Razorpay();
 
@@ -298,7 +306,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                     handleOrderKgs();
                   }
                 },
-                child: Text('Ok',
+                child: Text('Order',
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
@@ -374,7 +382,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     showAlertDialog();
 
-    var amount = ( ((
+    var amount = tempBillTotal!=0.0?tempBillTotal:( ((
         double.parse(cakePrice) + deliveryCharge
     ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
@@ -439,7 +447,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     print("Test ord id : $orderId");
 
-    var amount = ( ((
+    var amount = tempBillTotal!=0.0?tempBillTotal:( ((
         double.parse(cakePrice) + deliveryCharge
     ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
@@ -578,6 +586,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     });
 
     getTaxDetails();
+    getSharePercentage();
 
   }
 
@@ -598,7 +607,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/tax/list'));
 
       request.headers.addAll(headers);
 
@@ -694,7 +703,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     try{
 
-      var amount = ( ((
+      var amount = tempBillTotal!=0.0?tempBillTotal:( ((
           double.parse(cakePrice) + deliveryCharge
       ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
@@ -740,7 +749,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "Sgst":sgstPrice,
         "Tax":taxes,
         "PaymentType": paymentType,
-        "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
+        "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery',
+        "SharePercentage":sharePercentage,
       };
 
       if( cakeSubType.toLowerCase()=="brownie" && topperData['price']!=0.0){
@@ -754,7 +764,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
 
       http.Response response = await http.post(
-          Uri.parse("http://sugitechnologies.com/cakey/api/otherproduct/order/new"),
+          Uri.parse("${API_URL}api/otherproduct/order/new"),
           body:jsonEncode(data),
           headers:{'Content-Type':'application/json'}
       );
@@ -769,6 +779,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         Navigator.pop(context);
 
         if(map['statusCode']==200){
+          Functions().deleteCouponCode(codeID);
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(map['message']),
@@ -778,7 +789,6 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           );
 
           sendNotificationToVendor(notificationTid);
-          Navigator.pop(context);
           showOrderCompleteSheet();
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
@@ -800,7 +810,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
             )
         );
       }
-
+      context.read<ContextData>().setCodeData({});
     }catch(e){
       Navigator.pop(context);
       print(e);
@@ -818,103 +828,120 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   //confirm unit order
   Future<void> confirmUnitOrd() async{
 
-    showAlertDialog();
 
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+    try {
+      showAlertDialog();
 
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerUnit": {
-        "Weight": originalWeight,
-        "ProductCount": counts,
-        "PricePerUnit": pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Gst":gstPrice,
-      "Sgst":sgstPrice,
-      "Tax":taxes,
-      "Total": amount,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
+      var amount = tempBillTotal != 0.0 ? tempBillTotal : (((
+          double.parse(cakePrice) + deliveryCharge
+      ) - tempDiscountPrice) - discountPrice + sgstPrice + gstPrice)
+          .toStringAsFixed(2);
 
-    http.StreamedResponse response = await request.send();
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request(
+          'POST', Uri.parse('${API_URL}api/otherproduct/order/new'));
+      request.body = json.encode({
+        "Other_ProductID": cakeID,
+        "Other_Product_ID": cakeModId,
+        "ProductName": cakeName,
+        "ProductCommonName": cakeCommonName,
+        "CakeType": "Others",
+        "CakeSubType": cakeSubType,
+        "Image": cakeImage,
+        "EggOrEggless": eggOreggless,
+        "Flavour": flavs,
+        "Shape": shape,
+        "ProductMinWeightPerUnit": {
+          "Weight": originalWeight,
+          "ProductCount": counts,
+          "PricePerUnit": pricePerKg
+        },
+        "Description": cakeDesc,
+        "VendorID": vendorID,
+        "Vendor_ID": vendorModId,
+        "VendorName": vendorName,
+        "VendorPhoneNumber1": vendorPhone1,
+        "VendorPhoneNumber2": vendorPhone2,
+        "VendorAddress": vendorAddress,
+        "GoogleLocation": {
+          "Latitude": vendorLat,
+          "Longitude": vendorLong
+        },
+        "UserID": userID,
+        "User_ID": userModId,
+        "UserName": userName,
+        "UserPhoneNumber": userPhone,
+        "DeliveryAddress": userAddress,
+        "DeliveryDate": deliverDate,
+        "DeliverySession": deliverSession,
+        "DeliveryInformation": deliverType,
+        "Discount": tempDiscountPrice,
+        "DeliveryCharge": deliveryCharge,
+        "Gst": gstPrice,
+        "Sgst": sgstPrice,
+        "Tax": taxes,
+        "Total": amount,
+        "PaymentType": paymentType,
+        "PaymentStatus": paymentType == "Online Payment"
+            ? "Paid"
+            : 'Cash On Delivery',
+        "SharePercentage": sharePercentage,
+      });
+      request.headers.addAll(headers);
 
-    if (response.statusCode == 200) {
+      http.StreamedResponse response = await request.send();
 
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      print(map);
-
-      if(map['statusCode']==200){
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message']),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
-        sendNotificationToVendor(notificationTid);
+      if (response.statusCode == 200) {
         Navigator.pop(context);
-        showOrderCompleteSheet();
-      }else{
+
+        var map = jsonDecode(await response.stream.bytesToString());
+
+        print(map);
+
+        if (map['statusCode'] == 200) {
+          Functions().deleteCouponCode(codeID);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.black,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+          sendNotificationToVendor(notificationTid);
+
+          showOrderCompleteSheet();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.black,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
+      }
+      else {
+        Navigator.pop(context);
+        print(response.reasonPhrase);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(map['message']),
+              content: Text(response.reasonPhrase.toString()),
               backgroundColor: Colors.black,
               behavior: SnackBarBehavior.floating,
             )
         );
       }
-    }
-    else {
+      context.read<ContextData>().setCodeData({});
+    }catch(e){
+      print('error...');
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Unable to place order!"),
+          behavior: SnackBarBehavior.floating
+      ));
       Navigator.pop(context);
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
     }
 
   }
@@ -924,94 +951,109 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     showAlertDialog();
 
-    var amount = ( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+    try {
+      var amount = tempBillTotal != 0.0 ? tempBillTotal : (((
+          double.parse(cakePrice) + deliveryCharge
+      ) - tempDiscountPrice) - discountPrice + sgstPrice + gstPrice)
+          .toStringAsFixed(2);
 
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/order/new'));
-    request.body = json.encode({
-      "Other_ProductID": cakeID,
-      "Other_Product_ID": cakeModId,
-      "ProductName": cakeName,
-      "ProductCommonName": cakeCommonName,
-      "CakeType": "Others",
-      "CakeSubType": cakeSubType,
-      "Image": cakeImage,
-      "EggOrEggless": eggOreggless,
-      "Flavour": flavs,
-      "Shape": shape,
-      "ProductMinWeightPerBox": {
-        "Piece":originalWeight,
-        "ProductCount":counts,
-        "PricePerBox":pricePerKg
-      },
-      "Description": cakeDesc,
-      "VendorID": vendorID,
-      "Vendor_ID": vendorModId,
-      "VendorName":vendorName,
-      "VendorPhoneNumber1": vendorPhone1,
-      "VendorPhoneNumber2": vendorPhone2,
-      "VendorAddress": vendorAddress,
-      "GoogleLocation": {
-        "Latitude": vendorLat,
-        "Longitude": vendorLong
-      },
-      "UserID": userID,
-      "User_ID": userModId,
-      "UserName": userName,
-      "UserPhoneNumber": userPhone,
-      "DeliveryAddress": userAddress,
-      "DeliveryDate": deliverDate,
-      "DeliverySession": deliverSession,
-      "DeliveryInformation": deliverType,
-      "Discount": tempDiscountPrice,
-      "DeliveryCharge": deliveryCharge,
-      "Gst":gstPrice,
-      "Sgst":sgstPrice,
-      "Tax":taxes,
-      "Total": amount,
-      "PaymentType": paymentType,
-      "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery'
-    });
-    request.headers.addAll(headers);
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request(
+          'POST', Uri.parse('${API_URL}api/otherproduct/order/new'));
+      request.body = json.encode({
+        "Other_ProductID": cakeID,
+        "Other_Product_ID": cakeModId,
+        "ProductName": cakeName,
+        "ProductCommonName": cakeCommonName,
+        "CakeType": "Others",
+        "CakeSubType": cakeSubType,
+        "Image": cakeImage,
+        "EggOrEggless": eggOreggless,
+        "Flavour": flavs,
+        "Shape": shape,
+        "ProductMinWeightPerBox": {
+          "Piece": originalWeight,
+          "ProductCount": counts,
+          "PricePerBox": pricePerKg
+        },
+        "Description": cakeDesc,
+        "VendorID": vendorID,
+        "Vendor_ID": vendorModId,
+        "VendorName": vendorName,
+        "VendorPhoneNumber1": vendorPhone1,
+        "VendorPhoneNumber2": vendorPhone2,
+        "VendorAddress": vendorAddress,
+        "GoogleLocation": {
+          "Latitude": vendorLat,
+          "Longitude": vendorLong
+        },
+        "UserID": userID,
+        "User_ID": userModId,
+        "UserName": userName,
+        "UserPhoneNumber": userPhone,
+        "DeliveryAddress": userAddress,
+        "DeliveryDate": deliverDate,
+        "DeliverySession": deliverSession,
+        "DeliveryInformation": deliverType,
+        "Discount": tempDiscountPrice,
+        "DeliveryCharge": deliveryCharge,
+        "Gst": gstPrice,
+        "Sgst": sgstPrice,
+        "Tax": taxes,
+        "Total": amount,
+        "PaymentType": paymentType,
+        "PaymentStatus": paymentType == "Online Payment"
+            ? "Paid"
+            : 'Cash On Delivery',
+        "SharePercentage": sharePercentage,
+      });
+      request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
+      http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
-
-      Navigator.pop(context);
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      print(map);
-
-      if(map['statusCode']==200){
-        sendNotificationToVendor(notificationTid);
+      if (response.statusCode == 200) {
         Navigator.pop(context);
-        showOrderCompleteSheet();
-      }else{
+
+        var map = jsonDecode(await response.stream.bytesToString());
+
+        print(map);
+
+        if (map['statusCode'] == 200) {
+          Functions().deleteCouponCode(codeID);
+          sendNotificationToVendor(notificationTid);
+          showOrderCompleteSheet();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['message']),
+                backgroundColor: Colors.black,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
+      }
+      else {
+        Navigator.pop(context);
+        print(response.reasonPhrase);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(map['message']),
+              content: Text(response.reasonPhrase.toString()),
               backgroundColor: Colors.black,
               behavior: SnackBarBehavior.floating,
             )
         );
       }
-    }
-    else {
+      context.read<ContextData>().setCodeData({});
+    }catch(e){
+      print('error...');
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Unable to place order!"),
+          behavior: SnackBarBehavior.floating
+      ));
       Navigator.pop(context);
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
     }
 
   }
@@ -1048,6 +1090,37 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     // showPaymentDoneAlert("failed");
   }
 
+  //get share percentage...
+  Future<void> getSharePercentage() async {
+
+    //[{"_id":"63be89afe7d77c715dc2108d","Percentage":"10","Modified_On":"11-01-2023 03:34 PM","__v":0}]
+
+    try{
+
+      var res = await http.get(
+          Uri.parse("${API_URL}api/ProductSharePercentage/list"),
+          headers: {'Authorization': authToken}
+      );
+
+      if(res.statusCode==200){
+        print("Share ${res.body}");
+
+        setState((){
+          if(jsonDecode(res.body)['Percentage']!=null && jsonDecode(res.body)['Percentage']!="0"){
+            sharePercentage = double.parse(jsonDecode(res.body)['Percentage'].toString());
+          }
+        });
+
+      }else{
+        print("Share ${res.body}");
+      }
+
+    }catch(e){
+      print("Share $e");
+    }
+
+  }
+
   //endregion
 
   @override
@@ -1071,658 +1144,700 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   @override
   Widget build(BuildContext context) {
 
-    print("weight $topperData");
     discountPrice = (double.parse(cakePrice)*discount)/100;
     tempDiscount = discount;
 
-    return Scaffold(
-        appBar: AppBar(
-          leading: Container(
-            margin: EdgeInsets.all(12),
-            child: InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                height: 30,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(7)),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.chevron_left,
-                  size: 30,
-                  color: lightPink,
+    
+    if(context.watch<ContextData>().getCodeDetails()=={}){
+
+    }else{
+      if(context.watch<ContextData>().getCodeDetails()['value']!=null){
+        tempBillTotal = 0.0;
+        codeID = context.watch<ContextData>().getCodeDetails()['id'];
+        if(context.watch<ContextData>().getCodeDetails()['type']=="amount"){
+          tempBillTotal = ( ((
+              double.parse(cakePrice) + deliveryCharge
+          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+          couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+        }else{
+          double discountAmount = (( ((
+              double.parse(cakePrice) + deliveryCharge
+          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)*double.parse(context.watch<ContextData>().getCodeDetails()['value']))/100;
+          tempBillTotal = ( ((
+              double.parse(cakePrice) + deliveryCharge
+          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-discountAmount;
+          couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+          print("Context ----> $tempBillTotal");
+        }
+      }else{
+
+      }
+    }
+
+    return WillPopScope(
+      onWillPop:() async {
+        context.read<ContextData>().setCodeData({});
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            leading: Container(
+              margin: EdgeInsets.all(12),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(7)),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.chevron_left,
+                    size: 30,
+                    color: lightPink,
+                  ),
                 ),
               ),
             ),
-          ),
-          title: Text(
-              'CHECKOUT',
-              style: TextStyle(
-                  color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
-          elevation: 0.0,
-          backgroundColor: lightGrey,
-          actions: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            Notifications(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0);
-                          const end = Offset.zero;
-                          const curve = Curves.ease;
+            title: Text(
+                'CHECKOUT',
+                style: TextStyle(
+                    color: darkBlue, fontWeight: FontWeight.bold, fontSize: 15)),
+            elevation: 0.0,
+            backgroundColor: lightGrey,
+            actions: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) =>
+                              Notifications(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(1.0, 0.0);
+                            const end = Offset.zero;
+                            const curve = Curves.ease;
 
-                          final tween = Tween(begin: begin, end: end);
-                          final curvedAnimation = CurvedAnimation(
-                            parent: animation,
-                            curve: curve,
-                          );
-                          return SlideTransition(
-                            position: tween.animate(curvedAnimation),
-                            child: child,
-                          );
-                        },
+                            final tween = Tween(begin: begin, end: end);
+                            final curvedAnimation = CurvedAnimation(
+                              parent: animation,
+                              curve: curve,
+                            );
+                            return SlideTransition(
+                              position: tween.animate(curvedAnimation),
+                              child: child,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Icon(
+                        Icons.notifications_none,
+                        color: darkBlue,
                       ),
-                    );
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Icon(
-                      Icons.notifications_none,
-                      color: darkBlue,
                     ),
                   ),
-                ),
-                Positioned(
-                  left: 15,
-                  top: 18,
-                  child: CircleAvatar(
-                    radius: 4.5,
-                    backgroundColor: Colors.white,
+                  Positioned(
+                    left: 15,
+                    top: 18,
                     child: CircleAvatar(
-                      radius: 3.5,
-                      backgroundColor: Colors.red,
+                      radius: 4.5,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 3.5,
+                        backgroundColor: Colors.red,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: 10,
-            ),
-          ],
-        ),
-        body: Container(
-          width: double.infinity,
-          margin: EdgeInsets.all(15),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: Colors.black26, width: 1)),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    cakeImage!="null"?
-                    Container(
-                      height: 90,
-                      width: 75,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          image: DecorationImage(
-                              image:NetworkImage("${cakeImage}"),
-                              fit: BoxFit.cover
-                          )
+                ],
+              ),
+              SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+          body: Container(
+            width: double.infinity,
+            margin: EdgeInsets.all(15),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: Colors.black26, width: 1)),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      cakeImage!="null"?
+                      Container(
+                        height: 90,
+                        width: 75,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(
+                                image:NetworkImage("${cakeImage}"),
+                                fit: BoxFit.cover
+                            )
+                        ),
+                      ):
+                      Container(
+                        height: 90,
+                        width: 75,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(
+                                image:AssetImage("assets/images/chefdoll.jpg"),
+                                fit: BoxFit.cover
+                            )
+                        ),
                       ),
-                    ):
-                    Container(
-                      height: 90,
-                      width: 75,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          image: DecorationImage(
-                              image:AssetImage("assets/images/chefdoll.jpg"),
-                              fit: BoxFit.cover
-                          )
+                      SizedBox(
+                        width: 7,
                       ),
+                      Expanded(
+                          child:
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                child: Text('${cakeName} '
+                                  // '(Rs.$cakePrice) x $counts'
+                                  ,style: TextStyle(
+                                      fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
+                                  ),overflow: TextOverflow.ellipsis,maxLines: 10,),
+                              ),
+                              SizedBox(height: 5,),
+                              Text('(Shape - $shape)',style: TextStyle(
+                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                              ),overflow: TextOverflow.ellipsis,maxLines: 10),
+                              // SizedBox(height: 5,),
+                              Wrap(
+                                children: [
+                                  for(var i in flavs)
+                                    Text("(Flavour - ${i}) "
+                                      // "Price - Rs.${i['Price']})"
+                                      ,style: TextStyle(
+                                          fontSize:10.5,fontFamily: "Poppins",
+                                          color: Colors.grey[500]
+                                      ),),
+                                ],
+                              ),
+                              Text.rich(
+                                  TextSpan(
+                                      text:'₹ $cakePrice',
+                                      style: TextStyle(
+                                          fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
+                                          fontFamily: "Poppins"),
+                                      children: [
+
+                                      ]
+                                  )
+                              ),
+                            ],
+                          )
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 15,),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(25)
+                            ,bottomLeft:  Radius.circular(15)
+                        ),
+                        color: Colors.grey[200]
                     ),
-                    SizedBox(
-                      width: 7,
-                    ),
-                    Expanded(
-                        child:
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              child: Text('${cakeName} '
-                                // '(Rs.$cakePrice) x $counts'
-                                ,style: TextStyle(
-                                    fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
-                                ),overflow: TextOverflow.ellipsis,maxLines: 10,),
-                            ),
-                            SizedBox(height: 5,),
-                            Text('(Shape - $shape)',style: TextStyle(
-                                fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                            ),overflow: TextOverflow.ellipsis,maxLines: 10),
-                            // SizedBox(height: 5,),
-                            Wrap(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: const Text('Vendor',style: const TextStyle(
+                              fontSize: 11,fontFamily: "Poppins"
+                          ),),
+                          subtitle: Text(
+                            '${vendorName}',style: TextStyle(
+                              fontSize: 14,fontFamily: "Poppins",
+                              fontWeight: FontWeight.bold,color: Colors.black
+                          ),),
+                          trailing: Container(
+                            width: 100,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                for(var i in flavs)
-                                  Text("(Flavour - ${i}) "
-                                    // "Price - Rs.${i['Price']})"
-                                    ,style: TextStyle(
-                                        fontSize:10.5,fontFamily: "Poppins",
-                                        color: Colors.grey[500]
-                                    ),),
+                                InkWell(
+                                  onTap: () async{
+                                    PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 35,
+                                    width: 35,
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white
+                                    ),
+                                    child:const Icon(Icons.phone,color: Colors.blueAccent,),
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                InkWell(
+                                  onTap: () async{
+                                    var pr = await SharedPreferences.getInstance();
+                                    //PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+                                    Functions().handleChatWithVendors(context,pr.getString("otherOrdVenMail")??"", vendorName);
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 35,
+                                    width: 35,
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white
+                                    ),
+                                    child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                  ),
+                                ),
                               ],
                             ),
-                            Text.rich(
-                                TextSpan(
-                                    text:'₹ $cakePrice',
-                                    style: TextStyle(
-                                        fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
-                                        fontFamily: "Poppins"),
-                                    children: [
-
-                                    ]
-                                )
-                            ),
-                          ],
-                        )
-                    )
-                  ],
-                ),
-                SizedBox(height: 15,),
-                Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(bottomRight: Radius.circular(25)
-                          ,bottomLeft:  Radius.circular(15)
-                      ),
-                      color: Colors.grey[200]
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: const Text('Vendor',style: const TextStyle(
-                            fontSize: 11,fontFamily: "Poppins"
-                        ),),
-                        subtitle: Text(
-                          '${vendorName}',style: TextStyle(
-                            fontSize: 14,fontFamily: "Poppins",
-                            fontWeight: FontWeight.bold,color: Colors.black
-                        ),),
-                        trailing: Container(
-                          width: 100,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.only(left: 15,bottom: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              InkWell(
-                                onTap: () async{
-                                  PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 35,
-                                  width: 35,
-                                  decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white
-                                  ),
-                                  child:const Icon(Icons.phone,color: Colors.blueAccent,),
-                                ),
+                              Text('Cake Type',style: TextStyle(
+                                  fontSize: 11,fontFamily: "Poppins"
+                              ),),
+                              Text('Other Products',style: TextStyle(
+                                  fontSize: 14,fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,color: Colors.black
+                              ),),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 10,right: 10),
+                          color: Colors.grey[400],
+                          height: 0.8,
+                        ),
+                        const SizedBox(height: 15,),
+                        Container(
+                          // color: Colors.green,
+                          margin : EdgeInsets.only(left: 5),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: Colors.red,
                               ),
-                              const SizedBox(width: 10,),
-                              InkWell(
-                                onTap: () async{
-                                  //PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 35,
-                                  width: 35,
-                                  decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white
-                                  ),
-                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
-                                ),
+                              SizedBox(width: 5,),
+                              Expanded(
+                                  child: Text(
+                                    deliverType.toLowerCase()=="delivery"?
+                                    "${userAddress.trim()}":'Pickuping by you.',
+                                    style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                      fontSize: 13,
+                                    ),
+                                  )
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.only(left: 15,bottom: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Cake Type',style: TextStyle(
-                                fontSize: 11,fontFamily: "Poppins"
-                            ),),
-                            Text('Other Products',style: TextStyle(
-                                fontSize: 14,fontFamily: "Poppins",
-                                fontWeight: FontWeight.bold,color: Colors.black
-                            ),),
-                          ],
+
+                        SizedBox(height: 7,),
+
+                        Container(
+                          margin: const EdgeInsets.only(left: 10,right: 10),
+                          color: Colors.grey[400],
+                          height: 0.8,
                         ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.grey[400],
-                        height: 0.8,
-                      ),
-                      const SizedBox(height: 15,),
-                      Container(
-                        // color: Colors.green,
-                        margin : EdgeInsets.only(left: 5),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.red,
-                            ),
-                            SizedBox(width: 5,),
-                            Expanded(
-                                child: Text(
-                                  deliverType.toLowerCase()=="delivery"?
-                                  "${userAddress.trim()}":'Pickuping by you.',
+
+                        Container(
+                          padding: EdgeInsets.only(top: 10,bottom: 10),
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:EdgeInsets.only(left: 5),
+                                child: Text("Apply Coupon",
                                   style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                    fontSize: 13,
-                                  ),
-                                )
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 7,),
-
-                      Container(
-                        margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.grey[400],
-                        height: 0.8,
-                      ),
-
-                      Container(
-                        padding: EdgeInsets.only(top: 10,bottom: 10),
-                        width: double.infinity,
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:EdgeInsets.only(left: 5),
-                              child: Text("Apply Coupon",
-                                style: TextStyle(
-                                    color: darkBlue,
-                                    fontFamily: "Poppins",
-                                    fontSize: 12
-                                ),),
-                            ),
-                            SizedBox(height: 6,),
-                            Container(
-                              margin: EdgeInsets.only(left: 7,right: 7),
-                              height: 40,
-                              child: TextField(
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 13,
-                                    color:darkBlue
-                                ),
-                                controller: couponCtrl,
-                                onChanged: (text){
-                                  setState((){
-                                    // if(couponCtrl.text.toLowerCase()=="bbq12m"){
-                                    //
-                                    //   setState((){
-                                    //     discountPrice = (double.parse(cakePrice)*discount)/100;
-                                    //     tempDiscount = discount;
-                                    //   });
-                                    //
-                                    //   ScaffoldMessenger.of(context).showSnackBar(
-                                    //       SnackBar(
-                                    //         content: Text('Discount Applied.!'),
-                                    //         backgroundColor: Colors.green,
-                                    //       )
-                                    //   );
-                                    // }else{
-                                    //
-                                    //   setState((){
-                                    //     discountPrice = 0;
-                                    //     tempDiscount = 0;
-                                    //   });
-                                    //
-                                    // }
-                                  });
-                                },
-                                maxLines: 1,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(5),
-                                  hintStyle: TextStyle(
-                                      fontFamily: "Poppins",fontSize: 13
-                                  ),
-                                  hintText: "Coupon code",
-                                  border: OutlineInputBorder(),
-                                ),
+                                      color: darkBlue,
+                                      fontFamily: "Poppins",
+                                      fontSize: 12
+                                  ),),
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Product Total',style: TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Tooltip(
-                                margin: EdgeInsets.only(left: 15,right: 15),
-                                padding: EdgeInsets.all(15),
-                                message: "Item total depends on itemcount/selected shape,flavour,article,weight",
-                                child:
-                                Text('₹ ${double.parse(cakePrice).toStringAsFixed(2)}'
-                                  ,style: const TextStyle(fontWeight: FontWeight.bold),)
-
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Delivery charge',style: const TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Discounts',style: const TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Row(
-                                children:[
-                                  Container(
-                                      padding:EdgeInsets.only(right:5),
-                                      child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                              SizedBox(height: 6,),
+                              Container(
+                                margin: EdgeInsets.only(left: 7,right: 7),
+                                height: 40,
+                                child: TextField(
+                                  onTap:(){
+                                    FocusScope.of(context).unfocus();
+                                    context.read<ContextData>().setCodeData({});
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (c)=>CouponsList(userID)));
+                                  },
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 13,
+                                      color:darkBlue
                                   ),
-                                  Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ]
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('CGST',style: const TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Row(
-                                children:[
-                                  Container(
-                                      padding:EdgeInsets.only(right:5),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                  controller: couponCtrl,
+                                  onChanged: (text){
+                                    setState((){
+                                      // if(couponCtrl.text.toLowerCase()=="bbq12m"){
+                                      //
+                                      //   setState((){
+                                      //     discountPrice = (double.parse(cakePrice)*discount)/100;
+                                      //     tempDiscount = discount;
+                                      //   });
+                                      //
+                                      //   ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(
+                                      //         content: Text('Discount Applied.!'),
+                                      //         backgroundColor: Colors.green,
+                                      //       )
+                                      //   );
+                                      // }else{
+                                      //
+                                      //   setState((){
+                                      //     discountPrice = 0;
+                                      //     tempDiscount = 0;
+                                      //   });
+                                      //
+                                      // }
+                                    });
+                                  },
+                                  maxLines: 1,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(5),
+                                    hintStyle: TextStyle(
+                                        fontFamily: "Poppins",fontSize: 13
+                                    ),
+                                    hintText: "Coupon code",
+                                    border: OutlineInputBorder(),
                                   ),
-                                  Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ]
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('SGST',style: const TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.black54,
-                            ),),
-                            Row(
-                                children:[
-                                  Container(
-                                      padding:EdgeInsets.only(right:5),
-                                      child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
-                                  ),
-                                  Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ]
-                            )
-                          ],
-                        ),
-                      ),
-
-                      Container(
-                        margin: const EdgeInsets.only(left: 10,right: 10),
-                        color: Colors.grey[400],
-                        height: 0.8,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Bill Total',style: TextStyle(
-                                fontFamily: "Poppins",
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold
-                            ),),
-
-                            Text('₹ ${
-                                ( ((
-                                    double.parse(cakePrice) + deliveryCharge
-                                ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2)
-                            }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.zero,
-                  child: Theme(
-                    data: ThemeData().copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      maintainState: true,
-                      onExpansionChanged: (e){
-                        setState((){
-                          expanded = e;
-                          if(e==true){
-                            //controller.jumpTo(controller.position.minScrollExtent);
-
-                            // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
-                            // Offset position = box.localToGlobal(Offset.zero); //this is global position
-                            // double y = position.dx;
-                            //
-                            // print(y);
-
-                            // controller.animateTo(
-                            //   306,
-                            //   duration: Duration(seconds: 1),
-                            //   curve: Curves.fastOutSlowIn,
-                            // );
-
-                          }
-                        });
-                        print(e);
-                      },
-                      initiallyExpanded: true,
-                      title: Text(
-                        'Payment type',
-                        style: TextStyle(
-                            color: Colors.grey[400],
-                            fontFamily: "Poppins",
-                            fontSize: 13),
-                      ),
-                      subtitle: Text(
-                        '$paymentType',
-                        style: TextStyle(
-                            color: darkBlue,
-                            fontFamily: "Poppins",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      trailing: !expanded?
-                      Container(
-                        alignment: Alignment.center,
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          shape: BoxShape.circle ,
-                        ),
-                        child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
-                      ):
-                      Container(
-                        alignment: Alignment.center,
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          shape: BoxShape.circle ,
-                        ),
-                        child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
-                      ),
-                      children: [
-                        ListTile(
-                          onTap: () {
-                            setState(() {
-                              paymentType = "Online Payment";
-                              paymentIndex = 0;
-                            });
-                          },
-                          leading: paymentIndex!=0?
-                          Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                          Icon(Icons.check_circle , color: Colors.green,),
-                          title: Text(
-                            'Online Payment',
-                            style: TextStyle(
-                                color: darkBlue,
-                                fontFamily: "Poppins",
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        ListTile(
-                          onTap: () {
-                            setState(() {
-                              paymentType = "Cash on delivery";
-                              paymentIndex = 1;
-                            });
-                          },
-                          leading: paymentIndex!=1?
-                          Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                          Icon(Icons.check_circle , color: Colors.green,),
-                          title: Text(
-                            'Cash On Delivery',
-                            style: TextStyle(
-                                color: darkBlue,
+
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Product Total',style: TextStyle(
                                 fontFamily: "Poppins",
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
+                                color: Colors.black54,
+                              ),),
+                              Tooltip(
+                                  margin: EdgeInsets.only(left: 15,right: 15),
+                                  padding: EdgeInsets.all(15),
+                                  message: "Item total depends on itemcount/selected shape,flavour,article,weight",
+                                  child:
+                                  Text('₹ ${double.parse(cakePrice).toStringAsFixed(2)}'
+                                    ,style: const TextStyle(fontWeight: FontWeight.bold),)
+
+                              ),
+                            ],
                           ),
                         ),
-                        // ListTile(
-                        //   onTap: () {
-                        //     setState(() {
-                        //       paymentType = "Credit Card";
-                        //       paymentIndex = 2;
-                        //     });
-                        //   },
-                        //   leading: paymentIndex!=2?
-                        //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
-                        //   Icon(Icons.check_circle , color: Colors.green,),
-                        //   title: Text(
-                        //     'Credit Card',
-                        //     style: TextStyle(
-                        //         color: darkBlue,
-                        //         fontFamily: "Poppins",
-                        //         fontSize: 14,
-                        //         fontWeight: FontWeight.bold),
-                        //   ),
-                        // ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Delivery charge',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Discounts',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Row(
+                                  children:[
+                                    Container(
+                                        padding:EdgeInsets.only(right:5),
+                                        child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
+                                    ),
+                                    Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ]
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('CGST',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Row(
+                                  children:[
+                                    Container(
+                                        padding:EdgeInsets.only(right:5),
+                                        child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                    ),
+                                    Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ]
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('SGST',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Row(
+                                  children:[
+                                    Container(
+                                        padding:EdgeInsets.only(right:5),
+                                        child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                    ),
+                                    Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ]
+                              )
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          margin: const EdgeInsets.only(left: 10,right: 10),
+                          color: Colors.grey[400],
+                          height: 0.8,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Bill Total',style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold
+                              ),),
+
+                              Text('₹ ${
+                                  tempBillTotal!=0.0?
+                                  tempBillTotal.toStringAsFixed(2):
+                                  ( ((
+                                      double.parse(cakePrice) + deliveryCharge
+                                  ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2)
+                              }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 3,bottom: 3),
-                  color: lightPink,
-                  height: 0.3,
-                ),
 
-                SizedBox(
-                  height: 15,
-                ),
-                Container(
-                  height: 50,
-                  width: 200,
-                  decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25)),
-                    onPressed: () {
-                      // _handleOrder();
-                      showConfirmOrder();
-                      // sendNotificationToVendor(notificationTid);
-                    },
-                    color: lightPink,
-                    child: Text(
-                      paymentType.toLowerCase()=="cash on delivery"?
-                      "ORDER NOW":'PROCEED TO PAY',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                  Padding(
+                    padding: EdgeInsets.zero,
+                    child: Theme(
+                      data: ThemeData().copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        maintainState: true,
+                        onExpansionChanged: (e){
+                          setState((){
+                            expanded = e;
+                            if(e==true){
+                              //controller.jumpTo(controller.position.minScrollExtent);
+
+                              // RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
+                              // Offset position = box.localToGlobal(Offset.zero); //this is global position
+                              // double y = position.dx;
+                              //
+                              // print(y);
+
+                              // controller.animateTo(
+                              //   306,
+                              //   duration: Duration(seconds: 1),
+                              //   curve: Curves.fastOutSlowIn,
+                              // );
+
+                            }
+                          });
+                          print(e);
+                        },
+                        initiallyExpanded: true,
+                        title: Text(
+                          'Payment type',
+                          style: TextStyle(
+                              color: Colors.grey[400],
+                              fontFamily: "Poppins",
+                              fontSize: 13),
+                        ),
+                        subtitle: Text(
+                          '$paymentType',
+                          style: TextStyle(
+                              color: darkBlue,
+                              fontFamily: "Poppins",
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        trailing: !expanded?
+                        Container(
+                          alignment: Alignment.center,
+                          height: 25,
+                          width: 25,
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            shape: BoxShape.circle ,
+                          ),
+                          child: Icon(Icons.keyboard_arrow_down_rounded , color: darkBlue,size: 25,),
+                        ):
+                        Container(
+                          alignment: Alignment.center,
+                          height: 25,
+                          width: 25,
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            shape: BoxShape.circle ,
+                          ),
+                          child: Icon(Icons.keyboard_arrow_up , color: darkBlue,size: 25,),
+                        ),
+                        children: [
+                          ListTile(
+                            onTap: () {
+                              setState(() {
+                                paymentType = "Online Payment";
+                                paymentIndex = 0;
+                              });
+                            },
+                            leading: paymentIndex!=0?
+                            Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                            Icon(Icons.check_circle , color: Colors.green,),
+                            title: Text(
+                              'Online Payment',
+                              style: TextStyle(
+                                  color: darkBlue,
+                                  fontFamily: "Poppins",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          ListTile(
+                            onTap: () {
+                              setState(() {
+                                paymentType = "Cash on delivery";
+                                paymentIndex = 1;
+                              });
+                            },
+                            leading: paymentIndex!=1?
+                            Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                            Icon(Icons.check_circle , color: Colors.green,),
+                            title: Text(
+                              'Cash On Delivery',
+                              style: TextStyle(
+                                  color: darkBlue,
+                                  fontFamily: "Poppins",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          // ListTile(
+                          //   onTap: () {
+                          //     setState(() {
+                          //       paymentType = "Credit Card";
+                          //       paymentIndex = 2;
+                          //     });
+                          //   },
+                          //   leading: paymentIndex!=2?
+                          //   Icon(Icons.radio_button_unchecked_rounded , color: Colors.green,):
+                          //   Icon(Icons.check_circle , color: Colors.green,),
+                          //   title: Text(
+                          //     'Credit Card',
+                          //     style: TextStyle(
+                          //         color: darkBlue,
+                          //         fontFamily: "Poppins",
+                          //         fontSize: 14,
+                          //         fontWeight: FontWeight.bold),
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
-                )
-              ],
+                  Container(
+                    margin: EdgeInsets.only(top: 3,bottom: 3),
+                    color: lightPink,
+                    height: 0.3,
+                  ),
+
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    height: 50,
+                    width: 200,
+                    decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(25)),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25)),
+                      onPressed: () {
+                        // _handleOrder();
+                        showConfirmOrder();
+                        // sendNotificationToVendor(notificationTid);
+                      },
+                      color: lightPink,
+                      child: Text(
+                        paymentType.toLowerCase()=="cash on delivery"?
+                        "ORDER NOW":'PROCEED TO PAY',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 }
 

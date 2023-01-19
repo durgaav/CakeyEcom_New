@@ -6,6 +6,7 @@ import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/Profile.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -749,7 +750,7 @@ class _NotificationsState extends State<Notifications> {
         'Authorization': '$authToken'
       };
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey//api/customize/cake/listbyuserid/$userId'));
+          Uri.parse('${API_URL}api/customize/cake/listbyuserid/$userId'));
 
       request.headers.addAll(headers);
 
@@ -1132,7 +1133,7 @@ class _NotificationsState extends State<Notifications> {
       var headers = {
         'Authorization': '$auth'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/tax/list'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/tax/list'));
 
       request.headers.addAll(headers);
 
@@ -1280,7 +1281,7 @@ class _NotificationsState extends State<Notifications> {
     try{
 
       http.Response res = await http.put(
-        Uri.parse('http://sugitechnologies.com/cakey//api/tickets/changeRequest/Approve/${data['OrderID']}'),
+        Uri.parse('${API_URL}api/tickets/changeRequest/Approve/${data['OrderID']}'),
         body:jsonEncode(theData),
         headers: {
           "Content-Type":"application/json"
@@ -1330,7 +1331,7 @@ class _NotificationsState extends State<Notifications> {
 
     try {
       var res = await http.get(Uri.parse(
-          "http://sugitechnologies.com/cakey//api/users/notification/6333e3439e05797c3a35a973"),
+          "${API_URL}api/users/notification/6333e3439e05797c3a35a973"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -1387,7 +1388,7 @@ class _NotificationsState extends State<Notifications> {
       var headers = {
         'Content-Type': 'application/json'
       };
-      var request = http.Request('PUT', Uri.parse('http://sugitechnologies.com/cakey/api/order/updatestatus/$id'));
+      var request = http.Request('PUT', Uri.parse('${API_URL}api/order/updatestatus/$id'));
       request.body = json.encode({
         "Status": "Cancelled",
         "Status_Updated_By": "$byId"
@@ -1430,7 +1431,7 @@ class _NotificationsState extends State<Notifications> {
   Future<void> deleteAllNotifications() async{
     showAlertDialog();
     var request = http.Request('DELETE',
-        Uri.parse('http://sugitechnologies.com/cakey/api/users/deletenotification/$userId'));
+        Uri.parse('${API_URL}api/users/deletenotification/$userId'));
 
 
     http.StreamedResponse response = await request.send();
@@ -1548,7 +1549,7 @@ class _NotificationsState extends State<Notifications> {
     try{
 
       http.Response res = await http.put(
-          Uri.parse('http://sugitechnologies.com/cakey//api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
+          Uri.parse('${API_URL}api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
           body:jsonEncode(pass),
           headers: {
             "Content-Type":"application/json"

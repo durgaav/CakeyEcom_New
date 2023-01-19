@@ -11,10 +11,27 @@ class CustomAppBars{
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
 
-  Widget CustomAppBar(BuildContext context , String title ,int notiCount ,String profileUrl){
+  Widget CustomAppBar(BuildContext context , String title ,int notiCount ,String profileUrl,[function]){
     return Container(
       child: Row(
         children: [
+          InkWell(
+            onTap: () {
+              function();
+            },
+            child: Container(
+              padding: EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(6)),
+              child: Icon(
+                Icons.refresh,
+                color: darkBlue,
+                size: 22,
+              ),
+            ),
+          ),
+          SizedBox(width:8,),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -68,7 +85,8 @@ class CustomAppBars{
                     backgroundColor: Colors.red,
                   ),
                 ),
-              ):Positioned(
+              ):
+              Positioned(
                 left: 15,
                 top: 6,
                 child: Container(height: 0,width: 0,),

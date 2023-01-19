@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:cakey/screens/SingleVendor.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -160,7 +161,7 @@ class _VendorsListState extends State<VendorsList> {
 
     try{
 
-      var res = await http.get(Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+      var res = await http.get(Uri.parse("${API_URL}api/activevendors/list"),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -272,7 +273,7 @@ class _VendorsListState extends State<VendorsList> {
     try{
       print("enter");
       var res = await http.get(
-          Uri.parse('http://sugitechnologies.com/cakey/api/cake/list'),
+          Uri.parse('${API_URL}api/cake/list'),
           headers: {"Authorization": "$authToken"});
 
       if (res.statusCode == 200) {
@@ -550,7 +551,7 @@ class _VendorsListState extends State<VendorsList> {
 
                     iamFromCustom?
                     Container():
-                    CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
+                    CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                   ],
                 ),
               ),

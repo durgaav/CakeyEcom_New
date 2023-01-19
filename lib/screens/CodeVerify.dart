@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -232,7 +233,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     //posting the value.....
     try{
       http.Response response = await http.post(
-        Uri.parse("http://sugitechnologies.com/cakey/api/userslogin/validate"),
+        Uri.parse("${API_URL}api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
           "PhoneNumber": int.parse(phonenumber)
@@ -335,7 +336,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     try{
 
       http.Response response = await http.post(
-        Uri.parse("http://sugitechnologies.com/cakey/api/userslogin/validate"),
+        Uri.parse("${API_URL}api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
           "PhoneNumber": int.parse(phonenumber)

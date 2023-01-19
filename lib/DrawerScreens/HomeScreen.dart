@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
+import 'package:cakey/CommonWebSocket.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/screens/Hampers.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
+import 'package:cakey/screens/utils.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,7 @@ import '../screens/SingleVendor.dart';
 import 'CakeTypes.dart';
 import 'Notifications.dart';
 import 'package:permission_handler/permission_handler.dart' as Handler;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 //This is home ...
 class HomeScreen extends StatefulWidget {
@@ -161,6 +164,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> activeVendorsIds = [];
 
   List hampers = [];
+
+  //sockets
+  IO.Socket? socket;
 
   //endregion
 
@@ -1126,13 +1132,15 @@ class _HomeScreenState extends State<HomeScreen> {
     var prefs = await SharedPreferences.getInstance();
     try {
       http.Response response = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/users/list/"
+          Uri.parse("${API_URL}api/users/list/"
               "${int.parse(phoneNumber)}"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
         // Navigator.pop(context);
         setState(() {
           List body = jsonDecode(response.body);
+
+          print("profile body------>>>>>>>>>> $body");
 
           userID = body[0]['_id'].toString();
           userAddress = body[0]['Address'].toString();
@@ -1152,9 +1160,16 @@ class _HomeScreenState extends State<HomeScreen> {
           prefs.setString('userAddress', userAddress);
           prefs.setString('userName', userName);
 
-          context.read<ContextData>().setUserName(userName);
-        });
+          socket!.emit("adduser",{
+            "Email":phoneNumber.toString().replaceAll("+", ""),
+            "type":"Customer",
+            "_id":userID,
+            "Name":userName,
+            "Id":body[0]['Id'].toString()
+          });
 
+        });
+        context.read<ContextData>().setUserName(userName);
       } else {
         checkNetwork();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1189,6 +1204,44 @@ class _HomeScreenState extends State<HomeScreen> {
     getFbToken();
   }
 
+  //socket init
+  initSocket(BuildContext context) {
+
+    //let data = socket?.emit("adduser", { Email: token?.result?.Email, type: token?.result?.TypeOfUser, _id: token?.result?._id, Id: token?.result?.Id, Name: token?.result?.Name })
+
+    print("Socket connecting...");
+    //AlertsAndColors().showLoader(context);
+    //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
+    //socket = IO.io("http://sugitechnologies.com:3001", <String, dynamic>{
+    socket = IO.io("${SOCKET_URL}", <String, dynamic>{
+      'autoConnect': true,
+      'transports': ['websocket'],
+    });
+    socket!.connect();
+    socket!.onConnect((e) {
+      print('Connection established. $e');
+      //Navigator.pop(context);
+    });
+    socket!.onDisconnect((e){
+      print('Connection Disconnected $e');
+      //Navigator.pop(context);
+    });
+    // socket!.onConnectError((err) {
+    //   print(err);
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onError((err) => print(err));
+
+    //socket?.emit("adduser", { Email: token?.result?.Email, type: "helpDeskv" })
+
+    // socket.on('getMessage', (newMessage) {
+    //   //chatList.add(MessageModel.fromJson(data));
+    //   print(newMessage);
+    // });
+    //
+    // socket.emit("adduser", { "Email": "surya@mindmade.in", "type": "vendor" });
+  }
+
   Future<void> getFbToken() async {
     await FirebaseMessaging.instance.getToken().then((value) => {
           setState(() {
@@ -1205,7 +1258,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var request = http.MultipartRequest(
         'PUT',
         Uri.parse(
-            'http://sugitechnologies.com/cakey/api/users/update/$userID'));
+            '${API_URL}api/users/update/$userID'));
     request.headers['Content-Type'] = 'multipart/form-data';
     request.fields.addAll({'Notification_Id': '$token'});
 
@@ -1275,7 +1328,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try{
 
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/otherproduct/activevendors/list'));
+          Uri.parse('${API_URL}api/otherproduct/activevendors/list'));
 
       request.headers.addAll(headers);
 
@@ -1331,7 +1384,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/caketype/list'));
+          Uri.parse('${API_URL}api/caketype/list'));
 
       request.headers.addAll(headers);
 
@@ -1421,7 +1474,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     try {
       http.Response response = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/cakes/activevendors/list"),
+          Uri.parse("${API_URL}api/cakes/activevendors/list"),
           headers: {"Authorization": "$authToken"});
       if (response.statusCode == 200) {
         if (response.body.length < 50) {
@@ -1476,7 +1529,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       http.Response response = await http.get(
           Uri.parse(
-              "http://sugitechnologies.com/cakey/api/ordersandhamperorders/listbyuser/$userID"),
+              "${API_URL}api/ordersandhamperorders/listbyuser/$userID"),
           headers: {"Authorization": "$authToken"}
       );
       if (response.statusCode == 200) {
@@ -1600,7 +1653,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredByEggList.clear();
     try {
       var res = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+          Uri.parse("${API_URL}api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -1663,7 +1716,7 @@ class _HomeScreenState extends State<HomeScreen> {
     activeVendorsIds.clear();
     try {
       var res = await http.get(
-          Uri.parse("http://sugitechnologies.com/cakey/api/activevendors/list"),
+          Uri.parse("${API_URL}api/activevendors/list"),
           headers: {"Authorization": "$token"});
 
       if (res.statusCode == 200) {
@@ -1725,7 +1778,7 @@ class _HomeScreenState extends State<HomeScreen> {
       var headers = {
         'Authorization': '$authToken'
       };
-      var request = http.Request('GET', Uri.parse('http://sugitechnologies.com/cakey/api/hamper/approvedlist'));
+      var request = http.Request('GET', Uri.parse('${API_URL}api/hamper/approvedlist'));
 
       request.headers.addAll(headers);
 
@@ -1780,7 +1833,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var list = [];
     try {
       var res = await http.get(Uri.parse(
-          "http://sugitechnologies.com/cakey/api/users/notification/$userID"),
+          "${API_URL}api/users/notification/$userID"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -1825,7 +1878,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       var headers = {'Authorization': '$authToken'};
       var request = http.Request('GET',
-          Uri.parse('http://sugitechnologies.com/cakey/api/deliverycharge/list'));
+          Uri.parse('${API_URL}api/deliverycharge/list'));
 
       request.headers.addAll(headers);
 
@@ -2082,7 +2135,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               loadPrefs();
                               _getUserLocation();
                             }else{
-
+                              Navigator.pop(context);
+                              Handler.openAppSettings();
                             }
                           },
                           child: Container(
@@ -2157,9 +2211,29 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     else if(permiStatus.isPermanentlyDenied){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content:Text("Permission is denied,please allow manually, Go to Settings->Apps->Cakey->Permissions->Location."))
+        SnackBar(
+            content:Text("Permission is denied,please allow manually, Go to Settings->Apps->Cakey->Permissions->Location."),
+            action:SnackBarAction(
+              label: 'SETTINGS',
+              onPressed: () {
+                Handler.openAppSettings();
+              },
+            ),
+        )
       );
     }
+  }
+
+  Future<void> handleRefresh() async {
+    var pr = await SharedPreferences.getInstance();
+    pr.remove('activeVendorsIds');
+    setState(() {
+      activeVendorsIds = [];
+    });
+    setState(() {
+      loadPrefs();
+      checkLocationPermission();
+    });
   }
 
   //endregion
@@ -2182,6 +2256,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () async {
+      initSocket(context);
       var pr = await SharedPreferences.getInstance();
       if(pr.getString('showMoreVendor')!=null&&pr.getString('showMoreVendor')!="null"){
         var addr = pr.getString('showMoreVendor')??'';
@@ -2374,136 +2449,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 18)),
                     ],
                   ),
-                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl)
-                  // Row(
-                  //   children: [
-                  //     Stack(
-                  //       alignment: Alignment.center,
-                  //       children: [
-                  //         InkWell(
-                  //           onTap: () {
-                  //             Navigator.of(context).push(
-                  //               PageRouteBuilder(
-                  //                 pageBuilder: (context, animation,
-                  //                         secondaryAnimation) =>
-                  //                     Notifications(),
-                  //                 transitionsBuilder: (context, animation,
-                  //                     secondaryAnimation, child) {
-                  //                   const begin = Offset(1.0, 0.0);
-                  //                   const end = Offset.zero;
-                  //                   const curve = Curves.ease;
-                  //
-                  //                   final tween = Tween(begin: begin, end: end);
-                  //                   final curvedAnimation = CurvedAnimation(
-                  //                     parent: animation,
-                  //                     curve: curve,
-                  //                   );
-                  //                   return SlideTransition(
-                  //                     position: tween.animate(curvedAnimation),
-                  //                     child: child,
-                  //                   );
-                  //                 },
-                  //               ),
-                  //             );
-                  //           },
-                  //           child: Container(
-                  //             padding: EdgeInsets.all(3),
-                  //             decoration: BoxDecoration(
-                  //                 color: Colors.grey[300],
-                  //                 borderRadius: BorderRadius.circular(6)),
-                  //             child: Icon(
-                  //               Icons.notifications_none,
-                  //               color: darkBlue,
-                  //               size: 22,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //         notiCount>0?
-                  //         Positioned(
-                  //           left: 15,
-                  //           top: 6,
-                  //           child: CircleAvatar(
-                  //             radius: 3.7,
-                  //             backgroundColor: Colors.white,
-                  //             child: CircleAvatar(
-                  //               radius: 2.7,
-                  //               backgroundColor: Colors.red,
-                  //             ),
-                  //           ),
-                  //         ):Positioned(
-                  //           left: 15,
-                  //           top: 6,
-                  //           child: Container(height: 0,width: 0,),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     SizedBox(
-                  //       width: 10,
-                  //     ),
-                  //     Container(
-                  //       decoration: BoxDecoration(
-                  //         color: Colors.white,
-                  //         shape: BoxShape.circle,
-                  //         boxShadow: [
-                  //           BoxShadow(
-                  //               blurRadius: 3,
-                  //               color: Colors.black,
-                  //               spreadRadius: 0)
-                  //         ],
-                  //       ),
-                  //       child: InkWell(
-                  //         onTap: () {
-                  //           Navigator.of(context).push(
-                  //             PageRouteBuilder(
-                  //               pageBuilder:
-                  //                   (context, animation, secondaryAnimation) =>
-                  //                       Profile(
-                  //                 defindex: 0,
-                  //               ),
-                  //               transitionsBuilder: (context, animation,
-                  //                   secondaryAnimation, child) {
-                  //                 const begin = Offset(1.0, 0.0);
-                  //                 const end = Offset.zero;
-                  //                 const curve = Curves.ease;
-                  //
-                  //                 final tween = Tween(begin: begin, end: end);
-                  //                 final curvedAnimation = CurvedAnimation(
-                  //                   parent: animation,
-                  //                   curve: curve,
-                  //                 );
-                  //
-                  //                 return SlideTransition(
-                  //                   position: tween.animate(curvedAnimation),
-                  //                   child: child,
-                  //                 );
-                  //               },
-                  //             ),
-                  //           );
-                  //         },
-                  //         child: profileUrl != "null"
-                  //             ? Container(
-                  //                height:27,width:27,
-                  //                decoration: BoxDecoration(
-                  //                  shape: BoxShape.circle,
-                  //                  color:Colors.red,
-                  //                  image: DecorationImage(
-                  //                    image: NetworkImage("${profileUrl}"),
-                  //                    fit: BoxFit.fill
-                  //                  )
-                  //                )
-                  //             )
-                  //             : CircleAvatar(
-                  //                 radius: 14.7,
-                  //                 backgroundColor: Colors.white,
-                  //                 child: CircleAvatar(
-                  //                     radius: 13,
-                  //                     backgroundImage:
-                  //                         AssetImage("assets/images/user.png")),
-                  //               ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // )
+                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,handleRefresh)
                 ],
               ),
             ),
@@ -2719,7 +2665,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                Expanded(child: Container(
+                Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
                       var pr = await SharedPreferences.getInstance();
@@ -3178,7 +3124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 child: searchCakeType.isEmpty
                                                     ? Center(
                                                   child: Text(
-                                                    'No Results Found!',
+                                                    'No Data Found!',
                                                     style: TextStyle(
                                                         fontFamily:
                                                         "Poppins",
@@ -4924,7 +4870,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 children: [
                                                   SizedBox(height: 20),
                                                   Text(
-                                                      'No Results Found!',
+                                                      'No Data Found!',
                                                       style: TextStyle(
                                                           fontFamily:
                                                           'Poppins',
@@ -5769,7 +5715,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                )),
+                ),
            ],
          ),
       ),

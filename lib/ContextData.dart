@@ -11,6 +11,7 @@ class ContextData extends ChangeNotifier {
   bool isUpdated = false;
   String address = "";
   List<String> addressList = [];
+  Map codeDetails = {};
 
   int notiCount = 0;
 
@@ -76,5 +77,12 @@ class ContextData extends ChangeNotifier {
   }
 
   List<String> getAddressList()=>addressList;
+
+  void setCodeData(Map data){
+    codeDetails = data;
+    notifyListeners();
+  }
+
+  Map getCodeDetails()=>codeDetails;
 
 }
