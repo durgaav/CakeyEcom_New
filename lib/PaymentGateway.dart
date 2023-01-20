@@ -909,6 +909,12 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           //Navigator.pop(context);
           showOrderCompleteSheet();
           sendNotificationToVendor(notificationTid);
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(map['message'].toString()+" Our executive will contact you soon"),
+              behavior: SnackBarBehavior.floating
+          ));
+
           Functions().deleteCouponCode(codeID);
         }
 
@@ -975,7 +981,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "Gst": gstTotal.toString(),
         "DeliveryCharge": paymentObjs['deliverCharge'].toString(),
         "ExtraCharges": paymentObjs['extra_charges'].toString(),
-        "Discount": paymentObjs['discount'].toString(),
+        "Discount":discountTotal,
         "ItemCount": paymentObjs['count'],
         "Price": paymentObjs['cake_price'],
         "DeliverySession": paymentObjs['deliverSession'],
@@ -1038,7 +1044,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         if(map['statusCode']==200){
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(map['message']),
+              content: Text(map['message'].toString()+" Our executive will contact you soon"),
               behavior: SnackBarBehavior.floating
           ));
 

@@ -12,7 +12,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
-import 'package:location/location.dart';
+// import 'package:location/location.dart';
 import 'package:cakey/screens/SplashScreen.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -55,9 +55,9 @@ class _MyAppState extends State<MyApp> {
   bool signedIn = false;
 
    bool _serviceEnabled;
-   PermissionStatus _permissionGranted;
-   LocationData _userLocation ;
-   Location myLocation = Location();
+   // PermissionStatus _permissionGranted;
+   // LocationData _userLocation ;
+   // Location myLocation = Location();
    FirebaseMessaging messaging = null;
    StreamSubscription<ConnectivityResult> sub;
    var disconected = false;
@@ -125,26 +125,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   //endregion
-
-  Future<void> addPrem() async{
-    // Check if location service is enable
-    _serviceEnabled = await myLocation.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await myLocation.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    // Check if permission is granted
-    _permissionGranted = await myLocation.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await myLocation.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-  }
 
   @override
   void dispose() {

@@ -89,6 +89,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   var userAddrCtrl = new TextEditingController();
   var pinCodeCtrl = new TextEditingController();
 
+  List<String> addressList=[]; //address list
+
+
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
 
   //On start activity..
@@ -155,9 +158,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     setState(() {
       phoneNumber = prefs.getString("phoneNumber") ?? "";
       authToken = prefs.getString("authToken") ?? 'no auth';
+      addressList = prefs.getStringList('addressList')??[];
+
+      print('addressList... $addressList');
+
       fetchProfileByPhn();
     });
   }
+
 
   //region Alerts....
 
@@ -227,7 +235,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         builder: (context){
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)
+                borderRadius: BorderRadius.circular(20)
             ),
             content: Container(
               height: 75,
@@ -258,67 +266,77 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   //Update the profile
   Future<void> updateProfile([String tokenId="null"]) async {
+    var prefs = await SharedPreferences.getInstance();
 
     print(tokenId);
 
-    var prefs = await SharedPreferences.getInstance();
     showAlertDialog();
     try{
       //without profile img....
-        var request = http.MultipartRequest('PUT',
-            Uri.parse(
-                '${API_URL}api/users/update/$userID'));
-        request.headers['Content-Type'] = 'multipart/form-data';
+      var request = http.MultipartRequest('PUT',
+          Uri.parse(
+              '${API_URL}api/users/update/$userID'));
+      request.headers['Content-Type'] = 'multipart/form-data';
 
-        request.fields.addAll({
-          'UserName': userNameCtrl.text.isEmpty?"$userName":userNameCtrl.text,
-          'Address': userAddrCtrl.text.isEmpty?"$userAddress":userAddrCtrl.text,
-          'Notification':!notifiOnOrOf?'n':"y",
-          'Notification_Id':'$tokenId',
-          "Pincode":pinCodeCtrl.text
+      request.fields.addAll({
+        'UserName': userNameCtrl.text.isEmpty?"$userName":userNameCtrl.text,
+        'Address': userAddrCtrl.text.isEmpty?"$userAddress":userAddrCtrl.text,
+        'Notification':!notifiOnOrOf?'n':"y",
+        'Notification_Id':'$tokenId',
+        "Pincode":pinCodeCtrl.text
+      });
+
+
+      if(file.path.isNotEmpty){
+        request.files.add(await http.MultipartFile.fromPath(
+            'file', file.path.toString(),
+            filename: Path.basename(file.path),
+            contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
+        ));
+      }
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        print(await response.stream.bytesToString());
+
+        prefs.setBool("newRegUser", false);
+        prefs.setString("userName", userName);
+        prefs.setString("userAddress", userAddress);
+
+        Navigator.pop(context);
+
+        context.read<ContextData>().setProfileUpdated(true);
+        context.read<ContextData>().setAddress(userAddrCtrl.text);
+
+        setState(() {
+          file = new File('');
+          fetchProfileByPhn();
         });
 
 
-        if(file.path.isNotEmpty){
-          request.files.add(await http.MultipartFile.fromPath(
-              'file', file.path.toString(),
-              filename: Path.basename(file.path),
-              contentType: MediaType.parse(lookupMimeType(file.path.toString()).toString())
-          ));
+        if(addressList.contains(userAddrCtrl.text)){
+
+        }else{
+          addressList.add(userAddrCtrl.text);
+          context.read<ContextData>().setAddressList(addressList);
+          prefs.setStringList('addressList', addressList);
         }
 
-        http.StreamedResponse response = await request.send();
 
-        if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Profile updated!'),backgroundColor: Color(0xff058d05),)
+        );
 
-          print(await response.stream.bytesToString());
-
-          prefs.setBool("newRegUser", false);
-          prefs.setString("userName", userName);
-          prefs.setString("userAddress", userAddress);
-
-          Navigator.pop(context);
-
-          context.read<ContextData>().setProfileUpdated(true);
-          context.read<ContextData>().setAddress(userAddrCtrl.text);
-
-          setState(() {
-            file = new File('');
-            fetchProfileByPhn();
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Profile updated!'),backgroundColor: Color(0xff058d05),)
-          );
-
-        }
-        else {
-          Navigator.pop(context);
-          checkNetwork();
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor: lightPink,)
-          );
-        }
+      }
+      else {
+        Navigator.pop(context);
+        checkNetwork();
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor: lightPink,)
+        );
+      }
     }catch(error){
       Navigator.pop(context);
       print(error);
@@ -504,7 +522,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       "notification": {
         "title": "Order Cancellation Notifier",
         "body": "Hi ${recentOrders[index]['VendorName']} , ${
-         recentOrders[index]['CakeName']!=null?"${recentOrders[index]['CakeName']}":"Customized Cake"
+            recentOrders[index]['CakeName']!=null?"${recentOrders[index]['CakeName']}":"Customized Cake"
         } is just Order Cancelled By ${recentOrders[index]['UserName']}."
       },
       "data": {
@@ -526,11 +544,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   //getting order list...
   Future<void> getOrderList(String _id) async{
 
+    //api/ordersandhamperorders/listbyuser/
+    //api/orders/listByUser/All/
+
     try{
       http.Response response = await http.get(
           Uri.parse("${API_URL}api/ordersandhamperorders/listbyuser/$_id"),
           headers: {"Authorization":"$authToken"}
       );
+
+      print("Orders ${response.body}");
+
       if(response.statusCode==200){
         setState(() {
           recentOrders = jsonDecode(response.body);
@@ -579,10 +603,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-        map = jsonDecode(await response.stream.bytesToString());
-        setState((){
-          vendorsList = map;
-        });
+      map = jsonDecode(await response.stream.bytesToString());
+      setState((){
+        vendorsList = map;
+      });
     }
     else {
       print(response.reasonPhrase);
@@ -697,12 +721,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         builder: (context)=>
             AlertDialog(
               title: Text("Cancel Order!" , style: TextStyle(
-                color: darkBlue , fontFamily: "Poppins",
-                fontWeight: FontWeight.bold
+                  color: darkBlue , fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold
               ),),
               content:Text(
-                "Are you sure? do you want to cancel this order?", style: TextStyle(
-                  color: Colors.black , fontFamily: "Poppins",
+                  "Are you sure? do you want to cancel this order?", style: TextStyle(
+                color: Colors.black , fontFamily: "Poppins",
               )
               ),
               actions: [
@@ -720,7 +744,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 FlatButton(
                   onPressed: ()=>Navigator.pop(context),
                   child: Text('No', style: TextStyle(
-                      color: Colors.purple , fontFamily: "Poppins",
+                    color: Colors.purple , fontFamily: "Poppins",
                   )),
                 ),
               ],
@@ -738,8 +762,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Widget ProfileView(){
     userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      userNameCtrl = TextEditingController(text: userName.toString()=="null"?"No name":userName);
-      userAddrCtrl = TextEditingController(text: userAddress.toString()=="null"?"No address":userAddress);
+      userNameCtrl = TextEditingController(text: userName.toString()=="null"?"":userName);
+      userAddrCtrl = TextEditingController(text: userAddress.toString()=="null"?"":userAddress);
+      pinCodeCtrl = TextEditingController(text: pinCodeCtrl.toString()=="null"?"":pinCodeCtrl.text);
     });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -764,12 +789,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         height: 100,
                         width: 100,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage('$userProfileUrl'),
-                            fit: BoxFit.cover
-                          )
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: NetworkImage('$userProfileUrl'),
+                                fit: BoxFit.cover
+                            )
                         ),
                       ):CircleAvatar(
                         radius: 45,
@@ -828,11 +853,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 fontFamily: "Poppins" ,
               ),
               decoration: InputDecoration(
-                hintText: "Name",
+                hintText: "Enter a UserName",
                 border: const OutlineInputBorder(),
                 hintStyle: TextStyle(
-                  fontFamily: "Poppins" ,
-                  color: darkBlue
+                    fontFamily: "Poppins" ,
+                    color: darkBlue
                 ),
               ),
             ),
@@ -863,7 +888,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             ),
             const SizedBox(height: 15,),
             Text(
-              'Address',
+              'Enter delivery Address',
               style: TextStyle(
                   fontFamily: "Poppins",
                   fontWeight: FontWeight.bold,
@@ -930,19 +955,48 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           ),
         ),
 
-        Container(
-          padding:EdgeInsets.only(left:10,top:3,bottom: 3),
-          child:Row(
-              crossAxisAlignment:CrossAxisAlignment.center,
-              children:[
-                Expanded(
-                  child:Text(selectedAdres.toString()=="null"?"No Address":'$selectedAdres',
-                    style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontSize: 13),
+        // Container(
+        //   padding:EdgeInsets.only(left:10,top:3,bottom: 3),
+        //   child:Row(
+        //       crossAxisAlignment:CrossAxisAlignment.center,
+        //       children:[
+        //         Expanded(
+        //           child:Text(selectedAdres.toString()=="null"?"No Address":'$selectedAdres',
+        //             style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontSize: 13),
+        //           ),
+        //         ),
+        //         Icon(Icons.check_circle,color: Color(0xff058d05),size: 25,),
+        //       ]
+        //   ),
+        // ),
+
+        ListView.builder(
+          shrinkWrap: true,
+          reverse: true,
+          itemCount: addressList.length,
+          physics: NeverScrollableScrollPhysics(),
+          itemBuilder: (c,i)=>
+              GestureDetector(
+                onTap: (){
+
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+                      // color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(5)
                   ),
+                  margin: EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.all(10),
+                  child: Expanded(
+                    child:Text(addressList[i],
+                      style: TextStyle(fontFamily: "Poppins",color: Colors.black,fontSize: 13),
+                    ),
+                  ),
+
                 ),
-                Icon(Icons.check_circle,color: Color(0xff058d05),size: 25,),
-              ]
-          ),
+              )
+          ,
         ),
 
         Container(
@@ -952,7 +1006,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               FocusScope.of(context).unfocus();
               if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty||pinCodeCtrl.text.isEmpty){
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Make sure fields are not empty...'),backgroundColor: Colors.red,)
+                    SnackBar(content: Text('Make sure fields are not empty...'),backgroundColor: Colors.red,)
                 );
               }else if(pinCodeCtrl.text.length<6){
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1084,26 +1138,26 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               print(recentOrders[index]['Created_On']);
 
               print(differenceOF(DateTime(
-                int.parse(diff.split("-").last.toString()),
-                int.parse(diff.split("-")[1].toString()),
-                int.parse(diff.split("-").first.toString()),
+                  int.parse(diff.split("-").last.toString()),
+                  int.parse(diff.split("-")[1].toString()),
+                  int.parse(diff.split("-").first.toString()),
                   14,04
               ).toString()));
 
               print(DateTime(
-                int.parse(diff.split("-").last.toString()),
-                int.parse(diff.split("-")[1].toString()),
-                int.parse(diff.split("-").first.toString()),
-                14,05,3
+                  int.parse(diff.split("-").last.toString()),
+                  int.parse(diff.split("-")[1].toString()),
+                  int.parse(diff.split("-").first.toString()),
+                  14,05,3
               ));
 
               print(
-                DateTime.now().difference(DateTime(
-                    int.parse(diff.split("-").last.toString()),
-                    int.parse(diff.split("-")[1].toString()),
-                    int.parse(diff.split("-").first.toString()),
-                    14,04
-                ))
+                  DateTime.now().difference(DateTime(
+                      int.parse(diff.split("-").last.toString()),
+                      int.parse(diff.split("-")[1].toString()),
+                      int.parse(diff.split("-").first.toString()),
+                      14,04
+                  ))
               );
 
               var myMap = Map();
@@ -1183,21 +1237,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   children: [
                     InkWell(
                       onTap:(){
+
+                        print(recentOrders[0]);
+
                         setState(() {
                           if(isExpands[index]==false){
                             isExpands[index]=true;
 
-                              List note = vendorsList.where((element) =>
-                              element["Id"]==recentOrders[index]['Vendor_ID']).toList();
+                            List note = vendorsList.where((element) =>
+                            element["Id"]==recentOrders[index]['Vendor_ID']).toList();
 
-                             if(note.isNotEmpty){
-                               setState((){
-                                 note[0]['Notification_Id']!=null?
-                                 notifyId = note[0]['Notification_Id']:notifyId="null";
-                               });
-                             }
+                            if(note.isNotEmpty){
+                              setState((){
+                                note[0]['Notification_Id']!=null?
+                                notifyId = note[0]['Notification_Id']:notifyId="null";
+                              });
+                            }
 
-                             print(notifyId);
+                            print(notifyId);
 
                             //mins calculate
 
@@ -1359,8 +1416,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           // ).toStringAsFixed(2)
                                           // }"
                                               "$gramAndKilo",
-                                              style: TextStyle(color: lightPink,
-                                              fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
+                                            style: TextStyle(color: lightPink,
+                                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
                                           Container(
                                             child:recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                                             Column(
@@ -1517,27 +1574,27 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         fontSize: 13
                                     ),),
                                   OutlinedButton(
-                                      onPressed: (){
+                                    onPressed: (){
 
-                                        showOrderCancelDialog(
+                                      showOrderCancelDialog(
                                           recentOrders[index]['_id'],
                                           recentOrders[index]['UserID'],
                                           recentOrders[index]['CakeName'],
                                           index
-                                        );
+                                      );
 
-                                      },
-                                      child: Text("Cancel Order",style: TextStyle(
-                                          fontFamily: "Poppins",
-                                          fontSize: 12
-                                      ),),
+                                    },
+                                    child: Text("Cancel Order",style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 12
+                                    ),),
                                     style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.all(
-                                        Colors.transparent
-                                      ),
-                                      side: MaterialStateProperty.all(
-                                        BorderSide(width: 0.5,color: Colors.white)
-                                      )
+                                        backgroundColor: MaterialStateProperty.all(
+                                            Colors.transparent
+                                        ),
+                                        side: MaterialStateProperty.all(
+                                            BorderSide(width: 0.5,color: Colors.white)
+                                        )
                                     ),
                                   )
                                 ],
@@ -1564,9 +1621,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 Container(
                                     width: 260,
                                     child:Text(
-                                        recentOrders[index]['DeliveryAddress']!=null?
+                                      recentOrders[index]['DeliveryAddress']!=null?
                                       "${recentOrders[index]['DeliveryAddress'].toString().trim()}":
-                                        "Pick Up",
+                                      "Pick Up",
                                       style: TextStyle(
                                           fontFamily: "Poppins",
                                           color: Colors.black54,
@@ -1617,9 +1674,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 children: [
                                   const Text('Delivery charge',
                                     style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
                                   Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
@@ -1632,9 +1689,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 children: [
                                   const Text('Discounts',
                                     style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.black54,
-                                  ),),
+                                      fontFamily: "Poppins",
+                                      color: Colors.black54,
+                                    ),),
                                   Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
@@ -1708,16 +1765,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               String rate = '1' ;
 
                               showDialog(
-                                  context: context,
-                                  builder:(context)=>
-                                  StatefulBuilder(
+                                context: context,
+                                builder:(context)=>
+                                    StatefulBuilder(
                                       builder:(BuildContext context , void Function(void Function()) setState)=>
                                           AlertDialog(
                                             title:Center(
                                               child: Text('Give Rate To Cake',style: TextStyle(
-                                                fontFamily: "Poppins",
-                                                fontSize: 15.5,
-                                                fontWeight: FontWeight.bold
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.5,
+                                                  fontWeight: FontWeight.bold
                                               ),),
                                             ),
 
@@ -1773,20 +1830,20 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ),
                                             ],
                                           ),
-                                  ),
+                                    ),
                               );
 
 
                             },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.star_border, color: Colors.amber,),
-                                Text(' Rate The Cake',style: TextStyle(
-                                    fontFamily: "Poppins"
-                                ),)
-                              ],
-                            )):
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.star_border, color: Colors.amber,),
+                                    Text(' Rate The Cake',style: TextStyle(
+                                        fontFamily: "Poppins"
+                                    ),)
+                                  ],
+                                )):
                             Container(),
                           ],
                         ),
@@ -3624,15 +3681,15 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             }
         ):
         Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 15,),
-              Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
-              Text('No orders found!' , style: TextStyle(
-                  color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
-              ),),
-            ],
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 15,),
+            Icon(Icons.shopping_bag_outlined , color: darkBlue,size: 50,),
+            Text('No orders found!' , style: TextStyle(
+                color: lightPink , fontWeight: FontWeight.bold , fontSize: 20
+            ),),
+          ],
         ),
       ],
     );
@@ -3647,6 +3704,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }else{
       setState((){selectedAdres = userAddress;});
     }
+
+    addressList = context.watch<ContextData>().getAddressList();
 
     notiCount = context.watch<ContextData>().getNotiCount();
 
@@ -3834,8 +3893,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
     request.body = json.encode({
       "registration_ids": [
-           "$value",
-       "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
+        "$value",
+        "c-H4wpgTQLC-qUTgx5gM2m:APA91bGSHe6VDjHbzr-f62FRtupeHX5HfBGta_K1ghVZQmWjwswqrM63-xZpCfMQ_0KipE7jOJyJdWwnPVgKt4nNj_hQWDj0EwLc_K2q_pHCgOwOv4NiznZDY6inbnGzSsbcb5T8c3WL"
       ],
       "notification": {
         "title": "Order Placed",
@@ -3897,4 +3956,5 @@ differenceOF(String dateTime, {bool numberDate = true}) {
     return 'Now';
   }
 }
+
 

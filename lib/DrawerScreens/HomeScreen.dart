@@ -15,6 +15,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart' as wbservice;
 import 'package:http/http.dart' as http;
 import 'package:cakey/ContextData.dart';
@@ -33,7 +34,7 @@ import '../ProfileDialog.dart';
 import '../drawermenu/NavDrawer.dart';
 import '../screens/HamperDetails.dart';
 import '../screens/Profile.dart';
-import 'package:location/location.dart';
+// import 'package:location/location.dart';
 import '../screens/SingleVendor.dart';
 import 'CakeTypes.dart';
 import 'Notifications.dart';
@@ -157,9 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<geocode.Placemark> placemarks = [];
 
   late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
-  LocationData? _userLocation;
-  Location myLocation = Location();
+  // late PermissionStatus _permissionGranted;
+  // LocationData? _userLocation;
+  // Location myLocation = Location();
 
   List<String> activeVendorsIds = [];
 
@@ -1568,41 +1569,55 @@ class _HomeScreenState extends State<HomeScreen> {
   //fetchlocation lat long
   Future<void> _getUserLocation() async {
     var pref = await SharedPreferences.getInstance();
+
+    bool serviceEnabled;
+    LocationPermission permission;
+    Position? position;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if(serviceEnabled){
+      position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    }
+
+    print(position!.latitude);
+    print(position.longitude);
+
     // Check if permission is granted
-    _permissionGranted = await myLocation.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await myLocation.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        _permissionGranted = await myLocation.requestPermission();
-      }
-    }
-
-    myLocation.changeSettings(accuracy: LocationAccuracy.high);
-
-    // Check if location service is enable
-    _serviceEnabled = await myLocation.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await myLocation.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    final _locationData = await myLocation.getLocation();
-
+    // _permissionGranted = await myLocation.hasPermission();
+    // if (_permissionGranted == PermissionStatus.denied) {
+    //   _permissionGranted = await myLocation.requestPermission();
+    //   if (_permissionGranted != PermissionStatus.granted) {
+    //     _permissionGranted = await myLocation.requestPermission();
+    //   }
+    // }
+    //
+    // myLocation.changeSettings(accuracy: LocationAccuracy.high);
+    //
+    // // Check if location service is enable
+    // _serviceEnabled = await myLocation.serviceEnabled();
+    // if (!_serviceEnabled) {
+    //   _serviceEnabled = await myLocation.requestService();
+    //   if (!_serviceEnabled) {
+    //     return;
+    //   }
+    // }
+    //
+    // final _locationData = await myLocation.getLocation();
+    //
     setState(() {
-      _userLocation = _locationData;
-      userLat = double.parse(_userLocation!.latitude.toString());
-      userLong = double.parse(_userLocation!.longitude.toString());
+      userLat = double.parse(position!.latitude.toString());
+      userLong = double.parse(position.longitude.toString());
     });
 
-    pref.setString('userLatitute', "${_userLocation!.latitude}");
-    pref.setString('userLongtitude', "${_userLocation!.longitude}");
+    pref.setString('userLatitute', "${position.latitude}");
+    pref.setString('userLongtitude', "${position.longitude}");
 
     print('start location : $userLat , $userLong');
 
     GetAddressFromLatLong(userLat, userLong);
     getVendorsList(authToken);
+
   }
 
   Future<void> getLocationBasedOnAddress(String address) async {
@@ -1927,6 +1942,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   }
 
+  //handle auto complete
+  Future<void> handleAutoPlaceComplete() async {
+
+    FocusScope.of(context).unfocus();
+
+    try{
+      var placeResult = await PlacesAutocomplete.show(
+        context: context,
+        mode: Mode.overlay,
+        language: "in",
+        hint: "Type location...",
+        strictbounds: false,
+        logo: Text(""),
+        types: [],
+        apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+        onError: (e){
+
+        },
+        components: [new wbservice.Component(wbservice.Component.country, "in")],
+      );
+
+      if(placeResult == null){
+
+      }else{
+        getCoordinates(placeResult!.description.toString());
+      }
+    }catch(e){
+      print(e);
+    }
+  }
+
   Future<void> getCoordinates(String predictedAddress) async{
 
     var pref = await SharedPreferences.getInstance();
@@ -2135,8 +2181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               loadPrefs();
                               _getUserLocation();
                             }else{
-                              Navigator.pop(context);
-                              Handler.openAppSettings();
+                              // Navigator.pop(context);
+                              // Handler.openAppSettings();
                             }
                           },
                           child: Container(
@@ -2154,7 +2200,35 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),),
                           ),
                         ),
-                        // SizedBox(height: 20,),
+                        SizedBox(height: 15,),
+                        Text(" OR ",style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),),
+                        SizedBox(height: 15,),
+                        GestureDetector(
+                          onTap: () async{
+                            Navigator.pop(context);
+                            loadPrefs();
+                            handleAutoPlaceComplete();
+                          },
+                          child: Container(
+                            height:height*0.06,
+                            width:width*0.6,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color:darkBlue,
+                                borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Text("Enter Location Manually",style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.bold,
+                                color:Colors.white
+                            ),),
+                          ),
+                        ),
+                        SizedBox(height: 20,),
                         // Row(
                         //   children: [
                         //     Expanded(child: Container(
@@ -2193,7 +2267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: darkBlue,
                                 borderRadius: BorderRadius.circular(20)
                             ),
-                            child: Text("Cancel",style: TextStyle(
+                            child: Text("Close App",style: TextStyle(
                                 fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,
                                 color:Colors.white
@@ -2497,30 +2571,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 200,
                                 child: GestureDetector(
                                   onTap: () async{
-                                    FocusScope.of(context).unfocus();
-                                    // showLocationChangeDialog();
-
-                                    var placeResult = await PlacesAutocomplete.show(
-                                        context: context,
-                                        mode: Mode.overlay,
-                                        language: "in",
-                                        hint: "Type location...",
-                                        strictbounds: false,
-                                        logo: Text(""),
-                                        types: [],
-                                        apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
-                                        onError: (e){
-
-                                        },
-                                        components: [new wbservice.Component(wbservice.Component.country, "in")],
-                                    );
-
-                                    if(placeResult == null){
-
-                                    }else{
-                                      getCoordinates(placeResult!.description.toString());
-                                    }
-
+                                    handleAutoPlaceComplete();
                                   },
                                   child: Text(
                                     '$userLocalityAdr',
@@ -2539,40 +2590,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(width: 5,),
                             GestureDetector(
                               onTap: () async{
-
-                                FocusScope.of(context).unfocus();
-
-                                // final result = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) =>LocationScreen()),
-                                // );
-                                //
-                                // if(!mounted) return;
-                                //
-                                // print("Popped result form .... $result");
-                                //
-                                // if(result!=null){
-                                //   getCoordinates(result.toString());
-                                // }
-                                var placeResult = await PlacesAutocomplete.show(
-                                  context: context,
-                                  mode: Mode.overlay,
-                                  language: "in",
-                                  hint: "Type location...",
-                                  strictbounds: false,
-                                  logo: Text(""),
-                                  types: [],
-                                  apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
-                                  onError: (e){
-
-                                  },
-                                  components: [new wbservice.Component(wbservice.Component.country, "in")],
-                                );
-                                if(placeResult == null){
-
-                                }else{
-                                  getCoordinates(placeResult!.description.toString());
-                                }
+                                handleAutoPlaceComplete();
                               },
                               child: Icon(Icons.arrow_drop_down),
                             ),

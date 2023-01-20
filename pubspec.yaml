@@ -48,10 +48,10 @@ dependencies:
   firebase_messaging: ^11.2.11
   firebase_analytics: ^8.3.4
   mime:
-  location:
-    git:
-      url: https://github.com/Yczar/flutterlocation.git
-      path: packages/location
+#  location:
+#    git:
+#      url: https://github.com/Yczar/flutterlocation.git
+#      path: packages/location
   geolocator: ^8.2.0
   geocoding: ^2.0.4
   shimmer: ^2.0.0

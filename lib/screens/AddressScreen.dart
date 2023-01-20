@@ -197,11 +197,11 @@ class _AddressScreenState extends State<AddressScreen> {
                 keyboardType: TextInputType.streetAddress,
                 maxLines: 1,
                 decoration: InputDecoration(
-                  hintText: "Street.",
-                  hintStyle: TextStyle(
-                    fontSize: 13.5,fontFamily: "Poppins"
-                  ),
-                  border:OutlineInputBorder()
+                    hintText: "Street.",
+                    hintStyle: TextStyle(
+                        fontSize: 13.5,fontFamily: "Poppins"
+                    ),
+                    border:OutlineInputBorder()
                 ),
               ),
               SizedBox(height: 10,),
@@ -249,48 +249,63 @@ class _AddressScreenState extends State<AddressScreen> {
                 alignment: Alignment.centerRight,
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)
+                      borderRadius: BorderRadius.circular(15)
                   ),
-                    onPressed: () async{
-                      var pr = await SharedPreferences.getInstance();
-                      FocusScope.of(context).unfocus();
+                  onPressed: () async{
+                    var pr = await SharedPreferences.getInstance();
+                    FocusScope.of(context).unfocus();
 
-                      if(streetCtrl.text.isEmpty||cityCtrl.text.isEmpty||distCtrl.text.isEmpty||
-                          pinCtrl.text.isEmpty||pinCtrl.text.length<6){
 
-                        ScaffoldMessenger.of(context).showSnackBar(
+
+                    if(streetCtrl.text.isEmpty||cityCtrl.text.isEmpty||distCtrl.text.isEmpty||
+                        pinCtrl.text.isEmpty||pinCtrl.text.length<6){
+
+                      ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text("Please Fill All Fields!"),
-                              backgroundColor: Colors.black,
-                              behavior: SnackBarBehavior.floating,
+                            content: Text("Please Fill All Fields!"),
+                            backgroundColor: Colors.black,
+                            behavior: SnackBarBehavior.floating,
                           )
-                        );
+                      );
 
-                      }else{
+                    }else if(addressList.contains("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}")){
 
-                        // setState((){
-                        //   context.read<ContextData>().setAddress(
-                        //       "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
-                        //   );
-                        // });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Address Already exist"),
+                            backgroundColor: Colors.black,
+                            behavior: SnackBarBehavior.floating,
+                          )
+                      );
 
-                        setState(() {
-                          addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
-                          context.read<ContextData>().setAddressList(addressList);
-                          pr.setStringList('addressList', addressList);
-                          loadPref();
-                        });
+                    }else{
 
-                        // Navigator.pop(context);
+                      // setState((){
+                      //   context.read<ContextData>().setAddress(
+                      //       "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
+                      //   );
+                      // });
 
-                      }
+                      setState(() {
+                        addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
+                        context.read<ContextData>().setAddressList(addressList);
+                        pr.setStringList('addressList', addressList);
+                        streetCtrl.text='';
+                        cityCtrl.text='';
+                        distCtrl.text='';
+                        pinCtrl.text='';
+                        loadPref();
+                      });
 
-                    },
+                      // Navigator.pop(context);
+                    }
+
+                  },
                   child: Text(
                     "Save",
                     style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: Colors.white
+                        fontFamily: "Poppins",
+                        color: Colors.white
                     ),
                   ),
                   color: lightPink,
@@ -303,82 +318,87 @@ class _AddressScreenState extends State<AddressScreen> {
                 itemCount: addressList.length,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (c,i)=>
-                  GestureDetector(
-                    onTap: (){
-                      // showDialog(
-                      //     context: context,
-                      //     builder: (context)=>
-                      //         AlertDialog(
-                      //           title: Text('Actions' ,
-                      //             style: TextStyle(fontFamily: "Poppins", fontSize: 16,color: darkBlue),),
-                      //           content:Column(
-                      //             mainAxisSize: MainAxisSize.min,
-                      //             children: [
-                      //               PopupMenuItem(
-                      //                   onTap: (){
-                      //                     setState((){
-                      //                       context.read<ContextData>().setAddress(
-                      //                           "${addressList[i]}"
-                      //                       );
-                      //                     });
-                      //                     Navigator.pop(context);
-                      //                   },
-                      //                   child: Text('Select Address',
-                      //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
-                      //               ),
-                      //
-                      //               PopupMenuItem(
-                      //                   onTap: () async{
-                      //                     var pr = await SharedPreferences.getInstance();
-                      //
-                      //                     setState((){
-                      //                       addressList.removeWhere((element) => element==addressList[i]);
-                      //                       context.read<ContextData>().setAddressList(addressList);
-                      //                       pr.setStringList("addressList", addressList);
-                      //                       loadPref();
-                      //                     });
-                      //                   },
-                      //                   child: Text('Delete',
-                      //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         )
-                      // );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(10)
+                    GestureDetector(
+                      onTap: (){
+                        // showDialog(
+                        //     context: context,
+                        //     builder: (context)=>
+                        //         AlertDialog(
+                        //           title: Text('Actions' ,
+                        //             style: TextStyle(fontFamily: "Poppins", fontSize: 16,color: darkBlue),),
+                        //           content:Column(
+                        //             mainAxisSize: MainAxisSize.min,
+                        //             children: [
+                        //               PopupMenuItem(
+                        //                   onTap: (){
+                        //                     setState((){
+                        //                       context.read<ContextData>().setAddress(
+                        //                           "${addressList[i]}"
+                        //                       );
+                        //                     });
+                        //                     Navigator.pop(context);
+                        //                   },
+                        //                   child: Text('Select Address',
+                        //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
+                        //               ),
+                        //
+                        //               PopupMenuItem(
+                        //                   onTap: () async{
+                        //                     var pr = await SharedPreferences.getInstance();
+                        //
+                        //                     setState((){
+                        //                       addressList.removeWhere((element) => element==addressList[i]);
+                        //                       context.read<ContextData>().setAddressList(addressList);
+                        //                       pr.setStringList("addressList", addressList);
+                        //                       loadPref();
+                        //                     });
+                        //                   },
+                        //                   child: Text('Delete',
+                        //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         )
+                        // );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(10)
+                        ),
+                        margin: EdgeInsets.only(bottom: 8,top: 8),
+                        padding: EdgeInsets.all(12),
+                        child:ListTile(
+                          title: Text(addressList[i], style: TextStyle(
+                              fontFamily: "Poppins",
+                              color:darkBlue
+                          ),),
+                          trailing: IconButton(
+                            splashColor: Colors.red,
+                            onPressed: () async{
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Address deleted Successfully"),
+                                    backgroundColor: Colors.black,
+                                    behavior: SnackBarBehavior.floating,
+                                  )
+                              );
+
+                              var pr = await SharedPreferences.getInstance();
+
+                              setState((){
+                                addressList.removeWhere((element) => element==addressList[i]);
+                                context.read<ContextData>().setAddressList(addressList);
+                                pr.setStringList("addressList", addressList);
+                                loadPref();
+                              });
+
+                            },
+                            icon: Icon(Icons.delete_outline_outlined),
+                          ),
+                        ),
                       ),
-                      margin: EdgeInsets.only(bottom: 8,top: 8),
-                      padding: EdgeInsets.all(12),
-                      child:ListTile(
-                        title: Text(addressList[i], style: TextStyle(
-                          fontFamily: "Poppins",
-                          color:darkBlue
-                        ),),
-                        trailing: IconButton(
-                                splashColor: Colors.red,
-                                onPressed: () async{
-                                  print('Hi iam delete');
-
-
-                                  var pr = await SharedPreferences.getInstance();
-
-                                  setState((){
-                                    addressList.removeWhere((element) => element==addressList[i]);
-                                    context.read<ContextData>().setAddressList(addressList);
-                                    pr.setStringList("addressList", addressList);
-                                    loadPref();
-                                  });
-
-                                },
-                                icon: Icon(Icons.delete_outline_outlined),
-                              ),
-                      ),
-                    ),
-                  )
+                    )
                 ,
               ),
 
@@ -390,3 +410,4 @@ class _AddressScreenState extends State<AddressScreen> {
     );
   }
 }
+
