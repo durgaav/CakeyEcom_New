@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
+import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/functions.dart';
@@ -904,12 +905,11 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       if (response.statusCode == 200) {
         Navigator.pop(context);
         var map = jsonDecode(await response.stream.bytesToString());
-
         if(map['statusCode']==200){
-          Functions().deleteCouponCode(codeID);
-          sendNotificationToVendor(notificationTid);
-          Navigator.pop(context);
+          //Navigator.pop(context);
           showOrderCompleteSheet();
+          sendNotificationToVendor(notificationTid);
+          Functions().deleteCouponCode(codeID);
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -918,7 +918,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
               behavior: SnackBarBehavior.floating,
               backgroundColor: Colors.green,
             ));
-
       }
       else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1032,27 +1031,20 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           body:body
       );
 
-      print("${response.statusCode}");
-      print("${response.body}");
       var map = jsonDecode(response.body);
     //
       if(response.statusCode == 200){
 
-        Navigator.pop(context);
-
         if(map['statusCode']==200){
-          
-          showOrderCompleteSheet();
-
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(map['message']),
               behavior: SnackBarBehavior.floating
           ));
 
           Functions().deleteCouponCode(codeID);
-          Navigator.pop(context);
           NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
-
+          showOrderCompleteSheet();
         }else{
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(map['message']),
@@ -1153,19 +1145,18 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       var map = jsonDecode(await response.stream.bytesToString());
 
       if(map['statusCode']==200){
+        //Navigator.pop(context);
+        showOrderCompleteSheet();
         sendNotificationToVendor(notificationTid);
-        
       }
-
-      Navigator.pop(context);
-      showOrderCompleteSheet();
 
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(map['message'].toString()),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.green,
-          ));
+          )
+      );
 
     }
     else {
@@ -1475,6 +1466,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                               fontSize: 11,fontFamily: "Poppins"
                           ),),
                           subtitle: Text(
+                              paymentObjs['weight']!=null && changeWeight(paymentObjs['weight'])>5.0?"Premium Vendor":
                             '${paymentObjs['vendor']}',style: TextStyle(
                               fontSize: 14,fontFamily: "Poppins",
                               fontWeight: FontWeight.bold,color: Colors.black

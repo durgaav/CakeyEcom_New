@@ -1760,7 +1760,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       "extra_charges":extraData,
       "weight":weight[weightIndex],
       "flavours":fixedFlavList,
-      "shapes":shape,
+      "shapes":jsonDecode(shape),
       "tier":"",
       "topper_price":topperPrice,
       "topper_name":topperName,
@@ -1783,7 +1783,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         )
     );
 
-    print('Loaded....');
+    print('Loaded.... ${changeWeight(fixedWeight+"kg")}');
   }
 
   //get vendorsList
@@ -4283,7 +4283,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                               nearestVendors.isNotEmpty
                                   ? Column(
                                       children: [
-                                            changeWeight(fixedWeight) <= 5.0
+                                            changeWeight(fixedWeight+"kg") <= 5.0
                                             ? Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
@@ -5048,10 +5048,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
                                         if (newRegUser == true) {
                                           ProfileAlert().showProfileAlert(context);
-                                          print(dayMinConverter("2days"));
-                                          print(dayMinConverter("26hours"));
-                                          print(basicCakeWeight);
-                                          print(customweightCtrl.text);
                                         } else {
                                           if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
                                               <double.parse(basicCakeWeight

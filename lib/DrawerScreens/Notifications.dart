@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/Profile.dart';
@@ -1296,6 +1297,7 @@ class _NotificationsState extends State<Notifications> {
             SnackBar(content: Text("Ticket Updated Successfully!"))
           );
           fetchNotifications();
+          Functions().deleteNotification(data['_id'].toString());
           getOrdersList();
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1327,11 +1329,13 @@ class _NotificationsState extends State<Notifications> {
       isLoading = true;
     });
 
+    print(userId);
+
     //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey http://sugitechnologies.com/cakey//api/users/notification/
 
     try {
       var res = await http.get(Uri.parse(
-          "${API_URL}api/users/notification/6333e3439e05797c3a35a973"),
+          "${API_URL}api/users/notification/$userId"),
           headers: {"Authorization":"$authToken"});
       print(res.statusCode);
       if (res.statusCode == 200) {
@@ -1353,7 +1357,7 @@ class _NotificationsState extends State<Notifications> {
         context.read<ContextData>().setNotiCount(0);
       }
     } catch (e) {
-      print(e);
+      print("Noti $e");
       setState((){
         isLoading = false;
         checkNetwork();
@@ -1563,6 +1567,7 @@ class _NotificationsState extends State<Notifications> {
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Cake Details Updated Successfully!"))
           );
+          Functions().deleteNotification(data['_id'].toString());
           fetchNotifications();
           getOrdersList();
         } else {
@@ -1766,7 +1771,7 @@ class _NotificationsState extends State<Notifications> {
                                   if(mainList[index]['TicketID']!=null && mainList[index]['OrderID']!=null){
                                       showTicketDialog(mainList[index]);
                                   }else if(mainList[index]['CustomizedCakeID']!=null && mainList[index]['Status'].toString().toLowerCase()=="sent"){
-                                    print("log");
+                                    print("log ${mainList[index] }");
                                     //showCustomCakeDetailsDialog(mainList[index]['CustomizedCakeID']);
                                     showCustomCakeInvoices(mainList[index]['CustomizedCakeID'] , mainList[index] );
                                   }

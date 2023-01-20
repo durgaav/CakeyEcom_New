@@ -158,4 +158,26 @@ class Functions{
 
   }
 
+  Future<void> deleteNotification(String id) async {
+
+    try{
+
+      var res = await http.delete(
+        Uri.parse("${API_URL}api/users/notification/removeOne/$id"),
+      );
+
+      var data = res.body;
+
+      if(res.statusCode==200){
+        print(data);
+      }else{
+        print(data);
+      }
+
+    }catch(e){
+      print("Delete the noti $e");
+    }
+
+  }
+
 }

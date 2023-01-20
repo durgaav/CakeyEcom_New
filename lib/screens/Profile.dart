@@ -337,7 +337,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     };
     var request = http.Request('PUT', Uri.parse('${API_URL}api/order/cancel/$id'));
     request.body = json.encode({
-      "Status": "Cancelled",
+      "Cancelled_By": "User",
       "Status_Updated_By": "$byId"
     });
     request.headers.addAll(headers);

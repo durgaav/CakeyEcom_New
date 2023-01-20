@@ -749,7 +749,6 @@ class _VendorsListState extends State<VendorsList> {
                     ),
                   ),
                 ),
-
                 Container(
                   // child: (searchLocation.isEmpty)?
                    /**Search is empty....**/
@@ -774,6 +773,7 @@ class _VendorsListState extends State<VendorsList> {
                             ),
 
                             //Other vendors list....
+                            locationBySearch.isNotEmpty?
                             Container(
                               padding: EdgeInsets.only(bottom: 8),
                               child: ListView.builder(
@@ -1001,6 +1001,16 @@ class _VendorsListState extends State<VendorsList> {
                                       ),
                                     );
                                   }
+                              ),
+                            ):
+                            Center(
+                              child:Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text("No Data Found!",style:TextStyle(
+                                  fontFamily:"Poppins",
+                                  fontSize:16,
+                                  fontWeight:FontWeight.bold
+                                ),),
                               ),
                             ),
 
