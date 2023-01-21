@@ -659,41 +659,32 @@ class _CakeTypesState extends State<CakeTypes> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Container(
-                            height: 45,
-                            width: 120,
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
+                          GestureDetector(
+                            onTap: (){
+                              applyFilters(
+                                  priceRangeStart,
+                                  priceRangeEnd,
+                                  fixedFilterFlav,
+                                  filterShapes,
+                                  fixedFilterTopping
+                              );
+                            },
+                            child: Container(
+                              height: 45,
+                              width: 120,
+                                alignment:Alignment.center,
+                              decoration:BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
+                                color:lightPink,
                               ),
-                              color: lightPink,
-                              onPressed: () {
-                                //Going to Aply filters....
-                                // if(currentCakeType.toLowerCase()=="others"){
-                                //   applyOthersFilter(
-                                //     priceRangeStart,
-                                //     priceRangeEnd,
-                                //     fixedFilterShapes,
-                                //     fixedFilterFlav,
-                                //   );
-                                // }else{
-                                //
-                                // }
-                                applyFilters(
-                                    priceRangeStart,
-                                    priceRangeEnd,
-                                    fixedFilterFlav,
-                                    filterShapes,
-                                    fixedFilterTopping
-                                );
-                              },
                               child: Text(
                                 "FILTER",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: "Poppins"),
-                              ),
+                                    fontFamily: "Poppins",
+                                ),
+                              )
                             ),
                           ),
                           SizedBox(height: 5,),
@@ -963,36 +954,37 @@ class _CakeTypesState extends State<CakeTypes> {
                       ),
                       //Search button...
                       Center(
-                        child: Container(
-                          height: 55,
-                          width: 200,
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            color: lightPink,
-                            onPressed: () {
-                              setState(() {
-                                Navigator.pop(context);
-                                searchByGivenFilter(
-                                    cakeCategoryCtrl.text,
-                                    cakeSubCategoryCtrl.text,
-                                    cakeVendorCtrl.text,
-                                    selectedFilter
-                                );
-                              });
-                            },
-                            child: const Text(
-                              "SEARCH",
-                              style: TextStyle(
+                        child: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              Navigator.pop(context);
+                              searchByGivenFilter(
+                                  cakeCategoryCtrl.text,
+                                  cakeSubCategoryCtrl.text,
+                                  cakeVendorCtrl.text,
+                                  selectedFilter
+                              );
+                            });
+                          },
+                          child: Container(
+                              height: 55,
+                              width: 200,
+                              alignment:Alignment.center,
+                              decoration:BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color:lightPink,
+                              ),
+                              child: Text(
+                                "SEARCH",
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "Poppins"),
-                            ),
+                                  fontFamily: "Poppins",
+                                ),
+                              )
                           ),
                         ),
                       ),
-
                       Center(
                         child: TextButton(
                           onPressed: () {
@@ -1179,27 +1171,28 @@ class _CakeTypesState extends State<CakeTypes> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 45,
-                          width: 120,
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            color: lightPink,
-                            onPressed: () {
-                              //Going to Aply filters....
-                              setState(() {
-                                applyFilterByShape(filterShapes);
-                              });
-                            },
-                            child: Text(
-                              "FILTER",
-                              style: TextStyle(
+                        GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              applyFilterByShape(filterShapes);
+                            });
+                          },
+                          child: Container(
+                              height: 45,
+                              width: 120,
+                              alignment:Alignment.center,
+                              decoration:BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color:lightPink,
+                              ),
+                              child: Text(
+                                "FILTER",
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "Poppins"),
-                            ),
+                                  fontFamily: "Poppins",
+                                ),
+                              )
                           ),
                         ),
                         SizedBox(height:5),

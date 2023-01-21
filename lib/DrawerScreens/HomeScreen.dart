@@ -456,24 +456,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       //Search button...
                       Center(
-                        child: Container(
-                          height: 55,
-                          width: 200,
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
+                        child: GestureDetector(
+                          onTap:(){
+                            Navigator.pop(context);
+                            searchByGivenFilter(
+                                cakeCategoryCtrl.text,
+                                cakeSubCategoryCtrl.text,
+                                cakeVendorCtrl.text,
+                                selectedFilter
+                            );
+                          },
+                          child: Container(
+                            height: 55,
+                            width: 200,
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
+                              color: lightPink
                             ),
-                            color: lightPink,
-                            onPressed: () {
-                              Navigator.pop(context);
-                              searchByGivenFilter(
-                                  cakeCategoryCtrl.text,
-                                  cakeSubCategoryCtrl.text,
-                                  cakeVendorCtrl.text,
-                                  selectedFilter
-                              );
-                            },
-                            child: Text(
+                            alignment:Alignment.center,
+                            child:Text(
                               "SEARCH",
                               style: TextStyle(
                                   color: Colors.white,
@@ -557,24 +558,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                SizedBox(height: 5,),
                                Align(
                                  alignment: Alignment.centerRight,
-                                 child: Container(
-                                   height: 30,
-                                   width: 100,
-                                   decoration:BoxDecoration(
-                                     borderRadius: BorderRadius.circular(20)
-                                   ),
-                                   child: RaisedButton(
-                                     shape: RoundedRectangleBorder(
-                                         borderRadius: BorderRadius.circular(20)
+                                 child: GestureDetector(
+                                   onTap: (){
+                                     Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
+                                   },
+                                   child: Container(
+                                     height: 30,
+                                     width: 100,
+                                     alignment: Alignment.center,
+                                     decoration:BoxDecoration(
+                                       borderRadius: BorderRadius.circular(20),
+                                       color: lightPink,
                                      ),
-                                       onPressed:(){
-                                         Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
-                                       },
                                      child: Text("PROFILE",style: TextStyle(
-                                         color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
-                                         fontSize: 12,decoration: TextDecoration.none
-                                     ),),
-                                     color: lightPink,
+                                           color: Colors.white,fontFamily: "Poppins",fontWeight: FontWeight.bold,
+                                           fontSize: 12,decoration: TextDecoration.none
+                                       ),),
                                    ),
                                  ),
                                )
@@ -2423,7 +2422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                     ),
                     actions: [
-                      FlatButton(
+                      TextButton(
                         onPressed: (){
                           Navigator.pop(context);
                           Future.value(false);
@@ -2432,7 +2431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.purple , fontFamily: "Poppins",
                         )),
                       ),
-                      FlatButton(
+                      TextButton(
                         onPressed: (){
                           SystemChannels.platform.invokeMethod('SystemNavigator.pop');
                           Future.value(true);

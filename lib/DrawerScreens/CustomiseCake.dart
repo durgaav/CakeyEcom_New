@@ -281,48 +281,50 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       SizedBox(
                         height: 5,
                       ),
-                      Container(
-                        height: 25,
-                        width: 80,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
-                          color: lightPink,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                    Profile(
-                                      defindex: 0,
-                                    ),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
+                      GestureDetector(
+                        onTap:(){
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                  Profile(
+                                    defindex: 0,
+                                  ),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                const begin = Offset(1.0, 0.0);
+                                const end = Offset.zero;
+                                const curve = Curves.ease;
 
-                                  final tween = Tween(begin: begin, end: end);
-                                  final curvedAnimation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: curve,
-                                  );
+                                final tween = Tween(begin: begin, end: end);
+                                final curvedAnimation = CurvedAnimation(
+                                  parent: animation,
+                                  curve: curve,
+                                );
 
-                                  return SlideTransition(
-                                    position: tween.animate(curvedAnimation),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
+                                return SlideTransition(
+                                  position: tween.animate(curvedAnimation),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 25,
+                          width: 80,
+                          alignment: Alignment.center,
+                          decoration:BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color:lightPink
+                          ),
                           child: Text(
                             'PROFILE',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: "Poppins",
                                 fontSize: 10),
-                          ),
+                          )
                         ),
                       ),
                     ],
@@ -417,13 +419,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                     ),
                   ),
                   actions: [
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           saveNotOther();
                         },
                         child: Text('Cancel')
                     ),
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           if(otherCtrl.text.isEmpty){
                             setState((){
@@ -480,14 +482,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   ),
                   actions: [
 
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           Navigator.pop(context);
                         },
                         child: Text('Cancel')
                     ),
 
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           if(otherCtrl.text.isEmpty){
                             setState((){
@@ -545,14 +547,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   ),
                   actions: [
 
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           saveNotOtherShape();
                         },
                         child: Text('Cancel')
                     ),
 
-                    FlatButton(
+                    TextButton(
                         onPressed: (){
                           if(otherCtrl.text.isEmpty){
                             setState((){
@@ -597,7 +599,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       ),
                     ),
                     actions: [
-                      FlatButton(
+                      TextButton(
                           onPressed: (){
                             Navigator.pop(context);
                             setState((){
@@ -635,13 +637,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 color:lightPink , fontSize: 13 , fontFamily: "Poppins"
             ),),
             actions: [
-              FlatButton(
+              TextButton(
                   onPressed: (){
                     Navigator.pop(context);
                   },
                   child: Text('Cancel')
               ),
-              FlatButton(
+              TextButton(
                   onPressed: (){
                     Navigator.pop(context);
                     confirmOrder(tempCakeName);
@@ -1395,13 +1397,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   ],
                 ),
                 actions: [
-                  FlatButton(
+                  TextButton(
                       onPressed: ()=>Navigator.pop(context),
                       child: Text("Cancel",style: TextStyle(
                           color: Colors.purple,fontFamily: "Poppins"
                       ),)
                   ),
-                  FlatButton(
+                  TextButton(
                       onPressed: () async{
                         Navigator.pop(context);
                         controllLocationResult();
@@ -3281,19 +3283,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                 fontFamily: "Poppins"
                                               ),),
                                               SizedBox(height:5),
-                                              RaisedButton(
+                                              TextButton(
                                                 onPressed:(){
                                                   setState(() {
                                                     file = new fil.File('');
                                                   });
                                                 },
                                                 child:Text('Remove',style: TextStyle(
-                                                    fontFamily: "Poppins",color:Colors.white
+                                                    fontFamily: "Poppins",color:lightPink
                                                 ),),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(15)
-                                                ),  
-                                                color:lightPink
                                               )
                                             ],
                                           )
@@ -3895,93 +3893,91 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               tooFar?
                               Container():
                               Center(
-                                child: Container(
-                                  height: MediaQuery.of(context).size.height*0.067,
-                                  width: MediaQuery.of(context).size.width-120,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30)
-                                  ),
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30)
+                                child: GestureDetector(
+                                  onTap:(){
+                                    FocusScope.of(context).unfocus();
+                                    setState((){
+
+                                    });
+
+                                    if(newRegUser==true){
+                                      ProfileAlert().showProfileAlert(context);
+                                    }
+                                    else {
+                                      if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                          weightCtrl.text.startsWith("0")&&
+                                              weightCtrl.text.endsWith("0")){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text("Please enter correct weight or select weight!")
+                                            )
+                                        );
+                                      } else if(double.parse(changeWeight(fixedWeight).toString()) <5.0 && nearestVendors.isNotEmpty && !vendorListClicked ) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text("Please select vendor...")
+                                            )
+                                        );
+                                      } else if(deliverAddressIndex==-1){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text("Please select delivery address!")
+                                            )
+                                        );
+                                      } else if(fixedWeight=="0.0"){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text("Please select weight!")
+                                            )
+                                        );
+                                      }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please select a image file for theme...'))
+                                        );
+                                      }else if(fixedShape.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please select a shape'))
+                                        );
+                                      }else if(fixedFlavList.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please select some flavours'))
+                                        );
+                                      }
+                                      else if(deliverAddress=="null"||deliverAddress.isEmpty){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Invalid Address'))
+                                        );
+                                      }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                          fixedSession.toLowerCase()=="select delivery time"||
+                                          fixedDate.toLowerCase()=="select delivery date"){
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
+                                        );
+                                      }
+                                      // else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
+                                      //     && nearVendorClicked==false){
+                                      //   ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(content: Text('Please Select a vendor'))
+                                      //   );
+                                      // }
+                                      else{
+                                        setState((){
+                                          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
+                                            vendorID = "";
+                                          }
+                                        });
+                                        showCakeNameEdit();
+                                      }
+                                    }
+                                  },
+                                  child: Container(
+                                    height: MediaQuery.of(context).size.height*0.067,
+                                    width: MediaQuery.of(context).size.width-120,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30),
+                                        color:lightPink
                                     ),
-                                    onPressed: (){
-                                      FocusScope.of(context).unfocus();
-                                      setState((){
-
-                                      });
-
-                                      if(newRegUser==true){
-                                        ProfileAlert().showProfileAlert(context);
-                                      }
-                                      else {
-                                        if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
-                                            weightCtrl.text.startsWith("0")&&
-                                                weightCtrl.text.endsWith("0")){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please enter correct weight or select weight!")
-                                              )
-                                          );
-                                        } else if(double.parse(changeWeight(fixedWeight).toString()) <5.0 && nearestVendors.isNotEmpty && !vendorListClicked ) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please select vendor...")
-                                              )
-                                          );
-                                        } else if(deliverAddressIndex==-1){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please select delivery address!")
-                                              )
-                                          );
-                                        } else if(fixedWeight=="0.0"){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content: Text("Please select weight!")
-                                              )
-                                          );
-                                        }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please select a image file for theme...'))
-                                          );
-                                        }else if(fixedShape.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please select a shape'))
-                                          );
-                                        }else if(fixedFlavList.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please select some flavours'))
-                                          );
-                                        }
-                                        else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Invalid Address'))
-                                          );
-                                        }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
-                                            fixedSession.toLowerCase()=="select delivery time"||
-                                            fixedDate.toLowerCase()=="select delivery date"){
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
-                                          );
-                                        }
-                                        // else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
-                                        //     && nearVendorClicked==false){
-                                        //   ScaffoldMessenger.of(context).showSnackBar(
-                                        //       SnackBar(content: Text('Please Select a vendor'))
-                                        //   );
-                                        // }
-                                        else{
-                                          setState((){
-                                            if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){
-                                              vendorID = "";
-                                            }
-                                          });
-                                          showCakeNameEdit();
-                                        }
-                                      }
-                                    },
-                                    color: lightPink,
                                     child: Text("ORDER NOW",style: TextStyle(
                                         color: Colors.white,fontWeight: FontWeight.bold
                                     ),),

@@ -94,7 +94,7 @@ class _NavDrawerState extends State<NavDrawer> {
               style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -102,7 +102,7 @@ class _NavDrawerState extends State<NavDrawer> {
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                   Future.delayed(Duration.zero,() async{
@@ -212,39 +212,42 @@ class _NavDrawerState extends State<NavDrawer> {
                       ),
                     ),
                     SizedBox(height: 7,),
-                    Container(
-                      height: 30,
-                      width: 90,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)
-                        ),
-                        color:lightPink,
-                        onPressed: (){
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.ease;
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 0,),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.ease;
 
-                                final tween = Tween(begin: begin, end: end);
-                                final curvedAnimation = CurvedAnimation(
-                                  parent: animation,
-                                  curve: curve,
-                                );
+                              final tween = Tween(begin: begin, end: end);
+                              final curvedAnimation = CurvedAnimation(
+                                parent: animation,
+                                curve: curve,
+                              );
 
-                                return SlideTransition(
-                                  position: tween.animate(curvedAnimation),
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        child: Text('PROFILE',
-                          style: TextStyle(color:Colors.white,fontFamily: "Poppins",fontSize: 13),
+                              return SlideTransition(
+                                position: tween.animate(curvedAnimation),
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 30,
+                        width: 90,
+                        alignment: Alignment.center,
+                        child:Text("PROFILE",style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize:13,
+                          color:Colors.white
+                        ),),
+                        decoration:BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color:lightPink,
                         ),
                       ),
                     ),
