@@ -186,7 +186,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -194,7 +194,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                   Future.delayed(Duration.zero,() async{
@@ -731,7 +731,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),
               actions: [
 
-                FlatButton(
+                TextButton(
                   onPressed: (){
                     Navigator.pop(context);
                     cancelOrder(ordid, userId, cakeName , index);
@@ -741,7 +741,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   )),
                 ),
 
-                FlatButton(
+                TextButton(
                   onPressed: ()=>Navigator.pop(context),
                   child: Text('No', style: TextStyle(
                     color: Colors.purple , fontFamily: "Poppins",
@@ -1806,7 +1806,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ),
                                             actions: [
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                   },
@@ -1816,7 +1816,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                       color:Colors.pinkAccent
                                                   ),)
                                               ),
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                     rateCake(double.parse(rate),
@@ -2411,7 +2411,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ),
                                             actions: [
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                   },
@@ -2421,7 +2421,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                       color:Colors.pinkAccent
                                                   ),)
                                               ),
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                     rateCake(double.parse(rate),
@@ -3012,7 +3012,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ),
                                             actions: [
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                   },
@@ -3022,7 +3022,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                       color:Colors.pinkAccent
                                                   ),)
                                               ),
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                     rateCake(double.parse(rate),
@@ -3632,7 +3632,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                               ],
                                             ),
                                             actions: [
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                   },
@@ -3642,7 +3642,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                       color:Colors.pinkAccent
                                                   ),)
                                               ),
-                                              FlatButton(
+                                              TextButton(
                                                   onPressed: (){
                                                     Navigator.pop(context);
                                                     rateCake(double.parse(rate),

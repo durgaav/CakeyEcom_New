@@ -279,7 +279,7 @@ class _CheckOutState extends State<CheckOut> {
               style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -287,7 +287,7 @@ class _CheckOutState extends State<CheckOut> {
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -317,7 +317,7 @@ class _CheckOutState extends State<CheckOut> {
               style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -325,7 +325,7 @@ class _CheckOutState extends State<CheckOut> {
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                   if(paymentType.toLowerCase()=="online payment"){

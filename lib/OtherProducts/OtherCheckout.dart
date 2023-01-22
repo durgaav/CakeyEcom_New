@@ -289,7 +289,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
               style: TextStyle(color: Colors.black,fontWeight: FontWeight.normal,fontFamily: "Poppins"),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                 },
@@ -297,7 +297,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                   style: TextStyle(color: Colors.deepPurple,fontFamily: "Poppins"),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: (){
                   Navigator.pop(context);
                   if(paymentType.toLowerCase()=="online payment"){

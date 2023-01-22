@@ -630,19 +630,20 @@ class _OthersDetailsState extends State<OthersDetails> {
                     ),
 
                     Center(
-                      child: Container(
-                        margin: EdgeInsets.all(15),
-                        height: 45,
-                        width: 120,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
+                      child: GestureDetector(
+                        onTap:(){
+                          Navigator.pop(context);
+                          setTheTopperData(price , name , image , id);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.all(15),
+                          height: 45,
+                          width: 120,
+                          alignment: Alignment.center,
+                          decoration:BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
+                            color: lightPink,
                           ),
-                          color: lightPink,
-                          onPressed: () {
-                            Navigator.pop(context);
-                            setTheTopperData(price , name , image , id);
-                          },
                           child: Text(
                             "ADD",
                             style: TextStyle(
@@ -2392,12 +2393,6 @@ class _OthersDetailsState extends State<OthersDetails> {
                             borderRadius: BorderRadius.circular(25)),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          // if(fixedDelliverMethod.isEmpty){
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //       SnackBar(
-                          //           content:
-                          //           Text("Please select pickup or delivery")));
-                          // }else
                             if (otherType == "Kg") {
                             if (changeWeight(selectedWeight) <
                                 changeWeight(weight[0]['Weight'])) {
