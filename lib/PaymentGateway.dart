@@ -192,90 +192,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   }
 
   void showOrderCompleteSheet() {
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(20),
-              topLeft: Radius.circular(20),
-            )),
-        context: context,
-        builder: (context) {
-          return Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 15,
-                ),
-                Container(
-                  height: 150,
-                  width: 150,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: AssetImage('assets/images/chefdoll.jpg'),
-                          fit: BoxFit.cover)),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Text('THANK YOU',
-                    style: TextStyle(
-                        color: Colors.deepPurple,
-                        fontFamily: "Poppins",
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold)),
-                Text('for your order',
-                    style: TextStyle(
-                        color: Colors.deepPurple,
-                        fontFamily: "Poppins",
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold)),
-                SizedBox(
-                  height: 15,
-                ),
-                Center(
-                  child: Text(
-                    'Your order is now being processed.'
-                        '\nWe will let you know once the order is picked \nfrom the outlet.',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontFamily: "Poppins",
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                        ModalRoute.withName('/HomeScreen')
-                    );
-                  },
-                  child: Center(
-                      child: Text(
-                        'BACK TO HOME',
-                        style: TextStyle(
-                            color: lightPink,
-                            fontFamily: "Poppins",
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline
-                        ),
-                        textAlign: TextAlign.center,
-                      )),
-                ),
-              ],
-            ),
-          );
-        });
+
   }
 
   //Confirm order
@@ -772,38 +689,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-
-    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
-
-    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
-
-    var headers = {
-      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
-    request.body = json.encode({
-      "registration_ids": [
-        "$NoId",
-      ],
-      "notification": {
-        "title": "New Order Is Here!",
-        "body": "Hi $vendorName , $cakeName is just Ordered By $userName."
-      },
-      "data": {
-        "msgId": "msg_12342"
-      }
-    });
-    request.headers.addAll(headers);
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
+    Functions().sendThePushMsg('You got new order!', "Hi $vendorName , $cakeName is just Ordered By $userName.", NoId.toString());
   }
 
   //payment handlers...

@@ -388,7 +388,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
+      'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
     request.body = json.encode({
@@ -452,7 +452,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
 
     var options = {
-      'key': 'rzp_test_b42mo2s6NVrs7t',
+      'key': '${PAY_TOK}',
       'amount': double.parse(amount.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': "$orderId", // Generate order_id using Orders API
@@ -500,7 +500,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     }
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
@@ -662,38 +662,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-
-    // NoId = "e8q8xT7QT8KdOJC6yuCvrq:APA91bG4-TMDV4jziIvirbC4JYxFPyZHReJJIuKwo4i9QKwedMP35ohnFo1_F53JuJruAlDHl02ux3qt6gUpqj1b3UMjg0b6zqSTO1jB14cXz7Zw7kKz25Q_3_p1CJx-8bwPjFq5lnwR";
-
-    // NoId = "cIGDQG_OR-6RRd5rPRhtIe:APA91bFo_G99mVRJzsrki-G_A6zYRe3SU8WR7Q-U29DL7Th7yngUcKU2fnXz-OFFu24qLkbopgO2chyQRlMjLBZU6uupSY31gIDa0qDNKB9yqQarVBX0LtkzT73JIpQ-6xlxYpic9Yt8";
-
-    var headers = {
-      'Authorization': 'Bearer AAAAVEy30Xg:APA91bF5xyWHGwKu-u1N5lxeKd6f9RMbg-R5y3i7fVdy6zNjdloAM6B69P6hXa_g2dlgNxVtwx3tszzKrHq-ql2Kytgv7HvkfA36RiV5PntCdzz_Jve0ElPJRM0kfCKicfxl1vFyudtm',
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
-    request.body = json.encode({
-      "registration_ids": [
-        "$NoId",
-      ],
-      "notification": {
-        "title": "New Order Is Here!",
-        "body": "Hi $vendorName , $cakeName is just Ordered By $userName."
-      },
-      "data": {
-        "msgId": "msg_12342"
-      }
-    });
-    request.headers.addAll(headers);
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
+    Functions().sendThePushMsg('You got a new order', "Hi $vendorName , $cakeName is just Ordered By $userName.", NoId.toString());
   }
 
   //confirm order

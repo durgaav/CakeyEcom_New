@@ -167,37 +167,7 @@ class _MyAppState extends State<MyApp> {
       //context.read<ContextData>().setNotiCount(1);
       print("message recieved");
       print(event.notification.body);
-      showOverlayNotification((context) {
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          child: SafeArea(
-            child: ListTile(
-              leading: SizedBox.fromSize(
-                  size: const Size(40, 40),
-                  child: ClipOval(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: Svg('assets/images/cakeylogo.svg'),
-                                fit: BoxFit.cover
-                            )
-                        ),
-                      ))),
-              title: Text(event.notification.title.toString(),style: TextStyle(
-                  fontFamily: "Poppins"
-              ),),
-              subtitle: Text(event.notification.body.toString(),style: TextStyle(
-                  fontFamily: "Poppins"
-              ),),
-              trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    OverlaySupportEntry.of(context).dismiss();
-                  }),
-            ),
-          ),
-        );
-      }, duration: Duration(milliseconds: 6000));
+      NotificationService().showNotifications(event.notification.title, event.notification.body);
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
 

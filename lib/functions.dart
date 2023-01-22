@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/screens/ChatScreen.dart';
 import 'package:cakey/screens/utils.dart';
@@ -8,6 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Functions{
+
+  Color lightGrey = Color(0xffF5F5F5);
+  Color darkBlue = Color(0xffF213959);
+  Color lightPink = Color(0xffFE8416D);
 
   Future<void> handleChatWithVendors(BuildContext context,String receiverId , String name) async {
 
@@ -178,6 +183,129 @@ class Functions{
       print("Delete the noti $e");
     }
 
+  }
+
+  //push notifications
+  Future<void> sendThePushMsg(String msg , String title , String noId) async {
+
+    try{
+
+      var headers = {
+        'Authorization': 'Bearer $FCM_TOK',
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
+      request.body = json.encode({
+        "registration_ids": [noId],
+        "notification": {
+          "title": title,
+          "body":msg
+        },
+        "data": {
+          "msgId": "msg_12342"
+        }
+      });
+      request.headers.addAll(headers);
+      http.StreamedResponse response = await request.send();
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        print(await response.stream.bytesToString());
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+    }catch(e){
+
+    }
+
+  }
+
+  void showOrderCompleteSheet(BuildContext context){
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20),
+              topLeft: Radius.circular(20),
+            )),
+        context: context,
+        builder: (context) {
+          return Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  height: 150,
+                  width: 150,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                          image: AssetImage('assets/images/chefdoll.jpg'),
+                          fit: BoxFit.cover)),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Text('THANK YOU',
+                    style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontFamily: "Poppins",
+                        fontSize: 23,
+                        fontWeight: FontWeight.bold)),
+                Text('for your order',
+                    style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontFamily: "Poppins",
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 15,
+                ),
+                Center(
+                  child: Text(
+                    'Your order is now being processed.'
+                        '\nWe will let you know once the order is picked \nfrom the outlet.',
+                    style: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: "Poppins",
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        ModalRoute.withName('/HomeScreen')
+                    );
+                  },
+                  child: Center(
+                      child: Text(
+                        'BACK TO HOME',
+                        style: TextStyle(
+                            color: lightPink,
+                            fontFamily: "Poppins",
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                ),
+              ],
+            ),
+          );
+        });
   }
 
 }
