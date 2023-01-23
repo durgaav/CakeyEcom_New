@@ -913,33 +913,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),)
           ),
         ),
-
-        // Container(
-        //   padding:EdgeInsets.only(left:10,top:3,bottom: 3),
-        //   child:Row(
-        //       crossAxisAlignment:CrossAxisAlignment.center,
-        //       children:[
-        //         Expanded(
-        //           child:Text(selectedAdres.toString()=="null"?"No Address":'$selectedAdres',
-        //             style: TextStyle(fontFamily: "Poppins",color: Colors.grey,fontSize: 13),
-        //           ),
-        //         ),
-        //         Icon(Icons.check_circle,color: Color(0xff058d05),size: 25,),
-        //       ]
-        //   ),
-        // ),
         Column(
           children:addressList.map((e){
             return Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
-                  // color: Colors.red[50],
-                  borderRadius: BorderRadius.circular(5)
-              ),
+              // decoration: BoxDecoration(
+              //     border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+              //     // color: Colors.red[50],
+              //     borderRadius: BorderRadius.circular(5)
+              // ),
               margin: EdgeInsets.only(bottom: 8),
               padding: EdgeInsets.all(10),
-              child:Text(e,
-                  style: TextStyle(fontFamily: "Poppins",color: Colors.black,fontSize: 13),
+              child:Row(
+                children: [
+                  Expanded(
+                    child: Text(e,
+                        style: TextStyle(fontFamily: "Poppins",color: Colors.grey[400],fontSize: 13),
+                    ),
+                  ),
+                ],
               ),
             );
           }).toList(),
