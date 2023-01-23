@@ -179,6 +179,7 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Adding user to db (API)
   Future<void> addUsertoDb() async{
+    showAlertDialog();
     print('add phone.....');
     var prefs = await SharedPreferences.getInstance();
     String num = phonenumber.replaceAll("+", "");

@@ -316,34 +316,26 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
 
 
-        if(addressList.contains(userAddrCtrl.text)){
+        if(addressList.contains(userAddrCtrl.text+pinCodeCtrl.text)){
 
         }else{
-          addressList.add(userAddrCtrl.text);
+          addressList.add(userAddrCtrl.text+pinCodeCtrl.text);
           context.read<ContextData>().setAddressList(addressList);
           prefs.setStringList('addressList', addressList);
         }
 
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated!'),backgroundColor: Color(0xff058d05),)
-        );
+        Functions().showSnackMsg(context,"Profile data updated!", false);
 
       }
       else {
         Navigator.pop(context);
         checkNetwork();
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.reasonPhrase.toString()),backgroundColor: lightPink,)
-        );
+        Functions().showSnackMsg(context,"Unable to update profile data!", false);
       }
     }catch(error){
       Navigator.pop(context);
       print(error);
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error Occurred"),backgroundColor:lightPink,)
-      );
     }
   }
 
@@ -368,20 +360,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       if(map["statusCode"]==200){
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
-
+        Functions().showSnackMsg(context,"${map['message']}", false);
         sendNotificationToVendor(notifyId, index);
-
         getOrderList(userID);
-
         NotificationService().showNotifications("Order Cancelled", "Your $cakeName order is cancelled.");
       }else{
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
+        Functions().showSnackMsg(context,"${map['message']}", false);
       }
 
 
@@ -389,9 +374,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }
     else {
       print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred!'))
-      );
+      Functions().showSnackMsg(context,"Error!", false);
       Navigator.pop(context);
     }
   }
@@ -420,9 +403,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       if(map["statusCode"]==200){
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
+        Functions().showSnackMsg(context,"${map['message']}", false);
 
         sendNotificationToVendor(notifyId, index);
 
@@ -432,17 +413,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       }else{
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
+        Functions().showSnackMsg(context,"${map['message']}", false);
       }
       // Navigator.pop(context);
     }
     else {
       print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred!'))
-      );
+      Functions().showSnackMsg(context,"Error!", false);
       Navigator.pop(context);
     }
 
@@ -475,9 +452,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       if(map["statusCode"]==200){
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
+        Functions().showSnackMsg(context,"${map['message']}", false);
 
         sendNotificationToVendor(notifyId, index);
 
@@ -487,17 +462,13 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       }else{
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(map['message']))
-        );
+        Functions().showSnackMsg(context,"${map['message']}", false);
       }
       // Navigator.pop(context);
     }
     else {
       print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred!'))
-      );
+      Functions().showSnackMsg(context,"Error!", false);
       Navigator.pop(context);
     }
 
@@ -651,18 +622,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }catch(e){
       Navigator.pop(context);
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred'),
-            backgroundColor: Colors.amber,
-            duration: Duration(seconds: 15),
-            action: SnackBarAction(
-              label: "Retry",
-              onPressed:()=>setState(() {
-                fetchProfileByPhn();
-              }),
-            ),
-          )
-      );
     }
 
   }
@@ -701,9 +660,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rating Updated To Cake'))
-      );
+      Functions().showSnackMsg(context,"Rating is updated to the cake!", false);
       // rateVendor(rate,
       //     recentOrders[index]['VendorID'].toString());
     }
@@ -993,13 +950,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             onPressed: (){
               FocusScope.of(context).unfocus();
               if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty||pinCodeCtrl.text.isEmpty){
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Make sure fields are not empty...'),backgroundColor: Colors.red,)
-                );
+                Functions().showSnackMsg(context,"Make sure fields are not empty!", false);
               }else if(pinCodeCtrl.text.length<6){
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please check the pin code.'),backgroundColor: Colors.red,)
-                );
+                Functions().showSnackMsg(context,"Invalid pin code field!", false);
               }else{
                 updateProfile();
               }
@@ -1353,7 +1306,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
-                                            child: Text(gramAndKilo.isNotEmpty?"₹ $gramAndKilo":"Our executives will contact you soon.",
+                                            child: Text(gramAndKilo.isNotEmpty?"₹ $gramAndKilo":"0.00",
                                               style: TextStyle(color: lightPink,
                                                   fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 2,),
                                           ),
