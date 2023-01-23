@@ -459,8 +459,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     else {
       // print();
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
-          +response.reasonPhrase.toString())));
     }
 
   }
@@ -795,40 +793,20 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           //Navigator.pop(context);
           showOrderCompleteSheet();
           sendNotificationToVendor(notificationTid);
-
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(map['message'].toString()+" Our executive will contact you soon"),
-              behavior: SnackBarBehavior.floating
-          ));
-
+          Functions().showSnackMsg(context,map['message'].toString()+" Our executive will contact you soon", false);
           Functions().deleteCouponCode(codeID);
+        }else{
+          Functions().showSnackMsg(context,map['message'].toString(), false);
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(map['message'].toString()),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-            ));
       }
       else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.reasonPhrase.toString()),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-            ));
+        Functions().showSnackMsg(context,"Unable to place the order!", false);
         Navigator.pop(context);
       }
       context.read<ContextData>().setCodeData({});
     }catch(e){
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error occurred"),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ));
+      Functions().showSnackMsg(context,"$e", false);
     }
 
   }
@@ -929,38 +907,23 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
         if(map['statusCode']==200){
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(map['message'].toString()+" Our executive will contact you soon"),
-              behavior: SnackBarBehavior.floating
-          ));
-
+          Functions().showSnackMsg(context,"${map['message']} Our executive will contact you soon", false);
           Functions().deleteCouponCode(codeID);
           NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
           showOrderCompleteSheet();
         }else{
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(map['message']),
-              behavior: SnackBarBehavior.floating
-          ));
+          Functions().showSnackMsg(context,"${map['message']}", false);
         }
 
       }else{
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(map['message']),
-            behavior: SnackBarBehavior.floating
-        ));
+        Functions().showSnackMsg(context,"Unable to place the order", false);
         Navigator.pop(context);
-
       }
       context.read<ContextData>().setCodeData({});
     } catch(e){
       print('error...');
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Unable to place order!"),
-          behavior: SnackBarBehavior.floating
-      ));
+      Functions().showSnackMsg(context,"$e", false);
       Navigator.pop(context);
     }
 
@@ -1494,29 +1457,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                   ),
                                   controller: couponCtrl,
                                   onChanged: (text){
-                                    setState((){
-                                      if(couponCtrl.text.toLowerCase()=="bbq12m"){
 
-                                        setState((){
-                                          discountPrice = (double.parse(cakePrice)*discount)/100;
-                                          tempDiscount = discount;
-                                        });
-
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Discount Applied.!'),
-                                              backgroundColor: Colors.green,
-                                            )
-                                        );
-                                      }else{
-
-                                        setState((){
-                                          discountPrice = 0;
-                                          tempDiscount = 0;
-                                        });
-
-                                      }
-                                    });
                                   },
                                   maxLines: 1,
                                   decoration: InputDecoration(

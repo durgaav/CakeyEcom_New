@@ -330,8 +330,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     else {
       // print();
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
-          +response.reasonPhrase.toString())));
+      Functions().showSnackMsg(context, "Payment Error!", true);
     }
 
     //{id: order_K1RKAn7G9lnanu, entity: order, amount: "700", amount_paid: "0",
@@ -666,47 +665,22 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
         if(map['statusCode']==200){
           Functions().deleteCouponCode(codeID);
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.black,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
-
+          Functions().showSnackMsg(context, "${map['message']}", false);
           sendNotificationToVendor(notificationTid);
           showOrderCompleteSheet();
         }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.black,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
+          Functions().showSnackMsg(context, "${map['message']}", true);
         }
       }
       else {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Unable to place order"),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
+        Functions().showSnackMsg(context, "Unable to place the order!", false);
       }
       context.read<ContextData>().setCodeData({});
     }catch(e){
       Navigator.pop(context);
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Unable to place order"),
-            backgroundColor: Colors.black,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
+      Functions().showSnackMsg(context, "Unable to place the order!", false);
     }
 
   }
@@ -783,50 +757,25 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         Navigator.pop(context);
 
         var map = jsonDecode(await response.stream.bytesToString());
-
-        print(map);
-
         if (map['statusCode'] == 200) {
           Functions().deleteCouponCode(codeID);
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.black,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
+          Functions().showSnackMsg(context, "${map['message']}", false);
           sendNotificationToVendor(notificationTid);
-
           showOrderCompleteSheet();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.black,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
+          Functions().showSnackMsg(context, "${map['message']}", false);
         }
       }
       else {
         Navigator.pop(context);
         print(response.reasonPhrase);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.reasonPhrase.toString()),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
+        Functions().showSnackMsg(context, "Unable to place the order!", false);
       }
       context.read<ContextData>().setCodeData({});
     }catch(e){
       print('error...');
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Unable to place order!"),
-          behavior: SnackBarBehavior.floating
-      ));
+      Functions().showSnackMsg(context, "Unable to place the order!", false);
       Navigator.pop(context);
     }
 
@@ -911,37 +860,21 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           sendNotificationToVendor(notificationTid);
           showOrderCompleteSheet();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.black,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
+          Functions().showSnackMsg(context, "${map['message']}", false);
         }
       }
       else {
         Navigator.pop(context);
         print(response.reasonPhrase);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.reasonPhrase.toString()),
-              backgroundColor: Colors.black,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
+        Functions().showSnackMsg(context, "${response.reasonPhrase.toString()}", false);
       }
       context.read<ContextData>().setCodeData({});
     }catch(e){
       print('error...');
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Unable to place order!"),
-          behavior: SnackBarBehavior.floating
-      ));
+      Functions().showSnackMsg(context, "Unable to place the order!", false);
       Navigator.pop(context);
     }
-
   }
 
   //confirm
@@ -1389,27 +1322,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                   controller: couponCtrl,
                                   onChanged: (text){
                                     setState((){
-                                      // if(couponCtrl.text.toLowerCase()=="bbq12m"){
-                                      //
-                                      //   setState((){
-                                      //     discountPrice = (double.parse(cakePrice)*discount)/100;
-                                      //     tempDiscount = discount;
-                                      //   });
-                                      //
-                                      //   ScaffoldMessenger.of(context).showSnackBar(
-                                      //       SnackBar(
-                                      //         content: Text('Discount Applied.!'),
-                                      //         backgroundColor: Colors.green,
-                                      //       )
-                                      //   );
-                                      // }else{
-                                      //
-                                      //   setState((){
-                                      //     discountPrice = 0;
-                                      //     tempDiscount = 0;
-                                      //   });
-                                      //
-                                      // }
+
                                     });
                                   },
                                   maxLines: 1,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -239,18 +240,6 @@ class _VendorsListState extends State<VendorsList> {
       print(e);
       Navigator.pop(context);
       checkNetwork();
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Error Occurred'),
-      //       backgroundColor: Colors.amber,
-      //       duration: Duration(seconds: 5),
-      //       action: SnackBarAction(
-      //         label: "Retry",
-      //         onPressed:()=>setState(() {
-      //           loadPrefs();
-      //         }),
-      //       ),
-      //     )
-      // );
     }
 
   }
@@ -796,10 +785,7 @@ class _VendorsListState extends State<VendorsList> {
                                           context.read<ContextData>().addMyVendor(true);
                                           context.read<ContextData>().setMyVendors([locationBySearch[index]]);
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                                              ['VendorName']}'))
-                                          );
+                                          Functions().showSnackMsg(context, "Selected Vendor : ${locationBySearch[index]['VendorName']}", false);
                                         }else{
                                           loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
                                         }
@@ -904,10 +890,7 @@ class _VendorsListState extends State<VendorsList> {
                                                                   context.read<ContextData>().addMyVendor(true);
                                                                   context.read<ContextData>().setMyVendors([locationBySearch[index]]);
                                                                   Navigator.pop(context);
-                                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                                      SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                                                                      ['VendorName']}'))
-                                                                  );
+                                                                  Functions().showSnackMsg(context, "Selected Vendor : ${locationBySearch[index]['VendorName']}", false);
                                                                 }else{
                                                                   loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
                                                                 }
@@ -964,12 +947,6 @@ class _VendorsListState extends State<VendorsList> {
 
                                                                     context.read<ContextData>().addMyVendor(true);
                                                                     context.read<ContextData>().setMyVendors([locationBySearch[index]]);
-
-                                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                                        SnackBar(content:Text('Selected Vendor : ${locationBySearch[index]
-                                                                        ['VendorName']}'))
-                                                                    );
-
                                                                     Navigator.pop(context);
 
                                                                   }else{

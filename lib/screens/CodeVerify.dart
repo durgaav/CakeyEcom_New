@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,9 +49,6 @@ class _CodeVerifyState extends State<CodeVerify> {
       );
     }catch(e){
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error Occurred"),backgroundColor:lightPink,)
-      );
     }
 
 
@@ -76,21 +74,6 @@ class _CodeVerifyState extends State<CodeVerify> {
         }).catchError((error){
           checkNetwork();
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              margin: EdgeInsets.all(15),
-              content: Text('${error}',textAlign: TextAlign.center,style: TextStyle(
-                  color: Colors.white,fontWeight: FontWeight.bold
-              ),),
-              backgroundColor: lightPink,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-
         });
       }
 
@@ -100,20 +83,10 @@ class _CodeVerifyState extends State<CodeVerify> {
   _onVerificationFailed(FirebaseAuthException exception) async{
     print(" Firebase error : $exception");
     // Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("$exception"),
-          backgroundColor: Colors.red,
-        )
-    );
+    Functions().showSnackMsg(context, "$exception", true);
     if (exception.code == 'invalid-phone-number') {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Invalid phone number!"),
-            backgroundColor: Colors.red,
-          )
-      );
+      Functions().showSnackMsg(context, "Invalid phone number!", true);
       print("The phone number entered is invalid!");
     }
   }
@@ -128,13 +101,7 @@ class _CodeVerifyState extends State<CodeVerify> {
     Navigator.pop(context);
 
     // initSmsListener();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text("Code sent to $phonenumber"),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-      )
-    );
+    Functions().showSnackMsg(context, "OTP code is sent to $phonenumber", true);
     print("code sent");
   }
 
@@ -173,21 +140,7 @@ class _CodeVerifyState extends State<CodeVerify> {
 
     }).catchError((error){
       // Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          elevation: 20,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          margin: EdgeInsets.all(15),
-          content: Text('${error}',textAlign: TextAlign.center,style: TextStyle(
-              color: Colors.white,fontWeight: FontWeight.bold
-          ),),
-          backgroundColor: lightPink,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
+      Functions().showSnackMsg(context, "$error", true);
     });
 
   }
@@ -226,44 +179,25 @@ class _CodeVerifyState extends State<CodeVerify> {
 
   //Adding user to db (API)
   Future<void> addUsertoDb() async{
-    showAlertDialog();
     print('add phone.....');
     var prefs = await SharedPreferences.getInstance();
-    print(phonenumber);
+    String num = phonenumber.replaceAll("+", "");
     //posting the value.....
     try{
       http.Response response = await http.post(
         Uri.parse("${API_URL}api/userslogin/validate"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(<String , dynamic>{
-          "PhoneNumber": int.parse(phonenumber)
+          "PhoneNumber": int.parse(num)
         }),
       );
       //check status code...
       if(response.statusCode==200){
         var map = jsonDecode(response.body);
-        print(map);
         //Checking msg....(reg / login)
         if(map['message'].toString().toLowerCase()=="registered successfully"){
 
-          onTimeLogin(phonenumber);
-
-          // Navigator.pushAndRemoveUntil(
-          //     context,
-          //     MaterialPageRoute(
-          //         builder: (context) => HomeScreen()
-          //     ),
-          //     ModalRoute.withName('/HomeScreen')
-          // );
-
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //     SnackBar(
-          //       content: Text(map['message']),
-          //       backgroundColor: Colors.green,
-          //       behavior: SnackBarBehavior.floating,
-          //     )
-          // );
-
+          onTimeLogin(num);
 
         }else if(map['message']=="Login Succeed"){
 
@@ -271,7 +205,7 @@ class _CodeVerifyState extends State<CodeVerify> {
 
           prefs.setBool("newRegUser", false);
           prefs.setString("authToken", map['token'].toString());
-          prefs.setString("phoneNumber", phonenumber);
+          prefs.setString("phoneNumber", num);
 
           Navigator.pushAndRemoveUntil(
               context,
@@ -280,49 +214,18 @@ class _CodeVerifyState extends State<CodeVerify> {
               ),
               ModalRoute.withName('/HomeScreen')
           );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
         }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Login failed!"),
-                backgroundColor: Colors.red,
-              )
-          );
+          Functions().showSnackMsg(context, "Login failed!", true);
         }
-
         //Status code..
       }else{
         print(response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Something went wrong...!"),
-              backgroundColor: Colors.red,
-            )
-        );
+        Functions().showSnackMsg(context, "Login failed!", true);
       }
       //check network error....
     }catch(error){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.wifi_outlined,color: Colors.white,),
-                Text(error.toString()),
-              ],
-            ),
-            backgroundColor: Colors.red,
-          )
-      );
+
     }
-
-
 
     // {statusCode: 200, message: registered Successfully}
     // {"statusCode": 200,"message": "Login Succeed"}
@@ -362,38 +265,13 @@ class _CodeVerifyState extends State<CodeVerify> {
               ModalRoute.withName('/HomeScreen')
           );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(map['message']),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
-
         }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Login failed!"),
-                backgroundColor: Colors.red,
-              )
-          );
+          Functions().showSnackMsg(context, "Login failed!", true);
         }
 
       }
 
     }catch(e){
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.wifi_outlined,color: Colors.white,),
-                Text("$e"),
-              ],
-            ),
-            backgroundColor: Colors.red,
-          )
-      );
 
     }
 
@@ -482,20 +360,7 @@ class _CodeVerifyState extends State<CodeVerify> {
                     child: RaisedButton(onPressed:() async{
                       FocusScope.of(context).unfocus();
                       if(otpControl.text.isEmpty||otpControl.text.length<6){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            elevation: 20,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            margin: EdgeInsets.all(15),
-                            content: Text('Code is incorrect!',textAlign: TextAlign.center,style: TextStyle(
-                                color: Colors.white,fontWeight: FontWeight.bold
-                            ),),
-                            backgroundColor: lightPink,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
+                        Functions().showSnackMsg(context, "Invalid OTP Code!", true);
                       }else{
                         verify(verificationId , otpControl.text);
                       }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cakey/CountryCode.dart';
 import 'package:cakey/Dialogs.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/CodeVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -181,20 +182,7 @@ class _PhoneVerifyState extends State<PhoneVerify> {
                     child: RaisedButton(onPressed:(){
                       FocusScope.of(context).unfocus();
                       if(phoneControl.text.isEmpty||phoneControl.text.length<10){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            elevation: 20,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            margin: EdgeInsets.all(15),
-                            content: Text('Please Enter Correct Number!',textAlign: TextAlign.center,style: TextStyle(
-                                color: Colors.white,fontWeight: FontWeight.bold
-                            ),),
-                            backgroundColor:lightPink,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
+                        Functions().showSnackMsg(context, "Please enter the valid mobile number!", true);
                       }else{
                         checkNetwork();
                       }

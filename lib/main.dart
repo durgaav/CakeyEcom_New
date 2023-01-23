@@ -165,7 +165,6 @@ class _MyAppState extends State<MyApp> {
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       //context.read<ContextData>().setNotiCount(1);
-      print("message recieved");
       print(event.notification.body);
       NotificationService().showNotifications(event.notification.title, event.notification.body);
     });
@@ -179,6 +178,25 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       if(event == ConnectivityResult.none){
         disconected = true;
+        showOverlayNotification((context) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal:8,
+              vertical:5
+            ),
+            child: Card(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              child: SafeArea(
+                child: ListTile(
+                  leading:Icon(Icons.wifi_off_sharp , color:  Colors.red,),
+                  title: Text("Please check your internet connection",style: TextStyle(
+                      fontFamily: "Poppins"
+                  ),),
+                ),
+              ),
+            ),
+          );
+        }, duration: Duration(milliseconds: 6000));
       }else{
         disconected = false;
       }

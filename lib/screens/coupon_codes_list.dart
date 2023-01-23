@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/MyDialogs.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -174,9 +175,7 @@ class _CouponsListState extends State<CouponsList> {
                     print(snapData);
                     if(snapData.toString()=="Expired!"){
                       print(snapData);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Coupon is expired!"))
-                      );
+                      Functions().showSnackMsg(context, "Coupon code is expired!", true);
                     }else{
                       Navigator.pop(context);
                       context.read<ContextData>().setCodeData({

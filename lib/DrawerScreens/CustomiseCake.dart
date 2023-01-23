@@ -633,8 +633,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 ),),
               ],
             ),
-            content: Text('Are You Sure? Your Customize Cake Will Be Ordred!' , style: TextStyle(
-                color:lightPink , fontSize: 13 , fontFamily: "Poppins"
+            content: Text('Your Customize Cake Will Be Ordered!' , style: TextStyle(
+                color:Colors.black , fontSize: 13 , fontFamily: "Poppins"
             ),),
             actions: [
               TextButton(
@@ -978,17 +978,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
       print("vendor.... $e");
       checkNetwork();
       Navigator.pop(context);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Error Occurred'),
-      //       backgroundColor: Colors.amber,
-      //       action: SnackBarAction(
-      //         label: "Retry",
-      //         onPressed:()=>setState(() {
-      //           loadPrefs();
-      //         }),
-      //       ),
-      //     )
-      // );
     }
 
   }
@@ -1240,14 +1229,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
               double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
               sendNotificationToVendor(notificationId):null;
               setState(() {
-
+                fixedShape = "";
+                fixedFlavList = [];
+                fixedWeight = "0.0kg";
+                weightCtrl.text = "";
+                msgCtrl.text = "";
+                specialReqCtrl.text = "";
+                themeCtrl.text = "";
+                fixedDate = "";
+                fixedSession = "";
+                file = new File("");
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Customise order is placed success fully , our executive will call you soon"),
-                    backgroundColor: Colors.green[600],
-                    behavior: SnackBarBehavior.floating,)
-              );
+              Functions().showSnackMsg(context, "Your $ckName order is placed successfully , our executive will call you soon", false);
             }else{
 
             }
@@ -1258,26 +1251,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           }else{
             checkNetwork();
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error Occurred ${response.statusCode}'),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
           }
 
       }catch(e){
         print(e);
         checkNetwork();
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error Occurred'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            )
-        );
       }
 
   }
@@ -1398,15 +1377,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
         });
       }
       else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Unable to get location details..."))
-        );
+
       }
 
     }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Unable to get location details..."))
-      );
+
     }
 
   }
@@ -3860,62 +3835,28 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
                                           weightCtrl.text.startsWith("0")&&
                                               weightCtrl.text.endsWith("0")){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                                content: Text("Please enter correct weight or select weight!")
-                                            )
-                                        );
+                                        Functions().showSnackMsg(context,"Please enter correct weight or select weight!",true);
+
                                       } else if(double.parse(changeWeight(fixedWeight).toString()) <5.0 && nearestVendors.isNotEmpty && !vendorListClicked ) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                                content: Text("Please select vendor...")
-                                            )
-                                        );
+                                        Functions().showSnackMsg(context,"Please select vendor",true);
                                       } else if(deliverAddressIndex==-1){
-                                        // ScaffoldMessenger.of(context).showSnackBar(
-                                        //     SnackBar(
-                                        //         content: Text("Please select delivery address!")
-                                        //     )
-                                        // );
-
                                         Functions().showSnackMsg(context, "Please select delivery address!", true);
-
                                       } else if(fixedWeight=="0.0"){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                                content: Text("Please select weight!")
-                                            )
-                                        );
+                                        Functions().showSnackMsg(context, "Please select delivery weight!", true);
                                       }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select a image file for theme...'))
-                                        );
+                                        Functions().showSnackMsg(context, "Please select image file for theme", true);
                                       }else if(fixedShape.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select a shape'))
-                                        );
+                                        Functions().showSnackMsg(context, "Please select a shape!", true);
                                       }else if(fixedFlavList.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please select some flavours'))
-                                        );
+                                        Functions().showSnackMsg(context, "Please add some flavours", true);
                                       }
-                                      else if(deliverAddress=="null"||deliverAddress.isEmpty){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Invalid Address'))
-                                        );
+                                      else if(deliverAddress.toString()=="null"||deliverAddress.isEmpty){
+                                        Functions().showSnackMsg(context, "Invalid address! , add new address", true);
                                       }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
                                           fixedSession.toLowerCase()=="select delivery time"||
                                           fixedDate.toLowerCase()=="select delivery date"){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Please Select Pickup/Deliver && Deliver Date/Deliver Session'))
-                                        );
+                                        Functions().showSnackMsg(context, "Please select Pickup / Delivery Or Delivery Date / Session", true);
                                       }
-                                      // else if( changeWeight(fixedWeight) != 5.0 && changeWeight(fixedWeight) <= 5.0
-                                      //     && nearVendorClicked==false){
-                                      //   ScaffoldMessenger.of(context).showSnackBar(
-                                      //       SnackBar(content: Text('Please Select a vendor'))
-                                      //   );
-                                      // }
                                       else{
                                         setState((){
                                           if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>5.0){

@@ -861,10 +861,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
           flavExtraCharge = int.parse(list[i]['Price']) + flavExtraCharge;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Price Updated!'),
-          duration: Duration(seconds: 2),
-        ));
+        Functions().showSnackMsg(context, "Price updated!", false);
       });
       Navigator.pop(context);
     }
@@ -3167,12 +3164,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       if(isTopperPossible.toLowerCase()=="y"){
                                         showCakeTopperSheet();
                                       }else{
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text("No Custom Toppers :("),
-                                              duration: Duration(seconds: 2),
-                                            )
-                                        );
+                                        Functions().showSnackMsg(context, "No custom toppers available!", true);
                                       }
 
                                     },
@@ -3614,82 +3606,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     ],
                                   ),
                                 ),
-
-                                // //Articlessss
-                                // Padding(
-                                //   padding: const EdgeInsets.only(top: 10),
-                                //   child: Text(
-                                //     ' Articles',
-                                //     style: TextStyle(
-                                //         fontFamily: "Poppins", color: darkBlue),
-                                //   ),
-                                // ),
-                                //
-                                // Container(
-                                //     child: ListView.builder(
-                                //   shrinkWrap: true,
-                                //   physics: NeverScrollableScrollPhysics(),
-                                //   itemCount: articals.length,
-                                //   itemBuilder: (context, index) {
-                                //     return InkWell(
-                                //       onTap: () {
-                                //         setState(() {
-                                //           if (articGroupVal == index) {
-                                //             articGroupVal = -1;
-                                //             fixedArticle = 'None';
-                                //             articleExtraCharge = 0;
-                                //           } else {
-                                //             articGroupVal = index;
-                                //             fixedArticle = articals[index]
-                                //                     ['Name']
-                                //                 .toString();
-                                //             articleExtraCharge = int.parse(
-                                //                 articals[index]['Price']
-                                //                     .toString());
-                                //             ScaffoldMessenger.of(context)
-                                //                 .showSnackBar(SnackBar(
-                                //               content: Text('Price Updated!'),
-                                //               duration: Duration(seconds: 2),
-                                //             ));
-                                //           }
-                                //         });
-                                //       },
-                                //       child: Container(
-                                //           padding: EdgeInsets.only(
-                                //               top: 5, bottom: 5, left: 8),
-                                //           child: Row(children: [
-                                //             articGroupVal != index
-                                //                 ? Icon(
-                                //                     Icons
-                                //                         .radio_button_unchecked_rounded,
-                                //                     color: Colors.black)
-                                //                 : Icon(
-                                //                     Icons.check_circle_rounded,
-                                //                     color: Colors.green),
-                                //             SizedBox(width: 6),
-                                //             Expanded(
-                                //                 child: Text.rich(
-                                //                     TextSpan(children: [
-                                //               TextSpan(
-                                //                   text:
-                                //                       '${articals[index]['Name']} - ',
-                                //                   style: TextStyle(
-                                //                     color: Colors.grey,
-                                //                     fontFamily: "Poppins",
-                                //                   )),
-                                //               TextSpan(
-                                //                   text:
-                                //                       'Rs.${articals[index]['Price']}',
-                                //                   style: TextStyle(
-                                //                     color: Colors.black,
-                                //                     fontFamily: "Poppins",
-                                //                     fontWeight: FontWeight.bold,
-                                //                   ))
-                                //             ])))
-                                //           ])),
-                                //     );
-                                //   },
-                                // )),
 
                                 Padding(
                                   padding: const EdgeInsets.only(top: 10),
@@ -5052,36 +4968,20 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                           if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
                                               <double.parse(basicCakeWeight
                                           .toLowerCase().replaceAll("kg", ""))){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text("Minimum weight is $basicCakeWeight...")
-                                                )
-                                            );
+                                            Functions().showSnackMsg(context,"Minimum weight is $basicCakeWeight" , true);
                                           }else if(customweightCtrl.text=="0"||customweightCtrl.text=="0.0"||
                                               customweightCtrl.text.startsWith("0")&&
                                                   customweightCtrl.text.endsWith("0")){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text("Please enter correct weight or select weight!")
-                                                )
-                                            );
+                                            Functions().showSnackMsg(context, "Please select the correct weight", true);
                                           }
                                           else if(deliverDate.toLowerCase()=="select delivery date"){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Please select deliver date"))
-                                            );
+                                            Functions().showSnackMsg(context, "Please select the delivery date.", true);
                                           }else if(deliverSession.toLowerCase()=="select delivery time"){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select deliver session"))
-                                            );
+                                            Functions().showSnackMsg(context, "Please select the delivery session", true);
                                           }else if(fixedDelliverMethod.isEmpty){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select pickup or delivery"))
-                                            );
+                                            Functions().showSnackMsg(context, "Please select pickup / delivery", true);
                                           }else if(deliverAddressIndex==-1){
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Please select delivery address."))
-                                            );
+                                            Functions().showSnackMsg(context, "Please select the delivery address!", true);
                                           }else{
                                             loadOrderPreference();
                                           }

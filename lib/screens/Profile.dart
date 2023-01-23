@@ -767,6 +767,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       userAddrCtrl = TextEditingController(text: userAddress.toString()=="null"?"":userAddress);
       pinCodeCtrl = TextEditingController(text: pinCodeCtrl.toString()=="null"?"":pinCodeCtrl.text);
     });
+    addressList = context.watch<ContextData>().getAddressList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -970,36 +971,22 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         //       ]
         //   ),
         // ),
-
-        ListView.builder(
-          shrinkWrap: true,
-          reverse: true,
-          itemCount: addressList.length,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (c,i)=>
-              GestureDetector(
-                onTap: (){
-
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
-                      // color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(5)
-                  ),
-                  margin: EdgeInsets.only(bottom: 8),
-                  padding: EdgeInsets.all(10),
-                  child: Expanded(
-                    child:Text(addressList[i],
-                      style: TextStyle(fontFamily: "Poppins",color: Colors.black,fontSize: 13),
-                    ),
-                  ),
-
-                ),
-              )
-          ,
+        Column(
+          children:addressList.map((e){
+            return Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black12,width: 1,style:BorderStyle.solid),
+                  // color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(5)
+              ),
+              margin: EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.all(10),
+              child:Text(e,
+                  style: TextStyle(fontFamily: "Poppins",color: Colors.black,fontSize: 13),
+              ),
+            );
+          }).toList(),
         ),
-
         Container(
           alignment: Alignment.centerLeft,
           child: RaisedButton(
@@ -1133,19 +1120,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index){
-
               String diff = recentOrders[index]['Created_On'].toString().split(" ").first;
+              String status = recentOrders[index]['Status'];
 
+              if(recentOrders[index]['Status'].toString().toLowerCase()=="rejected"){
+                status = "Pending";
+              }else if(recentOrders[index]['Status'].toString().toLowerCase()=="assigned"){
+                status = "Accepted";
+              }
 
               var myMap = Map();
               var otherPrice = "";
-
               if(recentOrders[index]['ProductMinWeightPerKg']!=null){
-                // print(recentOrders[index]['ProductMinWeightPerKg']);
-                // print(recentOrders[index]['ProductMinWeightPerUnit']);
-                // print(recentOrders[index]['ProductMinWeightPerBox']);
-
-
                 if(recentOrders[index]['ProductMinWeightPerKg'].isNotEmpty){
                   myMap = recentOrders[index]['ProductMinWeightPerKg'];
 
@@ -1172,10 +1158,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 }
 
               }
-
-
               String gramAndKilo = "";
-
               if(recentOrders[index]['ExtraCharges']!=null){
                 if(recentOrders[index]['Weight'].toString().toLowerCase().endsWith("kg")){
                   gramAndKilo = (
@@ -1369,19 +1352,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("₹ "
-                                          //     "${(
-                                          //  double.parse(recentOrders[index]['ItemCount'].toString()) * (
-                                          //      (double.parse(recentOrders[index]['Price'].toString())*
-                                          //          double.parse(recentOrders[index]['Weight'].toString().
-                                          //          toLowerCase().replaceAll("kg", "")))+
-                                          //          double.parse(recentOrders[index]['ExtraCharges'].toString())
-                                          //  )
-                                          // ).toStringAsFixed(2)
-                                          // }"
-                                              "$gramAndKilo",
-                                            style: TextStyle(color: lightPink,
-                                                fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 1,),
+                                          Expanded(
+                                            child: Text(gramAndKilo.isNotEmpty?"₹ $gramAndKilo":"Our executives will contact you soon.",
+                                              style: TextStyle(color: lightPink,
+                                                  fontWeight: FontWeight.bold,fontFamily: "Poppins"),maxLines: 2,),
+                                          ),
                                           Container(
                                             child:recentOrders[index]['Status'].toString().toLowerCase()=='delivered'?
                                             Column(
@@ -1399,13 +1374,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
-                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
-                                              "Accepted":
-                                              "${recentOrders[index]['Status']}",style: TextStyle(
-                                                color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                            Text(status,style: TextStyle(
+                                                color:status.toLowerCase()=='cancelled'?Colors.red:Colors.blueAccent,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
                                             ),),
                                           ),
@@ -1728,7 +1698,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                  Text('Paid via : ${recentOrders[index]['PaymentType']==null?"Not Found":recentOrders[index]['PaymentType']}',style: TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
@@ -1951,48 +1921,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           color: Colors.black,fontWeight: FontWeight.bold
                                       ),overflow: TextOverflow.ellipsis,),
                                     ),
-                                    // Container(
-                                    //   child:Column(
-                                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                                    //     children: [
-                                    //       recentOrders[index]['CustomizeCake'].toString()=="n"?
-                                    //       Wrap(
-                                    //         children: [
-                                    //           Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
-                                    //               fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                                    //           ),overflow: TextOverflow.ellipsis,maxLines: 10),
-                                    //           Text("(Flavours : ",style: TextStyle(
-                                    //               fontSize:10.5,fontFamily: "Poppins",
-                                    //               color: Colors.grey[500]
-                                    //           ),),
-                                    //           for(var i in recentOrders[index]['Flavour'])
-                                    //             Text("${i['Name']})",style: TextStyle(
-                                    //                 fontSize:10.5,fontFamily: "Poppins",
-                                    //                 color:  Colors.grey[500]
-                                    //             ),),
-                                    //         ],
-                                    //       ):
-                                    //       Wrap(
-                                    //         children: [
-                                    //           Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
-                                    //               fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                                    //           ),overflow: TextOverflow.ellipsis,maxLines: 10),
-                                    //           Text("(Flavours : ",style: TextStyle(
-                                    //               fontSize:10.5,fontFamily: "Poppins",
-                                    //               color: Colors.grey[500]
-                                    //           ),),
-                                    //           for(var i in recentOrders[index]['Flavour'])
-                                    //             Text("${i['Name']}",style: TextStyle(
-                                    //                 fontSize:10.5,fontFamily: "Poppins",
-                                    //                 color:  Colors.grey[500]
-                                    //             ),),
-                                    //         ],
-                                    //       )
-                                    //     ],
-                                    //   ),
-                                    // ),
                                     const SizedBox(height: 3,),
-
                                     Container(
                                       child:
                                       Row(
@@ -2031,13 +1960,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
-                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
-                                              "Accepted":
-                                              "${recentOrders[index]['Status']}",style: TextStyle(
-                                                color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                            Text(status,style: TextStyle(
+                                                color:status.toLowerCase()=='cancelled'?Colors.red:Colors.blueAccent,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
                                             ),),
                                           ),
@@ -2612,13 +2536,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
-                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
-                                              "Accepted":
-                                              "${recentOrders[index]['Status']}",style: TextStyle(
-                                                color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                            Text(status,style: TextStyle(
+                                                color:status.toLowerCase()=='cancelled'?Colors.red:Colors.blueAccent,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
                                             ),),
                                           ),
@@ -3209,13 +3128,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                                     fontFamily: "Poppins",fontSize: 10,fontWeight: FontWeight.bold),),
                                               ],
                                             ):
-                                            Text(
-                                              recentOrders[index]['Status'].toString().toLowerCase() == 'rejected'||
-                                                  recentOrders[index]['Status'].toString().toLowerCase() == 'assigned'?
-                                              "Accepted":
-                                              "${recentOrders[index]['Status']}",style: TextStyle(
-                                                color:recentOrders[index]['Status'].toString().toLowerCase()
-                                                    =='cancelled'?Colors.red:Colors.blueAccent,
+                                            Text(status,style: TextStyle(
+                                                color:status.toLowerCase()=='cancelled'?Colors.red:Colors.blueAccent,
                                                 fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 11
                                             ),),
                                           ),

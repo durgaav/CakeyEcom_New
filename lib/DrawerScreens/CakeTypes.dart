@@ -1585,17 +1585,6 @@ class _CakeTypesState extends State<CakeTypes> {
       } else {
         setState(() {
           checkNetwork();
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                'Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
-            backgroundColor: Colors.amber,
-            action: SnackBarAction(
-              label: "Retry",
-              onPressed: () => setState(() {
-                loadPrefs();
-              }),
-            ),
-          ));
         });
         Navigator.pop(context);
       }
@@ -2453,7 +2442,7 @@ class _CakeTypesState extends State<CakeTypes> {
               isFilterisOn = true;
             }
           });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Price Filter Based On Minimum Price/Kg")));
+          Functions().showSnackMsg(context, "Price Filter Based On Minimum Price/Kg", false);
         }
 
         //flav list ok
@@ -2822,15 +2811,11 @@ class _CakeTypesState extends State<CakeTypes> {
         });
       }
       else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Unable to get location details..."))
-        );
+
       }
 
     }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Unable to get location details..."))
-      );
+
     }
 
   }

@@ -320,46 +320,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 itemBuilder: (c,i)=>
                     GestureDetector(
                       onTap: (){
-                        // showDialog(
-                        //     context: context,
-                        //     builder: (context)=>
-                        //         AlertDialog(
-                        //           title: Text('Actions' ,
-                        //             style: TextStyle(fontFamily: "Poppins", fontSize: 16,color: darkBlue),),
-                        //           content:Column(
-                        //             mainAxisSize: MainAxisSize.min,
-                        //             children: [
-                        //               PopupMenuItem(
-                        //                   onTap: (){
-                        //                     setState((){
-                        //                       context.read<ContextData>().setAddress(
-                        //                           "${addressList[i]}"
-                        //                       );
-                        //                     });
-                        //                     Navigator.pop(context);
-                        //                   },
-                        //                   child: Text('Select Address',
-                        //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
-                        //               ),
-                        //
-                        //               PopupMenuItem(
-                        //                   onTap: () async{
-                        //                     var pr = await SharedPreferences.getInstance();
-                        //
-                        //                     setState((){
-                        //                       addressList.removeWhere((element) => element==addressList[i]);
-                        //                       context.read<ContextData>().setAddressList(addressList);
-                        //                       pr.setStringList("addressList", addressList);
-                        //                       loadPref();
-                        //                     });
-                        //                   },
-                        //                   child: Text('Delete',
-                        //                       style: TextStyle(fontFamily: "Poppins",color: lightPink))
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         )
-                        // );
+
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -376,13 +337,6 @@ class _AddressScreenState extends State<AddressScreen> {
                           trailing: IconButton(
                             splashColor: Colors.red,
                             onPressed: () async{
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Address deleted Successfully"),
-                                    backgroundColor: Colors.black,
-                                    behavior: SnackBarBehavior.floating,
-                                  )
-                              );
 
                               var pr = await SharedPreferences.getInstance();
 

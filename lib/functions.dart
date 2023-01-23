@@ -312,14 +312,13 @@ class Functions{
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(children: [
-          error?
-          Icon(Icons.warning,color:Colors.white,):
-          Icon(Icons.thumb_up,color:Colors.white,),
+          Icon(Icons.info,color:Colors.white,),
           SizedBox(width:7,),
-          Text(msg,style:TextStyle(
-            fontFamily:"Poppins",
-            fontWeight: FontWeight.bold
-          ),),
+          Expanded(
+            child: Text(msg,style:TextStyle(
+              fontFamily:"Poppins",
+            ),),
+          ),
         ],),
       backgroundColor:Colors.grey[800],
       behavior:SnackBarBehavior.floating,

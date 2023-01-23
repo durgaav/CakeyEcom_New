@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:cakey/CommonWebSocket.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/Hampers.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/screens/CakeDetails.dart';
@@ -1172,33 +1173,11 @@ class _HomeScreenState extends State<HomeScreen> {
         context.read<ContextData>().setUserName(userName);
       } else {
         checkNetwork();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Code : ${response.statusCode}\nMsg : ${response.reasonPhrase}'),
-          backgroundColor: Colors.amber,
-          action: SnackBarAction(
-            label: "Retry",
-            onPressed: () => setState(() {
-              loadPrefs();
-            }),
-          ),
-        ));
-        Navigator.pop(context);
+        //Navigator.pop(context);
       }
     } on Exception catch (e) {
-      Navigator.pop(context);
+      //Navigator.pop(context);
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error Occurred'),
-        backgroundColor: Colors.amber,
-        duration: Duration(seconds: 5),
-        action: SnackBarAction(
-          label: "Retry",
-          onPressed: () => setState(() {
-            loadPrefs();
-          }),
-        ),
-      ));
     }
 
     getFbToken();
@@ -1558,7 +1537,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       print(error);
       setState(() {
-        isNetworkError = true;
+        //isNetworkError = true;
         ordersLoading = false;
       });
 
@@ -1647,9 +1626,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
       else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Unable to get location details..."))
-        );
+
       }
     }catch(e){
 
@@ -1831,9 +1808,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       }
       else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error : "+response.reasonPhrase.toString()))
-        );
+
       }
     }catch(e){
       print(e);
@@ -2004,16 +1979,12 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
       else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Unable to get location details..."))
-        );
+
       }
 
     }catch(e){
       print("Coor error : $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Unable to get location details..."))
-      );
+
     }
 
   }
@@ -2283,17 +2254,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     else if(permiStatus.isPermanentlyDenied){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:Text("Permission is denied,please allow manually, Go to Settings->Apps->Cakey->Permissions->Location."),
-            action:SnackBarAction(
-              label: 'SETTINGS',
-              onPressed: () {
-                Handler.openAppSettings();
-              },
-            ),
-        )
-      );
+      Functions().showSnackMsg(context, "Permission is denied,please allow manually, Go to Settings->Apps->Cakey->Permissions->Location.", true);
     }
   }
 

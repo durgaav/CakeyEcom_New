@@ -300,13 +300,9 @@ class _HamperDetailsState extends State<HamperDetails> {
 
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.reasonPhrase.toString())));
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("error occurred")));
       Navigator.pop(context);
     }
   }
@@ -1723,17 +1719,9 @@ class _HamperDetailsState extends State<HamperDetails> {
                                 if(deliverDate.toLowerCase()=="select delivery date" ||
                                     deliverSession.toLowerCase()=="select delivery time")
                                 {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text("Please Select Deliver Date / Deliver Session"),
-                                          behavior: SnackBarBehavior.floating,
-                                      ));
+                                  Functions().showSnackMsg(context, "Please select deliver date / deliver session", true);
                                 } else if(deliverAddressIndex == -1){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("Please Select Deliver Address"),
-                                        behavior: SnackBarBehavior.floating,
-                                      ));
+                                  Functions().showSnackMsg(context, "Please select delivery address", true);
                                 } else{
                                   navigateToCheckout();
                                 }

@@ -416,13 +416,9 @@ class _OthersDetailsState extends State<OthersDetails> {
 
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.reasonPhrase.toString())));
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("error occurred")));
       Navigator.pop(context);
     }
   }
@@ -955,10 +951,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         counter = counter - 1;
                                       });
                                     } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content: Text(
-                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                      Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
                                     }
                                   } else if (otherType == "Box") {
                                     if (counter >
@@ -969,10 +962,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         counter = counter - 1;
                                       });
                                     } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content: Text(
-                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                      Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
                                     }
                                   } else {
                                     if (counter > 1) {
@@ -1066,10 +1056,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                             counter = int.parse(theCtrl.text);
                                                           });
                                                         } else {
-                                                          ScaffoldMessenger.of(context)
-                                                              .showSnackBar(SnackBar(
-                                                              content: Text(
-                                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                                          Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
                                                         }
                                                       } else if (otherType == "Box") {
                                                         if (int.parse(theCtrl.text) >
@@ -1080,10 +1067,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                             counter = int.parse(theCtrl.text);
                                                           });
                                                         } else {
-                                                          ScaffoldMessenger.of(context)
-                                                              .showSnackBar(SnackBar(
-                                                              content: Text(
-                                                                  "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!")));
+                                                          Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
                                                         }
                                                       } else {
                                                         if(theCtrl.text.isNotEmpty){
@@ -2396,68 +2380,39 @@ class _OthersDetailsState extends State<OthersDetails> {
                             if (otherType == "Kg") {
                             if (changeWeight(selectedWeight) <
                                 changeWeight(weight[0]['Weight'])) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      "Minimum weight is ${weight[0]['Weight']}!")));
+                              Functions().showSnackMsg(context, "Minimum weight is ${weight[0]['Weight']}!", true);
                             } else if (deliverDate.toLowerCase() ==
                                 "select delivery date") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Please select deliver date")));
+                              Functions().showSnackMsg(context, "Please select deliver date!", true);
                             } else if (deliverSession.toLowerCase() ==
                                 "select delivery time") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select deliver session")));
+                              Functions().showSnackMsg(context, "Please select deliver session", true);
                             } else if (fixedDelliverMethod.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select pickup or delivery")));
+                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
                             } else {
                               gotoCheckout();
                             }
                           } else if (otherType == "Unit") {
                             if (deliverDate.toLowerCase() ==
                                 "select delivery date") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Please select deliver date")));
+                              Functions().showSnackMsg(context, "Please select deliver date", true);
                             } else if (deliverSession.toLowerCase() ==
                                 "select delivery time") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select deliver session")));
+                              Functions().showSnackMsg(context, "Please select deliver session", true);
                             } else if (fixedDelliverMethod.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select pickup or delivery")));
+                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
                             } else {
                               gotoCheckout();
                             }
                           } else {
                             if (deliverDate.toLowerCase() ==
                                 "select delivery date") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Please select deliver date")));
+                              Functions().showSnackMsg(context, "Please select deliver date", true);
                             } else if (deliverSession.toLowerCase() ==
                                 "select delivery time") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select deliver session")));
+                              Functions().showSnackMsg(context, "Please select deliver session", true);
                             } else if (fixedDelliverMethod.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Please select pickup or delivery")));
+                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
                             } else {
                               gotoCheckout();
                             }

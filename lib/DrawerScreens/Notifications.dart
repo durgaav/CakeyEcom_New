@@ -458,7 +458,7 @@ class _NotificationsState extends State<Notifications> {
               onPressed: (){
                 Navigator.pop(context);
                 if(reason==""){
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter the reason for cancellation.")));
+                  Functions().showSnackMsg(context, "Please enter the reason for cancellations.", true);
                 }else{
                   MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",reason));
                 }
@@ -734,13 +734,6 @@ class _NotificationsState extends State<Notifications> {
                   ),
                 ),
         )
-    );
-  }
-
-  void NoVendor(){
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No phone number Found"))
     );
   }
 
@@ -1193,14 +1186,12 @@ class _NotificationsState extends State<Notifications> {
       else {
         // print();
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error : "
-            +response.reasonPhrase.toString())));
+        Functions().showSnackMsg(context, "Payment Error : "+response.reasonPhrase.toString(), true);
       }
 
     }catch(e){
       print(e);
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Failed")));
     }
   }
 
@@ -1293,31 +1284,23 @@ class _NotificationsState extends State<Notifications> {
         print(res.body);
         Navigator.pop(context);
         if(jsonDecode(res.body)['statusCode']==200){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Ticket Updated Successfully!"))
-          );
+          Functions().showSnackMsg(context, "Ticket updated successfully!", false);
           fetchNotifications();
           Functions().deleteNotification(data['_id'].toString());
           getOrdersList();
         }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Ticket Updated Failed!"))
-          );
+          Functions().showSnackMsg(context, "Ticket update failed!", true);
         }
       }else{
         Navigator.pop(context);
         print(res.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Ticket Updated Failed!"))
-        );
+        Functions().showSnackMsg(context, "Ticket update failed!", true);
       }
 
     }catch(e){
       Navigator.pop(context);
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Ticket Update Facing Some Errors...!"))
-      );
+      Functions().showSnackMsg(context, "Ticket update facing some errors! $e", false);
     }
 
   }
@@ -1350,9 +1333,6 @@ class _NotificationsState extends State<Notifications> {
         checkNetwork();
         setState((){
           isLoading = false;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error Occurred!'))
-          );
         });
         context.read<ContextData>().setNotiCount(0);
       }
@@ -1403,9 +1383,7 @@ class _NotificationsState extends State<Notifications> {
 
       if (response.statusCode == 200) {
         print(await response.stream.bytesToString());
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Order is canceled!'))
-        );
+        Functions().showSnackMsg(context, "Your order is cancelled!", false);
         setState((){
           fetchNotifications();
         });
@@ -1415,17 +1393,11 @@ class _NotificationsState extends State<Notifications> {
       else {
         checkNetwork();
         print(response.reasonPhrase);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error Occurred!'))
-        );
         Navigator.pop(context);
       }
 
     }catch(e){
       checkNetwork();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error Occurred!'))
-      );
       Navigator.pop(context);
     }
 
@@ -1564,16 +1536,12 @@ class _NotificationsState extends State<Notifications> {
         print(res.body);
         Navigator.pop(context);
         if (jsonDecode(res.body)['statusCode'] == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Cake Details Updated Successfully!"))
-          );
+          Functions().showSnackMsg(context, "Ticket details updated successfully!", false);
           Functions().deleteNotification(data['_id'].toString());
           fetchNotifications();
           getOrdersList();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Cake Details Updated Failed!"))
-          );
+          Functions().showSnackMsg(context, "Failed!", false);
         }
       }
 
@@ -1581,10 +1549,7 @@ class _NotificationsState extends State<Notifications> {
 
       Navigator.pop(context);
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Cake Details Update Facing Some Errors...!"))
-      );
-
+      Functions().showSnackMsg(context, "Error occurred $e", false);
     }
 
   }
