@@ -316,10 +316,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
 
 
-        if(addressList.contains(userAddrCtrl.text+pinCodeCtrl.text)){
+        if(addressList.contains(userAddrCtrl.text+" "+pinCodeCtrl.text)){
 
         }else{
-          addressList.add(userAddrCtrl.text+pinCodeCtrl.text);
+          addressList.add(userAddrCtrl.text+" "+pinCodeCtrl.text);
           context.read<ContextData>().setAddressList(addressList);
           prefs.setStringList('addressList', addressList);
         }
@@ -1054,6 +1054,525 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Widget OrdersView(){
+    recentOrders = [
+        {
+          "Shape": {
+            "Name": "Square",
+            "Price": "0"
+          },
+          "GoogleLocation": {
+            "Latitude": 11.0118098,
+            "Longitude": 77.0511027
+          },
+          "_id": "63ce13ab639eac51854c8aaf",
+          "CakeID": "63ca8bb0c1a7d89ccc20944f",
+          "Cake_ID": "CKYCCO-3",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Flavour": [
+            {
+              "Name": "Vanilla",
+              "Price": "0",
+              "_id": "63ca8bb0c1a7d89ccc209450"
+            }
+          ],
+          "Weight": "6kg",
+          "MessageOnTheCake": "Birthday",
+          "SpecialRequest": "None",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "Vendor_ID": "CKYV-2",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "",
+          "VendorAddress": "Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryDate": "24-01-2023",
+          "DeliverySession": "Morning 10 AM - 11 AM",
+          "DeliveryInformation": "Pickup",
+          "Vendor_Price": "400",
+          "Vendor_Total": "2352.00",
+          "Price": "410",
+          "ItemCount": 1,
+          "Discount": 48,
+          "ExtraCharges": "0",
+          "DeliveryCharge": "0",
+          "Gst": "0",
+          "Sgst": "0",
+          "Tax": "0",
+          "Total": "2412",
+          "PaymentType": "Cash on delivery",
+          "PaymentStatus": "Cash on delivery",
+          "Created_On": "23-01-2023 10:27 AM",
+          "Status": "New",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "CustomizeCake": "y",
+          "TypeOfCustomizedCake": "Cakey",
+          "Vendor_Response_Status": "seen",
+          "ShowToVendor": "Yes",
+          "Ticket_RaisedFor_Vendor_Cancel": "No",
+          "Ticket_Raised_For_Customized_Cake": "Yes",
+          "Id": "CKYORD-8",
+          "__v": 0
+        },
+        {
+          "Shape": {
+            "Name": "Round",
+            "Price": "0"
+          },
+          "GoogleLocation": {
+            "Latitude": 11.0118098,
+            "Longitude": 77.0511027
+          },
+          "_id": "63ca94ad639eac51854c84fc",
+          "CakeID": "63ca8bfac1a7d89ccc209471",
+          "Cake_ID": "CKYCCO-4",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Flavour": [
+            {
+              "Name": "Red Velvet",
+              "Price": "0",
+              "_id": "63ca8bfac1a7d89ccc209472"
+            }
+          ],
+          "Weight": "3kg",
+          "MessageOnTheCake": "Welcome",
+          "SpecialRequest": "None",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "Vendor_ID": "CKYV-2",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "",
+          "VendorAddress": "Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryDate": "26-01-2023",
+          "DeliverySession": "Afternoon 12 PM - 1 PM",
+          "DeliveryInformation": "Pickup",
+          "Vendor_Price": "100",
+          "Vendor_Total": "294.00",
+          "Price": "100",
+          "ItemCount": 1,
+          "Discount": 6,
+          "ExtraCharges": "0",
+          "DeliveryCharge": "0",
+          "Gst": "0",
+          "Sgst": "0",
+          "Total": "294",
+          "PaymentType": "Cash on delivery",
+          "PaymentStatus": "Cash on delivery",
+          "Created_On": "20-01-2023 06:48 PM",
+          "Status": "New",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "CustomizeCake": "y",
+          "TypeOfCustomizedCake": "Vendor",
+          "Vendor_Response_Status": "seen",
+          "ShowToVendor": "Yes",
+          "Ticket_RaisedFor_Vendor_Cancel": "No",
+          "Ticket_Raised_For_Customized_Cake": "No",
+          "Id": "CKYORD-6",
+          "__v": 0
+        },
+        {
+          "GoogleLocation": {
+            "Latitude": 11.0118098,
+            "Longitude": 77.0511027
+          },
+          "_id": "63ca8bfac1a7d89ccc209471",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Images": [],
+          "Flavour": [
+            {
+              "Name": "Red Velvet",
+              "Price": "0",
+              "_id": "63ca8bfac1a7d89ccc209472"
+            }
+          ],
+          "Shape": "Round",
+          "Weight": "3kg",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "MessageOnTheCake": "Welcome",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "Vendor_ID": "CKYV-2",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "",
+          "VendorAddress": "Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryInformation": "Pickup",
+          "DeliveryDate": "26-01-2023",
+          "DeliverySession": "Afternoon 12 PM - 1 PM",
+          "Status": "Ordered",
+          "Created_On": "20-01-2023 06:11 PM",
+          "Notification": "unseen",
+          "TypeOfCustomizedCake": "Vendor",
+          "Ticket_Raised": "y",
+          "Above5KgCustomizedOrderConfirm": "n",
+          "Customized_Cake_Price_Approved": "y",
+          "Ordered": "y",
+          "Id": "CKYCCO-4",
+          "__v": 0,
+          "DeliveryCharge": "0",
+          "Discount": 6,
+          "ExtraCharges": "0",
+          "Invoice_Sent_By": "63ca2c46c1a7d89ccc208146",
+          "Invoice_Sent_On": "20-01-2023 06:25 PM",
+          "SpecialRequest": "None",
+          "Vendor_Price": "100",
+          "Vendor_Total": "294.00",
+          "TicketID": "63ca93e0639eac51854c8491",
+          "Gst": "0",
+          "Price": "100",
+          "Sgst": "0",
+          "Total": "294",
+          "Final_Order_ID": "63ca94ad639eac51854c84fc"
+        },
+        {
+          "GoogleLocation": {
+            "Latitude": 11.0118098,
+            "Longitude": 77.0511027
+          },
+          "Assigned_By": {
+            "ID": "63ca1bb5c1a7d89ccc207f2d",
+            "Name": "Vidhya",
+            "Email": "vidhya@mindmade.in",
+            "TypeOfUser": "Helpdesk V"
+          },
+          "Margin": {
+            "Percentage": "0",
+            "Amount": "0"
+          },
+          "_id": "63ca8bb0c1a7d89ccc20944f",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Images": [],
+          "Flavour": [
+            {
+              "Name": "Vanilla",
+              "Price": "0",
+              "_id": "63ca8bb0c1a7d89ccc209450"
+            }
+          ],
+          "Shape": "Square",
+          "Weight": "6kg",
+          "Above5KG": "y",
+          "PremiumVendor": "y",
+          "MessageOnTheCake": "Birthday",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryInformation": "Pickup",
+          "DeliveryDate": "24-01-2023",
+          "DeliverySession": "Morning 10 AM - 11 AM",
+          "Status": "Ordered",
+          "Created_On": "20-01-2023 06:10 PM",
+          "Notification": "unseen",
+          "TypeOfCustomizedCake": "Cakey",
+          "Ticket_Raised": "y",
+          "Above5KgCustomizedOrderConfirm": "n",
+          "Customized_Cake_Price_Approved": "y",
+          "Ordered": "y",
+          "Id": "CKYCCO-3",
+          "__v": 0,
+          "TicketID": "63ca900c639eac51854c82b3",
+          "Assigned_On": "20-01-2023 06:30 PM",
+          "VendorAddress": "Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "",
+          "Vendor_ID": "CKYV-2",
+          "DeliveryCharge": "0",
+          "Discount": 48,
+          "ExtraCharges": "0",
+          "Invoice_Sent_By": "63ca2c46c1a7d89ccc208146",
+          "Invoice_Sent_On": "20-01-2023 06:57 PM",
+          "SpecialRequest": "None",
+          "Vendor_Price": "400",
+          "Vendor_Total": "2352.00",
+          "Gst": "0",
+          "HelpdeskV_Price": "410",
+          "HelpdeskV_Total": "2412",
+          "Sgst": "0",
+          "Tax": "0",
+          "Price": "410",
+          "Total": "2412",
+          "Final_Order_ID": "63ce13ab639eac51854c8aaf"
+        },
+        {
+          "Shape": {
+            "Name": "star",
+            "Price": "0"
+          },
+          "GoogleLocation": {
+            "Latitude": 11.0118415,
+            "Longitude": 77.0514967
+          },
+          "_id": "63ca83a9c1a7d89ccc209332",
+          "CakeID": "63ca4ba2c1a7d89ccc20855a",
+          "Cake_ID": "CKYCCO-1",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Flavour": [
+            {
+              "Name": "Chocolate ",
+              "Price": "50",
+              "_id": "63ca810ee02881ab138c66fc"
+            }
+          ],
+          "Weight": "2kg",
+          "MessageOnTheCake": "No Message",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "Vendor_ID": "CKYV-2",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "null",
+          "VendorAddress": "1st Street, Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryDate": "24-01-2023",
+          "DeliverySession": "Evening 5 PM - 6 PM",
+          "DeliveryInformation": "Delivery",
+          "Vendor_Price": "800",
+          "Vendor_Total": "1666",
+          "Price": "800",
+          "ItemCount": 1,
+          "Discount": 34,
+          "ExtraCharges": "100",
+          "DeliveryCharge": "0",
+          "Gst": "0",
+          "Sgst": "0",
+          "Total": "1666",
+          "PaymentType": "Cash on delivery",
+          "PaymentStatus": "Cash on delivery",
+          "Created_On": "20-01-2023 05:36 PM",
+          "Status": "New",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "CustomizeCake": "y",
+          "TypeOfCustomizedCake": "Vendor",
+          "Vendor_Response_Status": "seen",
+          "ShowToVendor": "Yes",
+          "Ticket_RaisedFor_Vendor_Cancel": "No",
+          "Ticket_Raised_For_Customized_Cake": "No",
+          "Id": "CKYORD-5",
+          "__v": 0
+        },
+        {
+          "Shape": {
+            "Name": "Round",
+            "Price": "0"
+          },
+          "GoogleLocation": {
+            "Latitude": 10.9963799,
+            "Longitude": 77.0255008
+          },
+          "_id": "63ca7634c1a7d89ccc209027",
+          "CakeID": "63ca6daec1a7d89ccc208ebc",
+          "Cake_ID": "CKYCCO-2",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Flavour": [
+            {
+              "Name": "Chocolate ",
+              "Price": "80",
+              "_id": "63ca71e50a5fa66e1ff39e32"
+            }
+          ],
+          "Weight": "7kg",
+          "MessageOnTheCake": "Happy Birthday ",
+          "VendorID": "63ca699ec1a7d89ccc208d2d",
+          "Vendor_ID": "CKYV-3",
+          "VendorName": "Vignesh",
+          "VendorPhoneNumber1": "9876543211",
+          "VendorAddress": "Vasanth Nagar, Singanallur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryDate": "25-01-2023",
+          "DeliverySession": "Evening 6 PM - 7 PM",
+          "DeliveryInformation": "Pickup",
+          "Vendor_Price": "800",
+          "Vendor_Total": "6036.8",
+          "Price": "750",
+          "ItemCount": 1,
+          "Discount": 123.2,
+          "ExtraCharges": "560",
+          "DeliveryCharge": "0",
+          "Gst": "0",
+          "Sgst": "0",
+          "Tax": "0",
+          "Total": "5686.8",
+          "PaymentType": "Cash on delivery",
+          "PaymentStatus": "Cash on delivery",
+          "Created_On": "20-01-2023 04:38 PM",
+          "Status": "New",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "CustomizeCake": "y",
+          "TypeOfCustomizedCake": "Cakey",
+          "Vendor_Response_Status": "no response",
+          "ShowToVendor": "Yes",
+          "Ticket_RaisedFor_Vendor_Cancel": "No",
+          "Ticket_Raised_For_Customized_Cake": "Yes",
+          "Id": "CKYORD-4",
+          "__v": 0
+        },
+        {
+          "GoogleLocation": {
+            "Latitude": 10.9963799,
+            "Longitude": 77.0255008
+          },
+          "Assigned_By": {
+            "ID": "63ca1bb5c1a7d89ccc207f2d",
+            "Name": "Vidhya",
+            "Email": "vidhya@mindmade.in",
+            "TypeOfUser": "Helpdesk V"
+          },
+          "Margin": {
+            "Percentage": "0",
+            "Amount": "0"
+          },
+          "_id": "63ca6daec1a7d89ccc208ebc",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Images": [],
+          "Flavour": [
+            {
+              "Name": "Chocolate ",
+              "Price": "80",
+              "_id": "63ca71e50a5fa66e1ff39e32"
+            }
+          ],
+          "Shape": "Round",
+          "Weight": "7kg",
+          "Above5KG": "y",
+          "PremiumVendor": "y",
+          "MessageOnTheCake": "Happy Birthday ",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryInformation": "Pickup",
+          "DeliveryDate": "25-01-2023",
+          "DeliverySession": "Evening 6 PM - 7 PM",
+          "Status": "Ordered",
+          "Created_On": "20-01-2023 04:02 PM",
+          "Notification": "unseen",
+          "TypeOfCustomizedCake": "Cakey",
+          "Ticket_Raised": "y",
+          "Above5KgCustomizedOrderConfirm": "n",
+          "Customized_Cake_Price_Approved": "y",
+          "Ordered": "y",
+          "Id": "CKYCCO-2",
+          "__v": 0,
+          "TicketID": "63ca6e17c1a7d89ccc208ee3",
+          "Assigned_On": "20-01-2023 04:08 PM",
+          "VendorAddress": "Vasanth Nagar, Singanallur, Tamil Nadu, India",
+          "VendorID": "63ca699ec1a7d89ccc208d2d",
+          "VendorName": "Vignesh",
+          "VendorPhoneNumber1": "9876543211",
+          "Vendor_ID": "CKYV-3",
+          "DeliveryCharge": "0",
+          "Discount": 123.2,
+          "ExtraCharges": "560",
+          "Invoice_Sent_By": "63ca699ec1a7d89ccc208d2d",
+          "Invoice_Sent_On": "20-01-2023 04:20 PM",
+          "Vendor_Price": "800",
+          "Vendor_Total": "6036.8",
+          "Gst": "0",
+          "HelpdeskV_Price": "750",
+          "HelpdeskV_Total": "5686.8",
+          "Sgst": "0",
+          "Tax": "0",
+          "Price": "750",
+          "Total": "5686.8",
+          "Final_Order_ID": "63ca7634c1a7d89ccc209027"
+        },
+        {
+          "GoogleLocation": {
+            "Latitude": 11.0118415,
+            "Longitude": 77.0514967
+          },
+          "_id": "63ca4ba2c1a7d89ccc20855a",
+          "CakeName": "My Customized Cake",
+          "EggOrEggless": "Egg",
+          "Tier": "4tier",
+          "Images": [],
+          "Flavour": [
+            {
+              "Name": "Chocolate ",
+              "Price": "50",
+              "_id": "63ca810ee02881ab138c66fc"
+            }
+          ],
+          "Shape": "star",
+          "Weight": "2kg",
+          "Above5KG": "n",
+          "PremiumVendor": "n",
+          "VendorID": "63ca2c46c1a7d89ccc208146",
+          "Vendor_ID": "CKYV-2",
+          "VendorName": "Durga",
+          "VendorPhoneNumber1": "9123456789",
+          "VendorPhoneNumber2": "null",
+          "VendorAddress": "1st Street, Surya Nagar, Ondipudur, Tamil Nadu, India",
+          "UserID": "63ca2d4ec1a7d89ccc20819d",
+          "User_ID": "CKYCUS-1",
+          "UserName": "Durga",
+          "UserPhoneNumber": "+916385414805",
+          "DeliveryAddress": "Krishna Colony ",
+          "DeliveryInformation": "Delivery",
+          "DeliveryDate": "24-01-2023",
+          "DeliverySession": "Evening 5 PM - 6 PM",
+          "Status": "Ordered",
+          "Created_On": "20-01-2023 01:36 PM",
+          "Notification": "unseen",
+          "TypeOfCustomizedCake": "Vendor",
+          "Ticket_Raised": "y",
+          "Above5KgCustomizedOrderConfirm": "n",
+          "Customized_Cake_Price_Approved": "y",
+          "Ordered": "y",
+          "Id": "CKYCCO-1",
+          "__v": 0,
+          "DeliveryCharge": "0",
+          "Discount": 34,
+          "ExtraCharges": "100",
+          "Invoice_Sent_By": "63ca2c46c1a7d89ccc208146",
+          "Invoice_Sent_On": "20-01-2023 05:24 PM",
+          "MessageOnTheCake": "No Message",
+          "Vendor_Price": "800",
+          "Vendor_Total": "1666",
+          "TicketID": "63ca8135c1a7d89ccc2092a2",
+          "Gst": "0",
+          "Price": "800",
+          "Sgst": "0",
+          "Total": "1666",
+          "Final_Order_ID": "63ca83a9c1a7d89ccc209332"
+        }
+    ];
     return Column(
       mainAxisSize: MainAxisSize.max,
       // mainAxisAlignment: MainAxisAlignment.center,
@@ -1106,7 +1625,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               if(recentOrders[index]['ExtraCharges']!=null){
                 if(recentOrders[index]['Weight'].toString().toLowerCase().endsWith("kg")){
                   gramAndKilo = (
-                      double.parse(recentOrders[index]['ItemCount'].toString()) * (
+                      double.parse(recentOrders[index]['ItemCount'].toString(),(e)=>1) * (
                           (double.parse(recentOrders[index]['Price'].toString())*
                               double.parse(recentOrders[index]['Weight'].toString().
                               toLowerCase().replaceAll("kg", "")))+
