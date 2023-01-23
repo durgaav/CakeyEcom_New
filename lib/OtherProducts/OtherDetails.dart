@@ -24,16 +24,17 @@ import '../screens/Profile.dart';
 class OthersDetails extends StatefulWidget {
   List weight;
   var data = {};
-  OthersDetails({required this.weight , required this.data});
+  OthersDetails({required this.weight, required this.data});
 
   @override
-  State<OthersDetails> createState() => _OthersDetailsState(weight: weight,data:data);
+  State<OthersDetails> createState() =>
+      _OthersDetailsState(weight: weight, data: data);
 }
 
 class _OthersDetailsState extends State<OthersDetails> {
   List weight;
   var data = {};
-  _OthersDetailsState({required this.weight , required this.data});
+  _OthersDetailsState({required this.weight, required this.data});
 
   //colors.....
   String poppins = "Poppins";
@@ -76,7 +77,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   String vendrorRating = "";
   String vendrorPhone1 = "";
   String vendrorPhonr2 = "";
-  String vendrorMail= "";
+  String vendrorMail = "";
   String vendorProfile = "";
   String vendorId = "";
   String vendor_Id = "";
@@ -125,7 +126,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = 0;
+  var deliverAddressIndex = -1;
   String originalWeight = "";
 
   //toppers...
@@ -158,7 +159,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   //goto checkout
   Future<void> gotoCheckout() async {
     var prefs = await SharedPreferences.getInstance();
-    try{
+    try {
       prefs.setString("otherOrdName", otherName);
       prefs.setString("otherOrdCommonName", otherComName);
       prefs.setString("otherOrdShape", otherShape);
@@ -180,11 +181,13 @@ class _OthersDetailsState extends State<OthersDetails> {
         prefs.setString("otherOrdPricePerKg", myPrice.toString());
       } else if (otherType == "Unit") {
         prefs.setString("otherOrdWeight", selectedWeight);
-        prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+        prefs.setString(
+            "otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
         prefs.setString("otherOrdPricePerKg", myPrice.toString());
       } else {
         prefs.setString("otherOrdWeight", selectedWeight);
-        prefs.setString("otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
+        prefs.setString(
+            "otherOrdPrice", (myPrice * counter).toStringAsFixed(2));
         prefs.setString("otherOrdPricePerKg", myPrice.toString());
       }
 
@@ -202,14 +205,14 @@ class _OthersDetailsState extends State<OthersDetails> {
       prefs.setInt("otherOrdCounter", counter);
 
       var topperData = {
-        "name":topperName,
-        "id":topperId,
-        "image":topperImage,
-        "topperPrice":topperPrice
+        "name": topperName,
+        "id": topperId,
+        "image": topperImage,
+        "topperPrice": topperPrice
       };
 
-      prefs.setString("others_topper_data",jsonEncode(topperData));
-      prefs.setString("others_original_weight",originalWeight);
+      prefs.setString("others_topper_data", jsonEncode(topperData));
+      prefs.setString("others_original_weight", originalWeight);
 
       if (fixedDelliverMethod == "Pickup") {
         prefs.setString("otherOrdDeliveryCharge", "0");
@@ -217,19 +220,19 @@ class _OthersDetailsState extends State<OthersDetails> {
         prefs.setString(
             "otherOrdDeliveryCharge",
             ((adminDeliveryCharge / adminDeliveryChargeKm) *
-                (calculateDistance(
-                    double.parse(userLatitude , (e)=>0.0),
-                    double.parse(userLongtitude,(e)=>0.0),
-                    double.parse(vendrorLat.toString(),(e)=>0.0),
-                    double.parse(vendrorLong,(e)=>0.0))))
-                .toStringAsFixed(1)
-        );
+                    (calculateDistance(
+                        double.parse(userLatitude, (e) => 0.0),
+                        double.parse(userLongtitude, (e) => 0.0),
+                        double.parse(vendrorLat.toString(), (e) => 0.0),
+                        double.parse(vendrorLong, (e) => 0.0))))
+                .toStringAsFixed(1));
       }
 
       prefs.setString("otherOrdDeliDate", deliverDate);
       prefs.setString("otherOrdDiscount", otherDiscount);
       prefs.setString("otherOrdPickOrDel", fixedDelliverMethod);
-      prefs.setString("otherOrdDeliveryAdrs", deliverAddress[deliverAddressIndex]);
+      prefs.setString(
+          "otherOrdDeliveryAdrs", deliverAddress[deliverAddressIndex]);
       prefs.setString("otherOrdDeliSession", deliverSession);
       prefs.setString("otherOrdKgType", otherType);
       prefs.setString("otherOrdSubTypee", otherSubType);
@@ -237,10 +240,9 @@ class _OthersDetailsState extends State<OthersDetails> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => OtherCheckout([], [selectedFlav]))
-      );
-    }catch(e){
-       print(e);
+              builder: (context) => OtherCheckout([], [selectedFlav])));
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -260,7 +262,8 @@ class _OthersDetailsState extends State<OthersDetails> {
       userName = prefs.getString("userName") ?? '';
       userPhone = prefs.getString("phoneNumber") ?? '';
       deliveryAddress = prefs.getString("userCurrentLocation") ?? 'null';
-      deliverAddress = prefs.getStringList('addressList')??[deliveryAddress.trim()];
+      deliverAddress =
+          prefs.getStringList('addressList') ?? [deliveryAddress.trim()];
       otherSubType = prefs.getString("otherSubType") ?? "";
       otherComName = prefs.getString("otherComName") ?? "";
       otherName = prefs.getString("otherName") ?? "";
@@ -317,7 +320,6 @@ class _OthersDetailsState extends State<OthersDetails> {
       }
 
       originalWeight = selectedWeight;
-
     });
     fetchToppersById(vendorId);
     getVendor(vendorId);
@@ -368,8 +370,8 @@ class _OthersDetailsState extends State<OthersDetails> {
 
     try {
       var headers = {'Authorization': '$authToken'};
-      var request = http.Request('GET',
-          Uri.parse('${API_URL}api/vendors/list'));
+      var request =
+          http.Request('GET', Uri.parse('${API_URL}api/vendors/list'));
 
       request.headers.addAll(headers);
 
@@ -466,7 +468,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   }
 
   //fetch toppers by ven id..
-  Future<void> fetchToppersById(String id) async{
+  Future<void> fetchToppersById(String id) async {
     print("V : $id");
     print("entered...top");
 
@@ -477,26 +479,22 @@ class _OthersDetailsState extends State<OthersDetails> {
     print(authToken);
     print(res.body);
 
-    if(res.statusCode==200){
-
-      setState((){
+    if (res.statusCode == 200) {
+      setState(() {
         print('body');
         print(res.body);
-        if(res.body.length < 50){
-        }else{
+        if (res.body.length < 50) {
+        } else {
           toppersList = jsonDecode(res.body);
         }
       });
-
-    }else{
-
-    }
+    } else {}
     print("exit...top");
   }
 
   //cake topper sheet
-  void showCakeTopperSheet(String nam){
-    String name = nam,id = "" , image = '';
+  void showCakeTopperSheet(String nam) {
+    String name = nam, id = "", image = '';
     int price = 0;
     showModalBottomSheet(
         isScrollControlled: true,
@@ -504,8 +502,8 @@ class _OthersDetailsState extends State<OthersDetails> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
         ),
-        builder: (context)=>
-            StatefulBuilder(builder:(BuildContext context, void Function(void Function()) setState){
+        builder: (context) => StatefulBuilder(builder: (BuildContext context,
+                void Function(void Function()) setState) {
               return Container(
                 padding: EdgeInsets.all(7),
                 child: Column(
@@ -553,90 +551,132 @@ class _OthersDetailsState extends State<OthersDetails> {
 
                     Container(
                         height: 280,
-                        child: toppersList.isNotEmpty?
-                        Scrollbar(
-                          child: ListView.builder(
-                              itemCount: toppersList.length,
-                              itemBuilder: (c, i)=>
-                                  InkWell(
-                                    splashColor: Colors.red[300]!,
-                                    onTap: (){
-                                      setState((){
-                                        if(topperIndex == i){
-                                          topperIndex = -1;
-                                          id = '';
-                                          name = '';
-                                          image = '';
-                                          price = 0;
-                                        }else{
-                                          id = toppersList[i]['_id'].toString();
-                                          name = toppersList[i]['TopperName'].toString();
-                                          image = toppersList[i]['TopperImage'].toString();
-                                          price = int.parse(toppersList[i]['Price'].toString());
-                                          topperIndex = i;
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(8),
-                                            child: Row(
+                        child: toppersList.isNotEmpty
+                            ? Scrollbar(
+                                child: ListView.builder(
+                                    itemCount: toppersList.length,
+                                    itemBuilder: (c, i) => InkWell(
+                                          splashColor: Colors.red[300]!,
+                                          onTap: () {
+                                            setState(() {
+                                              if (topperIndex == i) {
+                                                topperIndex = -1;
+                                                id = '';
+                                                name = '';
+                                                image = '';
+                                                price = 0;
+                                              } else {
+                                                id = toppersList[i]['_id']
+                                                    .toString();
+                                                name = toppersList[i]
+                                                        ['TopperName']
+                                                    .toString();
+                                                image = toppersList[i]
+                                                        ['TopperImage']
+                                                    .toString();
+                                                price = int.parse(toppersList[i]
+                                                        ['Price']
+                                                    .toString());
+                                                topperIndex = i;
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            child: Stack(
                                               children: [
                                                 Container(
-                                                  height: 45,
-                                                  width: 45,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.red[300]!,
-                                                      image: DecorationImage(
-                                                          image: NetworkImage(toppersList[i]['TopperImage'])
+                                                  padding: EdgeInsets.all(8),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        height: 45,
+                                                        width: 45,
+                                                        decoration: BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            color: Colors
+                                                                .red[300]!,
+                                                            image: DecorationImage(
+                                                                image: NetworkImage(
+                                                                    toppersList[
+                                                                            i][
+                                                                        'TopperImage']))),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            toppersList[i]
+                                                                ['TopperName'],
+                                                            style: TextStyle(
+                                                                color: darkBlue,
+                                                                fontFamily:
+                                                                    "Poppins",
+                                                                fontSize: 13.5),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          Text(
+                                                            "Rs." +
+                                                                toppersList[i]
+                                                                    ['Price'],
+                                                            style: TextStyle(
+                                                                color: darkBlue,
+                                                                fontFamily:
+                                                                    "Poppins",
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ],
                                                       )
+                                                    ],
                                                   ),
                                                 ),
-                                                SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(toppersList[i]['TopperName'],style:
-                                                    TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 13.5),),
-                                                    SizedBox(height: 5,),
-                                                    Text("Rs."+toppersList[i]['Price'],style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.bold),),
-                                                  ],
-                                                )
+                                                Positioned(
+                                                    left: 0,
+                                                    top: 0,
+                                                    child: topperIndex == i
+                                                        ? Icon(
+                                                            Icons.check_circle,
+                                                            color: Colors.green,
+                                                          )
+                                                        : Container())
                                               ],
                                             ),
                                           ),
-                                          Positioned(
-                                              left: 0,
-                                              top: 0,
-                                              child: topperIndex==i?Icon(Icons.check_circle,color: Colors.green,):Container()
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                          ),
-                        ):
-                        Center(
-                          child: Text("No Toppers :(",
-                            style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 15,fontWeight: FontWeight.bold),),
-                        )
-                    ),
+                                        )),
+                              )
+                            : Center(
+                                child: Text(
+                                  "No Toppers :(",
+                                  style: TextStyle(
+                                      color: darkBlue,
+                                      fontFamily: "Poppins",
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )),
 
                     Center(
                       child: GestureDetector(
-                        onTap:(){
+                        onTap: () {
                           Navigator.pop(context);
-                          setTheTopperData(price , name , image , id);
+                          setTheTopperData(price, name, image, id);
                         },
                         child: Container(
                           margin: EdgeInsets.all(15),
                           height: 45,
                           width: 120,
                           alignment: Alignment.center,
-                          decoration:BoxDecoration(
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             color: lightPink,
                           ),
@@ -650,35 +690,28 @@ class _OthersDetailsState extends State<OthersDetails> {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               );
-            }
-            )
-    );
+            }));
   }
 
-  void setTheTopperData(price , name , image , id) {
-
-    if(name.isEmpty){
-      setState((){
+  void setTheTopperData(price, name, image, id) {
+    if (name.isEmpty) {
+      setState(() {
         topperPrice = 0.0;
         topperName = name;
         topperId = id;
         topperImage = image;
       });
-    }else{
-      setState((){
+    } else {
+      setState(() {
         topperPrice = double.parse(price.toString());
         topperName = name;
         topperId = id;
         topperImage = image;
       });
     }
-
-
-
   }
 
   @override
@@ -749,8 +782,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.only(
                                               bottomLeft: Radius.circular(10),
-                                              bottomRight: Radius.circular(10)
-                                          ),
+                                              bottomRight: Radius.circular(10)),
                                           color: Colors.black12,
                                           image: DecorationImage(
                                               image: NetworkImage(
@@ -951,7 +983,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         counter = counter - 1;
                                       });
                                     } else {
-                                      Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
+                                      Functions().showSnackMsg(
+                                          context,
+                                          "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!",
+                                          true);
                                     }
                                   } else if (otherType == "Box") {
                                     if (counter >
@@ -962,7 +997,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         counter = counter - 1;
                                       });
                                     } else {
-                                      Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
+                                      Functions().showSnackMsg(
+                                          context,
+                                          "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!",
+                                          true);
                                     }
                                   } else {
                                     if (counter > 1) {
@@ -1021,68 +1059,87 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           builder: (context) {
                                             return AlertDialog(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20)
-                                              ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
                                               content: TextField(
-                                                keyboardType: TextInputType.number,
+                                                keyboardType:
+                                                    TextInputType.number,
                                                 controller: theCtrl,
                                                 style: TextStyle(
                                                     color: darkBlue,
                                                     fontFamily: "Poppins",
-                                                    fontSize: 13
-                                                ),
+                                                    fontSize: 13),
                                                 decoration: InputDecoration(
                                                   hintText: "Enter Custom Unit",
                                                 ),
                                               ),
                                               actions: [
                                                 TextButton(
-                                                    onPressed: ()=>Navigator.pop(context),
-                                                    child: Text('Cancel',style:TextStyle(
-                                                        color: Colors.purple,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),)
-                                                ),
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                          color: Colors.purple,
+                                                          fontFamily: "Poppins",
+                                                          fontSize: 13),
+                                                    )),
                                                 TextButton(
-                                                    onPressed: (){
+                                                    onPressed: () {
                                                       Navigator.pop(context);
                                                       if (otherType == "Unit") {
-                                                        if (int.parse(theCtrl.text) >
-                                                            int.parse(weight[selectedWeightIndex]
-                                                            ['MinCount']
+                                                        if (int.parse(
+                                                                theCtrl.text) >
+                                                            int.parse(weight[
+                                                                        selectedWeightIndex]
+                                                                    ['MinCount']
                                                                 .toString())) {
                                                           setState(() {
-                                                            counter = int.parse(theCtrl.text);
+                                                            counter = int.parse(
+                                                                theCtrl.text);
                                                           });
                                                         } else {
-                                                          Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
+                                                          Functions().showSnackMsg(
+                                                              context,
+                                                              "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!",
+                                                              true);
                                                         }
-                                                      } else if (otherType == "Box") {
-                                                        if (int.parse(theCtrl.text) >
-                                                            int.parse(weight[selectedWeightIndex]
-                                                            ['MinCount']
+                                                      } else if (otherType ==
+                                                          "Box") {
+                                                        if (int.parse(
+                                                                theCtrl.text) >
+                                                            int.parse(weight[
+                                                                        selectedWeightIndex]
+                                                                    ['MinCount']
                                                                 .toString())) {
                                                           setState(() {
-                                                            counter = int.parse(theCtrl.text);
+                                                            counter = int.parse(
+                                                                theCtrl.text);
                                                           });
                                                         } else {
-                                                          Functions().showSnackMsg(context, "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!", true);
+                                                          Functions().showSnackMsg(
+                                                              context,
+                                                              "Minimum unit is ${weight[selectedWeightIndex]['MinCount']}!",
+                                                              true);
                                                         }
                                                       } else {
-                                                        if(theCtrl.text.isNotEmpty){
-                                                          setState((){
-                                                            counter = int.parse(theCtrl.text);
+                                                        if (theCtrl
+                                                            .text.isNotEmpty) {
+                                                          setState(() {
+                                                            counter = int.parse(
+                                                                theCtrl.text);
                                                           });
                                                         }
                                                       }
                                                     },
-                                                    child: Text('Ok',style:TextStyle(
-                                                        color: Colors.purple,
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 13
-                                                    ),)
-                                                ),
+                                                    child: Text(
+                                                      'Ok',
+                                                      style: TextStyle(
+                                                          color: Colors.purple,
+                                                          fontFamily: "Poppins",
+                                                          fontSize: 13),
+                                                    )),
                                               ],
                                             );
                                           });
@@ -1115,7 +1172,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 splashColor: Colors.red[200]!,
                                 onTap: () {
                                   setState(() {
-                                    counter = counter+1;
+                                    counter = counter + 1;
                                     counterCtrl.text = counter.toString();
                                   });
                                 },
@@ -1244,39 +1301,44 @@ class _OthersDetailsState extends State<OthersDetails> {
                     height: 5,
                   ),
 
-                  data['CakeSubType'].toString().toLowerCase()=="brownie"?
-                  GestureDetector(
-                    onTap: (){
-                      showCakeTopperSheet(topperName);
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width-30,
-                      height:45,
-                      decoration: BoxDecoration(
-                        color: Color(0xffffe9df),
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            topperPrice==0.0?
-                            Icon(Icons.add_circle , color:darkBlue):Icon(Icons.check_circle , color:Colors.green),
-                            SizedBox(width: 8,),
-                            Text("Add Topper" , style: TextStyle(
-                                color:darkBlue,
-                              fontFamily: "Poppins"
-                            ),),
-                          ],
-                      ),
-                    ),
-                  ):Container(),
+                  data['CakeSubType'].toString().toLowerCase() == "brownie"
+                      ? GestureDetector(
+                          onTap: () {
+                            showCakeTopperSheet(topperName);
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width - 30,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                color: Color(0xffffe9df),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                topperPrice == 0.0
+                                    ? Icon(Icons.add_circle, color: darkBlue)
+                                    : Icon(Icons.check_circle,
+                                        color: Colors.green),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  "Add Topper",
+                                  style: TextStyle(
+                                      color: darkBlue, fontFamily: "Poppins"),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Container(),
 
-                  data['CakeSubType'].toString().toLowerCase()=="brownie"?
-                  SizedBox(
-                    height: 10,
-                  ):Container(),
-
+                  data['CakeSubType'].toString().toLowerCase() == "brownie"
+                      ? SizedBox(
+                          height: 10,
+                        )
+                      : Container(),
 
                   Text(
                     otherType.toLowerCase() == "kg"
@@ -1312,7 +1374,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                                           selectedWeightIndex = pos;
                                           selectedWeight =
                                               weight[pos]['Weight'].toString();
-                                          originalWeight = weight[pos]['Weight'].toString();
+                                          originalWeight =
+                                              weight[pos]['Weight'].toString();
                                           customweightCtrl.text = "";
                                         });
                                       },
@@ -1505,8 +1568,12 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         onTap: () {
                                           setState(() {
                                             selectedWeightIndex = pos;
-                                            selectedWeight = weight[pos]['Weight'].toString();
-                                            originalWeight = weight[pos]['Weight'].toString();
+                                            selectedWeight = weight[pos]
+                                                    ['Weight']
+                                                .toString();
+                                            originalWeight = weight[pos]
+                                                    ['Weight']
+                                                .toString();
                                             myPrice = double.parse(weight[pos]
                                                     ['PricePerUnit']
                                                 .toString());
@@ -1558,7 +1625,9 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                 selectedWeight = weight[pos]
                                                         ['Piece']
                                                     .toString();
-                                                originalWeight = weight[pos]['Piece'].toString();
+                                                originalWeight = weight[pos]
+                                                        ['Piece']
+                                                    .toString();
                                                 myPrice = double.parse(
                                                     weight[pos]['PricePerBox']
                                                         .toString());
@@ -1621,7 +1690,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                         onTap: () {
                           FocusScope.of(context).unfocus();
                           setState(() {
-                            if(index==0){
+                            if (index == 0) {
                               tooFar = false;
                               deliverAddressIndex = 0;
                             }
@@ -2005,9 +2074,9 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 //   // Container(height:0,width:0),
                                 // ),
                                 Column(
-                                  children:deliverAddress.map((e){
+                                  children: deliverAddress.map((e) {
                                     return ListTile(
-                                      onTap: () async{
+                                      onTap: () async {
                                         // setState(() {
                                         //   deliveryAddress = e.trim();
                                         //   deliverAddressIndex = deliverAddress.indexWhere((element) => element==e);
@@ -2015,8 +2084,11 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         showAlertDialog();
                                         try {
                                           List<Location> locat =
-                                              await locationFromAddress(e.toString().trim());
-                                          List<Location> venLocation = await locationFromAddress(vendorAddress.trim());
+                                              await locationFromAddress(
+                                                  e.toString().trim());
+                                          List<Location> venLocation =
+                                              await locationFromAddress(
+                                                  vendorAddress.trim());
                                           print(locat);
                                           setState(() {
                                             deliveryAddress = e.trim();
@@ -2026,18 +2098,19 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                 locat[0].longitude.toString();
                                             deliverAddressIndex =
                                                 deliverAddress.indexWhere(
-                                                        (element) => element == e);
+                                                    (element) => element == e);
                                             tooFar = false;
                                           });
                                           Navigator.pop(context);
                                           if (calculateDistance(
-                                              double.parse(userLatitude),
-                                              double.parse(userLongtitude),
-                                              venLocation[0].latitude,
-                                              venLocation[0].longitude) >
+                                                  double.parse(userLatitude),
+                                                  double.parse(userLongtitude),
+                                                  venLocation[0].latitude,
+                                                  venLocation[0].longitude) >
                                               10.0) {
                                             tooFar = true;
-                                            TooFarDialog().showTooFarDialog(context, e);
+                                            TooFarDialog()
+                                                .showTooFarDialog(context, e);
                                             //showTooFarDialog();
                                           }
                                         } catch (e) {
@@ -2052,10 +2125,15 @@ class _OthersDetailsState extends State<OthersDetails> {
                                             color: Colors.grey,
                                             fontSize: 13),
                                       ),
-                                      trailing:
-                                      deliverAddressIndex==deliverAddress.indexWhere((element) => element==e)?
-                                      Icon(Icons.check_circle, color: Colors.green ,size: 25,):
-                                      Container(height:0,width:0),
+                                      trailing: deliverAddressIndex ==
+                                              deliverAddress.indexWhere(
+                                                  (element) => element == e)
+                                          ? Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 25,
+                                            )
+                                          : Container(height: 0, width: 0),
                                     );
                                   }).toList(),
                                 ),
@@ -2330,7 +2408,13 @@ class _OthersDetailsState extends State<OthersDetails> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                  Functions().handleChatWithVendors(context, vendorList[0]['Email'], vendorList[0]['VendorName']);
+                                                  Functions()
+                                                      .handleChatWithVendors(
+                                                          context,
+                                                          vendorList[0]
+                                                              ['Email'],
+                                                          vendorList[0]
+                                                              ['VendorName']);
                                                 },
                                                 child: Container(
                                                   alignment: Alignment.center,
@@ -2364,69 +2448,93 @@ class _OthersDetailsState extends State<OthersDetails> {
                     height: 15,
                   ),
 
-                  tooFar?
-                  Container():
-                  Center(
-                    child: Container(
-                      height: 50,
-                      width: 200,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25)),
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                            if (otherType == "Kg") {
-                            if (changeWeight(selectedWeight) <
-                                changeWeight(weight[0]['Weight'])) {
-                              Functions().showSnackMsg(context, "Minimum weight is ${weight[0]['Weight']}!", true);
-                            } else if (deliverDate.toLowerCase() ==
-                                "select delivery date") {
-                              Functions().showSnackMsg(context, "Please select deliver date!", true);
-                            } else if (deliverSession.toLowerCase() ==
-                                "select delivery time") {
-                              Functions().showSnackMsg(context, "Please select deliver session", true);
-                            } else if (fixedDelliverMethod.isEmpty) {
-                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
-                            } else {
-                              gotoCheckout();
-                            }
-                          } else if (otherType == "Unit") {
-                            if (deliverDate.toLowerCase() ==
-                                "select delivery date") {
-                              Functions().showSnackMsg(context, "Please select deliver date", true);
-                            } else if (deliverSession.toLowerCase() ==
-                                "select delivery time") {
-                              Functions().showSnackMsg(context, "Please select deliver session", true);
-                            } else if (fixedDelliverMethod.isEmpty) {
-                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
-                            } else {
-                              gotoCheckout();
-                            }
-                          } else {
-                            if (deliverDate.toLowerCase() ==
-                                "select delivery date") {
-                              Functions().showSnackMsg(context, "Please select deliver date", true);
-                            } else if (deliverSession.toLowerCase() ==
-                                "select delivery time") {
-                              Functions().showSnackMsg(context, "Please select deliver session", true);
-                            } else if (fixedDelliverMethod.isEmpty) {
-                              Functions().showSnackMsg(context, "Please select pickup / delivery", true);
-                            } else {
-                              gotoCheckout();
-                            }
-                          }
-                        },
-                        color: lightPink,
-                        child: Text(
-                          "ORDER NOW",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                  tooFar
+                      ? Container()
+                      : Center(
+                          child: Container(
+                            height: 50,
+                            width: 200,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25)),
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25)),
+                              onPressed: () async {
+                                FocusScope.of(context).unfocus();
+                                if(deliverAddressIndex == -1){
+                                  Functions().showSnackMsg(
+                                      context,
+                                      "Please select delivery address!",
+                                      true);
+                                }else if (otherType == "Kg") {
+                                  if (changeWeight(selectedWeight) <
+                                      changeWeight(weight[0]['Weight'])) {
+                                    Functions().showSnackMsg(
+                                        context,
+                                        "Minimum weight is ${weight[0]['Weight']}!",
+                                        true);
+                                  } else if (deliverDate.toLowerCase() ==
+                                      "select delivery date") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver date!", true);
+                                  } else if (deliverSession.toLowerCase() ==
+                                      "select delivery time") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver session", true);
+                                  } else if (fixedDelliverMethod.isEmpty) {
+                                    Functions().showSnackMsg(
+                                        context,
+                                        "Please select pickup / delivery",
+                                        true);
+                                  } else {
+                                    gotoCheckout();
+                                  }
+                                } else if (otherType == "Unit") {
+                                  if (deliverDate.toLowerCase() ==
+                                      "select delivery date") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver date", true);
+                                  } else if (deliverSession.toLowerCase() ==
+                                      "select delivery time") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver session", true);
+                                  } else if (fixedDelliverMethod.isEmpty) {
+                                    Functions().showSnackMsg(
+                                        context,
+                                        "Please select pickup / delivery",
+                                        true);
+                                  } else {
+                                    gotoCheckout();
+                                  }
+                                } else {
+                                  if (deliverDate.toLowerCase() ==
+                                      "select delivery date") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver date", true);
+                                  } else if (deliverSession.toLowerCase() ==
+                                      "select delivery time") {
+                                    Functions().showSnackMsg(context,
+                                        "Please select deliver session", true);
+                                  } else if (fixedDelliverMethod.isEmpty) {
+                                    Functions().showSnackMsg(
+                                        context,
+                                        "Please select pickup / delivery",
+                                        true);
+                                  } else {
+                                    gotoCheckout();
+                                  }
+                                }
+                              },
+                              color: lightPink,
+                              child: Text(
+                                "ORDER NOW",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
 
                   SizedBox(
                     height: 15,
