@@ -164,6 +164,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
       fetchProfileByPhn();
     });
+    context.read<ContextData>().setAddressList(addressList);
   }
 
 
