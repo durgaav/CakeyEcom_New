@@ -546,10 +546,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     //api/ordersandhamperorders/listbyuser/
     //api/orders/listByUser/All/
+    print("User TOK ID...$_id");
 
     try{
       http.Response response = await http.get(
-          Uri.parse("${API_URL}api/ordersandhamperorders/listbyuser/$_id"),
+          Uri.parse("${API_URL}api/orders/listByUser/All/$_id"),
           headers: {"Authorization":"$authToken"}
       );
 
@@ -1135,30 +1136,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
               String diff = recentOrders[index]['Created_On'].toString().split(" ").first;
 
-              print(recentOrders[index]['Created_On']);
-
-              print(differenceOF(DateTime(
-                  int.parse(diff.split("-").last.toString()),
-                  int.parse(diff.split("-")[1].toString()),
-                  int.parse(diff.split("-").first.toString()),
-                  14,04
-              ).toString()));
-
-              print(DateTime(
-                  int.parse(diff.split("-").last.toString()),
-                  int.parse(diff.split("-")[1].toString()),
-                  int.parse(diff.split("-").first.toString()),
-                  14,05,3
-              ));
-
-              print(
-                  DateTime.now().difference(DateTime(
-                      int.parse(diff.split("-").last.toString()),
-                      int.parse(diff.split("-")[1].toString()),
-                      int.parse(diff.split("-").first.toString()),
-                      14,04
-                  ))
-              );
 
               var myMap = Map();
               var otherPrice = "";
@@ -1196,15 +1173,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
               }
 
-              print(otherPrice);
-
-
 
               String gramAndKilo = "";
 
               if(recentOrders[index]['ExtraCharges']!=null){
                 if(recentOrders[index]['Weight'].toString().toLowerCase().endsWith("kg")){
-                  print("yes..");
                   gramAndKilo = (
                       double.parse(recentOrders[index]['ItemCount'].toString()) * (
                           (double.parse(recentOrders[index]['Price'].toString())*
@@ -1214,7 +1187,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       )
                   ).toStringAsFixed(2);
                 }else{
-                  print("no...");
                   gramAndKilo = (
                       (double.parse(recentOrders[index]['ItemCount'].toString()) * (
                           (double.parse(recentOrders[index]['Price'].toString()))+
@@ -1238,8 +1210,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     InkWell(
                       onTap:(){
 
-                        print(recentOrders[0]);
-
                         setState(() {
                           if(isExpands[index]==false){
                             isExpands[index]=true;
@@ -1254,11 +1224,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               });
                             }
 
-                            print(notifyId);
-
                             //mins calculate
-
-                            print(recentOrders[index]['Created_On'].toString());
 
                             year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
                                 .first.split("-").last);
@@ -1273,22 +1239,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             DateTime a = DateTime(year,month,day,hour,min);
 
-                            print("a $a");
 
                             DateTime b = DateTime.now();
 
                             Duration difference = b.difference(a);
 
-                            print(difference);
+
 
                             days = difference.inDays;
                             hours = difference.inHours % 24;
                             minutes = difference.inMinutes % 60;
                             seconds = difference.inSeconds % 60;
-
-                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
-
-                            print("min : $minutes");
 
                           }else{
                             isExpands[index]=false;
@@ -1379,7 +1340,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           ):
                                           Wrap(
                                             children: [
+                                              recentOrders[index]['Shape'] is Map?
                                               Text('(Shape - ${recentOrders[index]['Shape']['Name']})',style: TextStyle(
+                                                  fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                              ),overflow: TextOverflow.ellipsis,maxLines: 10):Text('(Shape - ${recentOrders[index]['Shape']})',style: TextStyle(
                                                   fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                                               ),overflow: TextOverflow.ellipsis,maxLines: 10),
                                               Text("(Flavours : ",style: TextStyle(
@@ -1474,7 +1438,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               title: const Text('Vendor',style: const TextStyle(
                                   fontSize: 11,fontFamily: "Poppins"
                               ),),
-                              subtitle:Text(recentOrders[index]['VendorName']!=null?
+                              subtitle:Text(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""?
                               '${recentOrders[index]['VendorName']}':"Premium Vendor",style: TextStyle(
                                   fontSize: 14,fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,color: Colors.black
@@ -1677,7 +1641,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
                                     ),),
-                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  recentOrders[index]['DeliveryCharge']!=null?
+                                  Text('₹${double.parse(recentOrders[index]['DeliveryCharge'].toString()).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1692,7 +1658,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       fontFamily: "Poppins",
                                       color: Colors.black54,
                                     ),),
-                                  Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  recentOrders[index]['Discount'] != null?
+                                  Text('₹${recentOrders[index]['Discount'].toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1706,7 +1674,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  recentOrders[index]['Gst']!=null?
+                                  Text('₹${double.parse(recentOrders[index]['Gst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1720,7 +1690,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     fontFamily: "Poppins",
                                     color: Colors.black54,
                                   ),),
-                                  Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  recentOrders[index]['Sgst']!=null?
+                                  Text('₹${double.parse(recentOrders[index]['Sgst']).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                  Text('₹0.00',style: const TextStyle(fontWeight: FontWeight.bold),),
                                 ],
                               ),
                             ),
@@ -1740,7 +1712,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold
                                   ),),
+                                  recentOrders[index]['Total'] != null?
                                   Text('₹${double.parse(recentOrders[index]['Total']).toStringAsFixed(2)}',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ):
+                                  Text('₹0.00',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -1879,11 +1855,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               });
                             }
 
-                            print(notifyId);
 
                             //mins calculate
-
-                            print(recentOrders[index]['Created_On'].toString());
 
                             year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
                                 .first.split("-").last);
@@ -1898,22 +1871,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             DateTime a = DateTime(year,month,day,hour,min);
 
-                            print("a $a");
+
 
                             DateTime b = DateTime.now();
 
                             Duration difference = b.difference(a);
 
-                            print(difference);
+
 
                             days = difference.inDays;
                             hours = difference.inHours % 24;
                             minutes = difference.inMinutes % 60;
                             seconds = difference.inSeconds % 60;
-
-                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
-
-                            print("min : $minutes");
 
 
                           }else{
@@ -2484,11 +2453,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               });
                             }
 
-                            print(notifyId);
-
                             //mins calculate
-
-                            print(recentOrders[index]['Created_On'].toString());
 
                             year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
                                 .first.split("-").last);
@@ -2503,23 +2468,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             DateTime a = DateTime(year,month,day,hour,min);
 
-                            print("a $a");
-
                             DateTime b = DateTime.now();
 
                             Duration difference = b.difference(a);
-
-                            print(difference);
 
                             days = difference.inDays;
                             hours = difference.inHours % 24;
                             minutes = difference.inMinutes % 60;
                             seconds = difference.inSeconds % 60;
-
-                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
-
-                            print("min : $minutes");
-
 
                           }else{
                             isExpands[index]=false;
@@ -3084,11 +3040,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               });
                             }
 
-                            print(notifyId);
-
                             //mins calculate
-
-                            print(recentOrders[index]['Created_On'].toString());
 
                             year = int.parse(recentOrders[index]['Created_On'].toString().split(" ")
                                 .first.split("-").last);
@@ -3103,22 +3055,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                             DateTime a = DateTime(year,month,day,hour,min);
 
-                            print("a $a");
-
                             DateTime b = DateTime.now();
 
                             Duration difference = b.difference(a);
-
-                            print(difference);
 
                             days = difference.inDays;
                             hours = difference.inHours % 24;
                             minutes = difference.inMinutes % 60;
                             seconds = difference.inSeconds % 60;
-
-                            print("$days day(s) $hours hour(s) $minutes minute(s) $seconds second(s).");
-
-                            print("min : $minutes");
 
                           }else{
                             isExpands[index]=false;

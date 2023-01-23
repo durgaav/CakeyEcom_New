@@ -2253,26 +2253,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         //     fontWeight: FontWeight.bold,
                         //     fontSize: 16
                         // ),),
-                        SizedBox(height: 15,),
-                        GestureDetector(
-                          onTap:() async{
-                            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                          },
-                          child: Container(
-                            height:height*0.06,
-                            width:width*0.4,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: darkBlue,
-                                borderRadius: BorderRadius.circular(20)
-                            ),
-                            child: Text("Close App",style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.bold,
-                                color:Colors.white
-                            ),),
-                          ),
-                        ),
+                        //SizedBox(height: 15,),
+                        // GestureDetector(
+                        //   onTap:() async{
+                        //     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                        //   },
+                        //   child: Container(
+                        //     height:height*0.06,
+                        //     width:width*0.4,
+                        //     alignment: Alignment.center,
+                        //     decoration: BoxDecoration(
+                        //         color: darkBlue,
+                        //         borderRadius: BorderRadius.circular(20)
+                        //     ),
+                        //     child: Text("Close App",style: TextStyle(
+                        //         fontFamily: "Poppins",
+                        //         fontWeight: FontWeight.bold,
+                        //         color:Colors.white
+                        //     ),),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

@@ -192,7 +192,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   }
 
   void showOrderCompleteSheet() {
-
+    Functions().showOrderCompleteSheet(context);
   }
 
   //Confirm order

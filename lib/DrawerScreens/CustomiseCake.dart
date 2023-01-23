@@ -1235,41 +1235,26 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             var map = jsonDecode(await response.stream.bytesToString());
             print(map);
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(map['message']),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                )
-            );
 
-            double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
-            sendNotificationToVendor(notificationId):null;
+            if(map['statusCode']==200){
+              double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<5.0?
+              sendNotificationToVendor(notificationId):null;
+              setState(() {
 
-            // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true , message);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Customise order is placed success fully , our executive will call you soon"),
+                    backgroundColor: Colors.green[600],
+                    behavior: SnackBarBehavior.floating,)
+              );
+            }else{
 
-            // if(Platform.isIOS){
-            //   // for iOS phone only
-            //   if( await canLaunch(whatappURL_ios)){
-            //     await launch(whatappURL_ios, forceSafariVC: false);
-            //   }else{
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //         SnackBar(content: new Text("Whatsapp not found.")));
-            //   }
-            // }else{
-            //   // android , web
-            //   if( await canLaunch(whatsappURl_android)){
-            //     await launch(whatsappURl_android);
-            //   }else{
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //         SnackBar(content: new Text("Whatsapp not found.")));
-            //   }
-            // }
-            var pr = await SharedPreferences.getInstance();
-            pr.setString("showMoreVendor", "null");
-            Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context)=>HomeScreen())
-            );
+            }
+
+            // var pr = await SharedPreferences.getInstance();
+            // pr.setString("showMoreVendor", "null");
+            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
           }else{
             checkNetwork();
             Navigator.pop(context);
@@ -3887,11 +3872,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             )
                                         );
                                       } else if(deliverAddressIndex==-1){
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                                content: Text("Please select delivery address!")
-                                            )
-                                        );
+                                        // ScaffoldMessenger.of(context).showSnackBar(
+                                        //     SnackBar(
+                                        //         content: Text("Please select delivery address!")
+                                        //     )
+                                        // );
+
+                                        Functions().showSnackMsg(context, "Please select delivery address!", true);
+
                                       } else if(fixedWeight=="0.0"){
                                         ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
