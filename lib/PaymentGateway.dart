@@ -929,103 +929,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   }
 
-  ///make the order
-  Future<void> proceedOrder(amount) async{
-
-    showAlertDialog();
-
-    double delCharge = 0.0;
-
-    if(deliverType.toLowerCase() == "delivery"){
-      delCharge = double.parse(
-          ((adminDeliveryCharge / adminDeliveryChargeKm) *
-              (calculateDistance(double.parse(userLatitude), double.parse(userLongtitude),
-                  double.parse(vendorLat.toString()), double.parse(vendorLong)))).toStringAsFixed(1)
-      );
-    }else{
-      delCharge = 0;
-    }
-
-    print(amount);
-
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('${API_URL}api/hamperorder/new'));
-    request.body = json.encode({
-      "HamperID": "$cakeID",
-      "Hamper_ID": "$cakeModId",
-      "HampersName": "$cakeName",
-      "Product_Contains": productContains,
-      "HamperImage": "${cakeImage}",
-      "Description": "$cakeDesc",
-      "VendorID": "$vendorID",
-      "Vendor_ID": "$vendorModId",
-      "VendorName": "$vendorName",
-      "EggOrEggless": "$eggOreggless",
-      "VendorPhoneNumber1": "$vendorPhone1",
-      "VendorPhoneNumber2": "$vendorPhone2",
-      "VendorAddress": "$vendorAddress",
-      "GoogleLocation": {
-        "Latitude": "$vendorLat",
-        "Longitude": "$vendorLong"
-      },
-      "UserID": "$userID",
-      "User_ID": "$userModId",
-      "UserName": "$userName",
-      "UserPhoneNumber": "$userPhone",
-      "DeliveryAddress": "$userAddress",
-      "DeliveryDate": "$deliverDate",
-      "DeliverySession": "$deliverSession",
-      "DeliveryInformation": "$deliverType",
-      "Discount": "$tempDiscountPrice",
-      "Price": "$cakePrice",
-      "ItemCount": "$counts",
-      "DeliveryCharge": "$delCharge",
-      "Gst":gstPrice,
-      "Sgst":sgstPrice,
-      "Tax":taxes,
-      "Total": "$amount",
-      "Weight": "$weight",
-      "Title": "$hamTitle",
-      "PaymentType": "$paymentType",
-      "PaymentStatus":paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid'
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      var map = jsonDecode(await response.stream.bytesToString());
-
-      if(map['statusCode']==200){
-        //Navigator.pop(context);
-        showOrderCompleteSheet();
-        sendNotificationToVendor(notificationTid);
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(map['message'].toString()),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          )
-      );
-
-    }
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ));
-      Navigator.pop(context);
-    }
-
-  }
-
 
   Future<void> getVendorDetails() async {
 
@@ -1546,7 +1449,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                   children:[
                                     Container(
                                         padding:EdgeInsets.only(right:5),
-                                        child: Text('${(taxes).toString()} %',style: const TextStyle(fontSize:10.5,),)
+                                        child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
                                     Text('₹ ${gstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
@@ -1568,7 +1471,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                   children:[
                                     Container(
                                         padding:EdgeInsets.only(right:5),
-                                        child: Text('${(taxes).toString()} %',style: const TextStyle(fontSize:10.5,),)
+                                        child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
                                     Text('₹ ${sgstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]

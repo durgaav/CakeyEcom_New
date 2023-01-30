@@ -60,7 +60,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   String otherVenName = "";
   String otherVenPhn1 = "";
   String otherVenPhn2 = "";
-  String selectedDropWeight = "Kg";
+  String selectedDropWeight = "G";
   String selectedWeight = "";
   String otherShape = "";
   String otherMainID = "";
@@ -126,7 +126,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = -1;
+  var deliverAddressIndex = 0;
   String originalWeight = "";
 
   //toppers...
@@ -1306,29 +1306,31 @@ class _OthersDetailsState extends State<OthersDetails> {
                           onTap: () {
                             showCakeTopperSheet(topperName);
                           },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 30,
-                            height: 45,
-                            decoration: BoxDecoration(
-                                color: Color(0xffffe9df),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                topperPrice == 0.0
-                                    ? Icon(Icons.add_circle, color: darkBlue)
-                                    : Icon(Icons.check_circle,
-                                        color: Colors.green),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Text(
-                                  "Add Topper",
-                                  style: TextStyle(
-                                      color: darkBlue, fontFamily: "Poppins"),
-                                ),
-                              ],
+                          child: Center(
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 30,
+                              height: 45,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffffe9df),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  topperPrice == 0.0
+                                      ? Icon(Icons.add_circle, color: darkBlue)
+                                      : Icon(Icons.check_circle,
+                                          color: Colors.green),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    "Add Topper",
+                                    style: TextStyle(
+                                        color: darkBlue, fontFamily: "Poppins"),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         )
@@ -1370,6 +1372,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   itemBuilder: (c, pos) {
                                     return GestureDetector(
                                       onTap: () {
+                                        FocusScope.of(context).unfocus();
                                         setState(() {
                                           selectedWeightIndex = pos;
                                           selectedWeight =
@@ -2461,7 +2464,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                   borderRadius: BorderRadius.circular(25)),
                               onPressed: () async {
                                 FocusScope.of(context).unfocus();
-                                if(deliverAddressIndex == -1){
+                                if( fixedDelliverMethod.toLowerCase() == "delivery" && deliverAddressIndex == -1){
                                   Functions().showSnackMsg(
                                       context,
                                       "Please select delivery address!",

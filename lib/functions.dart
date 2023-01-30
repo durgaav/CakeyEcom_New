@@ -229,6 +229,7 @@ class Functions{
               topLeft: Radius.circular(20),
             )),
         context: context,
+        isDismissible:false,
         builder: (context) {
           return Container(
             child: Column(

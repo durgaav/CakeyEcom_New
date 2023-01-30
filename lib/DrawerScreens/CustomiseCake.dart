@@ -1199,7 +1199,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             ));
           }
 
-          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<=5.0){
+          if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))<=5.0 && nearestVendors.isNotEmpty){
             request.fields.addAll({
               'VendorID': '$vendorID',
               'VendorName': '$vendorName',

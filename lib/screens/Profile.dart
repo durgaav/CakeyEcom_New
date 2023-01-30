@@ -280,8 +280,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       request.headers['Content-Type'] = 'multipart/form-data';
 
       request.fields.addAll({
-        'UserName': userNameCtrl.text.isEmpty?"$userName":userNameCtrl.text,
-        'Address': userAddrCtrl.text.isEmpty?"$userAddress":userAddrCtrl.text,
+        'UserName': userNameCtrl.text,
+        'Address': userAddrCtrl.text,
         'Notification':!notifiOnOrOf?'n':"y",
         'Notification_Id':'$tokenId',
         "Pincode":pinCodeCtrl.text
@@ -309,7 +309,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         Navigator.pop(context);
 
         context.read<ContextData>().setProfileUpdated(true);
-        context.read<ContextData>().setAddress(userAddrCtrl.text);
 
         setState(() {
           file = new File('');
@@ -602,11 +601,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         setState(() {
           List body = jsonDecode(response.body);
           userID = body[0]['_id'].toString();
-          userAddress = body[0]['Address'].toString();
+          userAddrCtrl.text = body[0]['Address'].toString();
           userProfileUrl = body[0]['ProfileImage'].toString();
           fbToken = body[0]['Notification_Id'].toString();
           context.read<ContextData>().setProfileUrl(userProfileUrl);
-          userName = body[0]['UserName'].toString();
+          userNameCtrl.text = body[0]['UserName'].toString();
           pinCodeCtrl.text = body[0]['Pincode'].toString();
           prefs.setString('userID', userID);
           prefs.setString('userAddress', userAddress);
@@ -721,9 +720,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Widget ProfileView(){
     userProfileUrl = context.watch<ContextData>().getProfileUrl();
     setState(() {
-      userNameCtrl = TextEditingController(text: userName.toString()=="null"?"":userName);
-      userAddrCtrl = TextEditingController(text: userAddress.toString()=="null"?"":userAddress);
-      pinCodeCtrl = TextEditingController(text: pinCodeCtrl.toString()=="null"?"":pinCodeCtrl.text);
+      userNameCtrl = TextEditingController(text: userNameCtrl.text.toString()=="null"?"":userName);
+      userAddrCtrl = TextEditingController(text: userAddrCtrl.text.toString()=="null"?"":userAddress);
+      pinCodeCtrl = TextEditingController(text: pinCodeCtrl.text.toString()=="null"?"":pinCodeCtrl.text);
     });
     addressList = context.watch<ContextData>().getAddressList();
     return Column(
@@ -1939,7 +1938,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               title: const Text('Vendor',style: const TextStyle(
                                   fontSize: 11,fontFamily: "Poppins"
                               ),),
-                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                              subtitle:Text(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""?
+                              '${recentOrders[index]['VendorName']}':"Premium Vendor",style: TextStyle(
                                   fontSize: 14,fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,color: Colors.black
                               ),),
@@ -2515,7 +2515,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               title: const Text('Vendor',style: const TextStyle(
                                   fontSize: 11,fontFamily: "Poppins"
                               ),),
-                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                              subtitle:Text(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""?
+                              '${recentOrders[index]['VendorName']}':"Premium Vendor",style: TextStyle(
                                   fontSize: 14,fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,color: Colors.black
                               ),),
@@ -3107,7 +3108,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               title: const Text('Vendor',style: const TextStyle(
                                   fontSize: 11,fontFamily: "Poppins"
                               ),),
-                              subtitle:Text('${recentOrders[index]['VendorName']}',style: TextStyle(
+                              subtitle:Text(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!="" ||
+                                  recentOrders[index]['VendorName'].toString()!="null"?
+                              '${recentOrders[index]['VendorName']}':"Premium Vendor",style: TextStyle(
                                   fontSize: 14,fontFamily: "Poppins",
                                   fontWeight: FontWeight.bold,color: Colors.black
                               ),),
@@ -3498,6 +3501,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
 
   }
+
   //endregion
 
   @override

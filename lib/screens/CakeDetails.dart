@@ -1289,9 +1289,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       myWeight = basicCakeWeight;
 
       print("egg avail ");
-      print(eggEggless);
-      print(cakeEggorEgless);
-      print(cakeEgglessAvail);
+      print(fixedWeight);
       print("egg avail******");
 
       cakeDescription = prefs.getString('cakeDescription')!;

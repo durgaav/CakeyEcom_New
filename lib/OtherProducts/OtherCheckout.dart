@@ -1412,7 +1412,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                   children:[
                                     Container(
                                         padding:EdgeInsets.only(right:5),
-                                        child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                        child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
                                     Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
@@ -1434,7 +1434,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                   children:[
                                     Container(
                                         padding:EdgeInsets.only(right:5),
-                                        child: Text('${taxes} %',style: const TextStyle(fontSize:10.5,),)
+                                        child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
                                     Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
