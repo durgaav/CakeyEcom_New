@@ -49,7 +49,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   var data = {};
   _CakeDetailsState(this.shapes, this.flavour, this.articals , this.cakeTiers , this.tiersDelTimes,this.data);
 
-
   //region VARIABLES
   //colors.....
   String poppins = "Poppins";
@@ -268,6 +267,26 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   bool isNearVendrClicked = false;
 
   AppLifecycleState? lifeCyState ;
+
+  //endregion
+
+  //new GLOBAL
+
+  int itemCounts = 1;
+
+  double productPrice = 0;
+  double commonTotalWeight = 1;
+  double shapeTotalPrice = 0;
+  double flavourTotalPrice = 0;
+
+  List totalImages = [];
+  List totalWeightList = [];
+
+  String minimamFinalWeight = "";
+  String selectedFinalShape = "";
+  String selectedFinalFlav = "";
+
+
 
   //endregion
 
@@ -1341,22 +1360,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
       print("Users : $vendorID\n $userName\n $userModID\n $userAddress\n $newRegUser\n $userPhone\n");
 
-      if(weight.isEmpty){
-        weight.add(basicCakeWeight);
-      }else{
-        weight.insert(weight.indexOf(weight.last), basicCakeWeight);
-      }
-
-      weight = weight.toSet().toList();
-      weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
-
-      if(cakeImages.isEmpty){
-        cakeImages.add(prefs.getString('cakeMainImage').toString());
-      }else{
-        cakeImages.insert(0, prefs.getString('cakeMainImage').toString());
-      }
-
-      weight = weight.toSet().toList();
       cakeImages = cakeImages.toSet().toList();
 
       if(cakeEggorEgless.toLowerCase()=="eggless"){
@@ -1397,6 +1400,24 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       print("1st ven...");
       print(firstVenIndex);
       print(firstVenAmount);
+
+
+      if(weight.isEmpty){
+        weight.add(basicCakeWeight);
+      }else{
+        weight.insert(weight.indexOf(weight.last), basicCakeWeight);
+      }
+
+      weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
+      weight = weight.toSet().toList();
+
+      if(cakeImages.isEmpty){
+        cakeImages.add(prefs.getString('cakeMainImage').toString());
+      }else{
+        cakeImages.insert(0, prefs.getString('cakeMainImage').toString());
+      }
+
+      weight = weight.toSet().toList();
 
     });
     // context.read<ContextData>().addMyVendor(false);
@@ -2010,20 +2031,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         //     weight.add(artTempList[0]['MinWeightList'][i].toString());
         //   }
         // }
-
-        if(weight.isEmpty){
-          weight.add(basicCakeWeight);
-        }else{
-          weight.insert(weight.indexOf(weight.last), basicCakeWeight);
-        }
-
-        weight = weight.toSet().toList();
-        weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
-
-        weight = weight.toSet().toList();
-        weight.sort();
-        fixedWeight = basicCakeWeight;
-        weightIndex = 0;
         cakeImages = cakeImages.toSet().toList();
 
         //Vendor
@@ -2085,6 +2092,21 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
 
         flavour = flavour.reversed.toList();
         shapes = shapes.reversed.toList();
+
+        if(weight.isEmpty){
+          weight.add(basicCakeWeight);
+        }else{
+          weight.insert(weight.indexOf(weight.last), basicCakeWeight);
+        }
+
+        weight = weight.toSet().toList();
+        weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
+
+        weight = weight.toSet().toList();
+        weight.sort();
+        fixedWeight = basicCakeWeight;
+        weightIndex = 0;
+
       });
 
     context.read<ContextData>().addMyVendor(false);
@@ -2154,14 +2176,30 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     pref.remove('homeCTindex');
     pref.remove('isHomeCake');
   }
-
   //endregion
+
+  Future getAndAssignValue() async {
+    print("CAKE DATA --> $data");
+    setState((){
+
+      //remove
+      totalImages.clear();
+      totalWeightList.clear();
+
+      totalImages = data['AdditionalCakeImages'];
+      totalImages.add(data['MainCakeImage']);
+      totalImages.toSet().toList();
+
+      totalWeightList = data['MinWeightList'];
+    });
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       getDetailsFromScreen();
+      //getAndAssignValue();
     });
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -2172,6 +2210,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     // TODO: implement initState
     flavour.clear();
     shapes.clear();
+    data = {};
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -2227,87 +2266,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         return true;
       },
       child: Scaffold(
-        // bottomSheet:showThemeSheet?
-        // BottomSheet(
-        //     onClosing: () {
-        //       print('closing sheet...');
-        //     },
-        //     builder: (BuildContext context) {
-        //       return GestureDetector(
-        //         onTap: () {
-        //           Navigator.pop(context);
-        //           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomiseCake()));
-        //         },
-        //         child: Stack(
-        //           alignment: Alignment.center,
-        //           children: [
-        //             Container(
-        //               padding: EdgeInsets.all(15),
-        //               height: 100,
-        //               color: Colors.white,
-        //               child: Container(
-        //                 padding: EdgeInsets.all(10),
-        //                 decoration: BoxDecoration(
-        //                     borderRadius: BorderRadius.circular(18),
-        //                     color: Colors.red[50]),
-        //                 child: Row(
-        //                   mainAxisAlignment: MainAxisAlignment.center,
-        //                   crossAxisAlignment: CrossAxisAlignment.center,
-        //                   children: [
-        //                     Text.rich(TextSpan(children: [
-        //                       TextSpan(
-        //                         text: 'DO YOU WANT A ',
-        //                         style: TextStyle(
-        //                             color: Colors.black,
-        //                             fontWeight: FontWeight.w600,
-        //                             fontSize: 16),
-        //                       ),
-        //                       TextSpan(
-        //                         text: 'THEME CAKE ',
-        //                         style: TextStyle(
-        //                             color: lightPink,
-        //                             fontWeight: FontWeight.w900,
-        //                             fontSize: 16),
-        //                       )
-        //                     ])),
-        //                     Expanded(
-        //                       child: Align(
-        //                         alignment: Alignment.centerRight,
-        //                         child: Container(
-        //                           color: Colors.transparent,
-        //                           height: 70,
-        //                           width: 70,
-        //                           child: Image(
-        //                             image: AssetImage(
-        //                                 'assets/images/themecake.png'),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //             Positioned(
-        //               left: MediaQuery.of(context).size.width * 0.86,
-        //               top: -6,
-        //               child: IconButton(
-        //                   onPressed: () {
-        //                     setState(() {
-        //                       showThemeSheet = !showThemeSheet;
-        //                     });
-        //                   },
-        //                   icon: Icon(
-        //                     Icons.cancel_rounded,
-        //                     color: Colors.red,
-        //                     size: 30,
-        //                   )),
-        //             )
-        //           ],
-        //         ),
-        //       );
-        //     },
-        //   ):Container(height: 0,),
         body: SafeArea(
           child: NestedScrollView(
               headerSliverBuilder:
@@ -2316,7 +2274,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                   SliverAppBar(
                     title: innerBoxIsScrolled
                         ? Text(
-                            "$cakeName",
+                            "${data['CakeName']}",
                             style: TextStyle(color: darkBlue),
                           )
                         : Text(""),
@@ -2348,132 +2306,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     actions: [
                       CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){getDetailsFromScreen();}),
                       SizedBox(width: 12,),
-                      // Stack(
-                      //   alignment: Alignment.center,
-                      //   children: [
-                      //     InkWell(
-                      //       onTap: () {
-                      //         print("Scrolled $innerBoxIsScrolled");
-                      //
-                      //         Navigator.of(context).push(
-                      //           PageRouteBuilder(
-                      //             pageBuilder: (context, animation,
-                      //                     secondaryAnimation) =>
-                      //                 Notifications(),
-                      //             transitionsBuilder: (context, animation,
-                      //                 secondaryAnimation, child) {
-                      //               const begin = Offset(1.0, 0.0);
-                      //               const end = Offset.zero;
-                      //               const curve = Curves.ease;
-                      //
-                      //               final tween = Tween(begin: begin, end: end);
-                      //               final curvedAnimation = CurvedAnimation(
-                      //                 parent: animation,
-                      //                 curve: curve,
-                      //               );
-                      //               return SlideTransition(
-                      //                 position: tween.animate(curvedAnimation),
-                      //                 child: child,
-                      //               );
-                      //             },
-                      //           ),
-                      //         );
-                      //       },
-                      //       child: Container(
-                      //         alignment: Alignment.center,
-                      //         height: 35,
-                      //         width: 35,
-                      //         decoration: BoxDecoration(
-                      //             color: Colors.grey[300],
-                      //             borderRadius: BorderRadius.circular(8)),
-                      //         child: Icon(
-                      //           Icons.notifications_none,
-                      //           color: darkBlue,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //     Positioned(
-                      //       left: 20,
-                      //       top: 18,
-                      //       child: CircleAvatar(
-                      //         radius: 4.5,
-                      //         backgroundColor: Colors.white,
-                      //         child: CircleAvatar(
-                      //           radius: 3.5,
-                      //           backgroundColor: Colors.red,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      // SizedBox(
-                      //   width: 10,
-                      // ),
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.white,
-                      //     shape: BoxShape.circle,
-                      //     boxShadow: [
-                      //       BoxShadow(
-                      //           blurRadius: 3,
-                      //           color: Colors.black,
-                      //           spreadRadius: 0)
-                      //     ],
-                      //   ),
-                      //   child: InkWell(
-                      //     onTap: () {
-                      //       Navigator.of(context).push(
-                      //         PageRouteBuilder(
-                      //           pageBuilder:
-                      //               (context, animation, secondaryAnimation) =>
-                      //                   Profile(
-                      //             defindex: 0,
-                      //           ),
-                      //           transitionsBuilder: (context, animation,
-                      //               secondaryAnimation, child) {
-                      //             const begin = Offset(1.0, 0.0);
-                      //             const end = Offset.zero;
-                      //             const curve = Curves.ease;
-                      //
-                      //             final tween = Tween(begin: begin, end: end);
-                      //             final curvedAnimation = CurvedAnimation(
-                      //               parent: animation,
-                      //               curve: curve,
-                      //             );
-                      //
-                      //             return SlideTransition(
-                      //               position: tween.animate(curvedAnimation),
-                      //               child: child,
-                      //             );
-                      //           },
-                      //         ),
-                      //       );
-                      //     },
-                      //     child: profileUrl != "null"
-                      //         ? Container(
-                      //         height:30,width:30,
-                      //         decoration: BoxDecoration(
-                      //             shape: BoxShape.circle,
-                      //             color:Colors.red,
-                      //             image: DecorationImage(
-                      //                 image: NetworkImage("${profileUrl}"),
-                      //                 fit: BoxFit.fill
-                      //             )
-                      //         )
-                      //     )
-                      //         : CircleAvatar(
-                      //             radius: 17.5,
-                      //             backgroundColor: Colors.white,
-                      //             child: CircleAvatar(
-                      //                 radius: 16,
-                      //                 backgroundImage:
-                      //                     AssetImage("assets/images/user.png")),
-                      //           ),
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   width: 10,
-                      // ),
                     ],
                     backgroundColor: lightGrey,
                     flexibleSpace: FlexibleSpaceBar(
@@ -2561,7 +2393,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 children: [
                                   RatingBar.builder(
                                     initialRating:
-                                        double.parse(cakeRatings, (e) => 1.5),
+                                        double.parse(data['Ratings'].toString(), (e) => 1.5),
                                     minRating: 1,
                                     direction: Axis.horizontal,
                                     allowHalfRating: true,
@@ -2573,29 +2405,18 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       Icons.star,
                                       color: Colors.amber,
                                     ),
+                                    ignoreGestures:true,
                                     onRatingUpdate: (rating) {
                                       print(rating);
                                     },
                                   ),
-                                  Container(
-                                    padding: EdgeInsets.only(left: 5),
-                                    child: (cakeRatings != null)
-                                        ? (cakeRatings != 'null')
-                                            ? Text(
-                                                ' $cakeRatings',
-                                                style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                    fontFamily: poppins),
-                                              )
-                                            : Text('3.5',
-                                                style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                    fontFamily: poppins))
-                                        : Text(cakeRatings),
+                                  Text(
+                                    ' ${data['Ratings']}',
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        fontFamily: poppins),
                                   )
                                 ],
                               ),
@@ -2635,7 +2456,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                             print(cakeEgglessAvail);
                                             print("egg avail******");
                                             //egglessSwitch = val!;
-                                            if(cakeEggorEgless.toLowerCase()=="egg"&&eggEggless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=="y") {
+                                            if(cakeEggorEgless.toLowerCase()=="egg"&&
+                                                eggEggless.toLowerCase()=="egg"&&cakeEgglessAvail.toLowerCase()=="y") {
                                               applyEgglessCake();
                                             }
                                             else if(cakeEggorEgless.toLowerCase()=="egg"&&eggEggless.toLowerCase()=="eggless"&&cakeEgglessAvail.toLowerCase()=="y"){
@@ -2660,7 +2482,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         Container(
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child: Text(
-                            '${cakeName}',
+                            '${data['CakeName']}',
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontFamily: "Poppins",
@@ -2720,7 +2542,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   Row(children: [
                                     //decrease
                                     InkWell(
-                                      splashColor: Colors.red[200]!,
+                                      splashColor: Colors.transparent,
                                       onTap: () {
                                         if (counts > 1) {
                                           setState(() {
@@ -2739,8 +2561,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                 width: 0.5,
                                               )),
                                           child: Icon(Icons.remove_sharp,
-                                              color: darkBlue)),
-                                    ),
+                                              color: darkBlue)) ),
                                     SizedBox(width: 8),
                                     Column(
                                       children: [
@@ -2768,7 +2589,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     ),
                                     SizedBox(width: 8),
                                     InkWell(
-                                      splashColor: Colors.red[200]!,
+                                      splashColor: Colors.transparent,
                                       onTap: () {
                                         setState(() {
                                           counts++;
@@ -2792,36 +2613,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   ])
                                 ])
                         ),
-                        // tierPrice==0?
-                        // Padding(
-                        //   padding: const EdgeInsets.only(left: 10),
-                        //   child: Text(
-                        //     "Price based on : $cakePrice X "
-                        //       "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
-                        //       "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
-                        //     color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                        //   ),),
-                        // ):
-                        // Padding(
-                        //   padding: const EdgeInsets.only(left: 10),
-                        //   child: Text(
-                        //     "Selected Tier Price : Rs.$tempTierPrice",style: TextStyle(
-                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                        //   ),),
-                        // ),
-                        // tierPrice==0?
-                        // Padding(
-                        //   padding: const EdgeInsets.only(left: 10 , top:8),
-                        //   child: Text("Minimum weight: $basicCakeWeight",style: TextStyle(
-                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                        //   ),),
-                        // ):
-                        // Padding(
-                        //   padding: const EdgeInsets.only(left: 10 , top:8),
-                        //   child: Text("Tier weight: $tempCakeWeight",style: TextStyle(
-                        //       color:darkBlue,fontFamily: "Poppins",fontSize: 12
-                        //   ),),
-                        // ),
                         SizedBox(height:5),
                         Padding(
                           padding: const EdgeInsets.only(left:10),
@@ -3191,46 +2982,88 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                 ],
                               ),
                               SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Info',
+                                    style: TextStyle(fontFamily: "Poppins"),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder:(c){
+                                            return Container(
+                                              padding:EdgeInsets.symmetric(
+                                                vertical:10,
+                                                horizontal:10
+                                              ),
+                                              child:Column(
+                                                mainAxisSize:MainAxisSize.min,
+                                                children:[
+                                                  ListTile(
+                                                    title:Text("Instructions", style:TextStyle(
+                                                        fontFamily:"Poppins",
+                                                        fontSize:15.5,
+                                                        fontWeight:FontWeight.bold
+                                                    ),),
+                                                    subtitle:Text(data['OtherInstructions'].toString() , style:TextStyle(
+                                                      fontFamily:"Poppins",
+                                                      fontSize:13.5
+                                                    ),),
+                                                  ),
+                                                  ListTile(
+                                                    title:Text("Minimum Weight", style:TextStyle(
+                                                        fontFamily:"Poppins",
+                                                        fontSize:15.5,
+                                                        fontWeight:FontWeight.bold
+                                                    ),),
+                                                    subtitle:Text('$basicCakeWeight' , style:TextStyle(
+                                                        fontFamily:"Poppins",
+                                                        fontSize:13.5
+                                                    ),),
+                                                  ),
+                                                  ListTile(
+                                                    title:Text("Price base", style:TextStyle(
+                                                        fontFamily:"Poppins",
+                                                        fontSize:15.5,
+                                                        fontWeight:FontWeight.bold
+                                                    ),),
+                                                    subtitle:Text("$cakePrice X "
+                                                        "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
+                                                        "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge" , style:TextStyle(
+                                                      fontFamily:"Poppins",
+                                                      fontSize:13.5
+                                                    ),),
+                                                  ),
+                                                ]
+                                              )
+                                            );
+                                          }
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: darkBlue,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 12),
                             ],
                           ),
-                        ),
-                        ExpansionTile(
-                               title: Text("Other Details For This Cake.",style: TextStyle(
-                                fontFamily: poppins, color: darkBlue,
-                                fontSize: 13,fontWeight: FontWeight.bold
-                            ),),
-                            expandedAlignment: Alignment.centerLeft,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.only(left:12,right:12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Instructions",style: TextStyle(
-                                        fontFamily: poppins, color: darkBlue,
-                                        fontSize: 14,fontWeight: FontWeight.bold
-                                    ),),
-                                    SizedBox(height:5),
-                                    Text(otherInstruction,style:TextStyle(
-                                      color:Colors.black,
-                                      fontFamily: "Poppins",fontSize: 13,
-                                    ),),
-                                    SizedBox(height:5),
-                                    Text(
-                                      "Price based on : $cakePrice X "
-                                          "${fixedWeight.toLowerCase().replaceAll("kg","")}Kg, "
-                                          "Flavour Rs.$flavExtraCharge , Shape Rs.$extraShapeCharge",style: TextStyle(
-                                        color:darkBlue,fontFamily: "Poppins",fontSize: 13
-                                    ),),
-                                    SizedBox(height:5),
-                                    Text("Minimum weight: $basicCakeWeight",style: TextStyle(
-                                        color:darkBlue,fontFamily: "Poppins",fontSize: 13
-                                    ),),
-                                    SizedBox(height:10),
-                                  ],  
-                                ),
-                              )
-                            ],
                         ),
                         //Weight Area
                         Visibility(
@@ -4944,8 +4777,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                   height: 15,
                                 ),
                                 //final Button
-                                tooFar?
-                                Container():
+                                
                                 Center(
                                   child: Container(
                                     height: 50,
@@ -4959,10 +4791,13 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                       ),
                                       onPressed: () async {
                                         FocusScope.of(context).unfocus();
-
                                         if (newRegUser == true) {
                                           ProfileAlert().showProfileAlert(context);
-                                        } else {
+                                        }
+                                        else if(tooFar == true){
+                                          Functions().showSnackMsg(context, "Delivery address is too far , select nearest delivery address", true);
+                                        }
+                                        else {
                                           if(double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))
                                               <double.parse(basicCakeWeight
                                           .toLowerCase().replaceAll("kg", ""))){

@@ -1688,9 +1688,6 @@ class _HamperDetailsState extends State<HamperDetails> {
                     height: 30,
                   ),
 
-                  tooFar
-                      ? Container()
-                      :
                   Center(
                           child: Container(
                             height: 50,
@@ -1722,7 +1719,11 @@ class _HamperDetailsState extends State<HamperDetails> {
                                   Functions().showSnackMsg(context, "Please select deliver date / deliver session", true);
                                 } else if(deliverAddressIndex == -1){
                                   Functions().showSnackMsg(context, "Please select delivery address", true);
-                                } else{
+                                }
+                                else if(tooFar==true){
+                                  Functions().showSnackMsg(context, "Delivery address is too far , select nearest delivery address", true);
+                                }
+                                else{
                                   navigateToCheckout();
                                 }
 

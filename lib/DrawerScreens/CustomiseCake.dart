@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' as fil;
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
@@ -60,7 +61,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   //shapes
   var shapesList = [];
 
-  var shapeGrpValue = 0;
+  var shapeGrpValue = -1;
 
   var flavourList = [];
 
@@ -589,7 +590,14 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState){
                   return AlertDialog(
-                    title: Text("Cake Name"),
+                    title: Text("Give a name to your cake...",style:TextStyle(
+                      fontFamily:"Poppins",
+                      fontSize:15,
+                      fontWeight:FontWeight.bold
+                    ),),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:BorderRadius.circular(15)
+                    ),
                     content: Container(
                       child: TextField(
                         controller: myCtrl,
@@ -602,12 +610,21 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                       TextButton(
                           onPressed: (){
                             Navigator.pop(context);
+                          },
+                          child: Text("CLOSE",style:TextStyle(
+                          ),)
+                      ),
+                      TextButton(
+                          onPressed: (){
+                            Navigator.pop(context);
                             setState((){
                               tempCakeName = myCtrl.text;
                             });
                             showConfirmOrder();
                           },
-                          child: Text("Order")
+                          child: Text("ORDER",style:TextStyle(
+
+                          ),)
                       )
                     ],
                   );
@@ -627,13 +644,13 @@ class _CustomiseCakeState extends State<CustomiseCake> {
             ),
             title: Row(
               children: [
-                Text('Confirm This Order' , style: TextStyle(
-                    color:darkBlue , fontSize: 14.5 , fontFamily: "Poppins",
+                Text('Order' , style: TextStyle(
+                    fontSize: 15 , fontFamily: "Poppins",
                     fontWeight: FontWeight.bold
                 ),),
               ],
             ),
-            content: Text('Your Customize Cake Will Be Ordered!' , style: TextStyle(
+            content: Text('Do you want to order this customize cake?' , style: TextStyle(
                 color:Colors.black , fontSize: 13 , fontFamily: "Poppins"
             ),),
             actions: [
@@ -641,14 +658,18 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                   onPressed: (){
                     Navigator.pop(context);
                   },
-                  child: Text('Cancel')
+                  child: Text('CANCEL',style:TextStyle(
+                      color:Colors.pink
+                  ))
               ),
               TextButton(
                   onPressed: (){
                     Navigator.pop(context);
                     confirmOrder(tempCakeName);
                   },
-                  child: Text('Order Now')
+                  child: Text('ORDER',style:TextStyle(
+                    color:Colors.pink
+                  ))
               ),
             ],
           ),
@@ -1240,7 +1261,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 fixedSession = "";
                 file = new File("");
               });
-              Functions().showSnackMsg(context, "Your $ckName order is placed successfully , our executive will call you soon", false);
+              NotificationService().showNotifications("Hoorey! Your $ckName order is placed successfully", "Our executive will contact you soon.");
+              Functions().showOrderCompleteSheet(context);
             }else{
 
             }
@@ -1287,7 +1309,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-    Functions().sendThePushMsg("You got new customise cake order", "Hi $vendorName , $tempCakeName is just Ordered By $userName.", NoId.toString());
+    Functions().sendThePushMsg("Hi $vendorName , you got new order from $userName","New order received!", NoId.toString());
   }
 
   void showLocationChangeDialog(){
@@ -1603,7 +1625,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       strictbounds: false,
                                       logo: Text(""),
                                       types: [],
-                                      apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                      apiKey: "$MAP_KEY",
                                       onError: (e){
 
                                       },
@@ -1642,7 +1664,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                   strictbounds: false,
                                   logo: Text(""),
                                   types: [],
-                                  apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                  apiKey: "$MAP_KEY",
                                   onError: (e){
 
                                   },
@@ -2003,11 +2025,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         child: Icon(Icons.keyboard_arrow_up_outlined , color: darkBlue,size: 25,),
                                       ),
                                       children: [
-                                        shapesList.isNotEmpty?
                                         Container(
                                           color:Colors.white,
-                                          height: 300,
-                                          child:ListView.builder(
+                                          constraints:BoxConstraints(
+                                             maxHeight:MediaQuery.of(context).size.height*0.3,
+                                             minHeight:MediaQuery.of(context).size.height*0.1,
+                                          ),
+                                          child:
+                                          shapesList.isNotEmpty?
+                                          ListView.builder(
                                               itemCount: shapesList.length,
                                               shrinkWrap: true,
                                               itemBuilder: (context, index) {
@@ -2061,13 +2087,12 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                     )
                                                   ),
                                                 );
-                                              }),
-                                        ):
-                                        Center(
-                                           child:Padding(
-                                             padding: const EdgeInsets.all(8.0),
-                                             child: Text("No Data Found"),
-                                           )
+                                              }):Center(
+                                              child:Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text("No Data Found"),
+                                              )
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -3411,35 +3436,32 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                 color:darkBlue,
                                                               ),maxLines: 1,),
                                                             SizedBox(height:3),
-                                                            (adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                            ((adminDeliveryCharge/adminDeliveryChargeKm)*
                                                                 (calculateDistance(double.parse(userLatitude),
                                                                     double.parse(userLongtitude),
-                                                                    mySelectdVendors[0]['GoogleLocation']['Latitude'],
-                                                                    mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()!=0?
-                                                            Text(
-                                                                 "${
-                                                                     (calculateDistance(double.parse(userLatitude),
-                                                                         double.parse(userLongtitude),
-                                                                         mySelectdVendors[0]['GoogleLocation']['Latitude'],
-                                                                         mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()
-                                                                 } KM Charge Rs.${
-                                                                     (adminDeliveryCharge/adminDeliveryChargeKm)*
-                                                                         (calculateDistance(double.parse(userLatitude),
-                                                                             double.parse(userLongtitude),
-                                                                             mySelectdVendors[0]['GoogleLocation']['Latitude'],
-                                                                             mySelectdVendors[0]['GoogleLocation']['Longitude'])).toInt()
-                                                                 }",
-                                                              style:TextStyle(
-                                                                fontSize:10,
-                                                                fontFamily: "Poppins" ,
-                                                                color:Colors.orange,
-                                                              ),maxLines: 1,):
-                                                            Text("Free Delivery",
-                                                                style:TextStyle(
-                                                                  fontSize:10,
-                                                                  fontFamily: "Poppins" ,
-                                                                  color:Colors.orange,
-                                                                )),
+                                                                    nearestVendors[0]['GoogleLocation']['Latitude'],
+                                                                    nearestVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(1)!="0.0"?
+                                                            Text('${
+                                                                (calculateDistance(double.parse(userLatitude),
+                                                                    double.parse(userLongtitude),
+                                                                    nearestVendors[0]['GoogleLocation']['Latitude'],
+                                                                    nearestVendors[0]['GoogleLocation']['Longitude'])).toStringAsFixed(1)
+                                                            } KM Delivery Fee Rs.${
+                                                                ((adminDeliveryCharge/adminDeliveryChargeKm)*
+                                                                    (calculateDistance(double.parse(userLatitude),
+                                                                        double.parse(userLongtitude),
+                                                                        nearestVendors[0]['GoogleLocation']['Latitude'],
+                                                                        nearestVendors[0]['GoogleLocation']['Longitude']))).toStringAsFixed(1)
+                                                            }',style: TextStyle(
+                                                                color: Colors.orange,
+                                                                fontSize: 10 ,
+                                                                fontFamily: "Poppins"
+                                                            ),
+                                                            ):Text("Delivery Free",style: TextStyle(
+                                                                color: Colors.orange,
+                                                                fontSize: 10,
+                                                                fontFamily: "Poppins"
+                                                            )),
                                                           ],
                                                         ),
                                                         Container(
@@ -3700,7 +3722,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                                                       fontSize: 10 ,
                                                                       fontFamily: "Poppins"
                                                                   ),
-                                                                  ):Text("Free Delivery",style: TextStyle(
+                                                                  ):Text("Delivery Free",style: TextStyle(
                                                                       color: Colors.orange,
                                                                       fontSize: 10,
                                                                       fontFamily: "Poppins"
@@ -3818,8 +3840,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               SizedBox(height: 15,),
 
                               // vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
-                              tooFar?
-                              Container():
                               Center(
                                 child: GestureDetector(
                                   onTap:(){
@@ -3830,6 +3850,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                     if(newRegUser==true){
                                       ProfileAlert().showProfileAlert(context);
+                                    }
+                                    else if(tooFar == true){
+                                      Functions().showSnackMsg(context,"Delivery address is too far , select nearest delivery address",true);
                                     }
                                     else {
                                       if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
@@ -3850,9 +3873,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       }else if(fixedFlavList.isEmpty){
                                         Functions().showSnackMsg(context, "Please add some flavours", true);
                                       }
-                                      else if(deliverAddress.toString()=="null"||deliverAddress.isEmpty){
-                                        Functions().showSnackMsg(context, "Invalid address! , add new address", true);
-                                      }else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
+                                      else if(fixedDelliverMethod.toLowerCase()=="not yet select"||
                                           fixedSession.toLowerCase()=="select delivery time"||
                                           fixedDate.toLowerCase()=="select delivery date"){
                                         Functions().showSnackMsg(context, "Please select Pickup / Delivery Or Delivery Date / Session", true);

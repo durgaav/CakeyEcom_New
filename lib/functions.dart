@@ -327,4 +327,67 @@ class Functions{
     );
   }
 
+  Future<Map> getUserData() async {
+    Map data = {};
+
+    var prefs = await SharedPreferences.getInstance();
+    var phoneNumber = prefs.getString('phoneNumber')??"";
+    var authToken = prefs.getString('authToken')??"";
+
+    try{
+      //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey/
+      http.Response response = await http.get(Uri.parse("${API_URL}api/users/list/${int.parse(phoneNumber)}"),
+          headers: {"Authorization":authToken}
+      );
+
+      List myList = jsonDecode(response.body);
+
+      if(response.statusCode==200){
+        //UserName _id Id
+
+        data = myList[0];
+
+      }else{
+
+      }
+    }catch(e){
+
+    }
+
+
+    return data;
+  }
+
+  Future<Map> handleOrderCalculations(String orderType , Map<String , dynamic> map) async {
+
+    Map data = {};
+
+    print("given map $map");
+
+    try{
+
+      http.Response response = await http.post(
+        Uri.parse("${API_URL}api/orders/invoiceCalculation/$orderType"),
+        headers:{'Content-Type': 'application/json'},
+        body:jsonEncode(map)
+      );
+
+      print("Final calu..... ${response.body}");
+
+      data = jsonDecode(response.body);
+
+      if(response.statusCode==200){
+
+      }else{
+
+      }
+
+    }catch(e){
+
+    }
+
+
+    return data;
+  }
+
 }

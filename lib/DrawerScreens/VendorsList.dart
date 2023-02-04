@@ -687,7 +687,7 @@ class _VendorsListState extends State<VendorsList> {
                       //   'zoo'
                       // ],
                       types: [],
-                      apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                      apiKey: "$MAP_KEY",
                       onError: (e){
 
                       },
@@ -930,8 +930,7 @@ class _VendorsListState extends State<VendorsList> {
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            index==1&&double.parse(betweenKm)<2.0||index==0&&double.parse(betweenKm)<2.0||
-                                                                double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
+                                                            double.parse(betweenKm)<2.0||double.parse(deliverCharge).toStringAsFixed(1)=="0.0"?
                                                             Text('DELIVERY FREE',style: TextStyle(
                                                                 color: Colors.orange,fontSize: 10,fontFamily: poppins
                                                             ),):
@@ -940,30 +939,6 @@ class _VendorsListState extends State<VendorsList> {
                                                                   color: darkBlue,fontSize: 10,fontFamily: poppins
                                                               ),),
                                                             // currentIndex==index?
-                                                            InkWell(
-                                                                onTap: () async{
-
-                                                                  if(iamFromCustom==true){
-
-                                                                    context.read<ContextData>().addMyVendor(true);
-                                                                    context.read<ContextData>().setMyVendors([locationBySearch[index]]);
-                                                                    Navigator.pop(context);
-
-                                                                  }else{
-                                                                    loadSelVendorDataToCTscreen(index , deliverCharge,betweenKm);
-                                                                  }
-
-                                                                },
-                                                                child: Padding(
-                                                                  padding: EdgeInsets.all(3),
-                                                                  child: Text('Select',style: TextStyle(
-                                                                      color: Colors.black,fontSize: 10,fontWeight:
-                                                                  FontWeight.bold,fontFamily: poppins,
-                                                                      decoration: TextDecoration.underline
-                                                                  ),),
-                                                                ),
-                                                              ),
-
                                                             // :Icon(Icons.check_circle,color: Colors.green,)
                                                           ],
                                                         ),

@@ -148,6 +148,13 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   var topperData = {};
   String originalWeight = "";
 
+  double protoProductTotal = 0;
+  double protoDeliveryTotal = 0;
+  double protoDiscountTotal = 0;
+  double protoGstTotal = 0;
+  double protoSGstTotal = 0;
+  double protoBillTotal = 0;
+  double prevValue = 0;
 
   //Default loader dialog
   void showAlertDialog() {
@@ -299,9 +306,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     showAlertDialog();
 
-    var amount = tempBillTotal!=0.0?tempBillTotal:( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+    var amount = 0.0;
+
+    amount = tempBillTotal!=0.0?tempBillTotal:protoBillTotal;
 
     var headers = {
       'Content-Type': 'application/json',
@@ -363,9 +370,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     print("Test ord id : $orderId");
 
-    var amount = tempBillTotal!=0.0?tempBillTotal:( ((
-        double.parse(cakePrice) + deliveryCharge
-    ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+    var amount = 0.0;
+
+    amount = tempBillTotal!=0.0?tempBillTotal:protoBillTotal;
 
     var options = {
       'key': '${PAY_TOK}',
@@ -400,20 +407,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   //capture the payment....
   void _capturePayment(String payId) async {
 
-    var amount = 0;
+    var amount = 0.0;
 
-    if(orderFromCustom!="no"){
-      amount = ((((double.parse(cakePrice)*
-          double.parse(weight.toLowerCase().replaceAll("kg", "")))+
-          extraCharges)+(double.parse(gstPrice.toString())+double.parse(sgstPrice.toString())))-
-          tempDiscountPrice).toInt();
-    }else{
-      amount = ((counts *
-          ((double.parse(cakePrice)*
-              double.parse(weight.replaceAll("kg", "")))+
-              (extraCharges))+
-          sgstPrice+gstPrice+deliveryCharge)-tempDiscountPrice).toInt();
-    }
+    amount = tempBillTotal!=0.0?tempBillTotal:protoBillTotal;
 
     var headers = {
       'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}',
@@ -503,12 +499,22 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     getTaxDetails();
     getSharePercentage();
-
   }
 
   Future<void> getTaxDetails() async{
 
     var pref = await SharedPreferences.getInstance();
+
+    List tempFlavs = [];
+
+    flavs.forEach((element) {
+      tempFlavs.add(
+        {
+          "Name":element,
+          "Price":"0"
+        }
+      );
+    });
 
     showAlertDialog();
 
@@ -517,7 +523,32 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     //prefs.setDouble('orderCakeGst', gst);
     //prefs.setDouble('orderCakeSGst', sgst);
-    //prefs.setInt('orderCakeTaxperc', taxes??0);
+    //prefs.setInt('orderCakeTaxperc', taxes??0);OPO
+
+
+    Map<String , dynamic> passData = {
+      "Type":otherType,
+      "Price":pricePerKg,
+      "ItemCount":"$counts",
+      "Weight":"$weight",
+      "Discount":"$discount",
+      "DeliveryCharge":"$deliveryCharge",
+      "Flavour":tempFlavs,
+      "Shape":{
+        "Name":shape,
+        "Price":"0"
+      }
+    };
+
+    if(topperData['TopperPrice']!=0.0){
+      passData.addAll({
+        "TopperId":"${topperData['TopperId']}",
+        "TopperName":"${topperData['TopperName']}",
+        "TopperImage":"${topperData['TopperImage']}",
+        "TopperPrice":"${topperData['TopperPrice']}",
+      });
+    }
+
 
     try{
       var headers = {
@@ -536,6 +567,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         Navigator.pop(context);
         setState(() {
           taxes = int.parse(map[0]['Total_GST']);
+
           myTax = (myPrice * taxes)/100;
           gstPrice = myTax/2;
           sgstPrice = myTax/2;
@@ -543,6 +575,14 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           // pref.setDouble('orderCakeGst', gstPrice);
           // pref.setDouble('orderCakeSGst', sgstPrice);
           // pref.setInt('orderCakeTaxperc', taxes??0);
+
+          passData.addAll({
+            "Tax":"${int.parse(map[0]['Total_GST'])}"
+          });
+
+          Functions().handleOrderCalculations("OPO", passData).then((value){
+            handleCalculations(value);
+          });
 
         });
         print(map);
@@ -577,20 +617,42 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
   }
 
+  void handleCalculations(var data) {
+
+    print("handle Calckk... $data");
+
+    //{ItemTotal: 24, ItemCount: 1, DeliveryCharge: 145.4, DiscountPercentage: 0,
+    // DiscountPrice: 0, TaxPercentage: 10, Gst: 8.47, Sgst: 8.47, Total: 186.34}
+
+    setState(() {
+      protoProductTotal = double.parse("${data['ItemTotal']}");
+      protoDeliveryTotal = double.parse("${data['DeliveryCharge']}");
+      protoDiscountTotal = double.parse("${data['DiscountPrice']}");
+      protoGstTotal = double.parse("${data['Gst']}");
+      protoSGstTotal = double.parse("${data['Sgst']}");
+      protoBillTotal = double.parse("${data['Total']}");
+    });
+  }
+
   Future<void> sendNotificationToVendor(String? NoId) async{
-    Functions().sendThePushMsg('You got a new order', "Hi $vendorName , $cakeName is just Ordered By $userName.", NoId.toString());
+    Functions().sendThePushMsg("Hi $vendorName , you got new order from $userName",'New order received!',NoId.toString());
   }
 
   //confirm order
   Future<void> orderTypeKg() async{
 
+    double couponVal = 0;
+    if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
+      couponVal = prevValue;
+    }else{
+      couponVal = 0;
+    }
+
     showAlertDialog();
 
     try{
 
-      var amount = tempBillTotal!=0.0?tempBillTotal:( ((
-          double.parse(cakePrice) + deliveryCharge
-      ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2);
+      var amount = tempBillTotal!=0.0?tempBillTotal:protoBillTotal.toStringAsFixed(2);
 
       var data = {
         "Other_ProductID": cakeID,
@@ -627,8 +689,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "DeliverySession": deliverSession,
         "DeliveryInformation": deliverType,
         "ItemCount": counts,
-        "Discount": tempDiscountPrice,
-        "DeliveryCharge": deliveryCharge,
+        "Discount": discountPrice,
+        "DeliveryCharge":deliveryCharge,
         "Total": amount,
         "Gst":gstPrice,
         "Sgst":sgstPrice,
@@ -636,6 +698,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "PaymentType": paymentType,
         "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery',
         "SharePercentage":sharePercentage,
+        "CouponValue":'$couponVal',
       };
 
       if( cakeSubType.toLowerCase()=="brownie" && topperData['price']!=0.0){
@@ -667,6 +730,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           Functions().deleteCouponCode(codeID);
           Functions().showSnackMsg(context, "${map['message']}", false);
           sendNotificationToVendor(notificationTid);
+          NotificationService().showNotifications("Hoorey! Your $cakeName order is placed successfully", "Our executive will contact you soon.");
           showOrderCompleteSheet();
         }else{
           Functions().showSnackMsg(context, "${map['message']}", true);
@@ -688,14 +752,17 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   //confirm unit order
   Future<void> confirmUnitOrd() async{
 
+    double couponVal = 0;
+    if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
+      couponVal = prevValue;
+    }else{
+      couponVal = 0;
+    }
 
     try {
       showAlertDialog();
 
-      var amount = tempBillTotal != 0.0 ? tempBillTotal : (((
-          double.parse(cakePrice) + deliveryCharge
-      ) - tempDiscountPrice) - discountPrice + sgstPrice + gstPrice)
-          .toStringAsFixed(2);
+      var amount = tempBillTotal != 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
 
       var headers = {
         'Content-Type': 'application/json'
@@ -737,7 +804,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "DeliveryDate": deliverDate,
         "DeliverySession": deliverSession,
         "DeliveryInformation": deliverType,
-        "Discount": tempDiscountPrice,
+        "Discount": discountPrice,
         "DeliveryCharge": deliveryCharge,
         "Gst": gstPrice,
         "Sgst": sgstPrice,
@@ -748,6 +815,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
             ? "Paid"
             : 'Cash On Delivery',
         "SharePercentage": sharePercentage,
+        "CouponValue":'$couponVal',
       });
       request.headers.addAll(headers);
 
@@ -761,6 +829,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           Functions().deleteCouponCode(codeID);
           Functions().showSnackMsg(context, "${map['message']}", false);
           sendNotificationToVendor(notificationTid);
+          NotificationService().showNotifications("Hoorey! Your $cakeName order is placed successfully", "Our executive will contact you soon.");
           showOrderCompleteSheet();
         } else {
           Functions().showSnackMsg(context, "${map['message']}", false);
@@ -784,13 +853,17 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   //confirm unit order
   Future<void> confirmBoxOrd() async{
 
+    double couponVal = 0;
+    if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
+      couponVal = prevValue;
+    }else{
+      couponVal = 0;
+    }
+
     showAlertDialog();
 
     try {
-      var amount = tempBillTotal != 0.0 ? tempBillTotal : (((
-          double.parse(cakePrice) + deliveryCharge
-      ) - tempDiscountPrice) - discountPrice + sgstPrice + gstPrice)
-          .toStringAsFixed(2);
+      var amount = tempBillTotal != 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
 
       var headers = {
         'Content-Type': 'application/json'
@@ -832,7 +905,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "DeliveryDate": deliverDate,
         "DeliverySession": deliverSession,
         "DeliveryInformation": deliverType,
-        "Discount": tempDiscountPrice,
+        "Discount":discountPrice,
         "DeliveryCharge": deliveryCharge,
         "Gst": gstPrice,
         "Sgst": sgstPrice,
@@ -843,6 +916,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
             ? "Paid"
             : 'Cash On Delivery',
         "SharePercentage": sharePercentage,
+        "CouponValue":'$couponVal',
       });
       request.headers.addAll(headers);
 
@@ -858,6 +932,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         if (map['statusCode'] == 200) {
           Functions().deleteCouponCode(codeID);
           sendNotificationToVendor(notificationTid);
+          NotificationService().showNotifications("Hoorey! Your $cakeName order is placed successfully", "Our executive will contact you soon.");
           showOrderCompleteSheet();
         } else {
           Functions().showSnackMsg(context, "${map['message']}", false);
@@ -925,9 +1000,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         print("Share ${res.body}");
 
         setState((){
-          if(jsonDecode(res.body)['Percentage']!=null && jsonDecode(res.body)['Percentage']!="0"){
-            sharePercentage = double.parse(jsonDecode(res.body)['Percentage'].toString());
-          }
+          sharePercentage = double.parse(jsonDecode(res.body)[0]['Percentage'].toString());
         });
 
       }else{
@@ -966,25 +1039,24 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     discountPrice = (double.parse(cakePrice)*discount)/100;
     tempDiscount = discount;
 
-    
     if(context.watch<ContextData>().getCodeDetails()=={}){
 
     }else{
       if(context.watch<ContextData>().getCodeDetails()['value']!=null){
         tempBillTotal = 0.0;
         codeID = context.watch<ContextData>().getCodeDetails()['id'];
-        if(context.watch<ContextData>().getCodeDetails()['type']=="amount"){
-          tempBillTotal = ( ((
-              double.parse(cakePrice) + deliveryCharge
-          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-double.parse(context.watch<ContextData>().getCodeDetails()['value']);
-          couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+        prevValue = double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+        if(context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"){
+          print("prev value $prevValue");
+          if(prevValue <= tempBillTotal){
+            tempBillTotal = tempBillTotal-prevValue;
+            couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+          }else{
+            couponCtrl.text = "Coupon is not applicable";
+          }
         }else{
-          double discountAmount = (( ((
-              double.parse(cakePrice) + deliveryCharge
-          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)*double.parse(context.watch<ContextData>().getCodeDetails()['value']))/100;
-          tempBillTotal = ( ((
-              double.parse(cakePrice) + deliveryCharge
-          ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-discountAmount;
+          double discountAmount = (tempBillTotal*prevValue)/100;
+          tempBillTotal = tempBillTotal-discountAmount;
           couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
           print("Context ----> $tempBillTotal");
         }
@@ -992,6 +1064,34 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
       }
     }
+
+
+
+    // if(context.watch<ContextData>().getCodeDetails()=={}){
+    //
+    // }else{
+    //   if(context.watch<ContextData>().getCodeDetails()['value']!=null){
+    //     tempBillTotal = 0.0;
+    //     codeID = context.watch<ContextData>().getCodeDetails()['id'];
+    //     if(context.watch<ContextData>().getCodeDetails()['type']=="amount"){
+    //       tempBillTotal = ( ((
+    //           double.parse(cakePrice) + deliveryCharge
+    //       ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+    //       couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+    //     }else{
+    //       double discountAmount = (( ((
+    //           double.parse(cakePrice) + deliveryCharge
+    //       ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)*double.parse(context.watch<ContextData>().getCodeDetails()['value']))/100;
+    //       tempBillTotal = ( ((
+    //           double.parse(cakePrice) + deliveryCharge
+    //       ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice)-discountAmount;
+    //       couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+    //       print("Context ----> $tempBillTotal");
+    //     }
+    //   }else{
+    //
+    //   }
+    // }
 
     return WillPopScope(
       onWillPop:() async {
@@ -1155,7 +1255,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                               ),
                               Text.rich(
                                   TextSpan(
-                                      text:'₹ $cakePrice',
+                                      text:'₹ $protoProductTotal',
                                       style: TextStyle(
                                           fontSize: 15,color: lightPink,fontWeight: FontWeight.bold,
                                           fontFamily: "Poppins"),
@@ -1304,36 +1404,31 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                   ),),
                               ),
                               SizedBox(height: 6,),
-                              Container(
-                                margin: EdgeInsets.only(left: 7,right: 7),
-                                height: 40,
-                                child: TextField(
-                                  onTap:(){
-                                    FocusScope.of(context).unfocus();
-                                    context.read<ContextData>().setCodeData({});
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (c)=>CouponsList(userID)));
-                                  },
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      fontSize: 13,
-                                      color:darkBlue
+                              InkWell(
+                                onTap:(){
+                                  FocusScope.of(context).unfocus();
+                                  context.read<ContextData>().setCodeData({});
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (c)=>CouponsList(userID)));
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 7,right: 7),
+                                  height: 40,
+                                  width:MediaQuery.of(context).size.width,
+                                  padding:EdgeInsets.symmetric(horizontal:10),
+                                  alignment:Alignment.centerLeft,
+                                  decoration:BoxDecoration(
+                                      borderRadius:BorderRadius.circular(10),
+                                      border:Border.all(
+                                          width:1,
+                                          color:Colors.grey
+                                      )
                                   ),
-                                  controller: couponCtrl,
-                                  onChanged: (text){
-                                    setState((){
-
-                                    });
-                                  },
-                                  maxLines: 1,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(5),
-                                    hintStyle: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13
-                                    ),
-                                    hintText: "Coupon code",
-                                    border: OutlineInputBorder(),
-                                  ),
+                                  child:Text(couponCtrl.text.isEmpty?"Coupon code":couponCtrl.text, style:TextStyle(
+                                      color:darkBlue,
+                                      fontSize:13,
+                                      fontFamily:"Poppins"
+                                  ),),
                                 ),
                               )
                             ],
@@ -1355,7 +1450,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                   padding: EdgeInsets.all(15),
                                   message: "Item total depends on itemcount/selected shape,flavour,article,weight",
                                   child:
-                                  Text('₹ ${double.parse(cakePrice).toStringAsFixed(2)}'
+                                  Text('₹ ${protoProductTotal.toStringAsFixed(2)}'
                                     ,style: const TextStyle(fontWeight: FontWeight.bold),)
 
                               ),
@@ -1372,7 +1467,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                 fontFamily: "Poppins",
                                 color: Colors.black54,
                               ),),
-                              Text('₹ ${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              Text('₹ ${protoDeliveryTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                             ],
                           ),
                         ),
@@ -1392,7 +1487,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${tempDiscount} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
-                                    Text('₹ ${discountPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    Text('₹ ${protoDiscountTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
                             ],
@@ -1414,7 +1509,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
-                                    Text('₹ ${gstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    Text('₹ ${protoGstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
                             ],
@@ -1436,13 +1531,35 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
-                                    Text('₹ ${sgstPrice.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    Text('₹ ${protoSGstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
                             ],
                           ),
                         ),
-
+                        couponCtrl.text!="Coupon is not applicable"&&prevValue>0?
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Coupon',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Row(
+                                  children:[
+                                    Container(
+                                        padding:EdgeInsets.only(right:5),
+                                        child: Text('',style: const TextStyle(fontSize:10.5,),)
+                                    ),
+                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ]
+                              )
+                            ],
+                          ),
+                        ):Container(),
                         Container(
                           margin: const EdgeInsets.only(left: 10,right: 10),
                           color: Colors.grey[400],
@@ -1463,9 +1580,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                               Text('₹ ${
                                   tempBillTotal!=0.0?
                                   tempBillTotal.toStringAsFixed(2):
-                                  ( ((
-                                      double.parse(cakePrice) + deliveryCharge
-                                  ) - tempDiscountPrice) - discountPrice + sgstPrice+gstPrice).toStringAsFixed(2)
+                                  protoBillTotal.toStringAsFixed(2)
                               }',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),)
                             ],
                           ),

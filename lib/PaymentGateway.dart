@@ -146,6 +146,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   var totalBillAmount = 0.0;
   var tempBillTotal = 0.0;
   double sharePercentage = 0.0;
+  double prevValue = 0;
 
 
   var couponCtrl = new TextEditingController();
@@ -324,9 +325,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         print("Share ${res.body}");
 
         setState((){
-          if(jsonDecode(res.body)['Percentage']!=null && jsonDecode(res.body)['Percentage']!="0"){
-            sharePercentage = double.parse(jsonDecode(res.body)['Percentage'].toString());
-          }
+          sharePercentage = double.parse(jsonDecode(res.body)[0]['Percentage'].toString());
         });
 
       }else{
@@ -341,82 +340,87 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
   //calculations
   Future<void> handleCalculations(int tax,var data) async{
+    //    {"ItemTotal":600,"DeliveryCharge":"2kg",
+    //    "DiscountPercentage":"2kg","DiscountPrice":12,"TaxPercentage":"10","Gst":30.1,"Sgst":30.1,"Total":650.2}
 
-    var productPriceUI = data['price'];
-    var deliveryChargeUI = data['deliverCharge'];
-    var discountsUI = data['discount'];
-    var countUI = data['count'];
-    var extraChargeUI = data['count'];
+    setState(() {
+      itemTotal = double.parse(data['ItemTotal'].toString());
+      deliveryTotal = double.parse(data['DeliveryCharge'].toString());
+      discountTotal = double.parse(data['DiscountPrice'].toString());
+      taxes = (tax).toInt();
+      gstTotal = double.parse(data['Gst'].toString());
+      sgstTotal = double.parse(data['Sgst'].toString());
+      totalBillAmount = double.parse(data['Total'].toString());
+    });
 
-    print('Del charge $deliveryChargeUI');
-
-    if(data['type'].toString().toLowerCase()=="hamper"){
-      //price + counts
-      var initialPrice = double.parse(productPriceUI)*double.parse(countUI.toString());
-
-      //initial + deliver charge
-      var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
-
-      //gstAmt = second * tax/100
-      var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
-
-      //discount = secondCalculate + thirdCalculateTax * discount / 100
-      var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
-      double.parse(discountsUI.toString()))/100;
-
-      // print("Calculations....");
-      // print(initialPrice);
-      // print(secondCalculatePrice);
-      // print(thirdCalculateTax);
-      // print(fourthCalculateDiscount);
-      //
-      // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
-      //
-      // print("Calculations****");
-
-      setState(() {
-        itemTotal = initialPrice;
-        deliveryTotal = double.parse(deliveryChargeUI.toString());
-        discountTotal = double.parse(fourthCalculateDiscount.toString());
-        taxes = (tax).toInt();
-        gstTotal = thirdCalculateTax/2;
-        sgstTotal = thirdCalculateTax/2;
-        totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
-      });
-    }else if(data['type'].toString().toLowerCase()=="cakes"){
-      //price + counts
-      var initialPrice = double.parse(productPriceUI);
-
-      //initial + deliver charge
-      var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
-
-      //gstAmt = second * tax/100
-      var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
-
-      //discount = secondCalculate + thirdCalculateTax * discount / 100
-      var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
-          double.parse(discountsUI.toString()))/100;
-
-      // print("Calculations....");
-      // print(initialPrice);
-      // print(secondCalculatePrice);
-      // print(thirdCalculateTax);
-      // print(fourthCalculateDiscount);
-      //
-      // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
-      //
-      // print("Calculations****");
-
-      setState(() {
-        itemTotal = initialPrice;
-        deliveryTotal = double.parse(deliveryChargeUI.toString());
-        discountTotal = double.parse(fourthCalculateDiscount.toString());
-        taxes = (tax).toInt();
-        gstTotal = thirdCalculateTax/2;
-        sgstTotal = thirdCalculateTax/2;
-        totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
-      });
-    }
+    // if(data['type'].toString().toLowerCase()=="hamper"){
+    //   //price + counts
+    //   var initialPrice = double.parse(productPriceUI)*double.parse(countUI.toString());
+    //
+    //   //initial + deliver charge
+    //   var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
+    //
+    //   //gstAmt = second * tax/100
+    //   var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
+    //
+    //   //discount = secondCalculate + thirdCalculateTax * discount / 100
+    //   var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
+    //   double.parse(discountsUI.toString()))/100;
+    //
+    //   // print("Calculations....");
+    //   // print(initialPrice);
+    //   // print(secondCalculatePrice);
+    //   // print(thirdCalculateTax);
+    //   // print(fourthCalculateDiscount);
+    //   //
+    //   // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
+    //   //
+    //   // print("Calculations****");
+    //
+    //   setState(() {
+    //     itemTotal = initialPrice;
+    //     deliveryTotal = double.parse(deliveryChargeUI.toString());
+    //     discountTotal = double.parse(fourthCalculateDiscount.toString());
+    //     taxes = (tax).toInt();
+    //     gstTotal = thirdCalculateTax/2;
+    //     sgstTotal = thirdCalculateTax/2;
+    //     totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
+    //   });
+    // }
+    // else if(data['type'].toString().toLowerCase()=="cakes"){
+    //   //price + counts
+    //   var initialPrice = double.parse(productPriceUI);
+    //
+    //   //initial + deliver charge
+    //   var secondCalculatePrice = double.parse(initialPrice.toString())+double.parse(deliveryChargeUI.toString());
+    //
+    //   //gstAmt = second * tax/100
+    //   var thirdCalculateTax = (double.parse(secondCalculatePrice.toString())*tax)/100;
+    //
+    //   //discount = secondCalculate + thirdCalculateTax * discount / 100
+    //   var fourthCalculateDiscount = ((double.parse(secondCalculatePrice.toString())+double.parse(thirdCalculateTax.toString()))*
+    //       double.parse(discountsUI.toString()))/100;
+    //
+    //   // print("Calculations....");
+    //   // print(initialPrice);
+    //   // print(secondCalculatePrice);
+    //   // print(thirdCalculateTax);
+    //   // print(fourthCalculateDiscount);
+    //   //
+    //   // print("FinalPrice...${(secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount).toStringAsFixed(2)}");
+    //   //
+    //   // print("Calculations****");
+    //
+    //   setState(() {
+    //     itemTotal = initialPrice;
+    //     deliveryTotal = double.parse(deliveryChargeUI.toString());
+    //     discountTotal = double.parse(fourthCalculateDiscount.toString());
+    //     taxes = (tax).toInt();
+    //     gstTotal = thirdCalculateTax/2;
+    //     sgstTotal = thirdCalculateTax/2;
+    //     totalBillAmount = secondCalculatePrice+thirdCalculateTax-fourthCalculateDiscount;
+    //   });
+    // }
 
   }
 
@@ -549,6 +553,31 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     return 12742 * asin(sqrt(a));
   }
 
+  //Fetching user details from API....
+  Future<void> fetchProfileByPhn() async{
+    var prefs = await SharedPreferences.getInstance();
+    var phoneNumber = prefs.getString('phoneNumber')??"";
+    showAlertDialog();
+    try{
+      //http://sugitechnologies.com/cakey/ http://sugitechnologies.com/cakey/
+      http.Response response = await http.get(Uri.parse("${API_URL}api/users/list/${int.parse(phoneNumber)}"),
+          headers: {"Authorization":authToken}
+      );
+      if(response.statusCode==200){
+        print(jsonDecode(response.body));
+        setState(() {
+          //UserName _id Id
+        });
+
+      }else{
+        Navigator.pop(context);
+      }
+    }catch(e){
+      Navigator.pop(context);
+    }
+
+  }
+
   //getting order prefs...
   Future<void> recieveDetailsFromScreen() async{
 
@@ -556,15 +585,9 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
 
     setState((){
-      //user
-      userID = prefs.getString("hampOrdDeliUserId") ?? '';
-      authToken = prefs.getString("authToken") ?? '';
-      userModId = prefs.getString("hampOrdDeliUserModId") ?? '';
-      userName = prefs.getString("hampOrdDeliUser") ?? '';
-      userPhone = prefs.getString("hampOrdDeliPhone") ?? '';
-      userAddress = prefs.getString("hampOrdDeliAddress") ?? 'null';
-
       //product
+      authToken = prefs.getString('authToken')??"";
+
       cakeName = prefs.getString("hampOrdName")??"";
       cakeID = prefs.getString("hampOrdId")??"";
       cakeModId = prefs.getString("hampOrdModId")??"";
@@ -604,21 +627,56 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       // cakeSubType =  prefs.getString("otherOrdSubTypee")??"";
 
     });
-
+    getTaxDetails();
     getSharePercentage();
   }
 
   Future<void> getTaxDetails() async{
 
     var pref = await SharedPreferences.getInstance();
+    var myPrice = "";
+    var minWeight = "";
+    var type = "CO";
 
-    setState(() {
-      userModId = pref.getString("userModId") ?? '';
-      userID = pref.getString("userID") ?? '';
-      userName = pref.getString("userName") ?? '';
-      userPhone = pref.getString("phoneNumber") ?? '';
-      authToken = pref.getString("authToken") ?? '';
+    paymentObjs.forEach((key, value) {
+      print("$key----> $value");
     });
+
+    if(paymentObjs['type'].toString().toLowerCase()=="hamper"){
+      myPrice = paymentObjs['price'].toString();
+      minWeight = paymentObjs['details']['Weight'].toString();
+      type = "HO";
+    }else{
+      myPrice = paymentObjs['cake_price'].toString();
+      minWeight = paymentObjs['weight'].toString();
+    }
+
+    Map<String , dynamic> passData = {
+      "type":"Kg",
+      "Price":myPrice,
+      "ItemCount":paymentObjs['count'],
+      "Weight":minWeight,
+      "Discount":paymentObjs['discount'],
+      "DeliveryCharge":paymentObjs['deliverCharge'],
+      // "Flavour":paymentObjs['flavours'],
+      // "Shape":paymentObjs['shapes']
+    };
+
+    if(paymentObjs['flavours']!=null){
+      passData.addAll({
+        "Flavour":paymentObjs['flavours'],
+        "Shape":paymentObjs['shapes']
+      });
+    }
+
+    if(paymentObjs['topper_price']!=null && paymentObjs['topper_price']!=0){
+      passData.addAll({
+        "TopperId":paymentObjs['topper_id'],
+        "TopperName":paymentObjs['topper_name'],
+        "TopperImage":paymentObjs['topper_image'],
+        "TopperPrice":paymentObjs['topper_price'],
+      });
+    }
 
     showAlertDialog();
 
@@ -647,7 +705,16 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           // pref.setDouble('orderCakeGst', gstPrice);
           // pref.setDouble('orderCakeSGst', sgstPrice);
           // pref.setInt('orderCakeTaxperc', taxes??0);
-          handleCalculations(int.parse(map[0]['Total_GST']), paymentObjs);
+
+
+          passData.addAll({
+            "Tax":"${int.parse(map[0]['Total_GST'])}"
+          });
+
+          Functions().handleOrderCalculations(type, passData).then((value){
+            handleCalculations(int.parse(map[0]['Total_GST']), value);
+          });
+
         });
         print(map);
       }
@@ -655,7 +722,13 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         print(map);
         Navigator.pop(context);
         setState(() {
-          handleCalculations(0, paymentObjs);
+          passData.addAll({
+            "Tax":"0"
+          });
+
+          Functions().handleOrderCalculations("CO", passData).then((value){
+            handleCalculations(0, value);
+          });
           // taxes = int.parse("0");
           // myTax = (myPrice * taxes)/100;
           // gstPrice = myTax/2;
@@ -671,23 +744,21 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       print(e);
       Navigator.pop(context);
       setState(() {
-        handleCalculations(0, paymentObjs);
-        // taxes = int.parse("0");
-        // myTax = (myPrice * taxes)/100;
-        // gstPrice = myTax/2;
-        // sgstPrice = myTax/2;
-        // pref.setDouble('orderCakeGst', gstPrice);
-        // pref.setDouble('orderCakeSGst', sgstPrice);
-        // pref.setInt('orderCakeTaxperc', taxes??0);
+        passData.addAll({
+          "Tax":"0"
+        });
+
+        Functions().handleOrderCalculations("CO", passData).then((value){
+          handleCalculations(0, value);
+        });
       });
     }
 
     getVendorDetails();
-
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-    Functions().sendThePushMsg('You got new order!', "Hi $vendorName , $cakeName is just Ordered By $userName.", NoId.toString());
+    Functions().sendThePushMsg("Hi $vendorName , you got new order from $userName", "New order received!", NoId.toString());
   }
 
   //payment handlers...
@@ -728,6 +799,12 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   //make hamper order
   Future<void> handleHamperOrder() async{
     var obj = paymentObjs['details'];
+    double couponVal = 0;
+    if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
+      couponVal = prevValue;
+    }else{
+      couponVal = 0;
+    }
 
     var totalValue = 0.0;
     if(tempBillTotal!=0.0){
@@ -780,7 +857,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "Title": obj['Title'],
         "PaymentType": paymentType,
         "PaymentStatus":paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":'Paid',
-        "SharePercentage":sharePercentage,
+        "SharePercentage":'$sharePercentage',
+        "CouponValue":'$couponVal',
       });
       request.headers.addAll(headers);
 
@@ -793,9 +871,15 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           //Navigator.pop(context);
           showOrderCompleteSheet();
           sendNotificationToVendor(notificationTid);
+          NotificationService().showNotifications("Hoorey! Your order is placed successfully", "Our executive will contact you soon.");
           Functions().showSnackMsg(context,map['message'].toString()+" Our executive will contact you soon", false);
-          Functions().deleteCouponCode(codeID);
+          if(couponCtrl.text=="Coupon is not applicable"){
+
+          }else{
+            Functions().deleteCouponCode(codeID);
+          }
         }else{
+          Navigator.pop(context);
           Functions().showSnackMsg(context,map['message'].toString(), false);
         }
       }
@@ -814,12 +898,20 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   //make cake order
   Future<void> handleCakeOrder() async{
     var obj = paymentObjs['details'];
+
+    double couponVal = 0;
     topperPrice = int.parse(paymentObjs['topper_price'].toString());
     var totalValue = 0.0;
     if(tempBillTotal!=0.0){
       totalValue = tempBillTotal;
     }else{
       totalValue = totalBillAmount;
+    }
+
+    if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
+      couponVal = prevValue;
+    }else{
+      couponVal = 0;
     }
 
     showAlertDialog();
@@ -870,7 +962,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         },
         "MessageOnTheCake":paymentObjs['msg_on_cake'],
         "SpecialRequest":paymentObjs['spl_req'],
-        "SharePercentage":sharePercentage,
+        "SharePercentage":'$sharePercentage',
+        "CouponValue":'$couponVal',
       };
 
       if(topperPrice!=0){
@@ -882,8 +975,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         });
       }
 
-
-
       var body = jsonEncode('object');
 
       // if(premiumVendor == 'yes'){
@@ -892,7 +983,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       body = jsonEncode(data);
       //}
 
-      print(body);
+       print(body);
 
       //http://sugitechnologies.com:88
 
@@ -908,10 +999,16 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         if(map['statusCode']==200){
           Navigator.pop(context);
           Functions().showSnackMsg(context,"${map['message']} Our executive will contact you soon", false);
-          Functions().deleteCouponCode(codeID);
-          NotificationService().showNotifications(map['message'], "Your $cakeName Ordered.Thank You!");
+          if(couponCtrl.text=="Coupon is not applicable"){
+
+          }else{
+            Functions().deleteCouponCode(codeID);
+          }
+          sendNotificationToVendor(notificationTid);
+          NotificationService().showNotifications("Hoorey! Your order is placed successfully", "Our executive will contact you soon.");
           showOrderCompleteSheet();
         }else{
+          Navigator.pop(context);
           Functions().showSnackMsg(context,"${map['message']}", false);
         }
 
@@ -959,6 +1056,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
           vendorLat = filtered['GoogleLocation']['Latitude'].toString();
           vendorPhone1 = filtered['PhoneNumber1'].toString();
           vendorPhone2 = filtered['PhoneNumber2'].toString();
+          notificationTid = filtered['Notification_Id'].toString();
         });
 
       }else{
@@ -978,8 +1076,17 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       recieveDetailsFromScreen();
-      getTaxDetails();
       context.read<ContextData>().setCodeData({});
+      Functions().getUserData().then((value){
+        if(value.isNotEmpty){
+          print(value);
+          userID = value['_id'];
+          userModId = value['Id'];
+          userName = value['UserName'];
+          userPhone = value['PhoneNumber'].toString();
+          userAddress = value['Address'];
+        }
+      });
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -1002,11 +1109,17 @@ class _PaymentGatewayState extends State<PaymentGateway> {
        if(context.watch<ContextData>().getCodeDetails()['value']!=null){
          tempBillTotal = 0.0;
          codeID = context.watch<ContextData>().getCodeDetails()['id'];
-         if(context.watch<ContextData>().getCodeDetails()['type']=="amount"){
-           tempBillTotal = totalBillAmount-double.parse(context.watch<ContextData>().getCodeDetails()['value']);
-           couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+         prevValue = double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+         if(context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"){
+           print("prev value $prevValue");
+           if(prevValue <= totalBillAmount){
+             tempBillTotal = totalBillAmount-prevValue;
+             couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+           }else{
+             couponCtrl.text = "Coupon is not applicable";
+           }
          }else{
-           double discountAmount = (totalBillAmount*double.parse(context.watch<ContextData>().getCodeDetails()['value']))/100;
+           double discountAmount = (totalBillAmount*prevValue)/100;
            tempBillTotal = totalBillAmount-discountAmount;
            couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
            print("Context ----> $tempBillTotal");
@@ -1343,34 +1456,31 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                   ),),
                               ),
                               SizedBox(height: 6,),
-                              Container(
-                                margin: EdgeInsets.only(left: 7,right: 7),
-                                height: 40,
-                                child: TextField(
-                                  onTap:(){
-                                    FocusScope.of(context).unfocus();
-                                    context.read<ContextData>().setCodeData({});
-                                    Navigator.push(context,
-                                    MaterialPageRoute(builder: (c)=>CouponsList(userID)));
-                                  },
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      fontSize: 13,
-                                      color:darkBlue
+                              InkWell(
+                                onTap:(){
+                                  FocusScope.of(context).unfocus();
+                                  context.read<ContextData>().setCodeData({});
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (c)=>CouponsList(userID)));
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 7,right: 7),
+                                  height: 40,
+                                  width:MediaQuery.of(context).size.width,
+                                  padding:EdgeInsets.symmetric(horizontal:10),
+                                  alignment:Alignment.centerLeft,
+                                  decoration:BoxDecoration(
+                                    borderRadius:BorderRadius.circular(10),
+                                    border:Border.all(
+                                      width:1,
+                                      color:Colors.grey
+                                    )
                                   ),
-                                  controller: couponCtrl,
-                                  onChanged: (text){
-
-                                  },
-                                  maxLines: 1,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(5),
-                                    hintStyle: TextStyle(
-                                        fontFamily: "Poppins",fontSize: 13
-                                    ),
-                                    hintText: "Coupon code",
-                                    border: OutlineInputBorder(),
-                                  ),
+                                  child:Text(couponCtrl.text.isEmpty?"Coupon code":couponCtrl.text, style:TextStyle(
+                                    color:darkBlue,
+                                    fontSize:13,
+                                    fontFamily:"Poppins"
+                                  ),),
                                 ),
                               )
                             ],
@@ -1479,6 +1589,29 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             ],
                           ),
                         ),
+                        couponCtrl.text!="Coupon is not applicable"&&prevValue>0?
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Coupon',style: const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.black54,
+                              ),),
+                              Row(
+                                  children:[
+                                    Container(
+                                        padding:EdgeInsets.only(right:5),
+                                        child: Text('',style: const TextStyle(fontSize:10.5,),)
+                                    ),
+                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ]
+                              )
+                            ],
+                          ),
+                        ):Container(),
                         Container(
                           margin: const EdgeInsets.only(left: 10,right: 10),
                           color: Colors.grey[400],

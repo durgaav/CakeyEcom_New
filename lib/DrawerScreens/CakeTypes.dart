@@ -3398,7 +3398,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                           strictbounds: false,
                                           logo: Text(""),
                                           types: [],
-                                          apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                          apiKey: "$MAP_KEY",
                                           onError: (e){
 
                                           },
@@ -3537,7 +3537,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                       //   'zoo'
                                       // ],
                                       types: [],
-                                      apiKey: "AIzaSyBaI458_z7DHPh2opQx4dlFg5G3As0eHwE",
+                                      apiKey: "$MAP_KEY",
                                       onError: (e){
 
                                       },

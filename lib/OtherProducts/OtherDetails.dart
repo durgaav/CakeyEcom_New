@@ -108,8 +108,8 @@ class _OthersDetailsState extends State<OthersDetails> {
   var counterCtrl = TextEditingController();
 
   var picOrDeliver = ['Pickup', 'Delivery'];
-  var picOrDel = [true, false];
-  var fixedDelliverMethod = "Pickup";
+  var picOrDel = [false, false];
+  var fixedDelliverMethod = "";
   String deliverDate = "Select delivery date";
   String deliverSession = "Select delivery time";
 
@@ -126,7 +126,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   int amount = 0;
 
   List<String> deliverAddress = [];
-  var deliverAddressIndex = 0;
+  var deliverAddressIndex = -1;
   String originalWeight = "";
 
   //toppers...
@@ -136,6 +136,8 @@ class _OthersDetailsState extends State<OthersDetails> {
   String topperName = "";
   String topperId = "";
   String topperImage = "";
+
+  String usersDeliveryAddress = "";
 
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -205,10 +207,10 @@ class _OthersDetailsState extends State<OthersDetails> {
       prefs.setInt("otherOrdCounter", counter);
 
       var topperData = {
-        "name": topperName,
-        "id": topperId,
-        "image": topperImage,
-        "topperPrice": topperPrice
+        "TopperId": topperId,
+        "TopperName": topperName,
+        "TopperImage": topperImage,
+        "TopperPrice": topperPrice,
       };
 
       prefs.setString("others_topper_data", jsonEncode(topperData));
@@ -942,7 +944,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                 ),
                                 otherType.toLowerCase() == "kg"
                                     ? Text(
-                                        "${((myPrice * changeWeight(selectedWeight)) * counter).toStringAsFixed(2)}",
+                                        "${(((myPrice * changeWeight(selectedWeight)) * counter)+topperPrice).toStringAsFixed(2)}",
                                         style: TextStyle(
                                           color: lightPink,
                                           fontWeight: FontWeight.bold,
@@ -1696,6 +1698,9 @@ class _OthersDetailsState extends State<OthersDetails> {
                             if (index == 0) {
                               tooFar = false;
                               deliverAddressIndex = 0;
+                            } else {
+                              tooFar = true;
+                              deliverAddressIndex = -1;
                             }
                             for (int i = 0; i < picOrDel.length; i++) {
                               if (i == index) {
@@ -2451,93 +2456,88 @@ class _OthersDetailsState extends State<OthersDetails> {
                     height: 15,
                   ),
 
-                  tooFar
-                      ? Container()
-                      : Center(
-                          child: Container(
-                            height: 50,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(25)),
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25)),
-                              onPressed: () async {
-                                FocusScope.of(context).unfocus();
-                                if( fixedDelliverMethod.toLowerCase() == "delivery" && deliverAddressIndex == -1){
-                                  Functions().showSnackMsg(
-                                      context,
-                                      "Please select delivery address!",
-                                      true);
-                                }else if (otherType == "Kg") {
-                                  if (changeWeight(selectedWeight) <
-                                      changeWeight(weight[0]['Weight'])) {
-                                    Functions().showSnackMsg(
-                                        context,
-                                        "Minimum weight is ${weight[0]['Weight']}!",
-                                        true);
-                                  } else if (deliverDate.toLowerCase() ==
-                                      "select delivery date") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver date!", true);
-                                  } else if (deliverSession.toLowerCase() ==
-                                      "select delivery time") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver session", true);
-                                  } else if (fixedDelliverMethod.isEmpty) {
-                                    Functions().showSnackMsg(
-                                        context,
-                                        "Please select pickup / delivery",
-                                        true);
-                                  } else {
-                                    gotoCheckout();
-                                  }
-                                } else if (otherType == "Unit") {
-                                  if (deliverDate.toLowerCase() ==
-                                      "select delivery date") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver date", true);
-                                  } else if (deliverSession.toLowerCase() ==
-                                      "select delivery time") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver session", true);
-                                  } else if (fixedDelliverMethod.isEmpty) {
-                                    Functions().showSnackMsg(
-                                        context,
-                                        "Please select pickup / delivery",
-                                        true);
-                                  } else {
-                                    gotoCheckout();
-                                  }
-                                } else {
-                                  if (deliverDate.toLowerCase() ==
-                                      "select delivery date") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver date", true);
-                                  } else if (deliverSession.toLowerCase() ==
-                                      "select delivery time") {
-                                    Functions().showSnackMsg(context,
-                                        "Please select deliver session", true);
-                                  } else if (fixedDelliverMethod.isEmpty) {
-                                    Functions().showSnackMsg(
-                                        context,
-                                        "Please select pickup / delivery",
-                                        true);
-                                  } else {
-                                    gotoCheckout();
-                                  }
-                                }
-                              },
-                              color: lightPink,
-                              child: Text(
-                                "ORDER NOW",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
+                  Center(
+                    child: Container(
+                      height: 50,
+                      width: 200,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25)),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)),
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
+                          if (fixedDelliverMethod.toLowerCase() == "delivery" &&
+                              deliverAddressIndex == -1) {
+                            Functions().showSnackMsg(context,
+                                "Please select delivery address!", true);
+                          } else if (tooFar == true) {
+                            Functions().showSnackMsg(
+                                context,
+                                "Delivery address is too far , select nearest delivery address",
+                                true);
+                          } else if (otherType == "Kg") {
+                            if (changeWeight(selectedWeight) <
+                                changeWeight(weight[0]['Weight'])) {
+                              Functions().showSnackMsg(
+                                  context,
+                                  "Minimum weight is ${weight[0]['Weight']}!",
+                                  true);
+                            } else if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
+                              Functions().showSnackMsg(
+                                  context, "Please select deliver date!", true);
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
+                              Functions().showSnackMsg(context,
+                                  "Please select deliver session", true);
+                            } else if (fixedDelliverMethod.isEmpty) {
+                              Functions().showSnackMsg(context,
+                                  "Please select pickup / delivery", true);
+                            } else {
+                              gotoCheckout();
+                            }
+                          } else if (otherType == "Unit") {
+                            if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
+                              Functions().showSnackMsg(
+                                  context, "Please select deliver date", true);
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
+                              Functions().showSnackMsg(context,
+                                  "Please select deliver session", true);
+                            } else if (fixedDelliverMethod.isEmpty) {
+                              Functions().showSnackMsg(context,
+                                  "Please select pickup / delivery", true);
+                            } else {
+                              gotoCheckout();
+                            }
+                          } else {
+                            if (deliverDate.toLowerCase() ==
+                                "select delivery date") {
+                              Functions().showSnackMsg(
+                                  context, "Please select deliver date", true);
+                            } else if (deliverSession.toLowerCase() ==
+                                "select delivery time") {
+                              Functions().showSnackMsg(context,
+                                  "Please select deliver session", true);
+                            } else if (fixedDelliverMethod.isEmpty) {
+                              Functions().showSnackMsg(context,
+                                  "Please select pickup / delivery", true);
+                            } else {
+                              gotoCheckout();
+                            }
+                          }
+                        },
+                        color: lightPink,
+                        child: Text(
+                          "ORDER NOW",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
+                      ),
+                    ),
+                  ),
 
                   SizedBox(
                     height: 15,

@@ -247,6 +247,15 @@ class _NotificationsState extends State<Notifications> {
                         ),
                       ),
                       SizedBox(height: 8,),
+                      Align(
+                        alignment:Alignment.centerLeft,
+                        child: Text("  ORD ID : ${myList[0]['Id']}",style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13
+                        ),),
+                      ),
+                      SizedBox(height: 8,),
                       Container(
                         width:MediaQuery.of(context).size.width,
                         margin: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
@@ -402,7 +411,7 @@ class _NotificationsState extends State<Notifications> {
                   TextButton(
                       onPressed: (){
                         Navigator.pop(context);
-                        showEditTextDialog(data , item[selectedIndex]);
+                        showReasonDialog(data , item[selectedIndex]);
                       },
                       child: Text("CANCEL ORDER")
                   ),
@@ -427,6 +436,87 @@ class _NotificationsState extends State<Notifications> {
                 ],
               );
             },
+          );
+        }
+    );
+  }
+
+  void showReasonDialog(var data , String paymetType) {
+    var textCtrl = TextEditingController();
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled:true,
+        shape:RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+                top:Radius.circular(15)
+            )
+        ),
+        builder:(c){
+          return Padding(
+            padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              decoration:BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                      top:Radius.circular(15)
+                  )
+              ),
+              padding:EdgeInsets.symmetric(
+                  vertical:10,horizontal:10
+              ),
+              child:Column(
+                mainAxisSize:MainAxisSize.min,
+                crossAxisAlignment:CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding:EdgeInsets.symmetric(
+                        vertical:10, horizontal:5
+                    ),
+                    child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
+                      color:Colors.black,
+                      fontFamily:'Poppins',
+                      fontSize:15,
+                      fontWeight:FontWeight.bold,
+                    ),),
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.note_alt , color:Colors.red,),
+                      SizedBox(width:6,),
+                      Expanded(child: TextField(
+                        controller:textCtrl,
+                        decoration:InputDecoration(
+                            border:InputBorder.none,
+                            hintText:"Type your reason...",
+                            isDense: true,
+                            hintStyle:TextStyle(
+                                color:Colors.grey,
+                                fontFamily:"Poppins",
+                                fontSize:13
+                            )
+                        ),
+                      )),
+                      SizedBox(width:6,),
+                      InkWell(
+                        onTap:(){
+                          Navigator.pop(context);
+                          if(textCtrl.text.isNotEmpty){
+                            MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+                          }else{
+                            Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+                          }
+                        },
+                        child:Text("CANCEL ORDER",style: TextStyle(
+                            fontFamily:"Poppins",
+                            color:Colors.red,
+                            fontSize:13
+                        ),),
+                      )
+                    ],
+                  ),
+                  SizedBox(height:5,)
+                ],
+              ),
+            ),
           );
         }
     );
@@ -1536,7 +1626,7 @@ class _NotificationsState extends State<Notifications> {
         print(res.body);
         Navigator.pop(context);
         if (jsonDecode(res.body)['statusCode'] == 200) {
-          Functions().showSnackMsg(context, "Ticket details updated successfully!", false);
+          Functions().showSnackMsg(context, "Order placed successfully!", false);
           Functions().deleteNotification(data['_id'].toString());
           fetchNotifications();
           getOrdersList();
