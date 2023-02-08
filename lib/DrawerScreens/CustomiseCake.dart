@@ -1022,8 +1022,11 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     if (result != null) {
       setState(() {
         String path = result.files.single.path.toString();
-        file = fil.File(path);
-        print("file $file");
+        if(Functions().getFileSizeInMB(path)<3){
+          file = File(path);
+        }else{
+          Functions().showSnackMsg(context, "Please select the file below 3 MB",true);
+        }
       });
     } else {
       // User canceled the picker
@@ -3865,7 +3868,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       } else if(deliverAddressIndex==-1){
                                         Functions().showSnackMsg(context, "Please select delivery address!", true);
                                       } else if(fixedWeight=="0.0"){
-                                        Functions().showSnackMsg(context, "Please select delivery weight!", true);
+                                        Functions().showSnackMsg(context, "Please select weight!", true);
                                       }else if(themeCtrl.text.isNotEmpty&&file.path.isEmpty){
                                         Functions().showSnackMsg(context, "Please select image file for theme", true);
                                       }else if(fixedShape.isEmpty){

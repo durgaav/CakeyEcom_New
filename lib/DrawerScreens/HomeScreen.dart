@@ -629,6 +629,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String paidVia = "Online";
     var myMap = Map();
     double weight = 0.0;
+    double couponVal = 0.0;
 
     //30-01-2023 03:36 PM
     String created = recentOrders[index]['Created_On'];
@@ -771,6 +772,7 @@ class _HomeScreenState extends State<HomeScreen> {
     cgst = double.parse(recentOrders[index]['Gst'].toString(),(e)=>0.00);
     sgst = double.parse(recentOrders[index]['Sgst'].toString(),(e)=>0.00);
     billTot = double.parse(recentOrders[index]['Total'].toString(),(e)=>0.00);
+    couponVal = double.parse(recentOrders[index]['CouponValue'].toString(),(e)=>0.00);
     paidVia = recentOrders[index]['PaymentType'];
     typeOfCake = recentOrders[index]['CakeTypeForDisplay'];
     weight = changeWeight(recentOrders[index]['Weight']);
@@ -994,6 +996,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.black54,
                           ),),
                           Text('₹${sgst.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Coupon',style: const TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                          Text('₹${couponVal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                         ],
                       ),
                     ),
@@ -4024,6 +4040,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           itemBuilder: (context, index) {
                                                             return GestureDetector(
                                                               onTap:(){
+                                                                print(recentOrders[index]['CouponValue']);
                                                                 showRecentOrderDetailsSheet(index);
                                                               },
                                                               child:ordersTile(index),

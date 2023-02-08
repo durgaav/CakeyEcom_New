@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/MyDialogs.dart';
@@ -389,5 +390,16 @@ class Functions{
 
     return data;
   }
+
+  double getFileSizeInMB(String filePath) {
+    final file = File(filePath);
+    int sizeInBytes = file.lengthSync();
+    double sizeInMb = sizeInBytes / (1024 * 1024);
+    // if (sizeInMb > 10){
+    //   // This file is Longer the
+    // }
+    return sizeInMb;
+  }
+
 
 }

@@ -1,7 +1,7 @@
 //http://localhost:3001
 //http://sugitechnologies.com:3001
 //http://sugitechnologies.com/cakey/
-const String API_URL = "http://localhost:3001/";
+const String API_URL = "http://sugitechnologies.com/cakey/";
 const String SOCKET_URL = "http://sugitechnologies.com:3001";
 const String MAP_KEY = "AIzaSyAXMAB9YA1Uol4BR1aWZ1r1KoCw5W7AzbE";
 const String PAY_TOK = 'rzp_test_b42mo2s6NVrs7t';

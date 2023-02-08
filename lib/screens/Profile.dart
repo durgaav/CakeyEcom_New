@@ -715,7 +715,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     if (result != null) {
       setState(() {
         String path = result.files.single.path.toString();
-        file = File(path);
+        if(Functions().getFileSizeInMB(path)<3){
+          file = File(path);
+        }else{
+          Functions().showSnackMsg(context, "Please select the file below 3 MB",true);
+        }
       });
     } else {
       // User canceled the picker

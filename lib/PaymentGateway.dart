@@ -147,7 +147,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   var tempBillTotal = 0.0;
   double sharePercentage = 0.0;
   double prevValue = 0;
-
+  double totalPriceTaxCalc = 0;
+  String contextType = "";
 
   var couponCtrl = new TextEditingController();
 
@@ -427,41 +428,46 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   //handle razor pay order here...
   void _handleOrder() async{
 
-    showAlertDialog();
-    var amount = 0.0;
-    if(tempBillTotal!=0.0){
-      amount = tempBillTotal;
-    }else{
-      amount = totalBillAmount;
-    }
-
-
-    var headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}'
-    };
-    var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
-    request.body = json.encode({
-      "amount": double.parse(amount.toString())*100,
-      "currency": "INR",
-      "receipt": "Receipt",
-      "notes": {
-        "notes_key_1": "Order for cakey",
-        // "notes_key_2": "Order for $cakeName"
+    try{
+      showAlertDialog();
+      var amount = 0.0;
+      if(tempBillTotal!=0.0){
+        amount = tempBillTotal;
+      }else{
+        amount = totalBillAmount;
       }
-    });
-    request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
-      var res = jsonDecode(await response.stream.bytesToString());
-      print(res);
-      _handleFinalPayment(res['amount'].toString() , res['id']);
-      Navigator.pop(context);
-    }
-    else {
-      // print();
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}'
+      };
+      var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
+      request.body = json.encode({
+        "amount": double.parse(amount.toString())*100,
+        "currency": "INR",
+        "receipt": "Receipt",
+        "notes": {
+          "notes_key_1": "Order for cakey",
+          // "notes_key_2": "Order for $cakeName"
+        }
+      });
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var res = jsonDecode(await response.stream.bytesToString());
+        print(res);
+        _handleFinalPayment(res['amount'].toString() , res['id']);
+        Navigator.pop(context);
+      }
+      else {
+        // print();
+        Navigator.pop(context);
+      }
+    }catch(e){
+      print(e);
       Navigator.pop(context);
     }
 
@@ -475,7 +481,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     //var amount = Bill.toStringAsFixed(2);
 
     var options = {
-      'key': 'rzp_test_b42mo2s6NVrs7t',
+      'key':PAY_TOK,
       'amount': double.parse(amt.toString())*100, //in the smallest currency sub-unit.
       'name': 'Surya Prakash',
       'order_id': orderId, // Generate order_id using Orders API
@@ -523,7 +529,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     }
 
     var headers = {
-      'Authorization': 'Basic ${base64Encode(utf8.encode('rzp_test_b42mo2s6NVrs7t:jjM2u9klomw1v6FAQLG1Anc8'))}',
+      'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}',
       'Content-Type': 'application/json'
     };
     var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/payments/$payId/capture'));
@@ -669,12 +675,14 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       });
     }
 
-    if(paymentObjs['topper_price']!=null && paymentObjs['topper_price']!=0){
+    if(paymentObjs['topper_price']!=null && paymentObjs['topper_price']>0 || paymentObjs['topper_price']>0.0 ){
       passData.addAll({
-        "TopperId":paymentObjs['topper_id'],
-        "TopperName":paymentObjs['topper_name'],
-        "TopperImage":paymentObjs['topper_image'],
-        "TopperPrice":paymentObjs['topper_price'],
+        "Toppers":{
+          "TopperId":paymentObjs['topper_id'],
+          "TopperName":paymentObjs['topper_name'],
+          "TopperImage":paymentObjs['topper_image'],
+          "TopperPrice":paymentObjs['topper_price'],
+        }
       });
     }
 
@@ -800,8 +808,25 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   Future<void> handleHamperOrder() async{
     var obj = paymentObjs['details'];
     double couponVal = 0;
+    double gstVal = 0;
+    double sgstVal = 0;
+
+    if(prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"){
+      gstVal = totalPriceTaxCalc/2;
+      sgstVal = totalPriceTaxCalc/2;
+    }else{
+      gstVal = gstTotal;
+      sgstVal = sgstTotal;
+    }
+
     if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
-      couponVal = prevValue;
+
+      if(contextType=="amount"){
+        couponVal = prevValue;
+      }else{
+        couponVal = (itemTotal*prevValue)/100;
+      }
+
     }else{
       couponVal = 0;
     }
@@ -849,8 +874,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "Price":itemTotal,
         "ItemCount":paymentObjs['count'],
         "DeliveryCharge":deliveryTotal,
-        "Gst":gstTotal,
-        "Sgst":sgstTotal,
+        "Gst":gstVal,
+        "Sgst":sgstVal,
         "Tax":taxes.toString(),
         "Total":"${totalValue.toStringAsFixed(2)}",
         "Weight": obj['Weight'],
@@ -900,6 +925,17 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     var obj = paymentObjs['details'];
 
     double couponVal = 0;
+    double gstVal = 0;
+    double sgstVal = 0;
+
+    if(prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"){
+      gstVal = totalPriceTaxCalc/2;
+      sgstVal = totalPriceTaxCalc/2;
+    }else{
+      gstVal = gstTotal;
+      sgstVal = sgstTotal;
+    }
+
     topperPrice = int.parse(paymentObjs['topper_price'].toString());
     var totalValue = 0.0;
     if(tempBillTotal!=0.0){
@@ -909,7 +945,11 @@ class _PaymentGatewayState extends State<PaymentGateway> {
     }
 
     if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
-      couponVal = prevValue;
+      if(contextType=="amount"){
+        couponVal = prevValue;
+      }else{
+        couponVal = (itemTotal*prevValue)/100;
+      }
     }else{
       couponVal = 0;
     }
@@ -933,8 +973,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash On Delivery":"Paid",
         "PaymentType": paymentType,
         "Total": "${totalValue.toStringAsFixed(2)}",
-        "Sgst": sgstTotal.toString(),
-        "Gst": gstTotal.toString(),
+        "Sgst": sgstVal.toString(),
+        "Gst": gstVal.toString(),
         "DeliveryCharge": paymentObjs['deliverCharge'].toString(),
         "ExtraCharges": paymentObjs['extra_charges'].toString(),
         "Discount":discountTotal,
@@ -1110,19 +1150,34 @@ class _PaymentGatewayState extends State<PaymentGateway> {
          tempBillTotal = 0.0;
          codeID = context.watch<ContextData>().getCodeDetails()['id'];
          prevValue = double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+         totalPriceTaxCalc = 0;
+         contextType = context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase();
          if(context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"){
            print("prev value $prevValue");
-           if(prevValue <= totalBillAmount){
-             tempBillTotal = totalBillAmount-prevValue;
+           if(prevValue <= itemTotal){
+             totalPriceTaxCalc = (((itemTotal-prevValue)+deliveryTotal-discountTotal)*taxes)/100;
+             // gstTotal = totalPriceTaxCalc/2;
+             // sgstTotal = totalPriceTaxCalc/2;
+             print("The Tax $totalPriceTaxCalc");
+             tempBillTotal = ((itemTotal - prevValue)+deliveryTotal-discountTotal)+totalPriceTaxCalc;
              couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
            }else{
              couponCtrl.text = "Coupon is not applicable";
            }
          }else{
-           double discountAmount = (totalBillAmount*prevValue)/100;
-           tempBillTotal = totalBillAmount-discountAmount;
-           couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
-           print("Context ----> $tempBillTotal");
+           double totalDisPrice = (itemTotal*prevValue)/100;
+           if(totalDisPrice <= itemTotal){
+             totalPriceTaxCalc = (((itemTotal-totalDisPrice)+deliveryTotal-discountTotal)*taxes)/100;
+             print("The Tax $totalPriceTaxCalc");
+             print("The Tax $totalDisPrice");
+             tempBillTotal = ((itemTotal - totalDisPrice)+deliveryTotal-discountTotal)+totalPriceTaxCalc;
+             // gstTotal = totalPriceTaxCalc/2;
+             // sgstTotal = totalPriceTaxCalc/2;
+             couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+             print("Context ----> $tempBillTotal");
+           }else{
+             couponCtrl.text = "Coupon is not applicable";
+           }
          }
        }else{
 
@@ -1477,7 +1532,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                     )
                                   ),
                                   child:Text(couponCtrl.text.isEmpty?"Coupon code":couponCtrl.text, style:TextStyle(
-                                    color:darkBlue,
+                                    color:couponCtrl.text.toLowerCase()=="coupon is not applicable"?Colors.red:darkBlue,
                                     fontSize:13,
                                     fontFamily:"Poppins"
                                   ),),
@@ -1561,6 +1616,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
+                                    prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"?
+                                    Text('₹ ${(totalPriceTaxCalc/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
                                     Text('₹ ${gstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
@@ -1583,6 +1640,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toString()} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
+                                    prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"?
+                                    Text('₹ ${(totalPriceTaxCalc/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
                                     Text('₹ ${sgstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
@@ -1606,7 +1665,9 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('',style: const TextStyle(fontSize:10.5,),)
                                     ),
-                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    prevValue>0 && context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"?
+                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                    Text('₹ ${((itemTotal*prevValue)/100).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
                             ],

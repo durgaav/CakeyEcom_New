@@ -90,6 +90,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   String pricePerKg = "";
   String codeID = "";
   double sharePercentage = 0.0;
+  String contextType = "";
 
 
   List<String> toppings = [];
@@ -155,6 +156,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   double protoSGstTotal = 0;
   double protoBillTotal = 0;
   double prevValue = 0;
+  double totalPriceTaxCalc = 0;
 
   //Default loader dialog
   void showAlertDialog() {
@@ -540,12 +542,14 @@ class _OtherCheckoutState extends State<OtherCheckout> {
       }
     };
 
-    if(topperData['TopperPrice']!=0.0){
+    if(topperData['TopperPrice']>0 || topperData['TopperPrice']>0.0){
       passData.addAll({
-        "TopperId":"${topperData['TopperId']}",
-        "TopperName":"${topperData['TopperName']}",
-        "TopperImage":"${topperData['TopperImage']}",
-        "TopperPrice":"${topperData['TopperPrice']}",
+        "Toppers":{
+          "TopperId":"${topperData['TopperId']}",
+          "TopperName":"${topperData['TopperName']}",
+          "TopperImage":"${topperData['TopperImage']}",
+          "TopperPrice":"${topperData['TopperPrice']}",
+        }
       });
     }
 
@@ -642,8 +646,23 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   Future<void> orderTypeKg() async{
 
     double couponVal = 0;
+    double gstVal = 0;
+    double sgstVal = 0;
+
+    if(prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"){
+      gstVal = totalPriceTaxCalc/2;
+      sgstVal = totalPriceTaxCalc/2;
+    }else{
+      gstVal = protoGstTotal;
+      sgstVal = protoSGstTotal;
+    }
+
     if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
-      couponVal = prevValue;
+      if(contextType=="amount"){
+        couponVal = prevValue;
+      }else{
+        couponVal = (protoProductTotal*prevValue)/100;
+      }
     }else{
       couponVal = 0;
     }
@@ -652,7 +671,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     try{
 
-      var amount = tempBillTotal!=0.0?tempBillTotal:protoBillTotal.toStringAsFixed(2);
+      var amount = tempBillTotal>0.0?tempBillTotal:protoBillTotal.toStringAsFixed(2);
 
       var data = {
         "Other_ProductID": cakeID,
@@ -692,8 +711,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "Discount": discountPrice,
         "DeliveryCharge":deliveryCharge,
         "Total": amount,
-        "Gst":gstPrice,
-        "Sgst":sgstPrice,
+        "Gst":gstVal,
+        "Sgst":sgstVal,
         "Tax":taxes,
         "PaymentType": paymentType,
         "PaymentStatus": paymentType=="Online Payment"?"Paid":'Cash On Delivery',
@@ -709,7 +728,6 @@ class _OtherCheckoutState extends State<OtherCheckout> {
           "TopperPrice":topperData['topperPrice'],
         });
       }
-
 
       http.Response response = await http.post(
           Uri.parse("${API_URL}api/otherproduct/order/new"),
@@ -753,8 +771,22 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   Future<void> confirmUnitOrd() async{
 
     double couponVal = 0;
+    double gstVal = 0;
+    double sgstVal = 0;
+
+    if(prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"){
+      gstVal = totalPriceTaxCalc/2;
+      sgstVal = totalPriceTaxCalc/2;
+    }else{
+      gstVal = protoGstTotal;
+      sgstVal = protoSGstTotal;
+    }
     if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
-      couponVal = prevValue;
+      if(contextType=="amount"){
+        couponVal = prevValue;
+      }else{
+        couponVal = (protoProductTotal*prevValue)/100;
+      }
     }else{
       couponVal = 0;
     }
@@ -762,7 +794,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     try {
       showAlertDialog();
 
-      var amount = tempBillTotal != 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
+      var amount = tempBillTotal > 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
 
       var headers = {
         'Content-Type': 'application/json'
@@ -783,7 +815,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "ProductMinWeightPerUnit": {
           "Weight": originalWeight,
           "ProductCount": counts,
-          "PricePerUnit": pricePerKg
+          "PricePerUnit":pricePerKg
         },
         "Description": cakeDesc,
         "VendorID": vendorID,
@@ -806,8 +838,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "DeliveryInformation": deliverType,
         "Discount": discountPrice,
         "DeliveryCharge": deliveryCharge,
-        "Gst": gstPrice,
-        "Sgst": sgstPrice,
+        "Gst": gstVal,
+        "Sgst": sgstVal,
         "Tax": taxes,
         "Total": amount,
         "PaymentType": paymentType,
@@ -854,8 +886,22 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   Future<void> confirmBoxOrd() async{
 
     double couponVal = 0;
+    double gstVal = 0;
+    double sgstVal = 0;
+
+    if(prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"){
+      gstVal = totalPriceTaxCalc/2;
+      sgstVal = totalPriceTaxCalc/2;
+    }else{
+      gstVal = protoGstTotal;
+      sgstVal = protoSGstTotal;
+    }
     if(couponCtrl.text!="Coupon is not applicable" || couponCtrl.text.isNotEmpty){
-      couponVal = prevValue;
+      if(contextType=="amount"){
+        couponVal = prevValue;
+      }else{
+        couponVal = (protoProductTotal*prevValue)/100;
+      }
     }else{
       couponVal = 0;
     }
@@ -863,7 +909,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     showAlertDialog();
 
     try {
-      var amount = tempBillTotal != 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
+      var amount = tempBillTotal > 0.0 ? tempBillTotal : protoBillTotal.toStringAsFixed(2);
 
       var headers = {
         'Content-Type': 'application/json'
@@ -907,8 +953,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         "DeliveryInformation": deliverType,
         "Discount":discountPrice,
         "DeliveryCharge": deliveryCharge,
-        "Gst": gstPrice,
-        "Sgst": sgstPrice,
+        "Gst": gstVal,
+        "Sgst": sgstVal,
         "Tax": taxes,
         "Total": amount,
         "PaymentType": paymentType,
@@ -1046,19 +1092,48 @@ class _OtherCheckoutState extends State<OtherCheckout> {
         tempBillTotal = 0.0;
         codeID = context.watch<ContextData>().getCodeDetails()['id'];
         prevValue = double.parse(context.watch<ContextData>().getCodeDetails()['value']);
+        totalPriceTaxCalc = 0;
+        contextType = context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase();
         if(context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"){
+          // print("prev value $prevValue");
+          // if(prevValue <= tempBillTotal){
+          //   tempBillTotal = tempBillTotal-prevValue;
+          //   couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+          // }else{
+          //   couponCtrl.text = "Coupon is not applicable";
+          // }
           print("prev value $prevValue");
-          if(prevValue <= tempBillTotal){
-            tempBillTotal = tempBillTotal-prevValue;
+          if(prevValue <= protoProductTotal){
+            totalPriceTaxCalc = (((protoProductTotal-prevValue)+protoDeliveryTotal-protoDiscountTotal)*taxes)/100;
+            // protoGstTotal = totalPriceTaxCalc/2;
+            // protoSGstTotal = totalPriceTaxCalc/2;
+            print("The Tax $totalPriceTaxCalc");
+            tempBillTotal = ((protoProductTotal - prevValue)+protoDeliveryTotal-protoDiscountTotal)+totalPriceTaxCalc;
             couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
           }else{
             couponCtrl.text = "Coupon is not applicable";
           }
+
         }else{
-          double discountAmount = (tempBillTotal*prevValue)/100;
-          tempBillTotal = tempBillTotal-discountAmount;
-          couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
-          print("Context ----> $tempBillTotal");
+          // double discountAmount = (tempBillTotal*prevValue)/100;
+          // tempBillTotal = tempBillTotal-discountAmount;
+          // couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+          // print("Context ----> $tempBillTotal");
+
+          double totalDisPrice = (protoProductTotal*prevValue)/100;
+          if(totalDisPrice <= protoProductTotal){
+            totalPriceTaxCalc = (((protoProductTotal-totalDisPrice)+protoDeliveryTotal-protoDiscountTotal)*taxes)/100;
+            print("The Tax $totalPriceTaxCalc");
+            print("The Tax $totalDisPrice");
+            tempBillTotal = ((protoProductTotal - totalDisPrice)+protoDeliveryTotal-protoDiscountTotal)+totalPriceTaxCalc;
+            // protoGstTotal = totalPriceTaxCalc/2;
+            // protoSGstTotal = totalPriceTaxCalc/2;
+            couponCtrl.text = context.watch<ContextData>().getCodeDetails()['code'];
+            print("Context ----> $tempBillTotal");
+          }else{
+            couponCtrl.text = "Coupon is not applicable";
+          }
+
         }
       }else{
 
@@ -1425,7 +1500,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                       )
                                   ),
                                   child:Text(couponCtrl.text.isEmpty?"Coupon code":couponCtrl.text, style:TextStyle(
-                                      color:darkBlue,
+                                      color:couponCtrl.text.toLowerCase()=="coupon is not applicable"?Colors.red:darkBlue,
                                       fontSize:13,
                                       fontFamily:"Poppins"
                                   ),),
@@ -1509,6 +1584,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
+                                    prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"?
+                                    Text('₹ ${(totalPriceTaxCalc/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
                                     Text('₹ ${protoGstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
@@ -1531,6 +1608,8 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('${(taxes/2).toStringAsFixed(1)} %',style: const TextStyle(fontSize:10.5,),)
                                     ),
+                                    prevValue > 0 && couponCtrl.text.toLowerCase()!="coupon is not applicable"?
+                                    Text('₹ ${(totalPriceTaxCalc/2).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
                                     Text('₹ ${protoSGstTotal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
@@ -1554,7 +1633,9 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         padding:EdgeInsets.only(right:5),
                                         child: Text('',style: const TextStyle(fontSize:10.5,),)
                                     ),
-                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    prevValue>0 && context.watch<ContextData>().getCodeDetails()['type'].toString().toLowerCase()=="amount"?
+                                    Text('₹ ${prevValue.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),):
+                                    Text('₹ ${((protoProductTotal*prevValue)/100).toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ]
                               )
                             ],
