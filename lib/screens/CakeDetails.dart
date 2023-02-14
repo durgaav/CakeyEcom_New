@@ -1408,7 +1408,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         weight.insert(weight.indexOf(weight.last), basicCakeWeight);
       }
 
-      weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
       weight = weight.toSet().toList();
 
       if(cakeImages.isEmpty){
@@ -1698,8 +1697,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     prefs.setString('orderCakeTopperName', topperName??'null');
     prefs.setString('orderCakeTopperImg', topperImage??'null');
 
-    print(jsonDecode(shape));
-
     prefs.setString("theMainCakeDetails",jsonEncode(data));
 
     // Navigator.of(context).push(
@@ -1776,7 +1773,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       "extra_charges":extraData,
       "weight":weight[weightIndex],
       "flavours":fixedFlavList,
-      "shapes":jsonDecode(shape),
+      "shapes":shape,
       "tier":"",
       "topper_price":topperPrice,
       "topper_name":topperName,
@@ -2100,10 +2097,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
         }
 
         weight = weight.toSet().toList();
-        weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
 
         weight = weight.toSet().toList();
-        weight.sort();
+
         fixedWeight = basicCakeWeight;
         weightIndex = 0;
 
@@ -2248,6 +2244,9 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
       isNearVendrClicked = true;
       selVendor = false;
     }
+
+    weight.sort((a,b)=>changeWeight(a.toString()).compareTo(changeWeight(b.toString())));
+
 
     if(context.watch<ContextData>().getDpUpdate()==true){
       newRegUser = false;

@@ -401,5 +401,47 @@ class Functions{
     return sizeInMb;
   }
 
+  void showCustomisePriceAlertBox(BuildContext context , String orderId , function1 , function2){
+    showDialog(
+        context: context,
+        builder:(c){
+          return AlertDialog(
+            contentPadding:EdgeInsets.zero,
+            shape:RoundedRectangleBorder(
+                borderRadius:BorderRadius.all(Radius.circular(15))
+            ),
+            content:Column(
+              mainAxisSize:MainAxisSize.min,
+              children: [
+                ListTile(
+                  title:Text("Choose option",style:TextStyle(
+                      fontFamily:"Poppins"
+                  ),),
+                ),
+                ListTile(
+                  onTap: (){
+                    function1();
+                  },
+                  title:Text("Pay now",style:TextStyle(
+                      fontFamily:"Poppins"
+                  ),),
+                  leading:Icon(Icons.payment_outlined , color:Colors.pink,),
+                ),
+                ListTile(
+                  onTap: (){
+                    function2();
+                  },
+                  title:Text("Cancel order",style:TextStyle(
+                      fontFamily:"Poppins"
+                  ),),
+                  leading:Icon(Icons.cancel , color:Colors.pink,),
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
 
 }

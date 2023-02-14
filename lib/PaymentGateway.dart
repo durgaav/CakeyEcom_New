@@ -956,6 +956,9 @@ class _PaymentGatewayState extends State<PaymentGateway> {
 
     showAlertDialog();
 
+
+    print("The shape... ${jsonDecode(paymentObjs['shapes'].toString())['Name']}");
+
      try{
 
       var data = {
@@ -966,7 +969,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "Image": obj['MainCakeImage'],
         "EggOrEggless": paymentObjs['egg'],
         "Flavour":paymentObjs['flavours'],
-        "Shape":paymentObjs['shapes'],
+        "Shape":jsonDecode(paymentObjs['shapes']),
         //"Tier":'',
         "Weight":paymentObjs['weight'],
         "Description": obj['Description'],
@@ -990,16 +993,6 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "DeliveryInformation": paymentObjs['deliverType'],
         "DeliveryAddress": userAddress,
         "PremiumVendor":"n",
-        "VendorName":obj['VendorName'],
-        "VendorID":obj['VendorID'],
-        "Vendor_ID":obj['Vendor_ID'],
-        "VendorPhoneNumber1":obj['VendorPhoneNumber1'],
-        "VendorPhoneNumber2":obj['VendorPhoneNumber2'].toString(),
-        "VendorAddress":obj['VendorAddress'],
-        "GoogleLocation":{
-          "Latitude":obj['GoogleLocation']['Latitude'],
-          "Longitude":obj['GoogleLocation']['Longitude']
-        },
         "MessageOnTheCake":paymentObjs['msg_on_cake'],
         "SpecialRequest":paymentObjs['spl_req'],
         "SharePercentage":'$sharePercentage',
@@ -1015,12 +1008,28 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         });
       }
 
-      var body = jsonEncode('object');
+      print("Order cake weight jdkfjdjk --> ${changeWeight(paymentObjs['weight'])}");
+
+      if(changeWeight(paymentObjs['weight'])<5.0){
+        data.addAll({
+          "VendorName":obj['VendorName'],
+          "VendorID":obj['VendorID'],
+          "Vendor_ID":obj['Vendor_ID'],
+          "VendorPhoneNumber1":obj['VendorPhoneNumber1'],
+          "VendorPhoneNumber2":obj['VendorPhoneNumber2'].toString(),
+          "VendorAddress":obj['VendorAddress'],
+          "GoogleLocation":{
+            "Latitude":obj['GoogleLocation']['Latitude'],
+            "Longitude":obj['GoogleLocation']['Longitude']
+          },
+        });
+      }
+
+      var body = jsonEncode(data);
 
       // if(premiumVendor == 'yes'){
       //   body = jsonEncode(premiumData);
       // }else{
-      body = jsonEncode(data);
       //}
 
        print(body);
@@ -1329,32 +1338,46 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                       fontSize: 12,fontFamily: "Poppins",fontWeight: FontWeight.bold
                                   ),overflow: TextOverflow.ellipsis,maxLines: 10,),
                               ),
-                              SizedBox(height: 5,),
-                              Text('${paymentObjs['egg']}',
-                                  style: TextStyle(
-                                      fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                              paymentObjs['type'].toString().toLowerCase()=="cakes"?
+                              Column(
+                                crossAxisAlignment:CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 5,),
+                                  Text('${paymentObjs['egg']}',
+                                      style: TextStyle(
+                                          fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                      ),
+                                      overflow: TextOverflow.ellipsis,maxLines: 10
                                   ),
-                                  overflow: TextOverflow.ellipsis,maxLines: 10
-                              ),
-                              // SizedBox(height: 5,),
-                              // Text('Shape - None Flavour - None',
-                              //     style: TextStyle(
-                              //         fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
-                              //     ),
-                              //     overflow: TextOverflow.ellipsis,maxLines: 10
-                              // ),
-                              // SizedBox(height: 5,),
-                              // Wrap(
-                              //   children: [
-                              //     for(var i in flavs)
-                              //       Text("(Flavour - ${i}) "
-                              //         // "Price - Rs.${i['Price']})"
-                              //         ,style: TextStyle(
-                              //             fontSize:10.5,fontFamily: "Poppins",
-                              //             color: Colors.grey[500]
-                              //         ),),
-                              //   ],
-                              // ),
+                                  SizedBox(height: 5,),
+                                  Text('(Shape - ${jsonDecode(paymentObjs['shapes'].toString())['Name']})',
+                                      style: TextStyle(
+                                          fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
+                                      ),
+                                      overflow: TextOverflow.ellipsis,maxLines: 10
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Wrap(
+                                    children: [
+                                      for(var i in paymentObjs['flavours'])
+                                        Text("(Flavour - ${i['Name']} "
+                                          // "Price - Rs.${i['Price']})"
+                                          ,style: TextStyle(
+                                              fontSize:10.5,fontFamily: "Poppins",
+                                              color: Colors.grey[500]
+                                          ),),
+
+                                      Text(" )"
+                                        // "Price - Rs.${i['Price']})"
+                                        ,style: TextStyle(
+                                            fontSize:10.5,fontFamily: "Poppins",
+                                            color: Colors.grey[500]
+                                        ),)
+
+                                    ],
+                                  ),
+                                ],
+                              ):Container(),
                               SizedBox(height: 5,),
                               Text.rich(
                                   TextSpan(

@@ -179,6 +179,7 @@ class _HamperDetailsState extends State<HamperDetails> {
       "discount":0,
       "vendor_id":vendor_Id,
       "vendor_mail":vendorList[0]['Email'],
+      "topper_price":0,
     };
 
     Navigator.push(

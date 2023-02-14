@@ -389,7 +389,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: Column(
                                 crossAxisAlignment: messageList[i]['Sent_By_Id']==reciverId?CrossAxisAlignment.start:CrossAxisAlignment.end,
                                 children: [
-                                  Text(messageList[i]['Message'],
+                                  Text(messageList[i]['Message'].toString(),
                                     textAlign: messageList[i]['Sent_By_Id']==reciverId?TextAlign.left:TextAlign.right,
                                     style: TextStyle(fontSize: 14 , fontFamily: poppins),),
                                   SizedBox(height: 4,),

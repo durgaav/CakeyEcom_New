@@ -1626,13 +1626,21 @@ class _NotificationsState extends State<Notifications> {
         print(res.body);
         Navigator.pop(context);
         if (jsonDecode(res.body)['statusCode'] == 200) {
-          Functions().showSnackMsg(context, "Order placed successfully!", false);
+
+          if(aggreeOrDis=="disagree"){
+            Functions().showSnackMsg(context, "Order cancelled successfully!", false);
+          }else{
+            Functions().showSnackMsg(context, "Order placed successfully!", false);
+          }
+
           Functions().deleteNotification(data['_id'].toString());
           fetchNotifications();
           getOrdersList();
         } else {
           Functions().showSnackMsg(context, "Failed!", false);
         }
+      }else{
+        Navigator.pop(context);
       }
 
     }catch(e){

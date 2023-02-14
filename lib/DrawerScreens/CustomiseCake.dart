@@ -1147,24 +1147,6 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     print("letsvdhgdsh "+nearestVendors.length.toString());
 
 
-    print(
-      {
-        "User_ID":userModId,
-        'UserID': userID,
-        'UserName': userName,
-        'UserPhoneNumber': userPhone,
-        'VendorID': '$vendorID',
-        'VendorName': '$vendorName',
-        'VendorAddress': '$vendorAddress',
-        'Vendor_ID':'$vendorModId',
-        'VendorPhoneNumber1':'$vendorPhone1',
-        'VendorPhoneNumber2':'$vendorPhone2',
-        'PremiumVendor':"n",
-        'MessageOnTheCake':msgCtrl.text,
-      }
-    );
-
-
       try{
 
         // http://sugitechnologies.com/cakey

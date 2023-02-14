@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:cakey/CommonWebSocket.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
+import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/Hampers.dart';
@@ -27,6 +28,7 @@ import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart' as geocode;
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../Dialogs.dart';
@@ -101,6 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String userLocalityAdr = 'Searching...';
   bool showAddressEdit = false;
   var deliverToCtrl = new TextEditingController();
+
+  var _razorpay = Razorpay();
 
   //noti count
   int notiCount = 0;
@@ -604,7 +608,166 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
+  Future<void> handleCustomiseCakeUpdate(var data , String paymentType , String aggreeOrDis , String cancelReason) async{
+    showAlertDialog();
+    //{
+    //         "_id": "63a3da501379ff574cc7493b",
+    //         "CustomizedCakeID": "63a29df4cf3425fcc2d4714c",
+    //         "CustomizedCake_ID": "CKYCCO-15",
+    //         "CakeName": "My Customized Cake",
+    //         "Status": "Sent",
+    //         "Status_Updated_On": "22-12-2022 09:47 AM",
+    //         "UserID": "6333e3439e05797c3a35a973",
+    //         "User_ID": "CKYCUS-4",
+    //         "UserName": "Naveen Surya",
+    //         "CustomizedCake": "y",
+    //         "For_Display": "You received your Customized Cake order's Price Invoice",
+    //         "TicketID": "63a2a128bbedd4597136f381",
+    //         "Flavour": [],
+    //         "__v": 0
+    //     },
+
+    var pass = {
+      "TicketID": data['TicketID'], //TicketID
+      "Customer_Approved_Status": "Approved", //Approved
+      "Customer_Paid_Status": paymentType.toLowerCase()=="cash on delivery"?"Pending":"Paid", //Paid or Pending
+      "Last_Intimate": ["HelpdeskC"], //Static
+      "PaymentType": paymentType, //Cash on delivery or payment method
+      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash on delivery":"Paid" //Paid Status
+    };
+
+    if(aggreeOrDis=="disagree"){
+      pass = {
+        "TicketID": data['TicketID'], //TicketID
+        "Customer_Approved_Status": "NotApproved", //Not Approved
+        "Customer_Paid_Status": "Cancelled", //Cancelled
+        "Last_Intimate": ["HelpdeskC"], //Static
+        "ReasonForCancel": cancelReason, //inputs from customer
+      };
+    }
+
+    print(pass);
+
+    try{
+
+      http.Response res = await http.put(
+          Uri.parse('${API_URL}api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
+          body:jsonEncode(pass),
+          headers: {
+            "Content-Type":"application/json"
+          }
+      );
+
+      if(res.statusCode == 200) {
+        print(res.body);
+        Navigator.pop(context);
+        if (jsonDecode(res.body)['statusCode'] == 200) {
+          if(aggreeOrDis=="disagree"){
+            Functions().showSnackMsg(context, "Order cancelled successfully!", false);
+          }else{
+            Functions().showSnackMsg(context, "Order placed successfully!", false);
+          }
+          getOrderList();
+        } else {
+          Functions().showSnackMsg(context, "Failed!", false);
+        }
+      }else{
+        Navigator.pop(context);
+      }
+
+    }catch(e){
+
+      Navigator.pop(context);
+      print(e);
+      Functions().showSnackMsg(context, "Error occurred $e", false);
+    }
+
+  }
+
+  void showReasonDialog(var data , String paymetType) {
+    var textCtrl = TextEditingController();
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled:true,
+        shape:RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+                top:Radius.circular(15)
+            )
+        ),
+        builder:(c){
+          return Padding(
+            padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              decoration:BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                      top:Radius.circular(15)
+                  )
+              ),
+              padding:EdgeInsets.symmetric(
+                  vertical:10,horizontal:10
+              ),
+              child:Column(
+                mainAxisSize:MainAxisSize.min,
+                crossAxisAlignment:CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding:EdgeInsets.symmetric(
+                        vertical:10, horizontal:5
+                    ),
+                    child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
+                      color:Colors.black,
+                      fontFamily:'Poppins',
+                      fontSize:15,
+                      fontWeight:FontWeight.bold,
+                    ),),
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.note_alt , color:Colors.red,),
+                      SizedBox(width:6,),
+                      Expanded(child: TextField(
+                        controller:textCtrl,
+                        decoration:InputDecoration(
+                            border:InputBorder.none,
+                            hintText:"Type your reason...",
+                            isDense: true,
+                            hintStyle:TextStyle(
+                                color:Colors.grey,
+                                fontFamily:"Poppins",
+                                fontSize:13
+                            )
+                        ),
+                      )),
+                      SizedBox(width:6,),
+                      InkWell(
+                        onTap:(){
+                          Navigator.pop(context);
+                          if(textCtrl.text.isNotEmpty){
+                            MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+                          }else{
+                            Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+                          }
+                        },
+                        child:Text("CANCEL ORDER",style: TextStyle(
+                            fontFamily:"Poppins",
+                            color:Colors.red,
+                            fontSize:13
+                        ),),
+                      )
+                    ],
+                  ),
+                  SizedBox(height:5,)
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
   void showRecentOrderDetailsSheet(int index) {
+
+    print(recentOrders[index]);
 
     bool showTile = false;
     String orderId = "";
@@ -654,107 +817,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     orderId = recentOrders[index]['Id'].toString();
 
-    // if(recentOrders[index]['HampersName']!=null){
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   cakeName = recentOrders[index]['HampersName'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   image = recentOrders[index]['HamperImage'].toString();
-    //   productTotal = double.parse(recentOrders[index]['Price'].toString());
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Gift Hampers";
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    // }
-    // else if(recentOrders[index]['ProductName']!=null){
-    //
-    //   if(recentOrders[index]['ProductMinWeightPerKg']!=null){
-    //
-    //     myMap = recentOrders[index]['ProductMinWeightPerKg'];
-    //
-    //     productTotal = (double.parse(myMap['PricePerKg'])*changeWeight(myMap['Weight']))*int.parse(recentOrders[index]['ItemCount'].toString());
-    //
-    //   }
-    //   else if(recentOrders[index]['ProductMinWeightPerUnit']!=null){
-    //     myMap = recentOrders[index]['ProductMinWeightPerUnit'];
-    //
-    //     productTotal = (double.parse(myMap['PricePerUnit'])*double.parse(myMap['ProductCount']));
-    //
-    //   }
-    //   else {
-    //     myMap = recentOrders[index]['ProductMinWeightPerBox'];
-    //     productTotal = double.parse(myMap['PricePerBox'])*double.parse(myMap['ProductCount']);
-    //   }
-    //
-    //   image = recentOrders[index]['Image'].toString();
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   cakeName = recentOrders[index]['ProductName'].toString();
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Other Products";
-    //   flavours = recentOrders[index]['Flavour'];
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    //
-    // }else if(recentOrders[index]['CakeName']!=null && recentOrders[index]['Id'].toString().startsWith("CKYORD")){
-    //
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   cakeName = recentOrders[index]['CakeName'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   image = recentOrders[index]['Image'].toString();
-    //   productTotal = ((double.parse(recentOrders[index]['Price'].toString())*
-    //       changeWeight(recentOrders[index]['Weight'].toString()))+double.parse(recentOrders[index]['ExtraCharges'].toString()))*
-    //       int.parse(recentOrders[index]['ItemCount'].toString());
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Cakes";
-    //   shape = recentOrders[index]['Shape']['Name'];
-    //
-    //   List tempFlavours = recentOrders[index]['Flavour'];
-    //   tempFlavours.forEach((e) {
-    //     flavours.add(e['Name']);
-    //   });
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    //
-    // }else{
-    //   cakeName = recentOrders[index]['CakeName'].toString();
-    //   image = recentOrders[index]['Images'].isNotEmpty?recentOrders[index]['Images'][0]:"";
-    //   status = recentOrders[index]['Status'].toString();
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   shape = recentOrders[index]['Shape'];
-    //   typeOfCake = "Customised Cakes";
-    //
-    //   List tempFlavours = recentOrders[index]['Flavour'];
-    //   tempFlavours.forEach((e) {
-    //     flavours.add(e['Name']);
-    //   });
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    // }
-
     if(recentOrders[index]['Flavour']!=null){
       List tempFlavours = recentOrders[index]['Flavour'];
       tempFlavours.forEach((e) {
@@ -776,13 +838,20 @@ class _HomeScreenState extends State<HomeScreen> {
     paidVia = recentOrders[index]['PaymentType'];
     typeOfCake = recentOrders[index]['CakeTypeForDisplay'];
     weight = changeWeight(recentOrders[index]['Weight']);
-    if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
+    if(recentOrders[index]['VendorName']==null || recentOrders[index]['VendorName'].toString()=="null"){
+      vendorName = "Premium Vendor";
+    }else{
       vendorName = recentOrders[index]['VendorName'].toString();
     }
 
+    print("my vendor name $vendorName");
+
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
+    }else if(status.toLowerCase()=="price approved"){
+      status = "Sent";
     }
+
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -915,7 +984,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 1,
                 ),
 
-                typeOfCake.toLowerCase()=="customized cake"?
+                typeOfCake.toLowerCase()=="customized cake" && status.toLowerCase()=="new" ?
                 Container(
                   padding:EdgeInsets.all(12),
                   child:Text("We will send the price details as soon as possible.!",style:TextStyle(
@@ -923,6 +992,176 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize:13.5,
                       color:Colors.black
                   ),),
+                ):
+                typeOfCake.toLowerCase()=="customized cake" && status.toLowerCase()=="sent"?
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Product Total',style: TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                          Text("₹${((productTotal*count)+extraCharge).toStringAsFixed(2)}"
+                            ,style: const TextStyle(fontWeight: FontWeight.bold),)
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Delivery charge',
+                            style: const TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black54,
+                            ),),
+                          Text('₹${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Discounts',
+                            style: const TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black54,
+                            ),),
+                          Text('₹${discounts.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Gst',style: const TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                          Text('₹${cgst.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('SGST',style: const TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                          Text('₹${sgst.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Coupon',style: const TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                          Text('₹${couponVal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 10,right: 10),
+                      color:Colors.grey[400],
+                      height: 1,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Bill Total',style: TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold
+                          ),),
+                          Text('₹${billTot.toStringAsFixed(2)}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.black54,
+                          ),),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap:(){
+                        var data = {
+                          "TicketID":recentOrders[index]['TicketID'].toString(),
+                          "CustomizedCakeID":recentOrders[index]['_id'].toString(),
+                        };
+                        //Navigator.of(context).pop(context);
+                        Functions().showCustomisePriceAlertBox(
+                            context ,
+                            recentOrders[index]['_id'].toString(),
+                            ()=>{
+                              Navigator.pop(context),
+                              Navigator.pop(context),
+                              //showReasonDialog(data, "paymetType"),
+                            },
+                            ()=>{
+                              Navigator.pop(context),
+                              Navigator.pop(context),
+                              showReasonDialog(data, "paymetType"),
+                            },
+                        );
+                        //showReasonDialog(typeOfCake , recentOrders[index]['_id']);
+                      },
+                      child: Container(
+                        margin:EdgeInsets.symmetric(
+                            horizontal:50,
+                            vertical:10
+                        ),
+                        padding:EdgeInsets.symmetric(
+                            vertical:10
+                        ),
+                        decoration:BoxDecoration(
+                            color:Colors.pink,
+                            borderRadius:BorderRadius.circular(15)
+                        ),
+                        child:Center(
+                          child:Text("ACTIONS",style:TextStyle(
+                              color:Colors.white,
+                              fontFamily:"Poppins"
+                          ),),
+                        ),
+                      ),
+                    )
+                  ],
                 ):
                 Column(
                   children: [
@@ -1087,69 +1326,6 @@ class _HomeScreenState extends State<HomeScreen> {
     double weight = 0.0;
     var otherPrice = "";
 
-    // if(recentOrders[index]['HampersName']!=null){
-    //   cakeName = recentOrders[index]['HampersName'];
-    //   vendorName = recentOrders[index]['VendorName'];
-    //   status = recentOrders[index]['Status'];
-    //   image = recentOrders[index]['HamperImage'];
-    //   price = double.parse(recentOrders[index]['Price'].toString());
-    //   counts = int.parse(recentOrders[index]['ItemCount'].toString());
-    // }
-    // else if(recentOrders[index]['ProductName']!=null){
-    //
-    //   print(recentOrders[index]);
-    //
-    //   cakeName = recentOrders[index]['ProductName'];
-    //   vendorName = recentOrders[index]['VendorName'];
-    //   status = recentOrders[index]['Status'];
-    //   image = recentOrders[index]['Image'];
-    //   //counts = int.parse(recentOrders[index]['ItemCount'].toString());
-    //
-    //     if(recentOrders[index]['ProductMinWeightPerKg']!=null){
-    //
-    //       print("pro kg");
-    //
-    //       myMap = recentOrders[index]['ProductMinWeightPerKg'];
-    //
-    //       price = (double.parse(myMap['PricePerKg'])*changeWeight(myMap['Weight']))*int.parse(recentOrders[index]['ItemCount'].toString());
-    //
-    //     }
-    //     else if(recentOrders[index]['ProductMinWeightPerUnit']!=null){
-    //       print("pro unit");
-    //       myMap = recentOrders[index]['ProductMinWeightPerUnit'];
-    //
-    //       price = (double.parse(myMap['PricePerUnit'])* double.parse(myMap['ProductCount']));
-    //
-    //     }
-    //     else {
-    //       myMap = recentOrders[index]['ProductMinWeightPerBox'];
-    //
-    //       print("pro box $myMap");
-    //
-    //       price = double.parse(myMap['PricePerBox'])*double.parse(myMap['ProductCount']);
-    //
-    //     }
-    //     print("Other price $price");
-    // }
-    // else if(recentOrders[index]['CakeName']!=null && recentOrders[index]['Id'].toString().startsWith("CKYORD")){
-    //   cakeName = recentOrders[index]['CakeName'];
-    //   vendorName = recentOrders[index]['VendorName'];
-    //   status = recentOrders[index]['Status'];
-    //   image = recentOrders[index]['Image'];
-    //   price = double.parse(recentOrders[index]['Price'].toString());
-    //   counts = int.parse(recentOrders[index]['ItemCount'].toString());
-    //   extraCharge = double.parse(recentOrders[index]['ExtraCharges'].toString());
-    // }
-    // else{
-    //   cakeName = recentOrders[index]['CakeName']??"My Customized Cake";
-    //   vendorName = recentOrders[index]['VendorName'];
-    //   status = recentOrders[index]['Status'];
-    //   image = recentOrders[index]['Images'].isNotEmpty?recentOrders[index]['Images'][0].toString():"";
-    //   price = recentOrders[index]['Price']!=null?
-    //   double.parse(recentOrders[index]['Price'].toString()):double.parse("0.00");
-    //   extraCharge = double.parse(recentOrders[index]['ExtraCharges'].toString(),(e)=>0);
-    // }
-
     if(recentOrders[index]['Flavour']!=null){
       List tempFlavours = recentOrders[index]['Flavour'];
       tempFlavours.forEach((e) {
@@ -1170,12 +1346,16 @@ class _HomeScreenState extends State<HomeScreen> {
     paidVia = recentOrders[index]['PaymentType'];
     typeOfCake = recentOrders[index]['CakeTypeForDisplay'];
     weight = changeWeight(recentOrders[index]['Weight']);
-    if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
+    if(recentOrders[index]['VendorName']==null || recentOrders[index]['VendorName'].toString()=="null"){
+      vendorName = "Premium Vendor";
+    }else{
       vendorName = recentOrders[index]['VendorName'].toString();
     }
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
+    }else if(status.toLowerCase()=="price approved"){
+      status = "Sent";
     }
 
     return Container(
@@ -2972,6 +3152,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+  //payment handlers...
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    // Do something when payment succeeds
+    print("Pay success : "+response.paymentId.toString());
+    // if(tempData['CustomizedCakeID']!=null && tempData['Status'].toString().toLowerCase()=="sent"){
+    //   handleCustomiseCakeUpdate(tempData, customPaymentType, "agree", "");
+    // }else{
+    //   updateTheTickets(tempData, "agree");
+    // }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    print("Pay error : "+response.toString());
+    //showPaymentDoneAlert("failed");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet is selected
+    //print("wallet : "+response.toString());
+    // showPaymentDoneAlert("failed");
+  }
+
+
   //onStart
   @override
   void initState() {
@@ -2991,6 +3195,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       //loadPrefs();
     });
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
 
   @override

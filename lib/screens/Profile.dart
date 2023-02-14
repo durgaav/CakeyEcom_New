@@ -600,6 +600,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     //api/ordersandhamperorders/listbyuser/
     //api/orders/listByUser/All/
     //63d7a28df304865dca2ecffc
+
+    print("User Id $_id");
+
     showAlertDialog();
 
     try{
@@ -1276,12 +1279,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     paidVia = recentOrders[index]['PaymentType'];
     typeOfCake = recentOrders[index]['CakeTypeForDisplay'];
     weight = changeWeight(recentOrders[index]['Weight']);
-    if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
+    if(recentOrders[index]['VendorName']==null || recentOrders[index]['VendorName'].toString()=="null"){
+      vendorName = "Premium Vendor";
+    }else{
       vendorName = recentOrders[index]['VendorName'].toString();
     }
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
+    }else if(status.toLowerCase()=="price approved"){
+      status = "Sent";
     }
 
 
@@ -1556,7 +1563,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         height: 1,
                       ),
 
-                      typeOfCake.toLowerCase()=="customized cake"?
+                      typeOfCake.toLowerCase()=="customized cake" && status.toLowerCase()=="new"?
                       Container(
                         padding:EdgeInsets.all(12),
                         child:Text("We will send the price details as soon as possible.!",style:TextStyle(
@@ -1564,6 +1571,163 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           fontSize:13.5,
                           color:Colors.black
                         ),),
+                      ):
+                      typeOfCake.toLowerCase()=="customized cake" && status.toLowerCase()=="sent"?
+                      Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Product Total',style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black54,
+                                ),),
+                                Text("₹${((productTotal*count)+extraCharge).toStringAsFixed(2)}"
+                                  ,style: const TextStyle(fontWeight: FontWeight.bold),)
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Delivery charge',
+                                  style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                Text('₹${deliveryCharge.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Discounts',
+                                  style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black54,
+                                  ),),
+                                Text('₹${discounts.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Gst',style: const TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black54,
+                                ),),
+                                Text('₹${cgst.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('SGST',style: const TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black54,
+                                ),),
+                                Text('₹${sgst.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Coupon',style: const TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black54,
+                                ),),
+                                Text('₹${couponVal.toStringAsFixed(2)}',style: const TextStyle(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10,right: 10),
+                            color:Colors.grey[400],
+                            height: 1,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text('Bill Total',style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                                Text('₹${billTot.toStringAsFixed(2)}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text('Paid via : ${recentOrders[index]['PaymentType']}',style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.black54,
+                                ),),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap:(){
+                              Functions().showCustomisePriceAlertBox(
+                                  context ,
+                                  recentOrders[index]['_id'].toString(),
+                                  ()=>{Navigator.pop(context)},
+                                  ()=>{Navigator.pop(context)},
+                              );
+                              //showReasonDialog(typeOfCake , recentOrders[index]['_id']);
+                            },
+                            child: Container(
+                              margin:EdgeInsets.symmetric(
+                                  horizontal:50,
+                                  vertical:10
+                              ),
+                              padding:EdgeInsets.symmetric(
+                                  vertical:10
+                              ),
+                              decoration:BoxDecoration(
+                                  color:Colors.pink,
+                                  borderRadius:BorderRadius.circular(15)
+                              ),
+                              child:Center(
+                                child:Text("ACTIONS",style:TextStyle(
+                                    color:Colors.white,
+                                    fontFamily:"Poppins"
+                                ),),
+                              ),
+                            ),
+                          )
+                        ],
                       ):
                       Column(
                         children: [
