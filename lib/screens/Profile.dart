@@ -1783,6 +1783,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               ],
                             ),
                           ),
+                          typeOfCake.toLowerCase()=="customized cake" && status.toLowerCase()=="sent"?
                           GestureDetector(
                             onTap:(){
                               tempDatum = {
@@ -1825,7 +1826,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 ),),
                               ),
                             ),
-                          )
+                          ):Container()
                         ],
                       ):
                       Column(

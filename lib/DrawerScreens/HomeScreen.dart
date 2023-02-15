@@ -915,7 +915,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
-    }else if(status.toLowerCase()=="price approved"){
+    }
+    else if(status.toLowerCase()=="sent"){
+      status = "New";
+    }
+    else if(status.toLowerCase()=="price approved"){
       status = "Sent";
     }
 

@@ -26,7 +26,7 @@ class FCM {
   final bodyCtlr = StreamController<String>.broadcast();
 
   setNotifications() {
-    FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
+    //FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
     FirebaseMessaging.onMessage.listen(
           (message) async {
         if (message.data.containsKey('data')) {

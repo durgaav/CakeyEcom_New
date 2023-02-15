@@ -39,9 +39,9 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   //Pick Or Deliver
   var picOrDeliver = ['Pickup', 'Delivery'];
-  var picOrDel = [true, false];
+  var picOrDel = [false, false];
 
-  String fixedDelliverMethod = "Pickup";
+  String fixedDelliverMethod = "";
   String deliverDate = "Select delivery date";
   String deliverSession = "Select delivery time";
 
@@ -1720,6 +1720,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                                   Functions().showSnackMsg(context, "Please select deliver date / deliver session", true);
                                 } else if(deliverAddressIndex == -1){
                                   Functions().showSnackMsg(context, "Please select delivery address", true);
+                                }else if(fixedDelliverMethod.isEmpty){
+                                  Functions().showSnackMsg(context, "Please select pickup / Delivery", true);
                                 }
                                 else if(tooFar==true){
                                   Functions().showSnackMsg(context, "Delivery address is too far , select nearest delivery address", true);

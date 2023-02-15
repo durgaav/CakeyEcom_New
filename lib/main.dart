@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
     // });
 
     socket.on('getUser', (data) {
-      print("String..............................................");
+      print("String.....Customer");
       //chatList.add(MessageModel.fromJson(data));
       print("Socket data ... $data");
       pr.setString("socketActiveMembers", jsonEncode(data));
