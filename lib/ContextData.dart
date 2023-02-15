@@ -1,4 +1,5 @@
-
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:cakey/screens/utils.dart';
 import 'package:flutter/foundation.dart';
 
 class ContextData extends ChangeNotifier {
@@ -84,5 +85,32 @@ class ContextData extends ChangeNotifier {
   }
 
   Map getCodeDetails()=>codeDetails;
+
+  //init socket
+  IO.Socket? socket;
+
+  void setSocketData(){
+    print("Socket connecting...");
+    socket = IO.io(SOCKET_URL, <String, dynamic>{
+      'autoConnect': true,
+      'transports': ['websocket'],
+    });
+    socket!.connect();
+    socket!.onConnect((e) {
+      print('Connection established. $e');
+      //Navigator.pop(context);
+    });
+    socket!.onDisconnect((e){
+      print('Connection Disconnected $e');
+      //Navigator.pop(context);
+    });
+    socket!.onConnectError((err) {
+      print(err);
+    });
+    socket!.onError((err) => print(err));
+    notifyListeners();
+  }
+
+  IO.Socket getSocketData() =>socket!;
 
 }

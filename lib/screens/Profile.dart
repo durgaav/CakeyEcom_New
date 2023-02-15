@@ -1369,7 +1369,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
-    }else if(status.toLowerCase()=="price approved"){
+    }
+    else if(status.toLowerCase()=="sent"){
+      status = "New";
+    }
+    else if(status.toLowerCase()=="price approved"){
       status = "Sent";
     }
 

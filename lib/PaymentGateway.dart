@@ -766,7 +766,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-    Functions().sendThePushMsg("Hi $vendorName , you got new order from $userName", "New order received!", NoId.toString());
+    Functions().sendThePushMsg("Hi $vendorName , you got a new order from $userName", "New order received!", NoId.toString());
   }
 
   //payment handlers...

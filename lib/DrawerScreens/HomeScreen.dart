@@ -1422,7 +1422,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
-    }else if(status.toLowerCase()=="price approved"){
+    }
+    else if(status.toLowerCase()=="sent"){
+      status = "New";
+    }
+    else if(status.toLowerCase()=="price approved"){
       status = "Sent";
     }
 
@@ -2122,28 +2126,33 @@ class _HomeScreenState extends State<HomeScreen> {
     getFbToken();
   }
 
+  void setSocket() {
+    context.read<ContextData>().setSocketData();
+  }
+
   //socket init
   initSocket(BuildContext context) {
 
+
     //let data = socket?.emit("adduser", { Email: token?.result?.Email, type: token?.result?.TypeOfUser, _id: token?.result?._id, Id: token?.result?.Id, Name: token?.result?.Name })
 
-    print("Socket connecting...");
-    //AlertsAndColors().showLoader(context);
-    //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
-    //socket = IO.io("http://sugitechnologies.com:3001", <String, dynamic>{
-    socket = IO.io("${SOCKET_URL}", <String, dynamic>{
-      'autoConnect': true,
-      'transports': ['websocket'],
-    });
-    socket!.connect();
-    socket!.onConnect((e) {
-      print('Connection established. $e');
-      //Navigator.pop(context);
-    });
-    socket!.onDisconnect((e){
-      print('Connection Disconnected $e');
-      //Navigator.pop(context);
-    });
+    // print("Socket connecting...");
+    // //AlertsAndColors().showLoader(context);
+    // //IO.Socket socket = IO.io('https://cakey-backend.herokuapp.com');
+    // //socket = IO.io("http://sugitechnologies.com:3001", <String, dynamic>{
+    // socket = IO.io("${SOCKET_URL}", <String, dynamic>{
+    //   'autoConnect': true,
+    //   'transports': ['websocket'],
+    // });
+    // socket!.connect();
+    // socket!.onConnect((e) {
+    //   print('Connection established. $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket!.onDisconnect((e){
+    //   print('Connection Disconnected $e');
+    //   //Navigator.pop(context);
+    // });
     // socket!.onConnectError((err) {
     //   print(err);
     //   //Navigator.pop(context);
@@ -3250,8 +3259,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    setSocket();
     Future.delayed(Duration.zero, () async {
-      initSocket(context);
+      //initSocket(context);
       var pr = await SharedPreferences.getInstance();
       if(pr.getString('showMoreVendor')!=null&&pr.getString('showMoreVendor')!="null"){
         var addr = pr.getString('showMoreVendor')??'';
@@ -3276,6 +3286,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
     notiCount = context.watch<ContextData>().getNotiCount();
+    socket = context.watch<ContextData>().getSocketData();
 
     //searching..
     if (searchText.isNotEmpty) {

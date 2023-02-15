@@ -79,18 +79,18 @@ class _MyAppState extends State<MyApp> {
       'transports': ['websocket'],
     });
     socket.connect();
-    socket.onConnect((e) {
-      print('Connection established. $e');
-      //Navigator.pop(context);
-    });
-    socket.onDisconnect((e){
-      print('Connection Disconnected $e');
-      //Navigator.pop(context);
-    });
-    socket.onConnectError((err) {
-      print(err);
-    });
-    socket.onError((err) => print(err));
+    // socket.onConnect((e) {
+    //   print('Connection established. $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket.onDisconnect((e){
+    //   print('Connection Disconnected $e');
+    //   //Navigator.pop(context);
+    // });
+    // socket.onConnectError((err) {
+    //   print(err);
+    // });
+    // socket.onError((err) => print(err));
 
     // socket.emit("adduser",{
     //   "Email":"919876543210",

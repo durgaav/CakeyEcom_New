@@ -1294,7 +1294,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
-    Functions().sendThePushMsg("Hi $vendorName , you got new order from $userName","New order received!", NoId.toString());
+    Functions().sendThePushMsg("Hi $vendorName , you got a new order from $userName","New order received!", NoId.toString());
   }
 
   void showLocationChangeDialog(){
