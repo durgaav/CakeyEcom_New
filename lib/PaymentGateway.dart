@@ -969,7 +969,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "Image": obj['MainCakeImage'],
         "EggOrEggless": paymentObjs['egg'],
         "Flavour":paymentObjs['flavours'],
-        "Shape":jsonDecode(paymentObjs['shapes']),
+        "Shape":jsonDecode(paymentObjs['shapes'].toString()),
         //"Tier":'',
         "Weight":paymentObjs['weight'],
         "Description": obj['Description'],

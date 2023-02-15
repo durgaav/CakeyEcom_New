@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
+import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/AddressScreen.dart';
@@ -15,6 +16,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
@@ -92,6 +94,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   List<String> addressList=[]; //address list
 
+  var tempDatum = {};
+  var _razorpay = Razorpay();
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
 
@@ -105,7 +109,93 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       loadPrefs();
       profileDetailHandler();
     });
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     super.initState();
+  }
+
+  Future<void> handleCustomiseCakeUpdate(var data , String paymentType , String aggreeOrDis , String cancelReason) async{
+    showAlertDialog();
+
+    var pass = {
+      "TicketID": data['TicketID'], //TicketID
+      "Customer_Approved_Status": "Approved", //Approved
+      "Customer_Paid_Status": paymentType.toLowerCase()=="cash on delivery"?"Pending":"Paid", //Paid or Pending
+      "Last_Intimate": ["HelpdeskC"], //Static
+      "PaymentType": paymentType, //Cash on delivery or payment method
+      "PaymentStatus": paymentType.toLowerCase()=="cash on delivery"?"Cash on delivery":"Paid" //Paid Status
+    };
+
+    if(aggreeOrDis=="disagree"){
+      pass = {
+        "TicketID": data['TicketID'], //TicketID
+        "Customer_Approved_Status": "NotApproved", //Not Approved
+        "Customer_Paid_Status": "Cancelled", //Cancelled
+        "Last_Intimate": ["HelpdeskC"], //Static
+        "ReasonForCancel": cancelReason, //inputs from customer
+      };
+    }
+
+    print(pass);
+
+    try{
+
+      http.Response res = await http.put(
+          Uri.parse('${API_URL}api/tickets/customizedCake/confirmOrder/${data['CustomizedCakeID']}'),
+          body:jsonEncode(pass),
+          headers: {
+            "Content-Type":"application/json"
+          }
+      );
+
+      if(res.statusCode == 200) {
+        print(res.body);
+        Navigator.pop(context);
+        if (jsonDecode(res.body)['statusCode'] == 200) {
+          if(aggreeOrDis=="disagree"){
+            Functions().showSnackMsg(context, "Your order has been cancelled!", false);
+          }else{
+            Functions().showSnackMsg(context, "Order placed successfully!", false);
+          }
+          getOrderList(userID);
+        } else {
+          Functions().showSnackMsg(context, "Failed!", false);
+        }
+      }else{
+        Navigator.pop(context);
+      }
+
+    }catch(e){
+      Navigator.pop(context);
+      print(e);
+      Functions().showSnackMsg(context, "Error occurred $e", false);
+    }
+
+  }
+
+  //payment handlers...
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    // Do something when payment succeeds
+    print("Pay success : "+response.paymentId.toString());
+    handleCustomiseCakeUpdate(tempDatum, "Online payment", "aggree", "cancelReason");
+    // if(tempData['CustomizedCakeID']!=null && tempData['Status'].toString().toLowerCase()=="sent"){
+    //   handleCustomiseCakeUpdate(tempData, customPaymentType, "agree", "");
+    // }else{
+    //   updateTheTickets(tempData, "agree");
+    // }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    print("Pay error : "+response.toString());
+    //showPaymentDoneAlert("failed");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet is selected
+    //print("wallet : "+response.toString());
+    // showPaymentDoneAlert("failed");
   }
 
   Future profileDetailHandler() async {
@@ -115,7 +205,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         userID = value['_id'];
         //userModId = value['Id'];
         userNameCtrl.text = value['UserName'];
-        phoneNumCtrl.text = value['PhoneNumber'].toString();
+        phoneNumCtrl.text = "+"+value['PhoneNumber'].toString();
         userAddrCtrl.text = value['Address'];
         pinCodeCtrl.text = value['Pincode'];
         userProfileUrl = value['ProfileImage'].toString();
@@ -426,7 +516,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               cancelHamperOrder(textCtrl.text, ordId);
                             }else if(type.toLowerCase()=="other products"){
                               cancelOtherProductsOrder(textCtrl.text, ordId);
-                            }else{
+                            }
+                            else if(type.toLowerCase()=="cancel invoice"){
+                              handleCustomiseCakeUpdate(tempDatum, "paymentType", "disagree", textCtrl.text);
+                            }
+                            else{
                               cancelCustomiseOrder(textCtrl.text, ordId);
                             }
                           }else{
@@ -1103,6 +1197,87 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
+  Future<void> createTheOrderId(amt) async {
+
+    MyDialogs().showTheLoader(context);
+    // tempData = data;
+    try{
+
+      var amount = amt.toString();
+
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}'
+      };
+      var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
+      request.body = json.encode({
+        "amount": double.parse(amount.toString())*100,
+        "currency": "INR",
+        "receipt": "Receipt",
+        "notes": {
+          "notes_key_1": "Order for cakey",
+          // "notes_key_2": "Order for $cakeName"
+        }
+      });
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var res = jsonDecode(await response.stream.bytesToString());
+        print(res);
+        _handleFinalPayment(res['amount'].toString() , res['id']);
+        Navigator.pop(context);
+      }
+      else {
+        // print();
+        Navigator.pop(context);
+        Functions().showSnackMsg(context, "Payment Error : "+response.reasonPhrase.toString(), true);
+      }
+
+    }catch(e){
+      print(e);
+      Navigator.pop(context);
+    }
+
+  }
+
+  void _handleFinalPayment(String amt , String orderId){
+
+    print("Test ord id : $orderId");
+
+    //var amount = Bill.toStringAsFixed(2);
+
+    var options = {
+      'key': '${PAY_TOK}',
+      'amount': double.parse(amt.toString())*100, //in the smallest currency sub-unit.
+      'name': 'Surya Prakash',
+      'order_id': orderId, // Generate order_id using Orders API
+      'description': '',
+      'timeout': 300, // in seconds
+      'prefill': {
+        'contact': '',
+        // 'email': '$userName',
+        'email': '',
+      },
+      "theme":{
+        "color":'#E8416D'
+      },
+      // "method": {
+      //   "netbanking": false,
+      //   "card": true,
+      //   "upi": true,
+      //   "wallet": false,
+      //   "emi": false,
+      //   "paylater": false
+      // },
+    };
+
+    print(options);
+
+    _razorpay.open(options);
+  }
+
   Widget orderDetailsTile(int index) {
 
     bool showTile = false;
@@ -1111,9 +1286,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     String image ="";
     String vendorName = "Premium Vendor";
     String typeOfCake = "Cakes";
-    String shape = "None";
+    var shape = {};
     String status = "";
-    List<dynamic> flavours = ["None"];
+    List<dynamic> flavours = [];
 
     double productTotal = 0;
     double extraCharge = 0;
@@ -1157,107 +1332,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     orderId = recentOrders[index]['Id'].toString();
 
-    // if(recentOrders[index]['HampersName']!=null){
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   cakeName = recentOrders[index]['HampersName'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   image = recentOrders[index]['HamperImage'].toString();
-    //   productTotal = double.parse(recentOrders[index]['Price'].toString());
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Gift Hampers";
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    // }
-    // else if(recentOrders[index]['ProductName']!=null){
-    //
-    //   if(recentOrders[index]['ProductMinWeightPerKg']!=null){
-    //
-    //     myMap = recentOrders[index]['ProductMinWeightPerKg'];
-    //
-    //     productTotal = (double.parse(myMap['PricePerKg'])*changeWeight(myMap['Weight']))*int.parse(recentOrders[index]['ItemCount'].toString());
-    //
-    //   }
-    //   else if(recentOrders[index]['ProductMinWeightPerUnit']!=null){
-    //     myMap = recentOrders[index]['ProductMinWeightPerUnit'];
-    //
-    //     productTotal = (double.parse(myMap['PricePerUnit'])*double.parse(myMap['ProductCount']));
-    //
-    //   }
-    //   else {
-    //     myMap = recentOrders[index]['ProductMinWeightPerBox'];
-    //     productTotal = double.parse(myMap['PricePerBox'])*double.parse(myMap['ProductCount']);
-    //   }
-    //
-    //   image = recentOrders[index]['Image'].toString();
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   cakeName = recentOrders[index]['ProductName'].toString();
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Other Products";
-    //   flavours = recentOrders[index]['Flavour'];
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    //
-    // }else if(recentOrders[index]['CakeName']!=null && recentOrders[index]['Id'].toString().startsWith("CKYORD")){
-    //
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   cakeName = recentOrders[index]['CakeName'].toString();
-    //   status = recentOrders[index]['Status'].toString();
-    //   image = recentOrders[index]['Image'].toString();
-    //   productTotal = ((double.parse(recentOrders[index]['Price'].toString())*
-    //       changeWeight(recentOrders[index]['Weight'].toString()))+double.parse(recentOrders[index]['ExtraCharges'].toString()))*
-    //       int.parse(recentOrders[index]['ItemCount'].toString());
-    //   deliveryCharge = double.parse(recentOrders[index]['DeliveryCharge'].toString());
-    //   discounts = double.parse(recentOrders[index]['Discount'].toString());
-    //   cgst = double.parse(recentOrders[index]['Gst'].toString());
-    //   sgst = double.parse(recentOrders[index]['Sgst'].toString());
-    //   billTot = double.parse(recentOrders[index]['Total'].toString());
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   typeOfCake = "Cakes";
-    //   shape = recentOrders[index]['Shape']['Name'];
-    //
-    //   List tempFlavours = recentOrders[index]['Flavour'];
-    //   tempFlavours.forEach((e) {
-    //     flavours.add(e['Name']);
-    //   });
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    //
-    // }else{
-    //   cakeName = recentOrders[index]['CakeName'].toString();
-    //   image = recentOrders[index]['Images'].isNotEmpty?recentOrders[index]['Images'][0]:"";
-    //   status = recentOrders[index]['Status'].toString();
-    //   address = recentOrders[index]['DeliveryAddress'].toString();
-    //   paidVia = recentOrders[index]['PaymentStatus'];
-    //   shape = recentOrders[index]['Shape'];
-    //   typeOfCake = "Customised Cakes";
-    //
-    //   List tempFlavours = recentOrders[index]['Flavour'];
-    //   tempFlavours.forEach((e) {
-    //     flavours.add(e['Name']);
-    //   });
-    //
-    //   if(recentOrders[index]['VendorName']!=null || recentOrders[index]['VendorName']!=""){
-    //     vendorName = recentOrders[index]['VendorName'].toString();
-    //   }
-    // }
-
     if(recentOrders[index]['Flavour']!=null){
       List tempFlavours = recentOrders[index]['Flavour'];
       tempFlavours.forEach((e) {
@@ -1284,6 +1358,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }else{
       vendorName = recentOrders[index]['VendorName'].toString();
     }
+
+    if(recentOrders[index]['Shape']!=null){
+      shape = recentOrders[index]['Shape'];
+    }else{
+      shape = {"Name":"None"};
+    }
+
+
 
     if(status.toLowerCase()=="rejected"){
       status = "Pending";
@@ -1380,7 +1462,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   children: [
                                     Wrap(
                                       children: [
-                                        Text('(Shape - $shape)',style: TextStyle(
+                                        Text('(Shape - ${shape['Name'].toString()})',style: TextStyle(
                                             fontSize: 11,fontFamily: "Poppins",color: Colors.grey[500]
                                         ),overflow: TextOverflow.ellipsis,maxLines: 10),
                                         SizedBox(width:3,),
@@ -1699,11 +1781,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           ),
                           GestureDetector(
                             onTap:(){
+                              tempDatum = {
+                                "TicketID":recentOrders[index]['TicketID'].toString(),
+                                "CustomizedCakeID":recentOrders[index]['_id'].toString(),
+                              };
+                              //Navigator.of(context).pop(context);
                               Functions().showCustomisePriceAlertBox(
-                                  context ,
-                                  recentOrders[index]['_id'].toString(),
-                                  ()=>{Navigator.pop(context)},
-                                  ()=>{Navigator.pop(context)},
+                                context ,
+                                recentOrders[index]['_id'].toString(),
+                                    ()=>{
+                                  //Navigator.pop(context),
+                                  Navigator.pop(context),
+                                  createTheOrderId(billTot.toStringAsFixed(2)),
+                                },
+                                    ()=>{
+                                  //Navigator.pop(context),
+                                  Navigator.pop(context),
+                                  showReasonDialog("cancel invoice", "paymetType"),
+                                },
                               );
                               //showReasonDialog(typeOfCake , recentOrders[index]['_id']);
                             },

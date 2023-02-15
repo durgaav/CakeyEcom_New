@@ -1505,6 +1505,7 @@ class _NotificationsState extends State<Notifications> {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       Navigator.pop(context);
+      context.read<ContextData>().setNotiCount(0);
       fetchNotifications();
     }
     else {

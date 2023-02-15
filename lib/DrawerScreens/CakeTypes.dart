@@ -5199,7 +5199,6 @@ class _CakeTypesState extends State<CakeTypes> {
                             crossAxisSpacing: 7,
                             itemCount: otherEggProducts.length,
                             itemBuilder: (BuildContext context, int index) {
-
                               var price , weight;
                               if(otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"){
                                 price = otherEggProducts[index]['MinWeightPerKg']['PricePerKg'];
@@ -5212,9 +5211,14 @@ class _CakeTypesState extends State<CakeTypes> {
                                 weight = otherEggProducts[index]['MinWeightPerBox'][0]['Piece'];
                               }
 
-                              var fixPrice = (double.parse(price.toString())
-                                //  *changeWeight(weight.toString())
-                              ).toStringAsFixed(1);
+                              var fixPrice = '0';
+
+                              if(weight.toString().toLowerCase().endsWith("kg")||weight.toString().toLowerCase().endsWith("g")){
+                                fixPrice = (double.parse(price.toString())*changeWeight(weight.toString())).toStringAsFixed(1);
+                              }else{
+                                fixPrice = (double.parse(price.toString())*int.parse(weight.toString().split(" ").first)).toStringAsFixed(1);
+                              }
+
 
                               //otherEggProducts[index]['Type'].toString().toLowerCase()=="kg"?
                               //'${otherEggProducts[index]['MinWeightPerKg']['Weight']}':

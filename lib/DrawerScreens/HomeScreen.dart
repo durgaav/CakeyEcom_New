@@ -174,6 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
   //sockets
   IO.Socket? socket;
 
+  var tempDatum = {};
+
   //endregion
 
   //region Alerts
@@ -608,24 +610,90 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
+  //handle razorpay payment here...
+  void _handleFinalPayment(String amt , String orderId){
+
+    print("Test ord id : $orderId");
+
+    //var amount = Bill.toStringAsFixed(2);
+
+    var options = {
+      'key': '${PAY_TOK}',
+      'amount': double.parse(amt.toString())*100, //in the smallest currency sub-unit.
+      'name': 'Surya Prakash',
+      'order_id': orderId, // Generate order_id using Orders API
+      'description': '',
+      'timeout': 300, // in seconds
+      'prefill': {
+        'contact': '',
+        // 'email': '$userName',
+        'email': '',
+      },
+      "theme":{
+        "color":'#E8416D'
+      },
+      // "method": {
+      //   "netbanking": false,
+      //   "card": true,
+      //   "upi": true,
+      //   "wallet": false,
+      //   "emi": false,
+      //   "paylater": false
+      // },
+    };
+
+    print(options);
+
+    _razorpay.open(options);
+  }
+
+  Future<void> createTheOrderId(amt) async {
+
+    MyDialogs().showTheLoader(context);
+    // tempData = data;
+    try{
+
+      var amount = amt.toString();
+
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${PAY_TOK}:${PAY_KEY}'))}'
+      };
+      var request = http.Request('POST', Uri.parse('https://api.razorpay.com/v1/orders'));
+      request.body = json.encode({
+        "amount": double.parse(amount.toString())*100,
+        "currency": "INR",
+        "receipt": "Receipt",
+        "notes": {
+          "notes_key_1": "Order for cakey",
+          // "notes_key_2": "Order for $cakeName"
+        }
+      });
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var res = jsonDecode(await response.stream.bytesToString());
+        print(res);
+        _handleFinalPayment(res['amount'].toString() , res['id']);
+        Navigator.pop(context);
+      }
+      else {
+        // print();
+        Navigator.pop(context);
+        Functions().showSnackMsg(context, "Payment Error : "+response.reasonPhrase.toString(), true);
+      }
+
+    }catch(e){
+      print(e);
+      Navigator.pop(context);
+    }
+
+  }
+
   Future<void> handleCustomiseCakeUpdate(var data , String paymentType , String aggreeOrDis , String cancelReason) async{
     showAlertDialog();
-    //{
-    //         "_id": "63a3da501379ff574cc7493b",
-    //         "CustomizedCakeID": "63a29df4cf3425fcc2d4714c",
-    //         "CustomizedCake_ID": "CKYCCO-15",
-    //         "CakeName": "My Customized Cake",
-    //         "Status": "Sent",
-    //         "Status_Updated_On": "22-12-2022 09:47 AM",
-    //         "UserID": "6333e3439e05797c3a35a973",
-    //         "User_ID": "CKYCUS-4",
-    //         "UserName": "Naveen Surya",
-    //         "CustomizedCake": "y",
-    //         "For_Display": "You received your Customized Cake order's Price Invoice",
-    //         "TicketID": "63a2a128bbedd4597136f381",
-    //         "Flavour": [],
-    //         "__v": 0
-    //     },
 
     var pass = {
       "TicketID": data['TicketID'], //TicketID
@@ -663,7 +731,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pop(context);
         if (jsonDecode(res.body)['statusCode'] == 200) {
           if(aggreeOrDis=="disagree"){
-            Functions().showSnackMsg(context, "Order cancelled successfully!", false);
+            Functions().showSnackMsg(context, "Your order has been cancelled!", false);
           }else{
             Functions().showSnackMsg(context, "Order placed successfully!", false);
           }
@@ -676,7 +744,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     }catch(e){
-
       Navigator.pop(context);
       print(e);
       Functions().showSnackMsg(context, "Error occurred $e", false);
@@ -743,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap:(){
                           Navigator.pop(context);
                           if(textCtrl.text.isNotEmpty){
-                            MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+                            MyDialogs().showConfirmDialog(context, "Your order will be cancelled.", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
                           }else{
                             Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
                           }
@@ -1120,7 +1187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     GestureDetector(
                       onTap:(){
-                        var data = {
+                        tempDatum = {
                           "TicketID":recentOrders[index]['TicketID'].toString(),
                           "CustomizedCakeID":recentOrders[index]['_id'].toString(),
                         };
@@ -1131,12 +1198,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ()=>{
                               Navigator.pop(context),
                               Navigator.pop(context),
+                              createTheOrderId(billTot.toStringAsFixed(2)),
                               //showReasonDialog(data, "paymetType"),
                             },
                             ()=>{
                               Navigator.pop(context),
                               Navigator.pop(context),
-                              showReasonDialog(data, "paymetType"),
+                              showReasonDialog(tempDatum, "paymetType"),
                             },
                         );
                         //showReasonDialog(typeOfCake , recentOrders[index]['_id']);
@@ -3156,6 +3224,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Do something when payment succeeds
     print("Pay success : "+response.paymentId.toString());
+    handleCustomiseCakeUpdate(tempDatum, "Online payment", "aggree", "cancelReason");
     // if(tempData['CustomizedCakeID']!=null && tempData['Status'].toString().toLowerCase()=="sent"){
     //   handleCustomiseCakeUpdate(tempData, customPaymentType, "agree", "");
     // }else{
