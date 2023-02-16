@@ -753,83 +753,137 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void showReasonDialog(var data , String paymetType) {
     var textCtrl = TextEditingController();
-    showModalBottomSheet(
+
+    showDialog(
         context: context,
-        isScrollControlled:true,
-        shape:RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-                top:Radius.circular(15)
-            )
-        ),
         builder:(c){
-          return Padding(
-            padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              decoration:BoxDecoration(
-                  borderRadius: BorderRadius.vertical(
-                      top:Radius.circular(15)
+          return AlertDialog(
+            shape:RoundedRectangleBorder(
+                borderRadius:BorderRadius.circular(15)
+            ),
+            title:Text("Reason for cancel",style:TextStyle(
+                fontFamily:"Poppins",
+                fontSize:15,
+                fontWeight:FontWeight.bold
+            ),),
+            contentPadding:EdgeInsets.symmetric(horizontal:10),
+            titlePadding:EdgeInsets.all(8),
+            content:TextField(
+              controller:textCtrl,
+              style:TextStyle(
+                fontFamily:"Poppins",
+                fontSize:13,
+              ),
+              decoration:InputDecoration(
+                  hintText:"Type your reason...",
+                  hintStyle:TextStyle(
+                    fontFamily:"Poppins",
+                    fontSize:13,
                   )
               ),
-              padding:EdgeInsets.symmetric(
-                  vertical:10,horizontal:10
-              ),
-              child:Column(
-                mainAxisSize:MainAxisSize.min,
-                crossAxisAlignment:CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding:EdgeInsets.symmetric(
-                        vertical:10, horizontal:5
-                    ),
-                    child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
-                      color:Colors.black,
-                      fontFamily:'Poppins',
-                      fontSize:15,
-                      fontWeight:FontWeight.bold,
-                    ),),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.note_alt , color:Colors.red,),
-                      SizedBox(width:6,),
-                      Expanded(child: TextField(
-                        controller:textCtrl,
-                        decoration:InputDecoration(
-                            border:InputBorder.none,
-                            hintText:"Type your reason...",
-                            isDense: true,
-                            hintStyle:TextStyle(
-                                color:Colors.grey,
-                                fontFamily:"Poppins",
-                                fontSize:13
-                            )
-                        ),
-                      )),
-                      SizedBox(width:6,),
-                      InkWell(
-                        onTap:(){
-                          Navigator.pop(context);
-                          if(textCtrl.text.isNotEmpty){
-                            MyDialogs().showConfirmDialog(context, "Your order will be cancelled.", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
-                          }else{
-                            Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
-                          }
-                        },
-                        child:Text("CANCEL ORDER",style: TextStyle(
-                            fontFamily:"Poppins",
-                            color:Colors.red,
-                            fontSize:13
-                        ),),
-                      )
-                    ],
-                  ),
-                  SizedBox(height:5,)
-                ],
-              ),
             ),
+            actions: [
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+              }, child: Text("CLOSE",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+                if(textCtrl.text.isNotEmpty){
+                  MyDialogs().showConfirmDialog(context, "Your order will be cancelled.", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+                }else{
+                  Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+                }
+              }, child: Text("CANCEL",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+            ],
           );
         }
     );
+
+    // showModalBottomSheet(
+    //     context: context,
+    //     isScrollControlled:true,
+    //     shape:RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.vertical(
+    //             top:Radius.circular(15)
+    //         )
+    //     ),
+    //     builder:(c){
+    //       return Padding(
+    //         padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
+    //         child: Container(
+    //           decoration:BoxDecoration(
+    //               borderRadius: BorderRadius.vertical(
+    //                   top:Radius.circular(15)
+    //               )
+    //           ),
+    //           padding:EdgeInsets.symmetric(
+    //               vertical:10,horizontal:10
+    //           ),
+    //           child:Column(
+    //             mainAxisSize:MainAxisSize.min,
+    //             crossAxisAlignment:CrossAxisAlignment.start,
+    //             children: [
+    //               Padding(
+    //                 padding:EdgeInsets.symmetric(
+    //                     vertical:10, horizontal:5
+    //                 ),
+    //                 child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
+    //                   color:Colors.black,
+    //                   fontFamily:'Poppins',
+    //                   fontSize:15,
+    //                   fontWeight:FontWeight.bold,
+    //                 ),),
+    //               ),
+    //               Row(
+    //                 children: [
+    //                   Icon(Icons.note_alt , color:Colors.red,),
+    //                   SizedBox(width:6,),
+    //                   Expanded(child: TextField(
+    //                     controller:textCtrl,
+    //                     decoration:InputDecoration(
+    //                         border:InputBorder.none,
+    //                         hintText:"Type your reason...",
+    //                         isDense: true,
+    //                         hintStyle:TextStyle(
+    //                             color:Colors.grey,
+    //                             fontFamily:"Poppins",
+    //                             fontSize:13
+    //                         )
+    //                     ),
+    //                   )),
+    //                   SizedBox(width:6,),
+    //                   InkWell(
+    //                     onTap:(){
+    //                       Navigator.pop(context);
+    //                       if(textCtrl.text.isNotEmpty){
+    //                         MyDialogs().showConfirmDialog(context, "Your order will be cancelled.", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+    //                       }else{
+    //                         Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+    //                       }
+    //                     },
+    //                     child:Text("CANCEL ORDER",style: TextStyle(
+    //                         fontFamily:"Poppins",
+    //                         color:Colors.red,
+    //                         fontSize:13
+    //                     ),),
+    //                   )
+    //                 ],
+    //               ),
+    //               SizedBox(height:5,)
+    //             ],
+    //           ),
+    //         ),
+    //       );
+    //     }
+    // );
   }
 
   void showRecentOrderDetailsSheet(int index) {
@@ -2118,6 +2172,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
         });
         context.read<ContextData>().setUserName(userName);
+
+        if (userName == "null" || userName == null) {
+          prefs.setBool('newRegUser', true);
+          context.read<ContextData>().setFirstUser(true);
+        }else{
+          context.read<ContextData>().setFirstUser(false);
+        }
+
       } else {
         checkNetwork();
         //Navigator.pop(context);
@@ -2793,7 +2855,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     context.read<ContextData>().setNotiCount(notiCount);
-
   }
 
   //network check
@@ -3291,6 +3352,7 @@ class _HomeScreenState extends State<HomeScreen> {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     notiCount = context.watch<ContextData>().getNotiCount();
     socket = context.watch<ContextData>().getSocketData();
+    newRegUser = context.watch<ContextData>().getFirstUser();
 
     //searching..
     if (searchText.isNotEmpty) {
@@ -5156,8 +5218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   cakeSearchList[i]['Type'].toString().toLowerCase()=="kg"?
                                                                   TextSpan(
                                                                       text:
-                                                                      'Minimum Price : Rs.${cakeSearchList[i]['MinWeightPerKg']['PricePerKg']}/'
-                                                                          '${cakeSearchList[i]['MinWeightPerKg']['Weight']}',
+                                                                      'Minimum Price : Rs.${cakeSearchList[i]['MinWeightPerKg']['PricePerKg']}/Kg',
                                                                       style: TextStyle(
                                                                           color:
                                                                           Colors.grey,

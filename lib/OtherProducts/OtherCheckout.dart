@@ -452,12 +452,12 @@ class _OtherCheckoutState extends State<OtherCheckout> {
 
     setState((){
       //user
-      userID = prefs.getString("userID") ?? '';
+      //userID = prefs.getString("userID") ?? '';
       authToken = prefs.getString("authToken") ?? '';
-      userModId = prefs.getString("userModId") ?? '';
-      userName = prefs.getString("userName") ?? '';
-      userPhone = prefs.getString("phoneNumber") ?? '';
-      userAddress = prefs.getString("otherOrdDeliveryAdrs") ?? 'null';
+      // userModId = prefs.getString("userModId") ?? '';
+      // userName = prefs.getString("userName") ?? '';
+      // userPhone = prefs.getString("phoneNumber") ?? '';
+      // userAddress = prefs.getString("otherOrdDeliveryAdrs") ?? 'null';
 
       cakeName = prefs.getString("otherOrdName")??"";
       pricePerKg = prefs.getString("otherOrdPricePerKg")??"";
@@ -639,6 +639,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
   }
 
   Future<void> sendNotificationToVendor(String? NoId) async{
+    context.read<ContextData>().setNotiCount(1);
     Functions().sendThePushMsg("Hi $vendorName , you got a new order from $userName",'New order received!',NoId.toString());
   }
 
@@ -1066,6 +1067,16 @@ class _OtherCheckoutState extends State<OtherCheckout> {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async{
       recieveDetailsFromScreen();
+    });
+    Functions().getUserData().then((value){
+      if(value.isNotEmpty){
+        print(value);
+        userID = value['_id'];
+        userModId = value['Id'];
+        userName = value['UserName'];
+        userPhone = value['PhoneNumber'].toString();
+        userAddress = value['Address'];
+      }
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);

@@ -212,7 +212,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         fbToken = value['Notification_Id'].toString();
         context.read<ContextData>().setUserName(userNameCtrl.text);
         context.read<ContextData>().setProfileUrl(value['ProfileImage'].toString());
+        if ( userNameCtrl.text  == "null") {
+          context.read<ContextData>().setFirstUser(true);
+        }else{
+          context.read<ContextData>().setFirstUser(false);
+        }
         getOrderList(userID);
+      }else{
+        context.read<ContextData>().setFirstUser(true);
       }
     });
   }
@@ -420,7 +427,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         Navigator.pop(context);
 
         context.read<ContextData>().setProfileUpdated(true);
-
+        context.read<ContextData>().setFirstUser(true);
 
         setState(() {
           file = new File('');
@@ -453,95 +460,159 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   void showReasonDialog(String type , String ordId) {
     var textCtrl = TextEditingController();
-    showModalBottomSheet(
+    showDialog(
         context: context,
-        isScrollControlled:true,
-        shape:RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-                top:Radius.circular(15)
-            )
-        ),
         builder:(c){
-          return Padding(
-            padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              decoration:BoxDecoration(
-                borderRadius: BorderRadius.vertical(
-                  top:Radius.circular(15)
+          return AlertDialog(
+            shape:RoundedRectangleBorder(
+              borderRadius:BorderRadius.circular(15)
+            ),
+            title:Text("Reason for cancel",style:TextStyle(
+              fontFamily:"Poppins",
+              fontSize:15,
+              fontWeight:FontWeight.bold
+            ),),
+            contentPadding:EdgeInsets.symmetric(horizontal:10),
+            titlePadding:EdgeInsets.all(8),
+            content:TextField(
+              controller:textCtrl,
+              style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontSize:13,
+              ),
+              decoration:InputDecoration(
+                hintText:"Type your reason...",
+                hintStyle:TextStyle(
+                  fontFamily:"Poppins",
+                  fontSize:13,
                 )
               ),
-              padding:EdgeInsets.symmetric(
-                vertical:10,horizontal:10
-              ),
-              child:Column(
-                mainAxisSize:MainAxisSize.min,
-                crossAxisAlignment:CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding:EdgeInsets.symmetric(
-                      vertical:10, horizontal:5
-                    ),
-                    child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
-                      color:Colors.black,
-                      fontFamily:'Poppins',
-                      fontSize:15,
-                      fontWeight:FontWeight.bold,
-                    ),),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.note_alt , color:Colors.red,),
-                      SizedBox(width:6,),
-                      Expanded(child: TextField(
-                        controller:textCtrl,
-                        decoration:InputDecoration(
-                          border:InputBorder.none,
-                          hintText:"Type your reason...",
-                          isDense: true,
-                          hintStyle:TextStyle(
-                            color:Colors.grey,
-                            fontFamily:"Poppins",
-                            fontSize:13
-                          )
-                        ),
-                      )),
-                      SizedBox(width:6,),
-                      InkWell(
-                        onTap:(){
-                          Navigator.pop(context);
-                          if(textCtrl.text.isNotEmpty){
-                            if(type.toLowerCase()=="cakes"){
-                              cancelNormalCakeOrder(textCtrl.text, ordId);
-                            }else if(type.toLowerCase()=="gift hampers"){
-                              cancelHamperOrder(textCtrl.text, ordId);
-                            }else if(type.toLowerCase()=="other products"){
-                              cancelOtherProductsOrder(textCtrl.text, ordId);
-                            }
-                            else if(type.toLowerCase()=="cancel invoice"){
-                              handleCustomiseCakeUpdate(tempDatum, "paymentType", "disagree", textCtrl.text);
-                            }
-                            else{
-                              cancelCustomiseOrder(textCtrl.text, ordId);
-                            }
-                          }else{
-                            Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
-                          }
-                        },
-                        child:Text("CANCEL ORDER",style: TextStyle(
-                          fontFamily:"Poppins",
-                          color:Colors.red,
-                          fontSize:13
-                        ),),
-                      )
-                    ],
-                  ),
-                  SizedBox(height:5,)
-                ],
-              ),
             ),
+            actions: [
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+              }, child: Text("CLOSE",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+                if(textCtrl.text.isNotEmpty){
+                  if(type.toLowerCase()=="cakes"){
+                    cancelNormalCakeOrder(textCtrl.text, ordId);
+                  }else if(type.toLowerCase()=="gift hampers"){
+                    cancelHamperOrder(textCtrl.text, ordId);
+                  }else if(type.toLowerCase()=="other products"){
+                    cancelOtherProductsOrder(textCtrl.text, ordId);
+                  }
+                  else if(type.toLowerCase()=="cancel invoice"){
+                    handleCustomiseCakeUpdate(tempDatum, "paymentType", "disagree", textCtrl.text);
+                  }
+                  else{
+                    cancelCustomiseOrder(textCtrl.text, ordId);
+                  }
+                }else{
+                  Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+                }
+              }, child: Text("CANCEL",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+            ],
           );
         }
     );
+    // showModalBottomSheet(
+    //     context: context,
+    //     isScrollControlled:true,
+    //     shape:RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.vertical(
+    //             top:Radius.circular(15)
+    //         )
+    //     ),
+    //     builder:(c){
+    //       return Padding(
+    //         padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
+    //         child: Container(
+    //           decoration:BoxDecoration(
+    //             borderRadius: BorderRadius.vertical(
+    //               top:Radius.circular(15)
+    //             )
+    //           ),
+    //           padding:EdgeInsets.symmetric(
+    //             vertical:10,horizontal:10
+    //           ),
+    //           child:Column(
+    //             mainAxisSize:MainAxisSize.min,
+    //             crossAxisAlignment:CrossAxisAlignment.start,
+    //             children: [
+    //               Padding(
+    //                 padding:EdgeInsets.symmetric(
+    //                   vertical:10, horizontal:5
+    //                 ),
+    //                 child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
+    //                   color:Colors.black,
+    //                   fontFamily:'Poppins',
+    //                   fontSize:15,
+    //                   fontWeight:FontWeight.bold,
+    //                 ),),
+    //               ),
+    //               Row(
+    //                 children: [
+    //                   Icon(Icons.note_alt , color:Colors.red,),
+    //                   SizedBox(width:6,),
+    //                   Expanded(child: TextField(
+    //                     controller:textCtrl,
+    //                     decoration:InputDecoration(
+    //                       border:InputBorder.none,
+    //                       hintText:"Type your reason...",
+    //                       isDense: true,
+    //                       hintStyle:TextStyle(
+    //                         color:Colors.grey,
+    //                         fontFamily:"Poppins",
+    //                         fontSize:13
+    //                       )
+    //                     ),
+    //                   )),
+    //                   SizedBox(width:6,),
+    //                   InkWell(
+    //                     onTap:(){
+    //                       Navigator.pop(context);
+    //                       if(textCtrl.text.isNotEmpty){
+    //                         if(type.toLowerCase()=="cakes"){
+    //                           cancelNormalCakeOrder(textCtrl.text, ordId);
+    //                         }else if(type.toLowerCase()=="gift hampers"){
+    //                           cancelHamperOrder(textCtrl.text, ordId);
+    //                         }else if(type.toLowerCase()=="other products"){
+    //                           cancelOtherProductsOrder(textCtrl.text, ordId);
+    //                         }
+    //                         else if(type.toLowerCase()=="cancel invoice"){
+    //                           handleCustomiseCakeUpdate(tempDatum, "paymentType", "disagree", textCtrl.text);
+    //                         }
+    //                         else{
+    //                           cancelCustomiseOrder(textCtrl.text, ordId);
+    //                         }
+    //                       }else{
+    //                         Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+    //                       }
+    //                     },
+    //                     child:Text("CANCEL ORDER",style: TextStyle(
+    //                       fontFamily:"Poppins",
+    //                       color:Colors.red,
+    //                       fontSize:13
+    //                     ),),
+    //                   )
+    //                 ],
+    //               ),
+    //               SizedBox(height:5,)
+    //             ],
+    //           ),
+    //         ),
+    //       );
+    //     }
+    // );
   }
 
   Future cancelNormalCakeOrder(String reason , String ordId) async {

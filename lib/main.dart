@@ -165,6 +165,9 @@ class _MyAppState extends State<MyApp> {
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       //context.read<ContextData>().setNotiCount(1);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        context.read<ContextData>().setNotiCount(1);
+      });
       print(event.notification.body);
       NotificationService().showNotifications(event.notification.title, event.notification.body);
     });

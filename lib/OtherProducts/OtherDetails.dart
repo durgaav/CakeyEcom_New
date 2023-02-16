@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:cakey/OtherProducts/OtherCheckout.dart';
+import 'package:cakey/ProfileDialog.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -138,6 +139,7 @@ class _OthersDetailsState extends State<OthersDetails> {
   String topperImage = "";
 
   String usersDeliveryAddress = "";
+  bool firstUser = false;
 
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -721,6 +723,8 @@ class _OthersDetailsState extends State<OthersDetails> {
     if (context.watch<ContextData>().getAddressList().isNotEmpty) {
       deliverAddress = context.watch<ContextData>().getAddressList();
     }
+
+    firstUser = context.watch<ContextData>().getFirstUser();
 
     return Scaffold(
       body: SafeArea(
@@ -2467,7 +2471,10 @@ class _OthersDetailsState extends State<OthersDetails> {
                             borderRadius: BorderRadius.circular(25)),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          if (fixedDelliverMethod.toLowerCase() == "delivery" &&
+                          if(firstUser == true){
+                            ProfileAlert().showProfileAlert(context);
+                          }
+                          else if (fixedDelliverMethod.toLowerCase() == "delivery" &&
                               deliverAddressIndex == -1) {
                             Functions().showSnackMsg(context,
                                 "Please select delivery address!", true);

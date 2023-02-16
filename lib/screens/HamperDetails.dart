@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:cakey/PaymentGateway.dart';
+import 'package:cakey/ProfileDialog.dart';
 import 'package:cakey/ShowToFarDialog.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/HamperCheckout.dart';
@@ -112,6 +113,7 @@ class _HamperDetailsState extends State<HamperDetails> {
   var deliverAddressIndex = 0;
 
   var tooFar = false;
+  bool firstUser = false;
 
   //Distance calculator
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -360,13 +362,12 @@ class _HamperDetailsState extends State<HamperDetails> {
 
   @override
   Widget build(BuildContext context) {
-    print(data);
 
     if (context.watch<ContextData>().getAddressList().isNotEmpty) {
       deliverAddress = context.watch<ContextData>().getAddressList();
     }
 
-    print(hamImages);
+    firstUser = context.watch<ContextData>().getFirstUser();
 
     return Scaffold(
       body: SafeArea(
@@ -1708,13 +1709,10 @@ class _HamperDetailsState extends State<HamperDetails> {
                                   charge = 0;
                                 }
 
-                                print('total...... $charge');
-
-                                amount = ((int.parse(hamperPrice) * counts) + charge).toInt();
-
-                                print("Final $amount");
-
-                                if(deliverDate.toLowerCase()=="select delivery date" ||
+                                if(firstUser == true){
+                                  ProfileAlert().showProfileAlert(context);
+                                }
+                                else if(deliverDate.toLowerCase()=="select delivery date" ||
                                     deliverSession.toLowerCase()=="select delivery time")
                                 {
                                   Functions().showSnackMsg(context, "Please select deliver date / deliver session", true);

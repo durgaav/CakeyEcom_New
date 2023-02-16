@@ -154,6 +154,9 @@ class _NavDrawerState extends State<NavDrawer> {
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     userName = context.watch<ContextData>().getUserName();
+
+    var media = MediaQuery.of(context).size;
+
     return SafeArea(
       child: Container(
         padding: EdgeInsets.all(15),
@@ -208,7 +211,7 @@ class _NavDrawerState extends State<NavDrawer> {
                       width: 180,
                       child: Text(userName!="null"?'$userName':'No name',
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: 15),
+                        style: TextStyle(color: darkBlue,fontWeight: FontWeight.bold,fontFamily: "Poppins",fontSize: media.height*0.018),
                       ),
                     ),
                     SizedBox(height: 7,),
@@ -347,6 +350,7 @@ class _NavDrawerState extends State<NavDrawer> {
             ),
             ListTile(
               onTap: (){
+                Navigator.pop(context);
                 Navigator.of(context).push(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) => Profile(defindex: 1,),
@@ -383,6 +387,7 @@ class _NavDrawerState extends State<NavDrawer> {
             ),
             ListTile(
               onTap: (){
+                Navigator.pop(context);
                 Navigator.of(context).push(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
@@ -406,7 +411,7 @@ class _NavDrawerState extends State<NavDrawer> {
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.red[50],
-                child: Icon(Icons.notifications_outlined,color:lightPink,),
+                child: Icon(Icons.notifications_active_outlined,color:lightPink,),
               ),
               title: Container(
                 width: 180,
@@ -418,6 +423,7 @@ class _NavDrawerState extends State<NavDrawer> {
             ),
             ListTile(
               onTap: (){
+                Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList()));
               },
               leading: CircleAvatar(

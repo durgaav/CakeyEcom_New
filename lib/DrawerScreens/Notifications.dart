@@ -443,83 +443,137 @@ class _NotificationsState extends State<Notifications> {
 
   void showReasonDialog(var data , String paymetType) {
     var textCtrl = TextEditingController();
-    showModalBottomSheet(
+
+    showDialog(
         context: context,
-        isScrollControlled:true,
-        shape:RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-                top:Radius.circular(15)
-            )
-        ),
         builder:(c){
-          return Padding(
-            padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              decoration:BoxDecoration(
-                  borderRadius: BorderRadius.vertical(
-                      top:Radius.circular(15)
+          return AlertDialog(
+            shape:RoundedRectangleBorder(
+                borderRadius:BorderRadius.circular(15)
+            ),
+            title:Text("Reason for cancel",style:TextStyle(
+                fontFamily:"Poppins",
+                fontSize:15,
+                fontWeight:FontWeight.bold
+            ),),
+            contentPadding:EdgeInsets.symmetric(horizontal:10),
+            titlePadding:EdgeInsets.all(8),
+            content:TextField(
+              controller:textCtrl,
+              style:TextStyle(
+                fontFamily:"Poppins",
+                fontSize:13,
+              ),
+              decoration:InputDecoration(
+                  hintText:"Type your reason...",
+                  hintStyle:TextStyle(
+                    fontFamily:"Poppins",
+                    fontSize:13,
                   )
               ),
-              padding:EdgeInsets.symmetric(
-                  vertical:10,horizontal:10
-              ),
-              child:Column(
-                mainAxisSize:MainAxisSize.min,
-                crossAxisAlignment:CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding:EdgeInsets.symmetric(
-                        vertical:10, horizontal:5
-                    ),
-                    child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
-                      color:Colors.black,
-                      fontFamily:'Poppins',
-                      fontSize:15,
-                      fontWeight:FontWeight.bold,
-                    ),),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.note_alt , color:Colors.red,),
-                      SizedBox(width:6,),
-                      Expanded(child: TextField(
-                        controller:textCtrl,
-                        decoration:InputDecoration(
-                            border:InputBorder.none,
-                            hintText:"Type your reason...",
-                            isDense: true,
-                            hintStyle:TextStyle(
-                                color:Colors.grey,
-                                fontFamily:"Poppins",
-                                fontSize:13
-                            )
-                        ),
-                      )),
-                      SizedBox(width:6,),
-                      InkWell(
-                        onTap:(){
-                          Navigator.pop(context);
-                          if(textCtrl.text.isNotEmpty){
-                            MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
-                          }else{
-                            Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
-                          }
-                        },
-                        child:Text("CANCEL ORDER",style: TextStyle(
-                            fontFamily:"Poppins",
-                            color:Colors.red,
-                            fontSize:13
-                        ),),
-                      )
-                    ],
-                  ),
-                  SizedBox(height:5,)
-                ],
-              ),
             ),
+            actions: [
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+              }, child: Text("CLOSE",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+              TextButton(onPressed: (){
+                Navigator.pop(context);
+                if(textCtrl.text.isNotEmpty){
+                  MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+                }else{
+                  Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+                }
+              }, child: Text("CANCEL",style:TextStyle(
+                  fontFamily:"Poppins",
+                  fontWeight:FontWeight.bold,
+                  color:Colors.pink
+              ),)),
+            ],
           );
         }
     );
+
+    // showModalBottomSheet(
+    //     context: context,
+    //     isScrollControlled:true,
+    //     shape:RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.vertical(
+    //             top:Radius.circular(15)
+    //         )
+    //     ),
+    //     builder:(c){
+    //       return Padding(
+    //         padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewInsets.bottom),
+    //         child: Container(
+    //           decoration:BoxDecoration(
+    //               borderRadius: BorderRadius.vertical(
+    //                   top:Radius.circular(15)
+    //               )
+    //           ),
+    //           padding:EdgeInsets.symmetric(
+    //               vertical:10,horizontal:10
+    //           ),
+    //           child:Column(
+    //             mainAxisSize:MainAxisSize.min,
+    //             crossAxisAlignment:CrossAxisAlignment.start,
+    //             children: [
+    //               Padding(
+    //                 padding:EdgeInsets.symmetric(
+    //                     vertical:10, horizontal:5
+    //                 ),
+    //                 child: Text("Hi , please give the reason for cancel this order.",style:TextStyle(
+    //                   color:Colors.black,
+    //                   fontFamily:'Poppins',
+    //                   fontSize:15,
+    //                   fontWeight:FontWeight.bold,
+    //                 ),),
+    //               ),
+    //               Row(
+    //                 children: [
+    //                   Icon(Icons.note_alt , color:Colors.red,),
+    //                   SizedBox(width:6,),
+    //                   Expanded(child: TextField(
+    //                     controller:textCtrl,
+    //                     decoration:InputDecoration(
+    //                         border:InputBorder.none,
+    //                         hintText:"Type your reason...",
+    //                         isDense: true,
+    //                         hintStyle:TextStyle(
+    //                             color:Colors.grey,
+    //                             fontFamily:"Poppins",
+    //                             fontSize:13
+    //                         )
+    //                     ),
+    //                   )),
+    //                   SizedBox(width:6,),
+    //                   InkWell(
+    //                     onTap:(){
+    //                       Navigator.pop(context);
+    //                       if(textCtrl.text.isNotEmpty){
+    //                         MyDialogs().showConfirmDialog(context, "Do you want to proceed?", (){}, ()=>handleCustomiseCakeUpdate(data, paymetType, "disagree",textCtrl.text));
+    //                       }else{
+    //                         Functions().showSnackMsg(context,"Please provide order cancellation reason", true);
+    //                       }
+    //                     },
+    //                     child:Text("CANCEL ORDER",style: TextStyle(
+    //                         fontFamily:"Poppins",
+    //                         color:Colors.red,
+    //                         fontSize:13
+    //                     ),),
+    //                   )
+    //                 ],
+    //               ),
+    //               SizedBox(height:5,)
+    //             ],
+    //           ),
+    //         ),
+    //       );
+    //     }
+    // );
   }
 
   //custom cake order cancel reason
@@ -1374,23 +1428,23 @@ class _NotificationsState extends State<Notifications> {
         print(res.body);
         Navigator.pop(context);
         if(jsonDecode(res.body)['statusCode']==200){
-          Functions().showSnackMsg(context, "Ticket updated successfully!", false);
+          Functions().showSnackMsg(context, "Updated successfully!", false);
           fetchNotifications();
           Functions().deleteNotification(data['_id'].toString());
           getOrdersList();
         }else{
-          Functions().showSnackMsg(context, "Ticket update failed!", true);
+          Functions().showSnackMsg(context, "Update failed!", true);
         }
       }else{
         Navigator.pop(context);
         print(res.body);
-        Functions().showSnackMsg(context, "Ticket update failed!", true);
+        Functions().showSnackMsg(context, "Update failed!", true);
       }
 
     }catch(e){
       Navigator.pop(context);
       print(e);
-      Functions().showSnackMsg(context, "Ticket update facing some errors! $e", false);
+      Functions().showSnackMsg(context, "Update facing some errors! $e", false);
     }
 
   }
@@ -1418,7 +1472,7 @@ class _NotificationsState extends State<Notifications> {
           print("length : ${mainList.length}");
           isLoading = false;
         });
-        context.read<ContextData>().setNotiCount(mainList.length);
+        context.read<ContextData>().setNotiCount(0);
       }else{
         checkNetwork();
         setState((){
@@ -1434,6 +1488,7 @@ class _NotificationsState extends State<Notifications> {
       });
       context.read<ContextData>().setNotiCount(0);
     }
+    context.read<ContextData>().setNotiCount(0);
     fetchTax();
   }
 

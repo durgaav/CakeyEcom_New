@@ -1246,6 +1246,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                 fixedSession = "";
                 file = new File("");
               });
+              context.read<ContextData>().setNotiCount(1);
               NotificationService().showNotifications("Hoorey! Your $ckName order is placed successfully", "Our executive will contact you soon.");
               Functions().showOrderCompleteSheet(context);
             }else{
@@ -1449,6 +1450,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
     profileUrl = context.watch<ContextData>().getProfileUrl();
     notiCount = context.watch<ContextData>().getNotiCount();
+    newRegUser = context.watch<ContextData>().getFirstUser();
 
     if (context.watch<ContextData>().getAddressList().isNotEmpty) {
       deliveryAddress = context.watch<ContextData>().getAddressList();
@@ -3829,6 +3831,16 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                 child: GestureDetector(
                                   onTap:(){
                                     FocusScope.of(context).unfocus();
+                                    Functions().getUserData().then((value){
+                                      if(value.isNotEmpty){
+                                        print(value);
+                                        userID = value['_id'];
+                                        userModId = value['Id'];
+                                        userName = value['UserName'];
+                                        userPhone = value['PhoneNumber'].toString();
+                                        // userAddress = value['Address'];
+                                      }
+                                    });
                                     setState((){
 
                                     });

@@ -2236,6 +2236,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
     profileUrl = context.watch<ContextData>().getProfileUrl();
     notiCount = context.watch<ContextData>().getNotiCount();
+    newRegUser = context.watch<ContextData>().getFirstUser();
 
     selVendor = context.watch<ContextData>().getAddedMyVendor();
     if(selVendor == true){

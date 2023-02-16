@@ -13,8 +13,14 @@ class ContextData extends ChangeNotifier {
   String address = "";
   List<String> addressList = [];
   Map codeDetails = {};
-
+  bool firstUser = false;
   int notiCount = 0;
+
+  void setFirstUser(bool val){
+    firstUser = val;
+    notifyListeners();
+  }
+  bool getFirstUser()=>firstUser;
 
   void setNotiCount(int noti){
     notiCount = noti;
