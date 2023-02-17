@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/OrderConfirm.dart';
@@ -780,7 +781,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                   shape: BoxShape.circle,
                                                   color: Colors.red[300]!,
                                                   image: DecorationImage(
-                                                    image: NetworkImage(toppersList[i]['TopperImage'])
+                                                    image: NetworkImage(toppersList[i]['TopperImage']),
+                                                    fit:BoxFit.cover
                                                   )
                                                 ),
                                               ),
@@ -2304,7 +2306,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                     pinned: true,
                     floating: true,
                     actions: [
-                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){getDetailsFromScreen();}),
+                      MyCustomAppBars(onPressed:(){getDetailsFromScreen();},profileUrl:profileUrl,),
+                      //CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){getDetailsFromScreen();}),
                       SizedBox(width: 12,),
                     ],
                     backgroundColor: lightGrey,

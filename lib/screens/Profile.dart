@@ -4,6 +4,7 @@ import 'package:cakey/ContextData.dart';
 import 'package:cakey/Dialogs.dart';
 import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/AddressScreen.dart';
 import 'package:cakey/screens/utils.dart';
@@ -2030,7 +2031,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       status.toLowerCase()=="new"&&diff.inMinutes<15?
                       GestureDetector(
                         onTap:(){
-                          showReasonDialog(typeOfCake , recentOrders[index]['_id']);
+                          if(diff.inMinutes>15){
+                            Functions().showSnackMsg(context, "You can cancel your order within 15 minutes from ordered time.", false);
+                          }else{
+                            showReasonDialog(typeOfCake , recentOrders[index]['_id']);
+                          }
                         },
                         child: Container(
                           margin:EdgeInsets.symmetric(
@@ -2117,7 +2122,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         preferredSize: Size.fromHeight(50),
         child: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(left: 15, right: 15),
+            padding: EdgeInsets.symmetric(
+              vertical:10,horizontal:15
+            ),
             color: lightGrey,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -2154,77 +2161,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
-                Row(
-                  children: [
-                    // IconButton(
-                    //   onPressed: (){
-                    //     setState(() {
-                    //       profileDetailHandler();
-                    //     });
-                    //   },
-                    //   icon: Icon(Icons.refresh),
-                    //   color: darkBlue,
-                    // ),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 10,bottom: 10),
-                          child: InkWell(
-                            onTap: (){
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Notifications(),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    final tween = Tween(begin: begin, end: end);
-                                    final curvedAnimation = CurvedAnimation(
-                                      parent: animation,
-                                      curve: curve,
-                                    );
-                                    return SlideTransition(
-                                      position: tween.animate(curvedAnimation),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            child: Container(
-                              height: 30,
-                              padding: EdgeInsets.all(1),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(7)
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon( Icons.notifications_none,size: 27,color: darkBlue,),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 17,
-                          top: 17,
-                          child: notiCount > 0?
-                          CircleAvatar(
-                            radius: 3.5,
-                            backgroundColor: Colors.white,
-                            child: CircleAvatar(
-                              radius: 2.7,
-                              backgroundColor: Colors.red,
-                            ),
-                          ):Container(height:0,width:0),
-                        ),
-                      ],
-                    ),
-                    // const SizedBox(
-                    //   width: 2,
-                    // )
-                  ],
-                )
+                MyCustomAppBars(title:"profile"),
               ],
             ),
           ),

@@ -443,4 +443,29 @@ class Functions{
     );
   }
 
+  Future<List> getNotifications(BuildContext context) async {
+    List myList = [];
+
+    var pr = await SharedPreferences.getInstance();
+    var userId = pr.getString("userID");
+    var authToken = pr.getString("authToken");
+
+    try{
+
+      var res = await http.get(Uri.parse("${API_URL}api/users/notification/$userId"),
+          headers: {"Authorization":"$authToken"});
+
+      if(res.statusCode == 200){
+        myList = jsonDecode(res.body);
+      }else{
+
+      }
+
+    }catch(e){
+      myList = [];
+    }
+
+    return myList;
+  }
+
 }

@@ -1,6 +1,9 @@
 // @dart=2.9
 import 'dart:async';
 import 'dart:convert';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
+import 'package:cakey/drawermenu/app_bar.dart';
+import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -62,6 +65,8 @@ class _MyAppState extends State<MyApp> {
    StreamSubscription<ConnectivityResult> sub;
    var disconected = false;
    IO.Socket socket;
+   Timer timer;
+   int tempLength = 0;
 
   //region SOCKETS ***
 
@@ -158,6 +163,24 @@ class _MyAppState extends State<MyApp> {
       pr.setString("showMoreVendor", "null");
       initSocket(context);
     });
+
+    Timer.periodic(Duration(seconds:20), (timer) async {
+      var pr = await SharedPreferences.getInstance();
+      int lastCount = pr.getInt('lastNotiCount')??0;
+      Functions().getNotifications(context).then((value){
+        tempLength = value.length;
+
+        if(tempLength > lastCount){
+          setState(() {
+            MyCustomAppBars.valueNotifier.value = 2;
+          });
+        }
+
+      }).catchError((e){
+
+      });
+    });
+
     // TODO: implement initState
     messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value){
@@ -165,8 +188,9 @@ class _MyAppState extends State<MyApp> {
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       //context.read<ContextData>().setNotiCount(1);
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        context.read<ContextData>().setNotiCount(1);
+      //CustomAppBars().notifier = ValueNotifier(1);
+      setState(() {
+        MyCustomAppBars.valueNotifier.value = 2;
       });
       print(event.notification.body);
       NotificationService().showNotifications(event.notification.title, event.notification.body);

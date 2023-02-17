@@ -6,6 +6,7 @@ import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/CakeTypes.dart';
 import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/coupon_codes_list.dart';
 import 'package:cakey/screens/utils.dart';
@@ -1228,62 +1229,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
             elevation: 0.0,
             backgroundColor: lightGrey,
             actions: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) =>
-                              Notifications(),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            const begin = Offset(1.0, 0.0);
-                            const end = Offset.zero;
-                            const curve = Curves.ease;
-
-                            final tween = Tween(begin: begin, end: end);
-                            final curvedAnimation = CurvedAnimation(
-                              parent: animation,
-                              curve: curve,
-                            );
-                            return SlideTransition(
-                              position: tween.animate(curvedAnimation),
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Icon(
-                        Icons.notifications_none,
-                        color: darkBlue,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 15,
-                    top: 18,
-                    child: CircleAvatar(
-                      radius: 4.5,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 3.5,
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 10,
-              ),
+              MyCustomAppBars(title:"profile"),
+              SizedBox(width:15,),
             ],
           ),
           body: Container(

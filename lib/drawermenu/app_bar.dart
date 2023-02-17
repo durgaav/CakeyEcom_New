@@ -10,6 +10,7 @@ class CustomAppBars{
   Color lightGrey = Color(0xffF5F5F5);
   Color darkBlue = Color(0xffF213959);
   Color lightPink = Color(0xffFE8416D);
+  ValueNotifier<int> notifier = ValueNotifier(0);
 
   Widget CustomAppBar(BuildContext context , String title ,int notiCount ,String profileUrl,[function]){
     return Container(
@@ -90,7 +91,7 @@ class CustomAppBars{
                 left: 15,
                 top: 6,
                 child: Container(height: 0,width: 0,),
-              ),
+              )
             ],
           ),
           SizedBox(

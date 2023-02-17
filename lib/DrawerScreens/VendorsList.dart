@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:cakey/screens/utils.dart';
@@ -540,7 +541,8 @@ class _VendorsListState extends State<VendorsList> {
 
                     iamFromCustom?
                     Container():
-                    CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
+                    MyCustomAppBars(onPressed:(){loadPrefs();},profileUrl:profileUrl,),
+                    //CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                   ],
                 ),
               ),

@@ -604,7 +604,9 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                                 image: NetworkImage(
                                                                     toppersList[
                                                                             i][
-                                                                        'TopperImage']))),
+                                                                        'TopperImage']),
+                                                                fit:BoxFit.cover
+                                                            )),
                                                       ),
                                                       SizedBox(
                                                         width: 10,

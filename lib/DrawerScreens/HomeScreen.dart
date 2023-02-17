@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:cakey/CommonWebSocket.dart';
 import 'package:cakey/DrawerScreens/CustomiseCake.dart';
 import 'package:cakey/MyDialogs.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/Hampers.dart';
@@ -3521,10 +3522,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: darkBlue,
                               fontWeight: FontWeight.bold,
                               fontFamily: poppins,
-                              fontSize: 18)),
+                              fontSize: 18)
+                      ),
                     ],
                   ),
-                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,handleRefresh)
+                  MyCustomAppBars(onPressed:(){handleRefresh();},profileUrl:profileUrl,),
+                  //CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,handleRefresh)
                 ],
               ),
             ),
@@ -3908,6 +3911,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               InkWell(
                                                 onTap: () async {
+                                                  // setState(() {
+                                                  //   MyCustomAppBars.valueNotifier.value = 0;
+                                                  // });
                                                   var prefs = await SharedPreferences.getInstance();
                                                   prefs.setStringList('activeVendorsIds',activeVendorsIds);
                                                   Navigator.push(

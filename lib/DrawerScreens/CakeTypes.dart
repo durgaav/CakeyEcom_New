@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/CakeDetails.dart';
 import 'package:cakey/screens/utils.dart';
@@ -3242,7 +3243,8 @@ class _CakeTypesState extends State<CakeTypes> {
                           ),
                         ],
                       ),
-                      CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
+                      MyCustomAppBars(onPressed:(){loadPrefs();},profileUrl:profileUrl,),
+                      //CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                     ],
                   ),
                 ),

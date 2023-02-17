@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/services.dart';
@@ -1566,7 +1567,8 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                           )),
                     ],
                   ),
-                  CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
+                  MyCustomAppBars(onPressed:(){loadPrefs();},profileUrl:profileUrl,),
+                  //CustomAppBars().CustomAppBar(context, "", notiCount, profileUrl,(){loadPrefs();})
                 ],
               ),
             ),

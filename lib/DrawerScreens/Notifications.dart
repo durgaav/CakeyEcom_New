@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
+import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
 import 'package:cakey/main.dart';
 import 'package:cakey/screens/CheckOut.dart';
@@ -1452,6 +1453,7 @@ class _NotificationsState extends State<Notifications> {
   //get notifications
   Future<void> fetchNotifications() async {
     mainList.clear();
+    var pr = await SharedPreferences.getInstance();
     setState((){
       isLoading = true;
     });
@@ -1470,25 +1472,24 @@ class _NotificationsState extends State<Notifications> {
           print(res.body);
           mainList = jsonDecode(res.body);
           print("length : ${mainList.length}");
+          pr.setInt("lastNotiCount", mainList.length);
           isLoading = false;
         });
-        context.read<ContextData>().setNotiCount(0);
       }else{
         checkNetwork();
+        pr.setInt("lastNotiCount", 0);
         setState((){
           isLoading = false;
         });
-        context.read<ContextData>().setNotiCount(0);
       }
     } catch (e) {
+      pr.setInt("lastNotiCount", 0);
       print("Noti $e");
       setState((){
         isLoading = false;
         checkNetwork();
       });
-      context.read<ContextData>().setNotiCount(0);
     }
-    context.read<ContextData>().setNotiCount(0);
     fetchTax();
   }
 
@@ -1722,6 +1723,9 @@ class _NotificationsState extends State<Notifications> {
       fetchNotifications();
       getOrdersList();
       print(userId);
+      setState(() {
+        MyCustomAppBars.valueNotifier.value = 0;
+      });
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
