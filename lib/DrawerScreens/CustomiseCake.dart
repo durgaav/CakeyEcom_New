@@ -402,11 +402,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           return StatefulBuilder(
               builder: (BuildContext context , void Function(void Function()) setState){
                 return AlertDialog(
+                  shape:RoundedRectangleBorder(
+                    borderRadius:BorderRadius.circular(15)
+                  ),
                   title: Text('Other Category', style:
                   TextStyle(
-                      color: darkBlue,
+                      color: Colors.black,
                       fontFamily: "Poppins",
-                      fontSize: 13
+                      fontSize: 15,
+                      fontWeight:FontWeight.bold
                   )
                     ,),
                   content: Container(
@@ -425,7 +429,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         onPressed: (){
                           saveNotOther();
                         },
-                        child: Text('Cancel')
+                        child: Text('CANCEL')
                     ),
                     TextButton(
                         onPressed: (){
@@ -440,7 +444,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             });
                           }
                         },
-                        child: Text('Add')
+                        child: Text('ADD')
                     )
                   ],
                 );
@@ -464,11 +468,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           return StatefulBuilder(
               builder: (BuildContext context , void Function(void Function()) setState){
                 return AlertDialog(
+                  shape:RoundedRectangleBorder(
+                      borderRadius:BorderRadius.circular(15)
+                  ),
                   title: Text('Other Flavour', style:
                   TextStyle(
                       color: darkBlue,
                       fontFamily: "Poppins",
-                      fontSize: 13
+                      fontSize: 15,
+                      fontWeight:FontWeight.bold
                   )
                     ,),
                   content: Container(
@@ -488,7 +496,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         onPressed: (){
                           Navigator.pop(context);
                         },
-                        child: Text('Cancel')
+                        child: Text('CANCEL')
                     ),
 
                     TextButton(
@@ -505,7 +513,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             });
                           }
                         },
-                        child: Text('Add')
+                        child: Text('ADD')
                     ),
                   ],
                 );
@@ -529,11 +537,15 @@ class _CustomiseCakeState extends State<CustomiseCake> {
           return StatefulBuilder(
               builder: (BuildContext context , void Function(void Function()) setState){
                 return AlertDialog(
+                  shape:RoundedRectangleBorder(
+                      borderRadius:BorderRadius.circular(15)
+                  ),
                   title: Text('Other Shape', style:
                   TextStyle(
                       color: darkBlue,
                       fontFamily: "Poppins",
-                      fontSize: 13
+                      fontSize: 15,
+                      fontWeight:FontWeight.bold
                   )
                     ,),
                   content: Container(
@@ -553,7 +565,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                         onPressed: (){
                           saveNotOtherShape();
                         },
-                        child: Text('Cancel')
+                        child: Text('CANCEL')
                     ),
 
                     TextButton(
@@ -570,7 +582,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                             });
                           }
                         },
-                        child: Text('Add')
+                        child: Text('ADD')
                     ),
 
 
@@ -1040,7 +1052,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
     setState((){
       currentIndex=0;
       fixedCategory = "${categories[0]}";
-      cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
+      //cateListScrollCtrl.jumpTo(cateListScrollCtrl.position.minScrollExtent);
     });
   }
 
@@ -3831,8 +3843,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                               // vendorListClicked || double.parse(fixedWeight.toLowerCase().replaceAll("kg", ""))>=5.0?
                               Center(
                                 child: GestureDetector(
-                                  onTap:(){
+                                  onTap:() async {
                                     FocusScope.of(context).unfocus();
+                                    print(fixedCategory);
                                     Functions().getUserData().then((value){
                                       if(value.isNotEmpty){
                                         print(value);
@@ -3843,9 +3856,31 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                         // userAddress = value['Address'];
                                       }
                                     });
-                                    setState((){
-
-                                    });
+                                    print("Vendor address...${vendorAddress.trim()}");
+                                    //showAlertDialog();
+                                    try {
+                                      List<Location> locat =
+                                      await locationFromAddress(e.toString().trim());
+                                      List<Location> venLocation = await locationFromAddress(deliverAddress.trim());
+                                      print(locat);
+                                      setState(() {
+                                        tooFar = false;
+                                      });
+                                      //Navigator.pop(context);
+                                      if (calculateDistance(
+                                          double.parse(userLatitude),
+                                          double.parse(userLongtitude),
+                                          venLocation[0].latitude,
+                                          venLocation[0].longitude) >
+                                          10.0) {
+                                        tooFar = true;
+                                        //TooFarDialog().showTooFarDialog(context, deliverAddress);
+                                        //showTooFarDialog();
+                                      }
+                                    } catch (e) {
+                                      print("Error... $e");
+                                      //Navigator.pop(context);
+                                    }
 
                                     if(newRegUser==true){
                                       ProfileAlert().showProfileAlert(context);

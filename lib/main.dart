@@ -145,6 +145,7 @@ class _MyAppState extends State<MyApp> {
       socket.disconnect();
       socket.close();
       socket.destroy();
+      timer.cancel();
     });
     super.dispose();
   }
@@ -164,7 +165,7 @@ class _MyAppState extends State<MyApp> {
       initSocket(context);
     });
 
-    Timer.periodic(Duration(seconds:20), (timer) async {
+    timer = Timer.periodic(Duration(seconds:20), (timer) async {
       var pr = await SharedPreferences.getInstance();
       int lastCount = pr.getInt('lastNotiCount')??0;
       Functions().getNotifications(context).then((value){
