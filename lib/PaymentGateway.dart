@@ -873,7 +873,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         "DeliverySession": paymentObjs['deliverSession'],
         "DeliveryInformation":paymentObjs['deliverType'],
         "Discount":discountTotal,
-        "Price":itemTotal,
+        "Price":paymentObjs['price'].toString(),
         "ItemCount":paymentObjs['count'],
         "DeliveryCharge":deliveryTotal,
         "Gst":gstVal,
@@ -889,7 +889,11 @@ class _PaymentGatewayState extends State<PaymentGateway> {
       });
       request.headers.addAll(headers);
 
+      print(itemTotal);
+      print(request.body);
+
       http.StreamedResponse response = await request.send();
+      // print(await response.stream.bytesToString());
 
       if (response.statusCode == 200) {
         Navigator.pop(context);
@@ -915,6 +919,7 @@ class _PaymentGatewayState extends State<PaymentGateway> {
         Navigator.pop(context);
       }
       context.read<ContextData>().setCodeData({});
+
     }catch(e){
       Navigator.pop(context);
       Functions().showSnackMsg(context,"$e", false);
@@ -1373,6 +1378,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                paymentObjs['weight']!=null && changeWeight(paymentObjs['weight'])>5.0?
+                                SizedBox():
                                 InkWell(
                                   onTap: () async{
                                     PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2);
@@ -1389,6 +1396,8 @@ class _PaymentGatewayState extends State<PaymentGateway> {
                                   ),
                                 ),
                                 const SizedBox(width: 10,),
+                                paymentObjs['weight']!=null && changeWeight(paymentObjs['weight'])>5.0?
+                                SizedBox():
                                 InkWell(
                                   onTap: () async{
                                     Functions().handleChatWithVendors(context, paymentObjs['vendor_mail'], paymentObjs['vendor']);

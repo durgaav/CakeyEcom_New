@@ -1,6 +1,8 @@
-// @dart=2.9
+//@dart=2.9
+
 import 'dart:async';
 import 'dart:convert';
+import 'package:cakey/DrawerScreens/Notifications.dart';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/functions.dart';
@@ -25,6 +27,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Notification/Notification.dart';
+
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
 
@@ -197,7 +201,7 @@ class _MyAppState extends State<MyApp> {
       NotificationService().showNotifications(event.notification.title, event.notification.body);
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-
+      Navigator.push(navigatorKey.currentState.context, MaterialPageRoute(builder:(context)=>Notifications()));
     });
     super.initState();
   }
@@ -248,6 +252,7 @@ class _MyAppState extends State<MyApp> {
               statusBarBrightness: Brightness.light,
             ),
             child: MaterialApp(
+                navigatorKey:navigatorKey,
                 theme: ThemeData(
                     primarySwatch: buildMaterialColor(Color(0xffFE8416D))
                 ),
@@ -283,3 +288,12 @@ MaterialColor buildMaterialColor(Color color) {
   });
   return MaterialColor(color.value, swatch);
 }
+
+class NavigationService {
+  final GlobalKey<NavigatorState> navigatorKey =
+  new GlobalKey<NavigatorState>();
+  Future<dynamic> navigateTo() {
+    return navigatorKey.currentState.push(MaterialPageRoute(builder: (builder)=>Notifications()));
+  }
+}
+

@@ -1,4 +1,5 @@
 import 'package:cakey/DrawerScreens/Notifications.dart';
+import 'package:cakey/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -42,10 +43,10 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onSelectNotification:(payload){
-        // Navigator.push(
-        //   ,
-        //   MaterialPageRoute(builder: (context)=>Notifications())
-        // );
+        Navigator.push(
+          navigatorKey.currentState!.context,
+          MaterialPageRoute(builder: (context)=>Notifications())
+        );
       }
     );
   }

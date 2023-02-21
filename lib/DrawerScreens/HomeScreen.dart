@@ -3325,9 +3325,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setSocket();
     Future.delayed(Duration.zero, () async {
       //initSocket(context);
+      setSocket();
       var pr = await SharedPreferences.getInstance();
       if(pr.getString('showMoreVendor')!=null&&pr.getString('showMoreVendor')!="null"){
         var addr = pr.getString('showMoreVendor')??'';
