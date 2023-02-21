@@ -2812,7 +2812,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                             setState(() {
                                               if(index==0){
                                                 tooFar = false;
-                                                deliverAddressIndex = 1;
+                                                deliverAddressIndex = -1;
+                                              }else{
+                                                deliverAddressIndex = -1;
                                               }
                                               FocusScope.of(context).unfocus();
                                               picOrDel = index;
@@ -3896,7 +3898,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
 
                                       } else if(double.parse(changeWeight(fixedWeight).toString()) <5.0 && nearestVendors.isNotEmpty && !vendorListClicked ) {
                                         Functions().showSnackMsg(context,"Please select vendor",true);
-                                      } else if(deliverAddressIndex==-1){
+                                      } else if(deliverAddressIndex==-1 && fixedDelliverMethod.toLowerCase()=="delivery"){
                                         Functions().showSnackMsg(context, "Please select delivery address!", true);
                                       } else if(fixedWeight=="0.0"){
                                         Functions().showSnackMsg(context, "Please select weight!", true);
