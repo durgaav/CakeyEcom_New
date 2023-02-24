@@ -1501,7 +1501,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                                         child: PopupMenuButton(
                                             child: Row(
                                               children: [
-                                                Text('$selectedDropWeight',
+                                                Text(selectedDropWeight=="G"?"Gm":'$selectedDropWeight',
                                                     style: TextStyle(
                                                         color: darkBlue,
                                                         fontFamily: 'Poppins')),

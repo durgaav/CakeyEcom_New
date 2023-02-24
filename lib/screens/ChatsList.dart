@@ -222,7 +222,7 @@ class _ChatsListState extends State<ChatsList> {
     Future.delayed(Duration.zero , () async {
       //getHelpDeskMembers();
       getConversation();
-      timer = Timer.periodic(Duration(seconds: 3), (timer) async {
+      timer = Timer.periodic(Duration(seconds: 2), (timer) async {
         var pr = await SharedPreferences.getInstance();
         var getMsg = jsonDecode(pr.getString('socketMessages')??"{}");
         var getTyping = jsonDecode(pr.getString('socketTyping')??"{}");

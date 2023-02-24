@@ -198,6 +198,7 @@ class _MyAppState extends State<MyApp> {
         MyCustomAppBars.valueNotifier.value = 2;
       });
       print(event.notification.body);
+      print(event.data);
       NotificationService().showNotifications(event.notification.title, event.notification.body);
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {

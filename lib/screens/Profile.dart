@@ -1645,7 +1645,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   const SizedBox(width: 10,),
                                   InkWell(
                                     onTap: () async{
-                                      Functions().handleChatWithVendors(context, recentOrders[index]['Email'], recentOrders[index]['VendorName']);
+                                      print(vendorsList.length);
+                                      String mail = vendorsList.where((element) => element['_id']==recentOrders[index]['VendorID']).toList()[0]['Email'].toString();
+                                      print(recentOrders[index]);
+                                      Functions().handleChatWithVendors(context, mail, recentOrders[index]['VendorName']);
                                       //PhoneDialog().showPhoneDialog(context, recentOrders[index]['VendorPhoneNumber1'], recentOrders[index]['VendorPhoneNumber2'] , true);
                                     },
                                     child: Container(
