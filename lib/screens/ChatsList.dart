@@ -11,65 +11,28 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatsList extends StatefulWidget {
-  const ChatsList({Key? key}) : super(key: key);
-
+  String routeName = "";
+  ChatsList({required this.routeName});
   @override
-  State<ChatsList> createState() => _ChatsListState();
+  State<ChatsList> createState() => _ChatsListState(routeName:routeName);
 }
 
 class _ChatsListState extends State<ChatsList> {
+  String routeName = "";
+  _ChatsListState({required this.routeName});
 
   List chatList = [];
+  List filterList = [];
   List onLineMembers = [];
+  List currentUserConvList = [];
   late Timer timer;
   String reciverName = "";
   bool online = false;
+  bool showAppBarField = false;
+  var searchCtrl = TextEditingController();
 
   //region LOGICS ***
-
-  //create conversation
-  Future<void> createConversation(String receiverId) async {
-
-    var pr = await SharedPreferences.getInstance();
-    var phone = pr.getString("phoneNumber")??'';
-    var tok = pr.getString("authToken")??'';
-
-    MyDialogs().showTheLoader(context);
-
-    try{
-
-      http.Response response = await http.post(
-        Uri.parse("${API_URL}api/conv/add"),
-        headers: {"Authorization": "$tok"},
-        body:jsonEncode(<String , dynamic>{
-          "senderId":int.parse(phone.toString().replaceAll("+", "")),
-          "receiverId":receiverId,
-          "Created_By":int.parse(phone.toString().replaceAll("+", "")),
-        })
-      );
-
-      print(response.body);
-
-      var data = jsonDecode(response.body);
-
-      if(response.statusCode==200){
-        if(data['statusCode']==400){
-          print("400");
-          getConversationByReciverId(receiverId , phone.toString().replaceAll("+", ""));
-        }else{
-          getConversation(receiverId);
-        }
-        Navigator.pop(context);
-      }else{
-        Navigator.pop(context);
-      }
-
-    }catch(e){
-      Navigator.pop(context);
-    }
-
-  }
-
+  
   Future<void> getConversationByReciverId(String reciver , String num) async{
 
     var pr = await SharedPreferences.getInstance();
@@ -109,13 +72,13 @@ class _ChatsListState extends State<ChatsList> {
 
   }
 
-  Future<void> getConversation(String receiverEmail) async {
+  Future<void> getConversation() async {
+
+    MyDialogs().showTheLoader(context);
 
     var pr = await SharedPreferences.getInstance();
     var phone = pr.getString("phoneNumber")??'';
     var tok = pr.getString("authToken")??'';
-
-    print(receiverEmail);
 
     try{
 
@@ -128,19 +91,87 @@ class _ChatsListState extends State<ChatsList> {
 
       var data = jsonDecode(response.body);
 
-      if(data!=null && data.isNotEmpty){
-        List bodyData = data;
-        var wantedData = bodyData.where((e)=>e['Members'].contains(receiverEmail) && e['Members'].contains(int.parse(phone.toString().replaceAll("+", "")).toString())).toList();
-        print(wantedData);
-        wantedData.isNotEmpty?
-        Navigator.push(context,MaterialPageRoute(builder: (builder)=>ChatScreen(
-            receiverEmail , wantedData[0]['_id'] , reciverName , online: online,
-        ))):null;
+      if(response.statusCode==200){
+        setState(() {
+          currentUserConvList = data;
+
+          if(routeName=="support"){
+            getHelpDeskMembers();
+            // timer = Timer.periodic(Duration(seconds: 3), (timer) {
+            //   getHelpDeskMembers();
+            // });
+          }else{
+            getVendors();
+            // timer = Timer.periodic(Duration(seconds: 3), (timer) {
+            //   getVendorCustomerConversation();
+            // });
+          }
+
+        });
+        Navigator.pop(context);
       }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Unable to get messages..."))
-        );
+        Navigator.pop(context);
       }
+
+      // if(data!=null && data.isNotEmpty){
+      //   List bodyData = data;
+      //   var wantedData = bodyData.where((e)=>e['Members'].contains(receiverEmail) && e['Members'].contains(int.parse(phone.toString().replaceAll("+", "")).toString())).toList();
+      //   print(wantedData);
+      //   wantedData.isNotEmpty?
+      //   Navigator.push(context,MaterialPageRoute(builder: (builder)=>ChatScreen(
+      //       receiverEmail , wantedData[0]['_id'] , reciverName , online: online,
+      //   ))):null;
+      // }else{
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text("Unable to get messages..."))
+      //   );
+      // }
+
+    }catch(e){
+      Navigator.pop(context);
+    }
+
+  }
+
+  Future<void> getVendors() async {
+
+    var pr = await SharedPreferences.getInstance();
+    var phone = pr.getString("phoneNumber")??'';
+    var tok = pr.getString("authToken")??'';
+    List finalList = [];
+
+    http.Response response = await http.get(Uri.parse("${API_URL}api/vendors/list"),
+        headers:{'Authorization': '$tok'}
+    );
+
+    List map = jsonDecode(response.body);
+
+    if(response.statusCode==200){
+      if(map.isNotEmpty){
+        setState(() {
+
+          map.forEach((element) {
+            //print(element);
+            if(currentUserConvList.any((e)=>e['Members'].contains(element['Email'].toString()))){
+              finalList.add({
+                "Email":element['Email'],
+                "Name":element['VendorName']
+              });
+            }
+          });
+
+          print("Final $finalList");
+
+          chatList = finalList.toSet().toList();
+        });
+      }
+    }else{
+
+    }
+
+
+
+    try{
 
     }catch(e){
 
@@ -148,16 +179,13 @@ class _ChatsListState extends State<ChatsList> {
 
   }
 
+
   //endregion
 
-  Future<void> getChatsList() async {
+  Future<void> getHelpDeskMembers() async {
 
     var pr = await SharedPreferences.getInstance();
     List actMem = jsonDecode(pr.getString("socketActiveMembers")??"[]");
-
-    setState(() {
-      onLineMembers = actMem.where((e)=>e['type'].toString().toLowerCase()=="helpdesk c").toList();
-    });
 
     // print(onLineMembers);
 
@@ -192,9 +220,23 @@ class _ChatsListState extends State<ChatsList> {
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async {
-      getChatsList();
-      timer = Timer.periodic(Duration(seconds: 3), (timer) {
-        getChatsList();
+      //getHelpDeskMembers();
+      getConversation();
+      timer = Timer.periodic(Duration(seconds: 3), (timer) async {
+        var pr = await SharedPreferences.getInstance();
+        var getMsg = jsonDecode(pr.getString('socketMessages')??"{}");
+        var getTyping = jsonDecode(pr.getString('socketTyping')??"{}");
+        var getUsers = jsonDecode(pr.getString('socketActiveMembers')??"[]");
+
+        List user = [];
+
+        if(getUsers.isNotEmpty){
+          user = getUsers;
+        }
+
+        setState(() {
+          onLineMembers = user;
+        });
       });
     });
     super.initState();
@@ -209,52 +251,79 @@ class _ChatsListState extends State<ChatsList> {
 
     var media = MediaQuery.of(context).size;
 
+    if(searchCtrl.text.isNotEmpty){
+      setState(() {
+        filterList = chatList.where((element) => element['Email'].toString().toLowerCase().contains(searchCtrl.text.toLowerCase())||element['Name'].toString().toLowerCase().contains(searchCtrl.text.toLowerCase())).toList();
+      });
+    }else{
+      setState(() {
+        filterList = chatList;
+      });
+    }
+
     //{"_id":"6375f622ba42a4ce0746e814","Name":"karthick raja","Mobilenumber":9750877583,
     // "Email":"karthickdurai583@gmail.com","Password":"1UbQlofk8z",
     // "TypeOfUser":"Helpdesk C","Created_On":"17-11-2022 02:21 PM","Id":"CKYCUS-4","__v":0},
 
     return SafeArea(child:Scaffold(
       backgroundColor:Colors.white,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child:SafeArea(
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor:lightGrey,
+        leading: Container(
+          margin: EdgeInsets.all(12),
+          child: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
             child: Container(
-              padding: EdgeInsets.only(left: 15),
-              height: 50,
-              color:lightGrey,
-              child:Row(
-                children: [
-                  Container(
-                    // margin: const EdgeInsets.only(top: 10,bottom: 15),
-                    child: InkWell(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(7)
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.chevron_left,size: 30,color: lightPink,),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Text(
-                      'SUPPORT',
-                      style: TextStyle(
-                          color: darkBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                    ),
-                  ),
-                ],
+              height: 30,
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(7)),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.chevron_left,
+                size: 30,
+                color:lightPink,
               ),
             ),
-          )
+          ),
+        ),
+        title:
+        showAppBarField?
+        TextField(
+          controller:searchCtrl,
+          onChanged: (e){
+            setState(() {
+              searchCtrl.text;
+            });
+          },
+          decoration:InputDecoration(
+            hintText:"Search...",
+            isDense:true,
+            contentPadding:EdgeInsets.zero,
+            border:InputBorder.none,
+          ),
+        ):
+        Text(
+          "CHATS",
+          style: TextStyle(color: darkBlue, fontFamily: "Poppins", fontSize: 18),
+        ),
+        actions:[
+          showAppBarField?
+          IconButton(onPressed: (){
+            setState(() {
+              showAppBarField = !showAppBarField;
+              searchCtrl.text = "";
+            });
+          }, icon:Icon(Icons.cancel,color:Colors.pink,)):
+          IconButton(onPressed: (){
+            setState(() {
+              showAppBarField = !showAppBarField;
+            });
+          }, icon:Icon(Icons.search,color:Colors.pink,))
+        ],
       ),
       body:Container(
         height:media.height,
@@ -265,8 +334,22 @@ class _ChatsListState extends State<ChatsList> {
             fit:BoxFit.cover
           )
         ),
-        child:ListView.separated(
-          itemCount:chatList.length,
+        child:
+        filterList.isEmpty?
+        Center(
+          child:Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.chat_rounded,color:Colors.black,),
+              SizedBox(width:8,),
+              Text("NO DATA FOUND!",style: TextStyle(
+                  fontWeight:FontWeight.bold
+              ),)
+            ],
+          ),
+        ):
+        ListView.separated(
+          itemCount:filterList.length,
           shrinkWrap:true,
           physics:BouncingScrollPhysics(),
           itemBuilder:( c , i ){
@@ -274,14 +357,14 @@ class _ChatsListState extends State<ChatsList> {
               splashColor:Colors.transparent,
               onTap: (){
                 setState(() {
-                  reciverName = chatList[i]['Name'].toString();
-                  if(onLineMembers.any((element) => element['userId'].toString().toLowerCase()==chatList[i]['Email'].toString().toLowerCase())){
+                  reciverName = filterList[i]['Name'].toString();
+                  if(onLineMembers.any((element) => element['userId'].toString().toLowerCase()==filterList[i]['Email'].toString().toLowerCase())){
                     online = true;
                   }else{
                     online = false;
                   }
                 });
-                Functions().handleChatWithVendors(context, chatList[i]['Email'].toString(), chatList[i]['Name'].toString());
+                Functions().handleChatWithVendors(context, filterList[i]['Email'].toString(), filterList[i]['Name'].toString());
                 //createConversation(chatList[i]['Email'].toString());
                 //Navigator.push(context, MaterialPageRoute(builder: (builder)=>ChatScreen()));
               },
@@ -293,19 +376,25 @@ class _ChatsListState extends State<ChatsList> {
                       child:Stack(
                         children: [
                           Container(
-                            height:62,
-                            width:62,
+                            height:52,
+                            width:52,
                             decoration:BoxDecoration(
                               shape:BoxShape.circle,
-                              color:Colors.grey[400],
+                                color:Colors.pink.withOpacity(0.8),
                               border: Border.all(
                                  color:Colors.white,
                                  width:0.5
                               )
                             ),
-                            child:Icon(Icons.person ,color:Colors.white ,size:35,),
+                            child:Center(
+                              child:Text(filterList[i]['Name'].toString()[0].toUpperCase(),style:TextStyle(
+                                  fontSize:media.height*0.035,
+                                  fontWeight:FontWeight.bold,
+                                  color:Colors.white
+                              ),),
+                            ),
                           ),
-                          onLineMembers.any((element) => element['userId'].toString().toLowerCase()==chatList[i]['Email'].toString().toLowerCase())?
+                          onLineMembers.any((element) => element['userId'].toString().toLowerCase()==filterList[i]['Email'].toString().toLowerCase())?
                           Positioned(
                             bottom:3,
                             right:3,
@@ -325,8 +414,8 @@ class _ChatsListState extends State<ChatsList> {
                               bottom:3,
                               right:3,
                               child: Container(
-                                height:15,
-                                width:15,
+                                height:0,
+                                width:0,
                                 decoration:BoxDecoration(
                                     shape:BoxShape.circle,
                                     color:Colors.blueGrey,
@@ -343,13 +432,13 @@ class _ChatsListState extends State<ChatsList> {
                     Expanded(child: Column(
                       crossAxisAlignment:CrossAxisAlignment.start,
                       children: [
-                        Text("${chatList[i]['Name']}" ,style:TextStyle(
+                        Text("${filterList[i]['Name']}" ,style:TextStyle(
                           fontFamily:"Poppins",
                           color:Colors.black,
                           fontSize:16,
                           fontWeight:FontWeight.bold
                         ),),
-                        Text("${chatList[i]['Email']}" ,style:TextStyle(
+                        Text("${filterList[i]['Email']}" ,style:TextStyle(
                             fontFamily:"Poppins",
                             color:Colors.black,
                             fontSize:13,

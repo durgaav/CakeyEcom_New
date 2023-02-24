@@ -330,7 +330,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               "$receiverName",
-              style: TextStyle(color: darkBlue, fontFamily: poppins, fontWeight: FontWeight.bold),
+              style: TextStyle(color: darkBlue, fontFamily: poppins, fontWeight: FontWeight.bold,fontSize:16),
             ),
             Text(
               appBarStatus.toString(),

@@ -3,23 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>411807857704-1n3jhhqc6944b8p0shpf8i1ughrc8e8m.apps.googleusercontent.com</string>
+	<string>538159449771-eeu37fb41j006aloublhq8i5g6ilmakb.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.411807857704-1n3jhhqc6944b8p0shpf8i1ughrc8e8m</string>
+	<string>com.googleusercontent.apps.538159449771-eeu37fb41j006aloublhq8i5g6ilmakb</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>411807857704-njhle6kktjt8tr3473amke6jt1rlk9md.apps.googleusercontent.com</string>
+	<string>538159449771-mbri0v1l3ad9n8p7njkqbp4qi0kbb253.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyB53HFt6FB2pbxtCJapdB2orssZPaigsFE</string>
+	<string>AIzaSyC8XaUCdYRfpstMASgrgW2WhAfqbYKaMyA</string>
 	<key>GCM_SENDER_ID</key>
-	<string>411807857704</string>
+	<string>538159449771</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.cakey</string>
 	<key>PROJECT_ID</key>
-	<string>cakey-41c9f</string>
+	<string>cakey-352610</string>
 	<key>STORAGE_BUCKET</key>
-	<string>cakey-41c9f.appspot.com</string>
+	<string>cakey-352610.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:411807857704:ios:388fb8aa93cc02c79ac91d</string>
+	<string>1:538159449771:ios:a576a8aa75e686831e19ee</string>
 </dict>
 </plist>

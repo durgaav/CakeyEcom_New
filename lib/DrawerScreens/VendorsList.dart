@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/screens/ChatsList.dart';
 import 'package:cakey/screens/SingleVendor.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -451,6 +452,13 @@ class _VendorsListState extends State<VendorsList> {
       },
       child: Scaffold(
           key: _scaffoldKey,
+          floatingActionButton:FloatingActionButton(
+            onPressed:(){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList(routeName:"vendor",)));
+            },
+            backgroundColor:lightPink,
+            child:Icon(Icons.chat,color:Colors.white,),
+          ),
           drawer: NavDrawer(screenName: "vendor",),
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(50),

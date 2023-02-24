@@ -424,7 +424,24 @@ class _NavDrawerState extends State<NavDrawer> {
             ListTile(
               onTap: (){
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList(routeName:"vendor",)));
+              },
+              leading: CircleAvatar(
+                backgroundColor: Colors.red[50],
+                child: Icon(Icons.chat,color:lightPink,),
+              ),
+              title: Container(
+                width: 180,
+                child: Text('Chats',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: darkBlue,fontFamily: "Poppins",fontSize: 16),
+                ),
+              ),
+            ),
+            ListTile(
+              onTap: (){
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatsList(routeName:"support",)));
               },
               leading: CircleAvatar(
                 backgroundColor: Colors.red[50],

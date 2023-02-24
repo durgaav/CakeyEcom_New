@@ -2168,7 +2168,9 @@ class _HomeScreenState extends State<HomeScreen> {
             "type":"Customer",
             "_id":userID,
             "Name":userName,
-            "Id":body[0]['Id'].toString()
+            "Id":body[0]['Id'].toString(),
+            //"chatWith":"suganya@gma",
+            //"token":"gfhgsd",
           });
 
         });
