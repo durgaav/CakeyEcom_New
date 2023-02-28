@@ -44,10 +44,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   List messageList = [];
   late Timer timer;
+  List currentUserConvList = [];
 
   ScrollController _scrollController = ScrollController();
 
-
+  String typeOfReceiver = "Vendor";
 
   //region LOGICS ***
 
@@ -157,7 +158,8 @@ class _ChatScreenState extends State<ChatScreen> {
         "Sent_By_Id":"${int.parse(phone.toString().replaceAll("+", ""))}",
         "receiverId":reciverId,
         "Message": msg.toString(),
-        "Created_By":"${int.parse(phone.toString().replaceAll("+", ""))}"
+        "Created_By":"${int.parse(phone.toString().replaceAll("+", ""))}",
+        //"TypeOfUser":""
       });
 
       setState(() {
@@ -184,8 +186,77 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
-  //endregion
+  Future updateChatWith(String chatWith) async {
 
+    var pr = await SharedPreferences.getInstance();
+    var phone = pr.getString("phoneNumber")??'';
+
+    try{
+
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('PUT', Uri.parse('${API_URL}api/chatWith/update'));
+      request.body = json.encode({
+        "TypeOfUser": "User",
+        "ChatWith":chatWith,
+        "Sender":"${int.parse(phone.toString().replaceAll("+", ""))}",
+        "Conersation_Id":conversationId.toString()
+      });
+      request.headers.addAll(headers);
+
+      print(request.body);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        print(await response.stream.bytesToString());
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+
+    }catch(Ex){
+      print("EX... $Ex");
+    }
+  }
+
+  Future<void> getConversation() async {
+
+    //MyDialogs().showTheLoader(context);
+
+    var pr = await SharedPreferences.getInstance();
+    var phone = pr.getString("phoneNumber")??'';
+    var tok = pr.getString("authToken")??'';
+
+    try{
+
+      http.Response response = await http.get(
+        Uri.parse("${API_URL}api/conv/byId/${int.parse(phone.toString().replaceAll("+", ""))}"),
+        headers: {"Authorization": "$tok"},
+      );
+
+      print(response.body);
+
+      var data = jsonDecode(response.body);
+
+      if(response.statusCode==200){
+        setState(() {
+          currentUserConvList = data;
+        });
+        //Navigator.pop(context);
+      }else{
+        //Navigator.pop(context);
+      }
+
+
+    }catch(e){
+      //Navigator.pop(context);
+    }
+
+  }
+
+  //endregion
 
   @override
   void initState() {
@@ -194,6 +265,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'autoConnect': true,
       'transports': ['websocket'],
     });
+    getConversation();
 
     timer = Timer.periodic(Duration(seconds:2), (timer) async{
 
@@ -266,6 +338,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     Future.delayed(Duration.zero , () async {
+      updateChatWith(reciverId);
       getChatConversations();
     });
 
@@ -296,6 +369,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     // TODO: implement dispose
     timer.cancel();
+    Future.delayed(Duration.zero , () async {
+      updateChatWith("null");
+    });
     super.dispose();
   }
 
@@ -304,40 +380,40 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: lightGrey,
-        leading: Container(
-          margin: EdgeInsets.all(12),
-          child: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 30,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(7)),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.chevron_left,
-                size: 30,
-                color: lightPink,
+          backgroundColor: lightGrey,
+          leading: Container(
+            margin: EdgeInsets.all(12),
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                height: 30,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(7)),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.chevron_left,
+                  size: 30,
+                  color: lightPink,
+                ),
               ),
             ),
           ),
-        ),
-        title:Column(
-          crossAxisAlignment:CrossAxisAlignment.start,
-          children: [
-            Text(
-              "$receiverName",
-              style: TextStyle(color: darkBlue, fontFamily: poppins, fontWeight: FontWeight.bold,fontSize:16),
-            ),
-            Text(
-              appBarStatus.toString(),
-              style: TextStyle(color:lightPink, fontFamily: poppins, fontSize: 13),
-            ),
-          ],
-        )
+          title:Column(
+            crossAxisAlignment:CrossAxisAlignment.start,
+            children: [
+              Text(
+                "$receiverName",
+                style: TextStyle(color: darkBlue, fontFamily: poppins, fontWeight: FontWeight.bold,fontSize:16),
+              ),
+              Text(
+                appBarStatus.toString(),
+                style: TextStyle(color:lightPink, fontFamily: poppins, fontSize: 13),
+              ),
+            ],
+          )
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -357,51 +433,51 @@ class _ChatScreenState extends State<ChatScreen> {
                 thickness:1.5,
                 thumbVisibility: true,
                 child: ListView.builder(
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: messageList.length,
-                      padding: EdgeInsets.only(bottom: 60),
-                      itemBuilder: (c, i) {
-                        return Container(
-                          padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
-                          child: Align(
-                            alignment: (messageList[i]['Sent_By_Id']==reciverId?Alignment.topLeft:Alignment.topRight),
-                            child: Container(
-                              constraints: BoxConstraints(
-                                  maxWidth:MediaQuery.of(context).size.width*0.6
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    itemCount: messageList.length,
+                    padding: EdgeInsets.only(bottom: 60),
+                    itemBuilder: (c, i) {
+                      return Container(
+                        padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
+                        child: Align(
+                          alignment: (messageList[i]['Sent_By_Id']==reciverId?Alignment.topLeft:Alignment.topRight),
+                          child: Container(
+                            constraints: BoxConstraints(
+                                maxWidth:MediaQuery.of(context).size.width*0.6
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius:
+                              messageList[i]['Sent_By_Id']==reciverId?
+                              BorderRadius.only(
+                                topRight:Radius.circular(15),
+                                bottomLeft:Radius.circular(15),
+                                bottomRight:Radius.circular(15),
+                              ):
+                              BorderRadius.only(
+                                topLeft:Radius.circular(15),
+                                bottomLeft:Radius.circular(15),
+                                bottomRight:Radius.circular(15),
                               ),
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                messageList[i]['Sent_By_Id']==reciverId?
-                                BorderRadius.only(
-                                  topRight:Radius.circular(15),
-                                  bottomLeft:Radius.circular(15),
-                                  bottomRight:Radius.circular(15),
-                                ):
-                                BorderRadius.only(
-                                  topLeft:Radius.circular(15),
-                                  bottomLeft:Radius.circular(15),
-                                  bottomRight:Radius.circular(15),
-                                ),
-                                color: (messageList[i]['Sent_By_Id']==reciverId?Colors.grey.shade200:Colors.red[50]),
-                              ),
-                              padding: EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: messageList[i]['Sent_By_Id']==reciverId?CrossAxisAlignment.start:CrossAxisAlignment.end,
-                                children: [
-                                  Text(messageList[i]['Message'].toString(),
-                                    textAlign: messageList[i]['Sent_By_Id']==reciverId?TextAlign.left:TextAlign.right,
-                                    style: TextStyle(fontSize: 14 , fontFamily: poppins),),
-                                  SizedBox(height: 4,),
-                                  Text(messageList[i]['Created_On'], style: TextStyle(fontSize: 10 , fontFamily: poppins),),
-                                ],
-                              ),
+                              color: (messageList[i]['Sent_By_Id']==reciverId?Colors.grey.shade200:Colors.red[50]),
+                            ),
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: messageList[i]['Sent_By_Id']==reciverId?CrossAxisAlignment.start:CrossAxisAlignment.end,
+                              children: [
+                                Text(messageList[i]['Message'].toString(),
+                                  textAlign: messageList[i]['Sent_By_Id']==reciverId?TextAlign.left:TextAlign.right,
+                                  style: TextStyle(fontSize: 14 , fontFamily: poppins),),
+                                SizedBox(height: 4,),
+                                Text(messageList[i]['Created_On'], style: TextStyle(fontSize: 10 , fontFamily: poppins),),
+                              ],
                             ),
                           ),
-                        );
+                        ),
+                      );
 
 
-                      }),
+                    }),
               ),
             ),
 
@@ -417,44 +493,44 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Container(
                           padding:EdgeInsets.symmetric(vertical:5),
                           decoration:BoxDecoration(
-                            borderRadius:BorderRadius.circular(20),
-                            color:Colors.white,
-                            border:Border.all(
-                              color:Colors.grey[300]!,
-                              width:1
-                            )
+                              borderRadius:BorderRadius.circular(20),
+                              color:Colors.white,
+                              border:Border.all(
+                                  color:Colors.grey[300]!,
+                                  width:1
+                              )
                           ),
                           child: TextField(
-                      decoration: InputDecoration(
-                            hintText: "Type message...",
-                            hintStyle: TextStyle(fontFamily: poppins, fontSize: 14),
-                            border: OutlineInputBorder(borderSide: BorderSide.none),
-                            isDense: true,
-                            contentPadding: EdgeInsets.all(10)),
-                      controller: messageCtrl,
-                      onChanged:(e){
-                          setState(() {
-                            messageCtrl.text;
-                          });
-                          if(e.isNotEmpty){
-                            socket.emit("isTyping",
-                                {
-                                  "Sent_By_Id":currentUserId,
-                                  "receiverId":reciverId,
-                                  "typing": true,
-                                }
-                            );
-                          }else{
-                            socket.emit("isTyping",
-                                {
-                                  "Sent_By_Id":currentUserId,
-                                  "receiverId":reciverId,
-                                  "typing": false,
-                                }
-                            );
-                          }
-                      },
-                    ),
+                            decoration: InputDecoration(
+                                hintText: "Type message...",
+                                hintStyle: TextStyle(fontFamily: poppins, fontSize: 14),
+                                border: OutlineInputBorder(borderSide: BorderSide.none),
+                                isDense: true,
+                                contentPadding: EdgeInsets.all(10)),
+                            controller: messageCtrl,
+                            onChanged:(e){
+                              setState(() {
+                                messageCtrl.text;
+                              });
+                              if(e.isNotEmpty){
+                                socket.emit("isTyping",
+                                    {
+                                      "Sent_By_Id":currentUserId,
+                                      "receiverId":reciverId,
+                                      "typing": true,
+                                    }
+                                );
+                              }else{
+                                socket.emit("isTyping",
+                                    {
+                                      "Sent_By_Id":currentUserId,
+                                      "receiverId":reciverId,
+                                      "typing": false,
+                                    }
+                                );
+                              }
+                            },
+                          ),
                         )),
                     SizedBox(width:5 ,),
                     GestureDetector(
@@ -468,8 +544,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         width:50,
                         alignment:Alignment.center,
                         decoration:BoxDecoration(
-                          shape:BoxShape.circle,
-                          color:messageCtrl.text.isNotEmpty?lightPink:Colors.grey[400]
+                            shape:BoxShape.circle,
+                            color:messageCtrl.text.isNotEmpty?lightPink:Colors.grey[400]
                         ),
                         child: Icon(
                           Icons.send,
@@ -485,35 +561,35 @@ class _ChatScreenState extends State<ChatScreen> {
 
             topReached?
             Positioned(
-             top:5,
-             child: GestureDetector(
-               onTap: (){
-                 setState(() {
-                   paginateNumber = paginateNumber + 10;
-                 });
-                 getChatConversations(true);
-               },
-               child: Container(
-                alignment:Alignment.center,
-                padding: EdgeInsets.symmetric(
-                  vertical:10,
-                  horizontal:10
-                ),
-                decoration:BoxDecoration(
-                  color:Colors.pink,
-                  border:Border.all(
-                    width:0.5,
-                    color:Colors.white
+                top:5,
+                child: GestureDetector(
+                  onTap: (){
+                    setState(() {
+                      paginateNumber = paginateNumber + 10;
+                    });
+                    getChatConversations(true);
+                  },
+                  child: Container(
+                    alignment:Alignment.center,
+                    padding: EdgeInsets.symmetric(
+                        vertical:10,
+                        horizontal:10
+                    ),
+                    decoration:BoxDecoration(
+                        color:Colors.pink,
+                        border:Border.all(
+                            width:0.5,
+                            color:Colors.white
+                        ),
+                        borderRadius:BorderRadius.circular(5)
+                    ),
+                    child:Text("Load Old Messages...",style:TextStyle(
+                        color:Colors.white,
+                        fontFamily:"Poppins",
+                        fontSize:12
+                    ),),
                   ),
-                  borderRadius:BorderRadius.circular(5)
-                ),
-                child:Text("Load Old Messages...",style:TextStyle(
-                  color:Colors.white,
-                  fontFamily:"Poppins",
-                  fontSize:12
-                ),),
-            ),
-             )):Positioned(child: Container(height:0,width:0,))
+                )):Positioned(child: Container(height:0,width:0,))
           ],
         ),
       ),

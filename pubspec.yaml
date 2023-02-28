@@ -46,7 +46,7 @@ dependencies:
   file_picker: ^3.0.0
   flutter_local_notifications: ^9.5.3+1
   firebase_messaging: ^11.2.11
-  firebase_analytics: ^8.3.4
+  ##firebase_analytics: ^8.3.4
   freshchat_sdk: ^0.10.2
   mime:
 #  location:

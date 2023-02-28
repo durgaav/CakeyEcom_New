@@ -6,6 +6,7 @@ import 'package:cakey/DrawerScreens/Notifications.dart';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/drawermenu/app_bar.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/screens/ChatScreen.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -71,6 +72,8 @@ class _MyAppState extends State<MyApp> {
    IO.Socket socket;
    Timer timer;
    int tempLength = 0;
+
+   var notificationData = {};
 
   //region SOCKETS ***
 
@@ -199,10 +202,25 @@ class _MyAppState extends State<MyApp> {
       });
       print(event.notification.body);
       print(event.data);
-      NotificationService().showNotifications(event.notification.title, event.notification.body);
+      notificationData = event.data;
+      if(notificationData['Consersation_Id']!=null){
+        //{Consersation_Id: 63ec83bdd44b9a8b889e5a26, Sent_By_Id: kkvsv31@gmail.com}
+        NotificationService().showNotifications(event.notification.title, event.notification.body,"chat",notificationData);
+      }else{
+        NotificationService().showNotifications(event.notification.title, event.notification.body);
+      }
+
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      Navigator.push(navigatorKey.currentState.context, MaterialPageRoute(builder:(context)=>Notifications()));
+      print("FB MESSAGE >>> $message");
+      if(notificationData['Consersation_Id']!=null){
+        //{Consersation_Id: 63ec83bdd44b9a8b889e5a26, Sent_By_Id: kkvsv31@gmail.com}
+        Navigator.push(navigatorKey.currentState.context,MaterialPageRoute(builder: (builder)=>ChatScreen(
+          notificationData['Sent_By_Id'] , notificationData['Consersation_Id'] , notificationData['Sent_By_Id'] , online: true,
+        )));
+      }else{
+        Navigator.push(navigatorKey.currentState.context, MaterialPageRoute(builder:(context)=>Notifications()));
+      }
     });
     super.initState();
   }

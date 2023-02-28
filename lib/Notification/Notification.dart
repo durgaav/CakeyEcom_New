@@ -1,5 +1,6 @@
 import 'package:cakey/DrawerScreens/Notifications.dart';
 import 'package:cakey/main.dart';
+import 'package:cakey/screens/ChatScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,6 +14,7 @@ class NotificationService {
     return _notificationService;
   }
   NotificationService._internal();
+  var notificationData = {};
 
   //instance of FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -43,16 +45,22 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onSelectNotification:(payload){
-        Navigator.push(
-          navigatorKey.currentState!.context,
-          MaterialPageRoute(builder: (context)=>Notifications())
-        );
+
+        if(payload.toString().toLowerCase()=="chat"){
+          Navigator.push(navigatorKey.currentState!.context,MaterialPageRoute(builder: (builder)=>ChatScreen(
+            notificationData['Sent_By_Id'] , notificationData['Consersation_Id'] , notificationData['Sent_By_Id'] , online: true,
+          )));
+        }else{
+          Navigator.push(
+              navigatorKey.currentState!.context,
+              MaterialPageRoute(builder: (context)=>Notifications())
+          );
+        }
       }
     );
   }
 
-  AndroidNotificationDetails _androidNotificationDetails =
-  AndroidNotificationDetails(
+  AndroidNotificationDetails _androidNotificationDetails = AndroidNotificationDetails(
     'channel ID',
     'channel name',
     // 'channel description',
@@ -61,7 +69,12 @@ class NotificationService {
     importance: Importance.high,
   );
 
-  Future<void> showNotifications(String title , String description) async {
+  Future<void> showNotifications(String title , String description,[String payload="null",var data]) async {
+
+    if(data!=null){
+      notificationData = data;
+    }
+
     NotificationDetails platformChannelSpecifics =
     NotificationDetails(
         android: _androidNotificationDetails,
@@ -73,7 +86,7 @@ class NotificationService {
       '$title',
       '$description',
       platformChannelSpecifics,
-      payload: 'Notification Payload',
+      payload:payload,
     );
 
   }
