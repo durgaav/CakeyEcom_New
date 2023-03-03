@@ -49,9 +49,10 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController _scrollController = ScrollController();
 
   String typeOfReceiver = "Vendor";
+  List helpDeskMemList = [];
+  List vendors = [];
 
   //region LOGICS ***
-
 
   _scrollToBottom() {
     setState(() {
@@ -75,8 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     MyDialogs().showTheLoader(context);
 
-    print("$conversationId");
-    print("$reciverId");
+
 
     try{
 
@@ -91,7 +91,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
       var data = jsonDecode(await response.stream.bytesToString());
 
-      print("messages : $data");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -150,7 +149,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
     var pr = await SharedPreferences.getInstance();
     var phone = pr.getString("phoneNumber")??'';
+    String route = "";
 
+    if(vendors.isNotEmpty){
+      route = "vendors";
+    }else if(helpDeskMemList.isNotEmpty){
+      route = "support";
+    }
+    print(route);
     try{
 
       socket.emit("sendMessage",{
@@ -159,7 +165,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "receiverId":reciverId,
         "Message": msg.toString(),
         "Created_By":"${int.parse(phone.toString().replaceAll("+", ""))}",
-        //"TypeOfUser":""
+        "TypeOfUser":route.toLowerCase()=="support"?"Helpdesk C":"Vendor"
       });
 
       setState(() {
@@ -205,7 +211,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       request.headers.addAll(headers);
 
-      print(request.body);
 
       http.StreamedResponse response = await request.send();
 
@@ -236,7 +241,6 @@ class _ChatScreenState extends State<ChatScreen> {
         headers: {"Authorization": "$tok"},
       );
 
-      print(response.body);
 
       var data = jsonDecode(response.body);
 
@@ -256,6 +260,54 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
+  Future getVendorsList() async {
+
+    var pr = await SharedPreferences.getInstance();
+    var phone = pr.getString("phoneNumber")??'';
+    var tok = pr.getString("authToken")??'';
+
+    try{
+
+      http.Response response = await http.get(Uri.parse("${API_URL}api/vendors/list"),
+          headers:{'Authorization': '$tok'}
+      );
+
+      List map = jsonDecode(response.body);
+
+      vendors = map.where((element) => element['Email']==reciverId).toList();
+      print("Vendor Length : ${vendors.length}");
+
+    }catch(e){
+
+    }
+
+  }
+
+  Future getHelpDeskMembers() async {
+
+    try {
+      http.Response response = await http.get(Uri.parse("${API_URL}api/internalUsers/helpdeskC/list"),);
+
+      //print(response.body);
+
+      var map = jsonDecode(response.body);
+
+      if(map['result']!=null && map['result'].isNotEmpty){
+        setState(() {
+          helpDeskMemList = map['result'];
+        });
+      }
+
+      print("Help Members -> $helpDeskMemList");
+
+      helpDeskMemList = helpDeskMemList.where((element) => element['Email']==reciverId).toList();
+      print("Members Length : ${helpDeskMemList.length}");
+
+    }catch(e){
+
+    }
+  }
+
   //endregion
 
   @override
@@ -265,6 +317,8 @@ class _ChatScreenState extends State<ChatScreen> {
       'autoConnect': true,
       'transports': ['websocket'],
     });
+    getVendorsList();
+    getHelpDeskMembers();
     getConversation();
 
     timer = Timer.periodic(Duration(seconds:2), (timer) async{
@@ -583,7 +637,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         borderRadius:BorderRadius.circular(5)
                     ),
-                    child:Text("Load Old Messages...",style:TextStyle(
+                    child:Text("Load More",style:TextStyle(
                         color:Colors.white,
                         fontFamily:"Poppins",
                         fontSize:12

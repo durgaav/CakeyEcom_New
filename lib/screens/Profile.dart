@@ -206,7 +206,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         userID = value['_id'];
         //userModId = value['Id'];
         userNameCtrl.text = value['UserName'];
-        phoneNumCtrl.text = "+"+value['PhoneNumber'].toString();
+        phoneNumCtrl.text = subStringSplit(value['PhoneNumber'].toString());
         userAddrCtrl.text = value['Address'];
         pinCodeCtrl.text = value['Pincode'];
         userProfileUrl = value['ProfileImage'].toString();
@@ -223,6 +223,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         context.read<ContextData>().setFirstUser(true);
       }
     });
+  }
+  String subStringSplit(String given){
+    String firstSet = given[2]+given[3]+given[4]+given[5]+given[6];
+    String secondSet = given[7]+given[8]+given[9]+given[10]+given[11];
+    return "+91 $firstSet $secondSet";
   }
 
   //On destroy

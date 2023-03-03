@@ -30,6 +30,7 @@ class _ChatsListState extends State<ChatsList> {
   bool online = false;
   bool showAppBarField = false;
   var searchCtrl = TextEditingController();
+  String phone = "";
 
   //region LOGICS ***
   
@@ -153,9 +154,11 @@ class _ChatsListState extends State<ChatsList> {
           map.forEach((element) {
             //print(element);
             if(currentUserConvList.any((e)=>e['Members'].contains(element['Email'].toString()))){
+              int index = currentUserConvList.indexWhere((ele)=>ele['Members'].contains(element['Email'].toString()));
               finalList.add({
                 "Email":element['Email'],
-                "Name":element['VendorName']
+                "Name":element['VendorName'],
+                "Unseen_Count":currentUserConvList[index]['Unseen_Count']
               });
             }
           });
@@ -203,6 +206,8 @@ class _ChatsListState extends State<ChatsList> {
         });
       }
 
+      print(chatList);
+
     }catch(e){
 
     }
@@ -220,6 +225,9 @@ class _ChatsListState extends State<ChatsList> {
   void initState() {
     // TODO: implement initState
     Future.delayed(Duration.zero , () async {
+      var pr = await SharedPreferences.getInstance();
+      phone = pr.getString('phoneNumber')??'';
+      print("Phone $phone");
       //getHelpDeskMembers();
       getConversation();
       timer = Timer.periodic(Duration(seconds: 2), (timer) async {
@@ -355,7 +363,11 @@ class _ChatsListState extends State<ChatsList> {
           itemBuilder:( c , i ){
             return InkWell(
               splashColor:Colors.transparent,
-              onTap: (){
+              onTap: () async {
+
+                var prf = await SharedPreferences.getInstance();
+                prf.setString('routeName', routeName);
+
                 setState(() {
                   reciverName = filterList[i]['Name'].toString();
                   if(onLineMembers.any((element) => element['userId'].toString().toLowerCase()==filterList[i]['Email'].toString().toLowerCase())){
@@ -445,6 +457,29 @@ class _ChatsListState extends State<ChatsList> {
                         ),),
                       ],
                     )),
+                    // tempList.isNotEmpty?
+                    // Center(
+                    //   child:Container(
+                    //     height:27,
+                    //     width:27,
+                    //     alignment:Alignment.center,
+                    //     decoration:BoxDecoration(
+                    //       shape:BoxShape.circle,
+                    //       color:Colors.greenAccent,
+                    //     ),
+                    //     child:
+                    //     int.parse(tempList[0]['Count'].toString())>99?
+                    //     Text("99+",style:TextStyle(
+                    //       color:Colors.black,
+                    //       fontSize:12.5,
+                    //       fontWeight:FontWeight.bold
+                    //     ),):Text("${tempList[0]['Count']}",style:TextStyle(
+                    //         color:Colors.black,
+                    //         fontSize:12.5,
+                    //         fontWeight:FontWeight.bold
+                    //     ),),
+                    //   ),
+                    // ):SizedBox(),
                   ],
                 ),
               ),

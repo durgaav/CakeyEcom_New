@@ -80,7 +80,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   var articals = [];
   int articGroupVal = -1;
 
-  int selVendorIndex = 0;
+  int selVendorIndex = -1;
 
   //String family
   String poppins = "Poppins";
@@ -140,7 +140,7 @@ class _CustomiseCakeState extends State<CustomiseCake> {
   ];
 
   var cakeTowers = ["2","3","5","8"];
-  int currentIndex = 0;
+  int currentIndex = -1;
 
   List<bool> selwIndex = [];
   List<bool> selCakeTower = [];
@@ -3891,7 +3891,9 @@ class _CustomiseCakeState extends State<CustomiseCake> {
                                       Functions().showSnackMsg(context,"Delivery address is too far , select nearest delivery address",true);
                                     }
                                     else {
-                                      if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
+                                      if(currentIndex == -1){
+                                        Functions().showSnackMsg(context,"Please select category",true);
+                                      }else if(weightCtrl.text=="0"||weightCtrl.text=="0.0"||
                                           weightCtrl.text.startsWith("0")&&
                                               weightCtrl.text.endsWith("0")){
                                         Functions().showSnackMsg(context,"Please enter correct weight or select weight!",true);
