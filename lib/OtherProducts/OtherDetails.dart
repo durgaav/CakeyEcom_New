@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cakey/OtherProducts/OtherCheckout.dart';
 import 'package:cakey/ProfileDialog.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
@@ -2438,8 +2439,8 @@ class _OthersDetailsState extends State<OthersDetails> {
                                                       shape: BoxShape.circle,
                                                       color: Colors.grey[200]),
                                                   child: const Icon(
-                                                    Icons.whatsapp_rounded,
-                                                    color: Colors.green,
+                                                    Icons.chat,
+                                                    color: Colors.pink,
                                                   ),
                                                 ),
                                               ),
@@ -2468,9 +2469,7 @@ class _OthersDetailsState extends State<OthersDetails> {
                       width: 200,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(25)),
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)),
+                      child: CustomRaisedButton(
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
                           if(firstUser == true){

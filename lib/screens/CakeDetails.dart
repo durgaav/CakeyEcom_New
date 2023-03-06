@@ -5,6 +5,7 @@ import 'package:cakey/Dialogs.dart';
 import 'package:cakey/DrawerScreens/VendorsList.dart';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/OrderConfirm.dart';
 import 'package:cakey/screens/SingleVendor.dart';
@@ -475,10 +476,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       margin: EdgeInsets.all(15),
                       height: 45,
                       width: 120,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                      child: CustomRaisedButton(
                         color: lightPink,
                         onPressed: () {
                           setState(() {
@@ -655,10 +653,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       margin: EdgeInsets.all(15),
                       height: 45,
                       width: 120,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                      child: CustomRaisedButton(
                         color: lightPink,
                         onPressed: () {
                           Navigator.pop(context);
@@ -821,10 +816,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                         margin: EdgeInsets.all(15),
                         height: 45,
                         width: 120,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                        child: CustomRaisedButton(
                           color: lightPink,
                           onPressed: () {
                             setState(() {
@@ -910,93 +902,6 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
     });
   }
 
-  //Show eggless flav sheet
-  void showEgglessSheet(){
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-          )
-        ),
-        context: context,
-        builder: (c)=> Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              //header
-              Container(
-                padding: EdgeInsets.all(7),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Egg/Eggless",style: TextStyle(fontFamily: 'Poppins',
-                        color: darkBlue,fontWeight: FontWeight.bold, fontSize: 18),),
-                    IconButton(
-                        onPressed: ()=>Navigator.pop(context),
-                        icon: Icon(Icons.close)
-                    )
-                  ],
-                ),
-              ),
-
-              //body
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  cakeEgglessAvail.toLowerCase()=='y'?
-                  "This cake is also available in Eggless version do you want to try this?\n*addtional cost may apply.\n*Change egg or eggless option in top of screen.":
-                  "This cake is not available in Eggless version :(\n*Change egg or eggless option in top of screen",
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    color: Colors.black,
-                    fontSize: 13
-                  ),
-                ),
-              ),
-
-              //eggless buttons
-              Container(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(child: RaisedButton(
-                      child: Text('Show in Egg',style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.white,
-                          fontSize: 13
-                      ),),
-                      onPressed: ()=>applyEggCake(),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13)
-                      ),
-                      color: lightPink,
-                    )),
-                    SizedBox(width: 10,),
-                    cakeEgglessAvail.toLowerCase()=='y'?
-                    Expanded(child: RaisedButton(
-                      child: Text('Show in Eggless',style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.white,
-                          fontSize: 13
-                      ),),
-                      onPressed: ()=>applyEgglessCake(),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(13)
-                      ),
-                      color: lightPink,
-                    )):Container()
-                  ],
-                ),
-              ),
-
-            ],
-          ),
-        )
-    );
-  }
-
   //apply egg cake
   void applyEggCake(){
 
@@ -1078,9 +983,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                       Container(
                         height: 25,
                         width: 80,
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
+                        child: CustomRaisedButton(
                           color: lightPink,
                           onPressed: () {
                             Navigator.of(context).push(
@@ -4333,8 +4236,8 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                                                                     width: 30,
                                                                                     decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.grey[200]),
                                                                                     child: const Icon(
-                                                                                      Icons.whatsapp_rounded,
-                                                                                      color: Colors.green,
+                                                                                      Icons.chat,
+                                                                                      color: Colors.pink,
                                                                                       size: 18,
                                                                                     ),
                                                                                   ),
@@ -4787,11 +4690,7 @@ class _CakeDetailsState extends State<CakeDetails> with WidgetsBindingObserver{
                                     width: 200,
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(25)),
-                                    child: RaisedButton(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(25)
-                                      ),
+                                    child: CustomRaisedButton(
                                       onPressed: () async {
                                         FocusScope.of(context).unfocus();
                                         if (newRegUser == true) {

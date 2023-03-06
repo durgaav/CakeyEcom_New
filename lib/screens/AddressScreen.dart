@@ -1,4 +1,5 @@
 import 'package:cakey/ContextData.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -250,68 +251,69 @@ class _AddressScreenState extends State<AddressScreen> {
               SizedBox(height: 10,),
               Align(
                 alignment: Alignment.centerRight,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)
-                  ),
-                  onPressed: () async{
-                    var pr = await SharedPreferences.getInstance();
-                    FocusScope.of(context).unfocus();
+                child: Container(
+                  width:90,
+                  height:35,
+                  child: CustomRaisedButton(
+                    onPressed: () async{
+                      var pr = await SharedPreferences.getInstance();
+                      FocusScope.of(context).unfocus();
 
 
 
-                    if(streetCtrl.text.isEmpty||cityCtrl.text.isEmpty||distCtrl.text.isEmpty||
-                        pinCtrl.text.isEmpty||pinCtrl.text.length<6){
+                      if(streetCtrl.text.isEmpty||cityCtrl.text.isEmpty||distCtrl.text.isEmpty||
+                          pinCtrl.text.isEmpty||pinCtrl.text.length<6){
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Please Fill All Fields!"),
-                            backgroundColor: Colors.black,
-                            behavior: SnackBarBehavior.floating,
-                          )
-                      );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Please Fill All Fields!"),
+                              backgroundColor: Colors.black,
+                              behavior: SnackBarBehavior.floating,
+                            )
+                        );
 
-                    }else if(addressList.contains("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}")){
+                      }else if(addressList.contains("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}")){
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Address Already exist"),
-                            backgroundColor: Colors.black,
-                            behavior: SnackBarBehavior.floating,
-                          )
-                      );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Address Already exist"),
+                              backgroundColor: Colors.black,
+                              behavior: SnackBarBehavior.floating,
+                            )
+                        );
 
-                    }else{
+                      }else{
 
-                      // setState((){
-                      //   context.read<ContextData>().setAddress(
-                      //       "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
-                      //   );
-                      // });
+                        // setState((){
+                        //   context.read<ContextData>().setAddress(
+                        //       "${streetCtrl.text},${cityCtrl.text},${distCtrl.text},${pinCtrl.text}"
+                        //   );
+                        // });
 
-                      setState(() {
-                        addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
-                        context.read<ContextData>().setAddressList(addressList);
-                        pr.setStringList('addressList', addressList);
-                        streetCtrl.text='';
-                        cityCtrl.text='';
-                        distCtrl.text='';
-                        pinCtrl.text='';
-                        loadPref();
-                      });
+                        setState(() {
+                          addressList.add("${streetCtrl.text} ${cityCtrl.text} ${distCtrl.text} ${pinCtrl.text}");
+                          context.read<ContextData>().setAddressList(addressList);
+                          pr.setStringList('addressList', addressList);
+                          streetCtrl.text='';
+                          cityCtrl.text='';
+                          distCtrl.text='';
+                          pinCtrl.text='';
+                          loadPref();
+                        });
 
-                      // Navigator.pop(context);
-                    }
+                        // Navigator.pop(context);
+                      }
 
-                  },
-                  child: Text(
-                    "Save",
-                    style: TextStyle(
-                        fontFamily: "Poppins",
-                        color: Colors.white
+                    },
+                    child: Text(
+                      "Save",
+                      style: TextStyle(
+                          fontFamily: "Poppins",
+                          color: Colors.white
+                      ),
                     ),
+                    color: lightPink,
                   ),
-                  color: lightPink,
                 ),
               ),
 

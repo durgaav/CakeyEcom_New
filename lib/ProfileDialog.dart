@@ -1,3 +1,4 @@
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/Profile.dart';
 import 'package:flutter/material.dart';
 
@@ -76,10 +77,7 @@ class ProfileAlert{
                         decoration:BoxDecoration(
                             borderRadius: BorderRadius.circular(20)
                         ),
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)
-                          ),
+                        child: CustomRaisedButton(
                           onPressed:(){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(defindex: 0)));
                           },

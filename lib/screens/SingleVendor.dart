@@ -603,7 +603,7 @@ class _SingleVendorState extends State<SingleVendor> {
                                       shape: BoxShape.circle,
                                       color: lightGrey
                                   ),
-                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                  child:const Icon(Icons.chat,color: Colors.pink,),
                                 ),
                               ),
                               const SizedBox(width: 10,),

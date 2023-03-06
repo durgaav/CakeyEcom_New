@@ -4,6 +4,7 @@ import 'package:cakey/PaymentGateway.dart';
 import 'package:cakey/ProfileDialog.dart';
 import 'package:cakey/ShowToFarDialog.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/HamperCheckout.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -1666,8 +1667,8 @@ class _HamperDetailsState extends State<HamperDetails> {
                                                       shape: BoxShape.circle,
                                                       color: Colors.grey[200]),
                                                   child: const Icon(
-                                                    Icons.whatsapp_rounded,
-                                                    color: Colors.green,
+                                                    Icons.chat,
+                                                    color: Colors.pink,
                                                   ),
                                                 ),
                                               ),
@@ -1696,9 +1697,7 @@ class _HamperDetailsState extends State<HamperDetails> {
                             width: 200,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25)),
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25)),
+                            child: CustomRaisedButton(
                               onPressed: () async {
                                 FocusScope.of(context).unfocus();
                                 var charge = 0.0;

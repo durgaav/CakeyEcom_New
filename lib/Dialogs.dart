@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -151,16 +152,14 @@ class NetworkDialog{
                 SizedBox(height: 10,),
                 Container(
                   width: double.infinity,
-                  child: RaisedButton(
+                  height:40,
+                  child: CustomRaisedButton(
                       onPressed: ()=>Navigator.of(context).pop(),
                       child: Text("Close" , style: TextStyle(
                         color: Colors.white,
                         fontSize: 14.5,
                       ),),
                       color: Colors.pink,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)
-                      ),
                   ),
                 )
               ],

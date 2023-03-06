@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cakey/PaymentGateway.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/CheckOut.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -527,7 +528,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                                       shape: BoxShape.circle,
                                       color: Colors.white
                                   ),
-                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                  child:const Icon(Icons.chat,color: Colors.pink,),
                                 ),
                               ),
                             ],
@@ -733,10 +734,7 @@ class _OrderConfirmState extends State<OrderConfirm> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(25)
                   ),
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25)
-                    ),
+                  child: CustomRaisedButton(
                     onPressed: () async{
                       var pref = await SharedPreferences.getInstance();
                       pref.setString("orderFromCustom", "no");

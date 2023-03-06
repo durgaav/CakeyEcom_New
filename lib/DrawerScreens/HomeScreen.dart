@@ -1045,7 +1045,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     shape: BoxShape.circle,
                                     color: Colors.white
                                 ),
-                                child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
+                                child:Icon(Icons.chat,color:Colors.pink,),
                               ),
                             ),
                           ],

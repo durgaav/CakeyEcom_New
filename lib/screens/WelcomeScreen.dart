@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/PhoneVerify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -173,16 +174,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             padding: EdgeInsets.symmetric(horizontal: 20),
                             width: MediaQuery.of(context).size.width*0.6,
                             height: MediaQuery.of(context).size.height*0.07,
-                            child: RaisedButton(
-                              color:lightPink,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(35)),
+                            child:CustomRaisedButton(
                               onPressed: (){
                                 Navigator.pop(context);
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneVerify()));
                               },
-                              child: Text('DONE',style: TextStyle(fontSize: 18,color: Colors.white,),),
-                            ),
+                              child:Text('DONE',style: TextStyle(fontSize: 18,color: Colors.white,),),
+                              color:lightPink,
+                            )
                           )
                         ],
                       ),

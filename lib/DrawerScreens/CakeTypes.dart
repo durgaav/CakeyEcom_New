@@ -3676,10 +3676,7 @@ class _CakeTypesState extends State<CakeTypes> {
                                               decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   color: Colors.grey[200]),
-                                              child: const Icon(
-                                                Icons.whatsapp_rounded,
-                                                color: Colors.green,
-                                              ),
+                                              child: const Icon(Icons.chat, color: Colors.pink,),
                                             ),
                                           ),
                                         ],

@@ -6,6 +6,7 @@ import 'package:cakey/MyDialogs.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/AddressScreen.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -1158,7 +1159,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         ),
         Container(
           alignment: Alignment.centerLeft,
-          child: RaisedButton(
+          width:90,
+          height:35,
+          child: CustomRaisedButton(
             onPressed: (){
               FocusScope.of(context).unfocus();
               if(userNameCtrl.text.isEmpty||userAddrCtrl.text.isEmpty||pinCodeCtrl.text.isEmpty){
@@ -1171,9 +1174,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
             },
             color: darkBlue,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-            ),
             child: const Text('SAVE',style: const TextStyle(
                 color: Colors.white
             ),),
@@ -1664,7 +1664,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           shape: BoxShape.circle,
                                           color: Colors.white
                                       ),
-                                      child:const Icon(Icons.whatsapp_rounded,color: Color(0xff058d05),),
+                                      child: Icon(Icons.chat,color:Colors.pink,),
                                     ),
                                   ),
                                 ],

@@ -8,6 +8,7 @@ import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:cakey/drawermenu/CustomAppBars.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/coupon_codes_list.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -1358,7 +1359,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                                         shape: BoxShape.circle,
                                         color: Colors.white
                                     ),
-                                    child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                    child:const Icon(Icons.chat,color: Colors.pink,),
                                   ),
                                 ),
                               ],
@@ -1771,9 +1772,7 @@ class _OtherCheckoutState extends State<OtherCheckout> {
                     width: 200,
                     decoration:
                     BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25)),
+                    child: CustomRaisedButton(
                       onPressed: () {
                         // _handleOrder();
                         showConfirmOrder();

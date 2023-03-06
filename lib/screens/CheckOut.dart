@@ -6,6 +6,7 @@ import 'package:cakey/DrawerScreens/HomeScreen.dart';
 import 'package:cakey/Notification/Notification.dart';
 import 'package:cakey/OtherProducts/OtherDetails.dart';
 import 'package:cakey/functions.dart';
+import 'package:cakey/raised_button_utils.dart';
 import 'package:cakey/screens/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1358,7 +1359,7 @@ class _CheckOutState extends State<CheckOut> {
                               const SizedBox(width: 10,),
                               InkWell(
                                 onTap: () async{
-                                 // PhoneDialog().showPhoneDialog(context, vendorPhone1, vendorPhone2 , true);
+
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -1368,7 +1369,7 @@ class _CheckOutState extends State<CheckOut> {
                                       shape: BoxShape.circle,
                                       color: Colors.white
                                   ),
-                                  child:const Icon(Icons.whatsapp_rounded,color: Colors.green,),
+                                  child:const Icon(Icons.chat,color: Colors.pink,),
                                 ),
                               ),
                             ],
@@ -1927,9 +1928,7 @@ class _CheckOutState extends State<CheckOut> {
                   width: 200,
                   decoration:
                   BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25)),
+                  child: CustomRaisedButton(
                     onPressed: () {
                       // _handleOrder();
                       showConfirmOrder();
