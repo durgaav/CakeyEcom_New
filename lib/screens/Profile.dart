@@ -225,9 +225,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     });
   }
   String subStringSplit(String given){
-    String firstSet = given[2]+given[3]+given[4]+given[5]+given[6];
+    String firstSet = given[0]+given[1]+" "+given[2]+given[3]+given[4]+given[5]+given[6];
     String secondSet = given[7]+given[8]+given[9]+given[10]+given[11];
-    return "+91 $firstSet $secondSet";
+    return "+$firstSet $secondSet";
   }
 
   //On destroy
